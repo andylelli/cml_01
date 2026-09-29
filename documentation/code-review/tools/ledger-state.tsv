@@ -12,7 +12,7 @@ A9W-10	CR-23	todo
 A9W-11	CR-31	todo		
 A9W-12	CR-09	todo		
 A9W-13	CR-22	todo		
-A9W-14	CR-08	todo		
+A9W-14	CR-08	done	3295ad4e 5662ca4c 094de134	unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only)
 A9W-15	CR-03	done	1374e38e	ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI
 A9W-16	CR-31	todo		
 A9W-17	CR-34	todo		
@@ -44,7 +44,7 @@ A9G-08	CR-22	todo
 A9G-09	CR-17	todo		
 A9G-10	CR-26	todo		
 A9G-11	CR-16	todo		
-A9G-12	CR-08	todo		
+A9G-12	CR-08	done	3295ad4e 5662ca4c 094de134	imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split)
 A9G-13	CR-30	todo		
 A9G-14	CR-13	todo		
 A9G-15	CR-11	todo		
@@ -61,7 +61,7 @@ A9G-D08	CR-29	todo
 A9G-D09	CR-19	todo		
 A9G-D10	CR-26	todo		
 A9G-D11	CR-10	todo		
-A9G-D12	CR-08	todo		
+A9G-D12	CR-08	done	bf3fefc9	BOMs and mojibake removed
 A9G-Q01	CR-30	todo		
 A9G-Q02	CR-17	todo		
 A9G-Q03	CR-11	todo		
@@ -83,7 +83,7 @@ A9P-12	CR-28	todo
 A9P-13	CR-13	todo		
 A9P-14	CR-22	todo		
 A9P-15	CR-30	todo		
-A9P-16	CR-08	todo		
+A9P-16	CR-08	done	3295ad4e bf3fefc9	unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split
 A9P-D01	CR-07	todo		
 A9P-D02	CR-28	todo		
 A9P-D03	CR-07	dup		= A9W-D03 (cml.CAST)
@@ -114,7 +114,7 @@ A9V-09	CR-31	todo
 A9V-10	CR-31	todo		
 A9V-11	CR-27	todo		
 A9V-12	CR-15	todo		
-A9V-13	CR-08	todo		
+A9V-13	CR-08	done	3295ad4e 094de134	mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param
 A9V-14	CR-20	todo		
 A9V-15		withdrawn		CPU is not a lever (README §3); ~2 s per run
 A9V-16	CR-10	todo		
@@ -147,7 +147,7 @@ A9R-07	CR-33	todo
 A9R-08	CR-29	todo		
 A9R-09	CR-12	todo		
 A9R-10	CR-32	todo		
-A9R-11	CR-08	todo		
+A9R-11	CR-08	done	094de134	hasRepetitionRewriteRegression delegates to the reason fn; ClueRegenPassResult alias gone. runClearanceRegenPass and ProseDefectKind members belong to the regen registry (CR-23); applyClearancePatch param is v1 generate.ts (bug-fix-only)
 A9R-12	CR-31	todo		
 A9R-13	CR-13	todo		
 A9R-14	CR-28	todo		
@@ -178,7 +178,7 @@ A5-09	CR-27	todo
 A5-10	CR-28	todo		
 A5-11	CR-29	todo		
 A5-12	CR-25	todo		
-A5-13	CR-08	todo		
+A5-13	CR-08	done	5662ca4c 094de134	WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16)
 A5-14	CR-31	todo		
 A5-15	CR-16	todo		
 A5-16	CR-28	todo		
@@ -204,7 +204,7 @@ A6-01	CR-25	todo
 A6-02	CR-29	todo		
 A6-03	CR-29	todo		
 A6-04	CR-16	todo		
-A6-05	CR-08	todo		
+A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
 A6-06	CR-25	todo		
 A6-07	CR-12	todo		
 A6-08	CR-31	todo		
@@ -213,7 +213,7 @@ A6-10	CR-13	todo
 A6-11	CR-27	todo		
 A6-12	CR-25	todo		
 A6-13	CR-25	todo		
-A6-14	CR-08	todo		
+A6-14	CR-08	done	3295ad4e 094de134 3d63527f	Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign)
 A6-15	CR-33	todo		
 A6-16	CR-34	todo		
 A6-17	CR-28	todo		
@@ -273,7 +273,7 @@ A34-09	CR-29	todo
 A34-10	CR-16	todo		
 A34-11	CR-18	todo		
 A34-12	CR-24	todo		
-A34-13	CR-08	todo		
+A34-13	CR-08	done	094de134	gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split
 A34-14	CR-28	todo		
 A34-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
 A34-D02	CR-17	todo		
@@ -309,13 +309,13 @@ A1X-10	CR-29	todo
 A1X-11	CR-28	todo		
 A1X-12	CR-18	todo		
 A1X-13	CR-10	todo		
-A1X-14	CR-08	todo		
+A1X-14	CR-08	done	5662ca4c 3d63527f	TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12)
 A1X-15	CR-30	todo		
 A1X-D01	CR-07	todo		
 A1X-D02	CR-06	done	ec237e5a	
 A1X-D03	CR-07	todo		
 A1X-D04	CR-07	todo		
-A1X-D05	CR-18	todo		
+A1X-D05	CR-18	done	3d63527f	memo deleted; the shadow check reads the normalised cast
 A1X-D06	CR-32	todo		
 A1X-D07	CR-06	dup		= A34-D14 (flag register)
 A1X-D08	CR-19	todo		
@@ -339,7 +339,7 @@ ORC-05	CR-22	todo
 ORC-06	CR-10	todo		
 ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02
 ORC-08	CR-17	todo		
-ORC-09	CR-08	todo		
+ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
 ORC-10	CR-11	todo		
 ORC-11	CR-07	todo		
 ORC-12	CR-33	todo		
@@ -377,7 +377,7 @@ SCO-07	CR-18	todo
 SCO-08	CR-18	todo		
 SCO-09	CR-18	todo		
 SCO-10	CR-18	todo		
-SCO-11	CR-08	todo		
+SCO-11	CR-08	done	094de134	scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30)
 SCO-12	CR-03	done	6ef90064	phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles)
 SCO-13		withdrawn		CPU is not a lever (README §3); ~2.8 s per run
 SCO-D01	CR-06	todo		waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 8 | 28 | 0 | 36 |
-| open | 182 | 111 | 72 | 365 |
+| closed | 20 | 30 | 0 | 50 |
+| open | 170 | 109 | 72 | 351 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -24,7 +24,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 20 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
-| CR-08 | 13 | 0 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
+| CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 0 | A9W-12 |
 | CR-10 | 5 | 0 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 0 | A9G-15 A9G-Q03 ORC-10 |
@@ -34,7 +34,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
-| CR-18 | 23 | 0 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
+| CR-18 | 23 | 1 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 1 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
@@ -148,7 +148,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9W-11 | P2 | R1 | CR-31 | todo |  | Injector floor chain ×3 with divergent guards, after the "last write" |  |
 | A9W-12 | P2 | R0 | CR-09 | todo |  | Helper layer (3,645 lines) → 12 modules behind re-export shims |  |
 | A9W-13 | P2 | R0 | CR-22 | todo |  | Flag surface has leaked back out of flags.ts |  |
-| A9W-14 | P2 | R0/R1 | CR-08 | todo |  | Compiler-proven dead code and a vestigial counter |  |
+| A9W-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code and a vestigial counter | unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only) |
 | A9W-15 | P1 | R0 | CR-03 | done | 1374e38e | No test reaches runAgent9; golden ship-layer test first | ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI |
 | A9W-16 | P3 | R0/R1 | CR-31 | todo |  | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) |  |
 | A9W-17 | P3 | R1 | CR-34 | todo |  | Re-validation ×9 re-pays uncached semantic LLM fallbacks |  |
@@ -185,7 +185,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-09 | P2 | R1/R2 | CR-17 | todo |  | Run-constant facts derived per call and in divergent ways; arc position has 6 bodies (loop and prompt disagree on 6/10 chapters) |  |
 | A9G-10 | P2 | R1 | CR-26 | todo |  | The post-LLM normalisation chain is written three times (main, expansion, polish), each slightly different |  |
 | A9G-11 | P2 | R2 | CR-16 | todo |  | The provisional score re-implements clue presence with a looser threshold and feeds the next prompt |  |
-| A9G-12 | P2 | R0 | CR-08 | todo |  | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports |  |
+| A9G-12 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports | imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split) |
 | A9G-13 | P2 | R2 | CR-30 | todo |  | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry |  |
 | A9G-14 | P2 | R0/R1 | CR-13 | todo |  | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any |  |
 | A9G-15 | P2 | R0 | CR-11 | todo |  | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found |  |
@@ -202,7 +202,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-D09 |  |  | CR-19 | todo |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… |  |
 | A9G-D10 |  |  | CR-26 | todo |  | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… |  |
 | A9G-D11 |  |  | CR-10 | todo |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. |  |
-| A9G-D12 |  |  | CR-08 | todo |  | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. |  |
+| A9G-D12 |  |  | CR-08 | done | bf3fefc9 | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. | BOMs and mojibake removed |
 | A9G-Q01 |  |  | CR-30 | todo |  | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
 | A9G-Q02 |  |  | CR-17 | todo |  | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
 | A9G-Q03 |  |  | CR-11 | todo |  | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
@@ -229,7 +229,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9P-13 | P2 | R0 | CR-13 | todo |  | Missing input types: CmlCase, ProseScene, unified CastMember; four artifacts any |  |
 | A9P-14 | P3 | R0/R1 | CR-22 | todo |  | 13 flags, 4 parse idioms, 8 read inline mid-function |  |
 | A9P-15 | P3 | R0 (owner) | CR-30 | todo |  | Unwired/write-only: opening-ideation.ts, prose-brief.ts, 3 StoryContract fields, 4 Bible fields |  |
-| A9P-16 | P3 | R0 | CR-08 | todo |  | Dead computation and orphaned docblocks |  |
+| A9P-16 | P3 | R0 | CR-08 | done | 3295ad4e bf3fefc9 | Dead computation and orphaned docblocks | unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split |
 | A9P-D01 |  |  | CR-07 | todo |  | Pronoun rules 9–11 never reach the model — block truncated for every cast size, cut mid-word in rule 9; rule 10 lost since it was added; rule 11 (cas… |  |
 | A9P-D02 |  |  | CR-28 | todo |  | temporal_context season-lock rules 8–9 cut in 4/4 golden bundles (2.9–3.4k chars lost); location_profiles and usually first_appearance_contracts also… |  |
 | A9P-D03 |  |  | CR-07 | dup |  | precompileStoryContract({ castData: cml.CAST }) (agent9-run.ts:4491): no such key; victim fallback_unknown in 62/62 archived JSON; culpritAlibiWindow… | = A9W-D03 (cml.CAST) |
@@ -265,7 +265,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9V-10 | P2 | R1 → R2 | CR-31 | todo |  | Clearance *evidence* connectors: 3 private byte-identical copies + a shared export that disagrees with the release gate (MEASURED) |  |
 | A9V-11 | P2 | R1 | CR-27 | todo |  | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… |  |
 | A9V-12 | P2 | R2 | CR-15 | todo |  | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) |  |
-| A9V-13 | P3 | R0 | CR-08 | todo |  | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… |  |
+| A9V-13 | P3 | R0 | CR-08 | done | 3295ad4e 094de134 | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… | mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param |
 | A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks |  |
 | A9V-15 | P3 | R1 | **—** | withdrawn |  | CPU is negligible: 31 ms mean / 50 ms worst per lint call; ≈1.9 s per 60-call run | CPU is not a lever (README §3); ~2 s per run |
 | A9V-16 | P3 | R0 / R2 | CR-10 | todo |  | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt |  |
@@ -303,7 +303,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9R-08 | P2 | R2 | CR-29 | todo |  | Regen retries resend a byte-identical prompt; insertion passes have no structural channel |  |
 | A9R-09 | P2 | R2 | CR-12 | todo |  | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies |  |
 | A9R-10 | P2 | R2 | CR-32 | todo |  | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier |  |
-| A9R-11 | P3 | R0/R1 | CR-08 | todo |  | Dead and vestigial: runClearanceRegenPass, applyClearancePatch, clueTerms, a 40-line boolean clone, 3 producer-less defect kinds |  |
+| A9R-11 | P3 | R0/R1 | CR-08 | done | 094de134 | Dead and vestigial: runClearanceRegenPass, applyClearancePatch, clueTerms, a 40-line boolean clone, 3 producer-less defect kinds | hasRepetitionRewriteRegression delegates to the reason fn; ClueRegenPassResult alias gone. runClearanceRegenPass and ProseDefectKind members belong to the regen registry (CR-23); applyClearancePatch param is v1 generate.ts (bug-fix-only) |
 | A9R-12 | P3 | R1 | CR-31 | todo |  | Split deterministic-repair.ts; merge the two floor patch chains |  |
 | A9R-13 | P3 | R0 | CR-13 | todo |  | CaseData = any casts, 14× as const defect literals, a 10-positional-parameter LLM function |  |
 | A9R-14 | P3 | R2/R1 | CR-28 | todo |  | Regen prompt order defeats caching; atmosphere calls run serially; instruction and detail duplicated in the prompt |  |
@@ -339,7 +339,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-10 | P2 | R2 | CR-28 | todo |  | Prompt asks for output nobody reads; proactive feedback has zero effect |  |
 | A5-11 | P2 | R2 | CR-29 | todo |  | Retries regenerate everything, statelessly, without locked facts or strict contract |  |
 | A5-12 | P2 | R1 | CR-25 | todo |  | WeakMap memos keyed on a CML that is mutated in place |  |
-| A5-13 | P2 | R0 | CR-08 | todo |  | Dead and vestigial code (compiler-proven and verified by grep) |  |
+| A5-13 | P2 | R0 | CR-08 | done | 5662ca4c 094de134 | Dead and vestigial code (compiler-proven and verified by grep) | WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16) |
 | A5-14 | P2 | R0/R1 | CR-31 | todo |  | Vocabulary and tokenizer zoo (escape ×2, elimination regex ×3, step-from-path ×4, clue-id regex ×6) |  |
 | A5-15 | P2 | R2 | CR-16 | todo |  | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations |  |
 | A5-16 | P3 | R2 | CR-28 | todo |  | Stable prompt text sits after volatile CML text (prefix caching) |  |
@@ -370,7 +370,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-02 | P1 | R2 | CR-29 | todo |  | Fair-play retry feedback is failure-agnostic: 0 of 12 violation-derived lines reach Agent 5 |  |
 | A6-03 | P1 | R2 | CR-29 | todo |  | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable |  |
 | A6-04 | P1 | R1 | CR-16 | todo |  | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently |  |
-| A6-05 | P1 | R1 | CR-08 | todo |  | Dead error-message classification ladder since 2b76cbfa (~52 lines) |  |
+| A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
 | A6-06 | P2 | R0/R1 | CR-25 | todo |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) |  |
 | A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects |  |
 | A6-08 | P2 | R1/R2 | CR-31 | todo |  | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names |  |
@@ -379,7 +379,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-11 | P2 | R0 | CR-27 | todo |  | buildDeveloperContext (301 LOC, cc 63): split derivation from rendering; triplicated clue formatter |  |
 | A6-12 | P2 | R1 | CR-25 | todo |  | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates |  |
 | A6-13 | P2 | R0 | CR-25 | todo |  | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested |  |
-| A6-14 | P2 | R0/R1 | CR-08 | todo |  | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) |  |
+| A6-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 094de134 3d63527f | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) | Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign) |
 | A6-15 | P2 | R2 (report-only) | CR-33 | todo |  | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) |  |
 | A6-16 | P3 | R2 | CR-34 | todo |  | LLM calls a deterministic check could avoid; independent calls made in sequence |  |
 | A6-17 | P3 | R2 | CR-28 | todo |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it |  |
@@ -449,7 +449,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-10 | P2 | R0/R1 | CR-16 | todo |  | Placement: planting check mirrored in rubric-score; case-soundness clones |  |
 | A34-11 | P2 | R1 (+R2) | CR-18 | todo |  | degraded is an optional boolean one of two callers ignores; X60 policy exists in one place |  |
 | A34-12 | P2 | R1 | CR-24 | todo |  | runAgent3b (325 LOC, cc 52): plausibility loop and registry build inline |  |
-| A34-13 | P3 | R0 | CR-08 | todo |  | Dead fields, dead writes, over-export, vestigial blocks |  |
+| A34-13 | P3 | R0 | CR-08 | done | 094de134 | Dead fields, dead writes, over-export, vestigial blocks | gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split |
 | A34-14 | P3 | R0 then R2 | CR-28 | todo |  | Prompt-as-code: 32k literal chars, volatile seed early, contract restated 2–3×, self-contradiction |  |
 | A34-D01 |  |  | CR-06 | done | pre-audit | checkLockedFactTimeAlignment reads ctx.cml before it is assigned, so it always returns [] | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |
 | A34-D02 |  |  | CR-17 | todo |  | Agent 9 prompts and enforces raw device locked facts (all devices), not the registry, so X38/C1/X51 don't reach its contract |  |
@@ -490,13 +490,13 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-11 | P2 | R2 | CR-28 | todo |  | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields |  |
 | A1X-12 | P2 | R1 (R2 edges) | CR-18 | todo |  | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") |  |
 | A1X-13 | P2 | R0 | CR-10 | todo |  | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× |  |
-| A1X-14 | P3 | R0/R1 | CR-08 | todo |  | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo |  |
+| A1X-14 | P3 | R0/R1 | CR-08 | done | 5662ca4c 3d63527f | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo | TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12) |
 | A1X-15 | P3 | R2 | CR-30 | todo |  | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) |  |
 | A1X-D01 |  |  | CR-07 | todo |  | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) |  |
 | A1X-D02 |  |  | CR-06 | done | ec237e5a | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
 | A1X-D03 |  |  | CR-07 | todo |  | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" |  |
 | A1X-D04 |  |  | CR-07 | todo |  | Agent 2 schema re-roll drops characterGenders (user gender lock); nothing enforces castGenders deterministically (comment at agent2-cast.ts:660-665 c… |  |
-| A1X-D05 |  |  | CR-18 | todo |  | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on |  |
+| A1X-D05 |  |  | CR-18 | done | 3d63527f | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on | memo deleted; the shadow check reads the normalised cast |
 | A1X-D06 |  |  | CR-32 | todo |  | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) |  |
 | A1X-D07 |  |  | CR-06 | dup |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default OFF; code is default ON | = A34-D14 (flag register) |
 | A1X-D08 |  |  | CR-19 | todo |  | Agent 2 cost always 0; retries over-count elsewhere |  |
@@ -525,7 +525,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-06 | P2 | R0 | CR-10 | todo |  | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split |  |
 | ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
 | ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
-| ORC-09 | P2 | R0 | CR-08 | todo |  | Compiler-proven and grep-proven dead code in scope (11 items) |  |
+| ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |
 | ORC-10 | P2 | R0 | CR-11 | todo |  | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports |  |
 | ORC-11 | P2 | R2 | CR-07 | todo |  | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers |  |
 | ORC-12 | P2 | R1 | CR-33 | todo |  | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry |  |
@@ -568,7 +568,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-08 | P2 | R0/R2 | CR-18 | todo |  | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 |  |
 | SCO-09 | P2 | R0 | CR-18 | todo |  | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field |  |
 | SCO-10 | P2 | R1 | CR-18 | todo |  | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read |  |
-| SCO-11 | P2 | R0 | CR-08 | todo |  | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals |  |
+| SCO-11 | P2 | R0 | CR-08 | done | 094de134 | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals | scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30) |
 | SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
 | SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. | waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner |

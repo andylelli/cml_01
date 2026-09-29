@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 6 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 7 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -55,7 +55,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
 | CR-06 | done (SCO-D01 waits on 👤 SCO-Q06) | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) — 16 of 17 closed (`dff49644`, `73b7e54c`, `faeb6755`, `ec237e5a`); A7-D10 was already fixed (`9801b481`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
 | CR-07 | 👤 | 1 | Decide the verified live bugs whose fix changes a prompt, a chapter or a run outcome (`cml.CAST`, embargo on worker regens, curly-apostrophe floor, pronoun rule 11, Agent 6.5 feedback, Agent 7/8 case summaries, "Poisoned tea.", victim substring, abort swallow, Azure polish) | VERIFIED-BUGS #1–4, 6–13, 19 | R2 | M |
-| CR-08 | todo | 2 | Delete compiler-proven dead code across the scope | A9W-14, A9G-12, A9V-13, A9R-11, A9P-16, A5-13, A34-13, ORC-09, SCO-11 | R0 | M |
+| CR-08 | done | 2 | Delete compiler-proven dead code across the scope — 118 unused imports (dist byte-identical), 21 locals, ~600 lines of dead exports/methods/clones, unreachable Agent 6 branches, Agent 6.5 reads its YAML; `tsc --noUnusedLocals` now reports only castCompositionRule (CR-07) and one test variable. Kept: A/B harness (👤 CR-30), v1-only behaviour (bug-fix-only) (`3295ad4e`…`3d63527f`) | A9W-14, A9G-12, A9V-13, A9R-11, A9P-16, A5-13, A34-13, ORC-09, SCO-11 | R0 | M |
 | CR-09 | todo | 2 | Agent 9 helper layer (3,645 lines) → 12 modules behind re-export shims | A9W-12 | R0 | M |
 | CR-10 | todo | 2 | Split `shared.ts`; break the type-only import cycles | ORC-06, A1X-13 | R0 | M |
 | CR-11 | todo | 2 | Replace the root barrel with subpath exports (215 of 362 names never imported through it) | ORC-10 | R0 | S |
