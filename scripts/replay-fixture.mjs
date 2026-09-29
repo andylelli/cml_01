@@ -9,6 +9,9 @@
 //   <name>.cassette.jsonl.gz every LLM attempt of the stage, rebased to the CURRENT code
 //   <name>.expected.json     the strict replay's result, the digest of the prose it produces, and the
 //                            flag environment it replays under
+//   <name>.ledger.json.gz    data/novelty-ledger.json as it was when the fixture was made: the ledger is
+//                            tracked and grows with every paid run, and Agent 3 prompts with prior runs
+//                            from it — an unpinned ledger fails a full-pipeline fixture after any run
 //
 // New: extract the store rows, build a cassette from the logs (cassette-from-logs.mjs), rebase it to
 // the current code, then replay strictly and record the digest. --rebase: rebase the committed
@@ -37,6 +40,9 @@ mkdirSync(DIR, { recursive: true });
 const storeFile = join(DIR, `${name}.store.json.gz`);
 const cassetteFile = join(DIR, `${name}.cassette.jsonl.gz`);
 const expectedFile = join(DIR, `${name}.expected.json`);
+const ledgerFile = join(DIR, `${name}.ledger.json.gz`);
+// --rebase keeps the fixture's pinned ledger; a new fixture (or an old one without a ledger) pins today's.
+if (!rebaseOnly || !existsSync(ledgerFile)) writeFileSync(ledgerFile, gzipSync(readFileSync(join('data', 'novelty-ledger.json')), { level: 9 }));
 const tmp = join(tmpdir(), `cml-fixture-${process.pid}`);
 mkdirSync(tmp, { recursive: true });
 
@@ -114,7 +120,7 @@ writeFileSync(envFile, JSON.stringify({ env }));
 console.log(`flag environment: ${Object.keys(env).length} keys from this machine's .env.local (credentials and endpoints dropped)` +
   (Object.keys(recordedSets).length ? `; overrides ${JSON.stringify(recordedSets)}` : ''));
 const rebased = join(tmp, 'rebased.cassette.jsonl.gz');
-const common = ['--project', project, '--store', storeFile, '--env', envFile, '--stage', stage];
+const common = ['--project', project, '--store', storeFile, '--env', envFile, '--stage', stage, '--ledger', ledgerFile];
 const rb = node('scripts/replay-stage.mjs', ['--cassette', source, ...common, '--rebase', rebased]);
 if (!rb.summary || rb.summary.unrestorable) { console.error('rebase failed'); process.exit(1); }
 const proof = node('scripts/replay-stage.mjs', ['--cassette', rebased, ...common]);

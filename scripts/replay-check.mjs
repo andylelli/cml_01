@@ -17,8 +17,10 @@ if (names.length === 0) { console.error('[replay-check] no fixtures in eval/repl
 const failures = [];
 for (const name of names) {
   const expected = JSON.parse(readFileSync(join(DIR, `${name}.expected.json`), 'utf8'));
+  const ledger = join(DIR, `${name}.ledger.json.gz`);
   const r = spawnSync(process.execPath, ['scripts/replay-stage.mjs', '--cassette', join(DIR, `${name}.cassette.jsonl.gz`),
-    '--project', expected.project, '--store', join(DIR, `${name}.store.json.gz`), '--env', join(DIR, `${name}.expected.json`), '--stage', expected.stage ?? 'prose'], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
+    '--project', expected.project, '--store', join(DIR, `${name}.store.json.gz`), '--env', join(DIR, `${name}.expected.json`), '--stage', expected.stage ?? 'prose',
+    ...(existsSync(ledger) ? ['--ledger', ledger] : [])], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
   const out = r.stdout ?? '';
   const line = out.split('\n').find((l) => l.startsWith('REPLAY_SUMMARY '));
   const s = line ? JSON.parse(line.slice('REPLAY_SUMMARY '.length)) : null;

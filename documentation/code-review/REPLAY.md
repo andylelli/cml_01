@@ -1,8 +1,8 @@
 # Record / replay harness (CR-03)
 
-**Written:** 2026-09-29 · **Status:** v2 and v1 prose stages and the from-clues pipeline (Agents 5 → 9 through
-`generateMystery`) covered — 3 fixtures, all MATCH; the scoring characterisation (SCO-12) runs in the
-worker suite; Agents 1–4 still to add (tracker row CR-03).
+**Written:** 2026-09-29 · **Status:** the whole pipeline is covered — v2 prose, v1 prose, from-clues (Agents 5 → 9) and full
+(Agents 1 → 9 through `generateMystery`), 4 fixtures, all MATCH; the scoring characterisation (SCO-12)
+runs in the worker suite. Open: ORC-07's replay-rubric question (owner) and an optional paid recording.
 
 ## What it is for
 
@@ -18,7 +18,7 @@ changed nothing" becomes a free, exact check. No credentials, no network, no cos
 |---|---|
 | Prove nothing changed (CI does this) | `npm run build:all && npm run replay:check` |
 | Re-baseline after a **deliberate** prompt change | `node scripts/replay-fixture.mjs --name v2-prose-cdad5315 --rebase`, then commit the cassette — its diff is the list of prompts your change altered |
-| Add a fixture from a past run | `node scripts/replay-fixture.mjs --name <name> --project <projectId> --run <runId>` |
+| Add a fixture from a past run | `node scripts/replay-fixture.mjs --name <name> --project <projectId> --run <runId> [--stage prose|clues|setting] [--set FLAG=value]` |
 | Replay one stage by hand | `node scripts/replay-stage.mjs --cassette <c> --project <p> [--store <s>] [--rebase <out>] [--keep]` |
 
 `replay:check` failing means one of: a prompt differs (the message names the agent and the first differing
@@ -56,6 +56,7 @@ byte), a recorded call was never requested, or the prose digest moved.
 | Known positive | one character added to the writer system prompt → NO MATCH at byte 29 of `Agent9v2-Writer-S0-D1`, exit 5; reverted → MATCH |
 | Fixture 2 | `eval/replay/v1-prose-d0ee7b26` — the v1 prose stage of the fresh run `run_7b1ec2ef` (2026-09-18), `PROSE_ENGINE=v1` override, 1.4 MB. Rebase: 38 calls with a changed prompt, 2 synthetic regen failures. Strict: MATCH, 75 calls, 105 attempts, ~60 s, digest `23e066747bc53699` |
 | Fixture 3 | `eval/replay/from-clues-d0ee7b26` — `RESUME_REDO=clues` on the same run: Agents 5, 6, 6.5, 7, 7.5 and 9 through `generateMystery`, `PROSE_ENGINE=v1` and `AGENT65_OMIT_RUN_TELEMETRY=true` overrides, 1.5 MB. Rebase: 43 calls with a changed prompt, 13 recorded attempts no longer made (Agents 1–3b are not re-run on a clue redo), 2 synthetic regen failures. Strict: MATCH, 83 calls, 113 attempts, ~46 s, digest `23e066747bc53699` — the same prose as fixture 2, as it should be: both serve the run's recorded Agent 9 replies |
+| Fixture 4 | `eval/replay/full-d0ee7b26` — `RESUME_REDO=setting` on the same run: nothing restored, all of Agents 1, 2, 2b–2e, 3b, 3, 4, 5, 6, 6.5, 7, 7.5, 9 re-run on the project's recorded spec. Rebase: 46 calls with a changed prompt, 6 recorded Agent 9 attempts no longer made, 2 synthetic. Strict: MATCH, 90 calls, 120 attempts, digest `23e066747bc53699`. Two rebases identical |
 | Environment | each fixture records 146 flags read through the pipeline's own `loadEnvFiles` (credentials and endpoints dropped); `replay:check` ignores `.env.local`, as CI does |
 | Containment | `git status` identical before and after every sandboxed replay |
 
@@ -88,6 +89,20 @@ A replay must produce the same prompts twice from the same input. Two sources br
   same fixture fails at `Agent65-WorldBuilder` byte 79,779 (known positive). In production the flag-off
   prompt sends the model a real LLM latency, which is noise, not harm; promoting it is the owner's call.
 
+## Pinned inputs
+
+A fixture pins everything a replay reads that can change after it was made:
+
+- **the store rows** (`<name>.store.json.gz`) and **the flag environment** (`<name>.expected.json`);
+- **the novelty ledger** (`<name>.ledger.json.gz`). `data/novelty-ledger.json` is tracked and every paid run
+  appends to it, and Agent 3b prompts with prior runs from it. MEASURED: one record removed → NO MATCH at
+  `Agent3b-HardLogicDeviceGenerator` byte 1,620. Unpinned, the full fixture would have failed after the next
+  paid run. `--rebase` keeps a fixture's ledger; a new fixture pins today's.
+
+The entry point for Agents 1–4 is `resume-run` with `RESUME_REDO=setting`: it keeps nothing and re-runs the
+pipeline on the project's recorded spec. It used to be refused — the "enough upstream to be worth resuming"
+check looked for a CML the redo had already dropped; it now checks what the run PRODUCED.
+
 ## Incidents found while building it
 
 - **Two unsandboxed replays (before `replay-stage.mjs`) wrote into the working tree**: a novelty-ledger entry
@@ -106,7 +121,7 @@ A replay must produce the same prompts twice from the same input. Two sources br
 
 ## Still to do (CR-03)
 
-- Agents 1–4: `resume-run` refuses to redo from `setting` (it needs a CML), so they need a fresh-run replay
-  entry point (`canary-core.mjs` builds its own client) that also reproduces the run's original inputs.
+- ORC-07 / ORC-Q02: the old `agent9-replay.ts` scores with its own rubric copy (different judge, no
+  structural verifiers); moving it onto the live rubric changes its scores — the owner's call.
 - Optionally, one paid recording (~£0.45, `RESUME_REDO=prose`) to replace the two synthetic editor failures
   with real replies.

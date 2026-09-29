@@ -3,7 +3,10 @@
 //
 //   node scripts/replay-stage.mjs --cassette <c.jsonl.gz> --project <projectId> --env <fixture.expected.json>
 //   node scripts/replay-stage.mjs ... --rebase <out.jsonl.gz>        # re-baseline instead of prove
-//   options: --stage prose (RESUME_REDO, default prose) · --store <store.json[.gz]> (default data/store.json)
+//   options: --stage prose (RESUME_REDO, default prose; `setting` re-runs the whole pipeline)
+//            --store <store.json[.gz]> (default data/store.json)
+//            --ledger <novelty-ledger.json[.gz]> (default data/novelty-ledger.json — tracked, and every
+//              paid run appends to it; Agent 3 reads prior runs from it, so a fixture pins its own)
 //            --keep (print the sandbox path and do not delete it)
 //
 // It runs the real `resume-run` (dist) with LLM_REPLAY_CASSETTE, so the code under test is exactly the
@@ -43,9 +46,10 @@ if (!cassette || !project) { console.error('usage: --cassette <file> --project <
 const sandbox = mkdtempSync(join(tmpdir(), 'cml-replay-'));
 const store = join(sandbox, 'store.json');
 if (storeSrc.endsWith('.gz')) writeFileSync(store, gunzipSync(readFileSync(storeSrc))); else copyFileSync(storeSrc, store);
-const ledgerSrc = join(root, 'data', 'novelty-ledger.json');
+const ledgerSrc = arg('--ledger') ?? join(root, 'data', 'novelty-ledger.json');
 const ledger = join(sandbox, 'novelty-ledger.json');
-if (existsSync(ledgerSrc)) copyFileSync(ledgerSrc, ledger);
+if (ledgerSrc.endsWith('.gz')) writeFileSync(ledger, gunzipSync(readFileSync(ledgerSrc)));
+else if (existsSync(ledgerSrc)) copyFileSync(ledgerSrc, ledger);
 mkdirSync(join(sandbox, 'stories'));
 
 // ── snapshot what has no override ───────────────────────────────────────────────────────────────

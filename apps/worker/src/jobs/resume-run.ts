@@ -52,6 +52,11 @@ import { saveReadableStory, storyFolderName } from "./story-output.js";
  * Enough of the pipeline to be worth resuming. Below `cml` there is nothing expensive to preserve —
  * agents 1–3 are a small fraction of run cost — and resuming from a sliver invites the subtler
  * failure of a run that is neither fresh nor faithful.
+ *
+ * Checked against what the project's run PRODUCED, not what a deliberate `RESUME_REDO` keeps: a redo
+ * of `setting` keeps nothing and re-runs the whole pipeline on the recorded spec, which is fresh AND
+ * faithful. CR-03: that is the replay entry point for Agents 1–4 (`scripts/replay-stage.mjs --stage
+ * setting`); it used to be refused because the redo had already dropped the CML it then looked for.
  */
 const MINIMUM_USEFUL_ARTIFACT: ResumeArtifactName = "cml";
 
@@ -104,7 +109,8 @@ async function main(): Promise<void> {
   console.log(`[resume-run] restored   : ${found.join(", ") || "(nothing)"}`);
   console.log(`[resume-run] will re-run: ${missing.join(", ") || "(nothing — run already complete)"}`);
 
-  if (!found.includes(MINIMUM_USEFUL_ARTIFACT)) {
+  const produced = redoFrom ? loadResumeBundle(store, projectId).found : found;
+  if (!produced.includes(MINIMUM_USEFUL_ARTIFACT)) {
     console.error(
       `[resume-run] REFUSING: no '${MINIMUM_USEFUL_ARTIFACT}' artifact for this project. There is not enough ` +
         `upstream work to be worth resuming — start a fresh run instead.`,
