@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 25 | 30 | 0 | 55 |
-| open | 165 | 109 | 72 | 346 |
+| closed | 25 | 32 | 0 | 57 |
+| open | 165 | 107 | 72 | 344 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -35,7 +35,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 1 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
-| CR-19 | 7 | 1 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
+| CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
@@ -199,7 +199,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-D06 |  |  | CR-22 | todo |  | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… |  |
 | A9G-D07 |  |  | CR-15 | todo |  | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… |  |
 | A9G-D08 |  |  | CR-29 | todo |  | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… |  |
-| A9G-D09 |  |  | CR-19 | todo |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… |  |
+| A9G-D09 |  |  | CR-19 | deferred |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… | v1 prose engine (generate.ts) — telemetry undercount; v1 takes bug fixes only and this is a reporting gap, not a defect in the book |
 | A9G-D10 |  |  | CR-26 | todo |  | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… |  |
 | A9G-D11 |  |  | CR-10 | deferred |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. | the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11) |
 | A9G-D12 |  |  | CR-08 | done | bf3fefc9 | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. | BOMs and mojibake removed |
@@ -385,7 +385,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-17 | P3 | R2 | CR-28 | todo |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it |  |
 | A6-18 | P3 | R0/R1 | CR-13 | todo |  | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade |  |
 | A6-19 | P3 | R0/R2 | CR-31 | todo |  | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge |  |
-| A6-D01 |  |  | CR-19 | todo |  | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… |  |
+| A6-D01 |  |  | CR-19 | todo |  | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29 |
 | A6-D02 |  |  | CR-07 | todo |  | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… |  |
 | A6-D03 |  |  | CR-12 | todo |  | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… |  |
 | A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. |  |
@@ -465,7 +465,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D12 |  |  | CR-29 | todo |  | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) |  |
 | A34-D13 |  |  | CR-32 | todo |  | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" |  |
 | A34-D14 |  |  | CR-06 | done | ec237e5a | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
-| A34-D15 |  |  | CR-19 | todo |  | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost |  |
+| A34-D15 |  |  | CR-19 | done | 50e05468 | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost | patch path adds the Agent4-Patch label |
 | A34-D16 |  |  | CR-14 | todo |  | A3 normaliser drops the schema's canonical role/moral_complexity on every run |  |
 | A34-Q01 |  |  | CR-14 | todo |  | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
 | A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
@@ -485,7 +485,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-06 | P2 | R1 | CR-21 | todo |  | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting |  |
 | A1X-07 | P2 | R1 (R2 F5b) | CR-31 | todo |  | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire |  |
 | A1X-08 | P2 | R1 (R2 pin) | CR-17 | todo |  | Second month→season "single source of truth" in 2d; mandated date not enforced |  |
-| A1X-09 | P2 | R1 | CR-19 | todo |  | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 |  |
+| A1X-09 | P2 | R1 | CR-19 | todo |  | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 | = ORC-03 for Agents 1/2/8; waits with it |
 | A1X-10 | P2 | R2 (R1 fold) | CR-29 | todo |  | Agent 1 repair ladder runs in the wrong order; blind re-roll; duplicated realism fold |  |
 | A1X-11 | P2 | R2 | CR-28 | todo |  | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields |  |
 | A1X-12 | P2 | R1 (R2 edges) | CR-18 | todo |  | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") |  |
@@ -499,7 +499,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D05 |  |  | CR-18 | done | 3d63527f | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on | memo deleted; the shadow check reads the normalised cast |
 | A1X-D06 |  |  | CR-32 | todo |  | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) |  |
 | A1X-D07 |  |  | CR-06 | dup |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default OFF; code is default ON | = A34-D14 (flag register) |
-| A1X-D08 |  |  | CR-19 | todo |  | Agent 2 cost always 0; retries over-count elsewhere |  |
+| A1X-D08 |  |  | CR-19 | done | dff49644 73b7e54c | Agent 2 cost always 0; retries over-count elsewhere | designCast reads its label from the tracker |
 | A1X-D09 |  |  | CR-20 | todo |  | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 |  |
 | A1X-D10 |  |  | CR-29 | todo |  | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt |  |
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
@@ -519,7 +519,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | ORC-01 | P1 | R1 | CR-25 | todo |  | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules |  |
 | ORC-02 | P1 | R1 | CR-21 | todo |  | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry |  |
-| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself |  |
+| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total) |
 | ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |
 | ORC-06 | P2 | R0 | CR-10 | done | 9232c483 | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split | shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles) |

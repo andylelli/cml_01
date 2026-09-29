@@ -58,7 +58,7 @@ A9G-D05	CR-17	todo
 A9G-D06	CR-22	todo		
 A9G-D07	CR-15	todo		
 A9G-D08	CR-29	todo		
-A9G-D09	CR-19	todo		
+A9G-D09	CR-19	deferred		v1 prose engine (generate.ts) — telemetry undercount; v1 takes bug fixes only and this is a reporting gap, not a defect in the book
 A9G-D10	CR-26	todo		
 A9G-D11	CR-10	deferred		the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11)
 A9G-D12	CR-08	done	bf3fefc9	BOMs and mojibake removed
@@ -219,7 +219,7 @@ A6-16	CR-34	todo
 A6-17	CR-28	todo		
 A6-18	CR-13	todo		
 A6-19	CR-31	todo		
-A6-D01	CR-19	todo		
+A6-D01	CR-19	todo		OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29
 A6-D02	CR-07	todo		
 A6-D03	CR-12	todo		
 A6-D04	CR-12	todo		
@@ -289,7 +289,7 @@ A34-D11	CR-07	todo
 A34-D12	CR-29	todo		
 A34-D13	CR-32	todo		
 A34-D14	CR-06	done	ec237e5a	
-A34-D15	CR-19	todo		
+A34-D15	CR-19	done	50e05468	patch path adds the Agent4-Patch label
 A34-D16	CR-14	todo		
 A34-Q01	CR-14	todo		
 A34-Q02	CR-17	todo		
@@ -304,7 +304,7 @@ A1X-05	CR-21	todo
 A1X-06	CR-21	todo		
 A1X-07	CR-31	todo		
 A1X-08	CR-17	todo		
-A1X-09	CR-19	todo		
+A1X-09	CR-19	todo		= ORC-03 for Agents 1/2/8; waits with it
 A1X-10	CR-29	todo		
 A1X-11	CR-28	todo		
 A1X-12	CR-18	todo		
@@ -318,7 +318,7 @@ A1X-D04	CR-07	todo
 A1X-D05	CR-18	done	3d63527f	memo deleted; the shadow check reads the normalised cast
 A1X-D06	CR-32	todo		
 A1X-D07	CR-06	dup		= A34-D14 (flag register)
-A1X-D08	CR-19	todo		
+A1X-D08	CR-19	done	dff49644 73b7e54c	designCast reads its label from the tracker
 A1X-D09	CR-20	todo		
 A1X-D10	CR-29	todo		
 A1X-D11	CR-07	todo		
@@ -333,7 +333,7 @@ A1X-Q06	CR-30	todo
 A1X-Q07	CR-29	todo		
 ORC-01	CR-25	todo		
 ORC-02	CR-21	todo		
-ORC-03	CR-19	todo		
+ORC-03	CR-19	todo		waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total)
 ORC-04	CR-20	todo		
 ORC-05	CR-22	todo		
 ORC-06	CR-10	done	9232c483	shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles)

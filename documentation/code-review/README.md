@@ -66,7 +66,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-16 | todo | 3 | **One clue contract**: source paths, evidence namespace, matcher (gate vs scorer), synthesis | A5-02, A5-03, A5-08, A6-09, A9V-04, SCO-06 | R1→R2 | L |
 | CR-17 | todo | 3 | One body each for season, arc position, locked facts, Story Bible facts | A9V-05, ORC-08, A7-13, A9G-09, A34-03, A9P-01, A9W-02/03 | R1→R2 | L |
 | CR-18 | todo | 3 | One scoring engine; one run-outcome module; one threshold resolver | SCO-02, SCO-04, SCO-05, SCO-07 | R1 | M |
-| CR-19 | todo | 3 | One definition of "cost of a call" | ORC-03, A1X-09, A5 §9.2 | R1 | M |
+| CR-19 | wip (core waits on 👤 A6-D01) | 3 | One definition of "cost of a call" — reported costs correct since CR-06; A34-D15 fixed; per-call cost on ChatResponse would also make Agent 6's retry budget charge first retries, which can newly abort a run (A6-D01, owner) | ORC-03, A1X-09, A5 §9.2 | R1 | M |
 | CR-20 | todo | 4 | **`callLlmJson()`**: one parse ladder with one truncation policy for all 31 LLM call sites | ORC-04, A1X-03, A34-06 | R1 | M |
 | CR-21 | todo | 4 | **`runStage()`** over `executeAgentWithRetry` for the 9 runners that fork on scoring | ORC-02, A1X-02 | R1 | M–L |
 | CR-22 | todo | 4 | **`RunConfig`**: 82 env flags resolved once at run start, written into the report | ORC-05, A9G-08, A9P-14, A7-08 | R1 | M |
