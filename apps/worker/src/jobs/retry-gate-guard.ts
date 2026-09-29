@@ -11,6 +11,8 @@
  * once before the pipeline. Default (no enforce flags) ⇒ empty result ⇒ byte-identical behaviour.
  */
 
+import { resolveNoveltyMode } from "./novelty-ledger.js";
+
 type EnvMap = Record<string, string | undefined>;
 
 const isOn = (v: string | undefined): boolean => /^(1|true|yes|on)$/i.test(String(v ?? "").trim());
@@ -53,9 +55,11 @@ export const assessRetryGates = (env: EnvMap): { active: RetryGateInfo[]; worstC
     // 1 early+mid blind-reader probe; may also trigger the legacy Agent 6 remediation loop.
     active.push({ flag: "AGENT6_REVEAL_GATE", label: "Agent 6 reveal gate", worstCaseExtraCalls: 1 });
   }
-  if (isOn(env.NOVELTY_CROSS_RUN) && isOn(env.NOVELTY_HARD_FAIL)) {
+  // ORC-D10: the gate is `NOVELTY_MODE=active` since A_53 P7 (legacy NOVELTY_HARD_FAIL=true still maps to
+  // it); this guard only knew the legacy spelling, and only with NOVELTY_CROSS_RUN on. Ask the resolver.
+  if (resolveNoveltyMode(env) === "active") {
     // Novelty audit fires and can hard-fail → CML regeneration + re-audit.
-    active.push({ flag: "NOVELTY_HARD_FAIL", label: "Agent 8 novelty hard-fail", worstCaseExtraCalls: 2 });
+    active.push({ flag: env.NOVELTY_MODE ? "NOVELTY_MODE" : "NOVELTY_HARD_FAIL", label: "Agent 8 novelty hard-fail", worstCaseExtraCalls: 2 });
   }
 
   return { active, worstCaseExtraCalls: active.reduce((s, g) => s + g.worstCaseExtraCalls, 0) };

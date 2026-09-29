@@ -14,6 +14,7 @@
  *   → Agent9 (Prose + Release Gate)
  */
 
+import { parseBooleanEnv } from "./agents/agent9/flags.js";
 import { join } from "path";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { promises as dns } from "dns";
@@ -709,8 +710,8 @@ export async function generateMystery(
   // fingerprint and any agent: nothing has been produced yet, so nothing is lost.
   warnings.push(...assertFlagCapabilities());
 
-  const enableScoring =
-    String(process.env.ENABLE_SCORING || "false").toLowerCase() === "true";
+  // ORC-D07: `ENABLE_SCORING=1` read as OFF — only the string "true" counted.
+  const enableScoring = parseBooleanEnv(process.env.ENABLE_SCORING, false);
   let scoreAggregator: ScoreAggregator | undefined;
   let retryManager: RetryManager | undefined;
   let reportRepository: FileReportRepository | undefined;

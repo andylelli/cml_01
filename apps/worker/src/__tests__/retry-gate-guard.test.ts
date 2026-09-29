@@ -33,11 +33,20 @@ describe("assessRetryGates", () => {
     expect(r.worstCaseExtraCalls).toBe(7);
   });
 
-  it("counts novelty hard-fail only when cross-run is also on", () => {
-    expect(assessRetryGates({ NOVELTY_HARD_FAIL: "true" }).active).toHaveLength(0);
+  // ORC-D10. This used to count novelty only with NOVELTY_CROSS_RUN on — a T1.6-era condition, from when
+  // the default threshold (≥ 1) skipped the audit unless cross-run capped it. The default is 0.9 now, so
+  // the audit fires on every run (generation-params-config-a53.test.ts pins it), and since A_53 P7 the
+  // gate is NOVELTY_MODE=active, with legacy NOVELTY_HARD_FAIL=true mapped onto it.
+  it("counts novelty hard-fail whenever the resolved novelty mode is active", () => {
+    expect(assessRetryGates({}).active).toHaveLength(0);
+    expect(assessRetryGates({ NOVELTY_MODE: "shadow" }).active).toHaveLength(0);
+    expect(assessRetryGates({ NOVELTY_MODE: "active" }).active.map((g) => g.flag)).toEqual(["NOVELTY_MODE"]);
+    expect(assessRetryGates({ NOVELTY_HARD_FAIL: "true" }).active.map((g) => g.flag)).toEqual(["NOVELTY_HARD_FAIL"]);
     expect(assessRetryGates({ NOVELTY_CROSS_RUN: "1", NOVELTY_HARD_FAIL: "true" }).active.map((g) => g.flag)).toEqual([
       "NOVELTY_HARD_FAIL",
     ]);
+    // An explicit mode wins over the legacy flag, as in resolveNoveltyMode.
+    expect(assessRetryGates({ NOVELTY_MODE: "off", NOVELTY_HARD_FAIL: "true" }).active).toHaveLength(0);
   });
 });
 
@@ -72,5 +81,15 @@ describe("evaluateRetryGateGuard", () => {
     });
     expect(r.fatal).toBeUndefined();
     expect(r.warnings.join(" ")).toMatch(/2 retry-bearing gate/);
+  });
+});
+
+describe("readModeFlag (ORC-D07)", () => {
+  it("reads every spelling of off as off, including `no`", async () => {
+    const { readModeFlag } = await import("../jobs/agents/mode-flag.js");
+    for (const off of [undefined, "", " ", "off", "OFF", "false", "0", "no", "No", "n"]) expect(readModeFlag(off)).toBe("");
+    expect(readModeFlag(" Shadow ")).toBe("shadow");
+    expect(readModeFlag("enforce")).toBe("enforce");
+    expect(readModeFlag("on")).toBe("on");
   });
 });

@@ -6,6 +6,7 @@
  * and writes ctx.locationProfiles.
  */
 
+import { readModeFlag } from "./mode-flag.js";
 import { scoreLocationsPhase } from "./phase-scoring.js";
 import {
   generateLocationProfiles,
@@ -249,8 +250,8 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   // changing behavior — the deterministic foundation for the Agent 2c redesign
   // (documentation/12_system_redesign/04_agent_2c_location_profiles.md §4, §9). The enforcement
   // path (carrying the spine eagerly + lazy per-scene texture) waits on later phases.
-  const spineCheckMode = (process.env.AGENT2C_SPINE_CHECK ?? "").trim().toLowerCase();
-  if (spineCheckMode && spineCheckMode !== "off" && spineCheckMode !== "false" && spineCheckMode !== "0") {
+  const spineCheckMode = readModeFlag(process.env.AGENT2C_SPINE_CHECK);
+  if (spineCheckMode) {
     try {
       const spine = extractLocationSpine(ctx.locationProfiles!);
       const check = checkLocationSpine(spine);

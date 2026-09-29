@@ -5,6 +5,7 @@
  * handles scoring-path retry and schema validation, and writes ctx.backgroundContext.
  */
 
+import { readModeFlag } from "./mode-flag.js";
 import { scoreBackgroundPhase } from "./phase-scoring.js";
 import {
   generateBackgroundContext,
@@ -89,8 +90,8 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
   // evidence (documentation/12_system_redesign/06_agent_2e_background_context.md §4, §9).
   // Default OFF; when AGENT2E_DERIVE_BACKGROUND is set (on) it LOGS a field-match summary into
   // warnings WITHOUT changing behavior. try/catch so it can never break the run.
-  const deriveMode = (process.env.AGENT2E_DERIVE_BACKGROUND ?? "").trim().toLowerCase();
-  if (deriveMode && deriveMode !== "off" && deriveMode !== "false" && deriveMode !== "0") {
+  const deriveMode = readModeFlag(process.env.AGENT2E_DERIVE_BACKGROUND);
+  if (deriveMode) {
     try {
       const live = ctx.backgroundContext;
       const deriveInputs: DeriveBackgroundContextInputs = {

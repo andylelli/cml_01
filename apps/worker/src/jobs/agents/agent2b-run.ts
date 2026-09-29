@@ -6,6 +6,7 @@
  * and writes ctx.characterProfiles.
  */
 
+import { readModeFlag } from "./mode-flag.js";
 import { scoreCharacterProfilesPhase } from "./phase-scoring.js";
 import { resolveBandForRun,
   generateCharacterProfiles,
@@ -81,12 +82,13 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   //       regeneration retry when the voice gate fails, then accept the best result (accept-after-
   //       exhaustion). Never enable in the same run as another retry-gated lever.
   // (documentation/12_system_redesign/03_agent_2b_character_profiles.md §4, §9.)
-  const voiceCheckMode = (process.env.AGENT2B_VOICE_CHECK ?? "").trim().toLowerCase();
-  const voiceCheckActive =
-    voiceCheckMode && voiceCheckMode !== "off" && voiceCheckMode !== "false" && voiceCheckMode !== "0";
+  const voiceCheckMode = readModeFlag(process.env.AGENT2B_VOICE_CHECK);
+  const voiceCheckActive = Boolean(voiceCheckMode);
   if (voiceCheckActive) {
     const enforce = voiceCheckMode === "enforce";
-    const maxRetries = enforce ? Math.max(0, Math.trunc(Number(process.env.AGENT2B_VOICE_MAX_RETRIES ?? 1)) || 0) : 0;
+    // Bounded both ways, as Agent 3b's plausibility retries are (Phase-1 lesson: "Infinity" must not defeat
+    // "bounded") and as the retry-gate guard already assumes (cap 3) — ORC-D04.
+    const maxRetries = enforce ? Math.min(3, Math.max(0, Math.trunc(Number(process.env.AGENT2B_VOICE_MAX_RETRIES ?? 1)) || 0)) : 0;
     const label = enforce ? "enforce" : "shadow";
     try {
       let check = checkVoiceCapsules(ctx.characterProfiles.profiles.map((profile) => extractVoiceCapsule(profile)));

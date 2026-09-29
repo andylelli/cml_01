@@ -5,6 +5,7 @@
  * scoring-path retry and schema-repair retry, and writes ctx.cast.
  */
 
+import { readModeFlag } from "./mode-flag.js";
 import { scoreCastPhase } from "./phase-scoring.js";
 import {
   designCast,
@@ -926,8 +927,8 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   // graph health) into warnings WITHOUT changing behavior — the deterministic foundation for the
   // Agent 2 redesign (documentation/12_system_redesign/02_agent_2_cast.md §9.2). The enforcement
   // path (deleting the normalize/pad/coerce gauntlet) waits on the constrained-decoding platform.
-  const castCheckMode = (process.env.AGENT2_CAST_CHECK ?? "").trim().toLowerCase();
-  if (castCheckMode && castCheckMode !== "off" && castCheckMode !== "false" && castCheckMode !== "0") {
+  const castCheckMode = readModeFlag(process.env.AGENT2_CAST_CHECK);
+  if (castCheckMode) {
     try {
       // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reuses the scorer's result for
       // the shipping cast object instead of recomputing the full check.

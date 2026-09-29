@@ -29,7 +29,8 @@ const namesMatch = (a: string, b: string): boolean => {
 };
 
 export function isProseBlindReaderEnabled(): boolean {
-  return String(process.env.ENABLE_PROSE_BLIND_READER ?? "").toLowerCase() === "true";
+  // ORC-D07: `=1` read as off — only the string "true" counted. Same truthy words as the worker's parseBooleanEnv.
+  return ["1", "true", "yes", "y", "on"].includes(String(process.env.ENABLE_PROSE_BLIND_READER ?? "").trim().toLowerCase());
 }
 
 export async function blindReadProse(args: {

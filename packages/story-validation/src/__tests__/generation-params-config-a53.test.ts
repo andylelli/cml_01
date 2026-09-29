@@ -45,3 +45,24 @@ describe('generation-params — DEFAULT_CONFIG fallback parity with live YAML (A
     expect(live.agent3b_hard_logic_devices.params.model.max_tokens).toBe(6000);
   });
 });
+
+// A7-D06 — act ratios are a pair. Clamped one at a time, 0.8 + 0.8 gave act 3 a negative share and hung
+// the scene-count rebalance; a pair that leaves act 3 under 0.1 now falls back to the defaults.
+describe('generation-params — act distribution is clamped as a pair (A7-D06)', () => {
+  it('keeps a valid pair, clamps each ratio to [0.1, 0.8]', async () => {
+    const { clampActDistribution } = await import('../generation-params.js');
+    expect(clampActDistribution({ act1_ratio: 0.3, act2_ratio: 0.5 })).toEqual({ act1_ratio: 0.3, act2_ratio: 0.5 });
+    expect(clampActDistribution({ act1_ratio: 0.05, act2_ratio: 0.5 })).toEqual({ act1_ratio: 0.1, act2_ratio: 0.5 });
+  });
+  it('falls back to the defaults when act 3 would be under 0.1 (0.8 + 0.8 used to leave it at -0.6)', async () => {
+    const { clampActDistribution } = await import('../generation-params.js');
+    const dflt = DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution;
+    expect(clampActDistribution({ act1_ratio: 0.8, act2_ratio: 0.8 })).toEqual({ act1_ratio: dflt.act1_ratio, act2_ratio: dflt.act2_ratio });
+    expect(clampActDistribution({ act1_ratio: 0.45, act2_ratio: 0.5 })).toEqual({ act1_ratio: dflt.act1_ratio, act2_ratio: dflt.act2_ratio });
+    expect(clampActDistribution({ act1_ratio: 0.4, act2_ratio: 0.5 })).toEqual({ act1_ratio: 0.4, act2_ratio: 0.5 });
+  });
+  it('the live config is a valid pair', () => {
+    const d = getGenerationParams().agent7_narrative.params.pacing.act_distribution;
+    expect(1 - d.act1_ratio - d.act2_ratio).toBeGreaterThanOrEqual(0.1 - 1e-9);
+  });
+});
