@@ -6,7 +6,7 @@
 import { selectChapterAtoms } from "../asset-library.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
-import { CLUE_TOKEN_STOPWORDS, tokenizeForClueObligation } from "./clue-validation.js";
+import { CLUE_TOKEN_STOPWORDS } from "./clue-validation.js";
 import { tokenizeWords, toNgrams, jaccardSimilarity } from "./lint.js";
 import type { ProseChapter } from "./types.js";
 // ─────────────────────────────────────────────────────────────────────────────

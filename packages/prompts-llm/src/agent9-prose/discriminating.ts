@@ -6,7 +6,6 @@ import { isVictimArchetype } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
-import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 import { surfaceSpecKeyTerms } from "./clue-validation.js";
 import { provesTheAct } from "../agent3-means-link.js";
 

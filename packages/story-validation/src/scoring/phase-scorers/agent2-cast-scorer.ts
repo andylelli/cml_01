@@ -4,13 +4,10 @@ import {
   fail,
   partial,
   exists,
-  hasMinLength,
-  validateSchema,
   calculateCategoryScore,
   scoreArrayCompleteness,
   checkDuplicates,
   getCriticalFailures,
-  inRange,
 } from '../scorer-utils.js';
 
 /**

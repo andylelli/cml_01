@@ -10,9 +10,7 @@ import { createHash } from "node:crypto";
 import type { CaseData } from "@cml/cml";
 import {
   getGenerationParams,
-  getStoryLengthTarget,
   resolveSceneWordBudget,
-  anonymizeUnknownTitledNames,
 } from "@cml/story-validation";
 import { selectChapterAtoms, buildAssetLibrary } from "../asset-library.js";
 import type { AssetLibrary } from "../types/asset-library.js";
@@ -22,7 +20,6 @@ import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
 import {
   ARC_POSITION_REGISTER,
   ARC_POS_TO_SCENE_TYPE,
-  HIGH_TENSION_POSITIONS,
 } from "../constants/arc-position.js";
 import {
   capitalizeWord,
@@ -35,25 +32,18 @@ import {
   getChapterWordTargets,
   getPromptPreferredWords,
   getRequiredClueIdsForScene,
-  CLUE_TOKEN_STOPWORDS,
   surfaceSpecKeyTerms,
-  tokenizeForClueObligation,
   resolveStageModeKey,
-  formatStageModeLabel,
   resolveCmlSceneRefChapterNumber,
   sceneMatchesCmlSceneRef,
 } from "./clue-validation.js";
 import {
   buildStageModeContractBlock,
-  formatCompositionLabel,
   getStageModeProfile,
 } from "./narrative-balance.js";
 import {
   buildIdentityMap,
   tagCharacter,
-  sanitizeClueField,
-  extractBeatFingerprints,
-  detectRecurringPhrases,
   formatProvisionalScoringFeedbackBlock,
   selectSensoryVariant,
 } from "./phrase-analysis.js";
@@ -88,7 +78,6 @@ import type {
   ProseChapter,
   ChapterSummary,
   ProseGenerationInputs,
-  MacroArcEntry,
 } from "./types.js";
 
 // ── S6 prerequisite (architecture/REVIEW_01.md) ─────────────────────────────────

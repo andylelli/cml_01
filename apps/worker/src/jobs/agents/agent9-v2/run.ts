@@ -39,7 +39,6 @@ import {
   parseEditList,
   parseWriterOutput,
   planSegments,
-  priorChapters,
   revealOperation,
   mechanismOperation,
   humourMove,

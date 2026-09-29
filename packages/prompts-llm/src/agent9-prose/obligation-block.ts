@@ -19,29 +19,23 @@ import {
   isClueOwnershipEnabled,
   isClueOwnershipByPageEnabled,
   partitionCluesByPage,
-  isBehaviouralClue,
   isAftermathFinalScene,
-  isDeliveryMethodLabel,
   resolveSceneRef,
   type SceneRefPath,
   sceneMatchesCmlSceneRef,
   surfaceSpecKeyTerms,
-  tokenMatchesText,
-  tokenizeForClueObligation,
 } from "./clue-validation.js";
 import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
-import { getSeasonAllowList, capitalizeWord } from "./lint.js";
+import { getSeasonAllowList } from "./lint.js";
 import { HUMOUR_STYLES } from "./prompt-blocks.js";
 import { chapterCarriesWitBeat, UNDERSTATED_STYLES, SHARP_STYLES } from "../humour-level.js";
 import { buildOffstageActorLines, isOffstageActorsEnabled } from "../agent3-offstage-actors.js"; // A_96 F3
 import type { CanonicalSeason } from "./lint.js";
-import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
 import { getTieredBannedPhrasePolicy } from "./banned-phrases.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 import type {
   ProseChapter,
-  ChapterRequirementLedgerEntry,
   MacroArcEntry,
   ProseGenerationInputs,
 } from "./types.js";

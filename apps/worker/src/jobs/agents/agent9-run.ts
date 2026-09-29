@@ -32,7 +32,6 @@ import {
   resolveVictimName,
   stampDeployedAtoms,
   extractBeatFingerprints,
-  buildMacroArcPlan,
   buildMacroArcPlanFromBeats,
   precompileStoryContract,
   RESOLUTION_RE,
@@ -40,11 +39,9 @@ import {
   isAtomicLockedFactValue,
   getForbiddenTimeForms,
   isWordFormTimeValue,
-  checkMechanismEnvironmentConsistency,
   buildStoryWorldState,
   runContradictionGate,
   verifyDiscriminator,
-  buildStoryBible,
   runScaffoldRegenPass,
   applyScaffoldExhaustionFloor,
   culpritEvidenceLinkInText,
@@ -96,7 +93,6 @@ import {
   INJECTED_SENTENCE_PATTERNS,
   // REVIEW_05 §10.6 (X4) — the rules that bind the model, applied to what the floors write.
   findModelBoundRuleViolations,
-  type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
@@ -297,7 +293,6 @@ import {
   persistentMojibakePattern,
   sanitizeProseText,
   enforceReadableParagraphFlow,
-  splitLongParagraphForReadability,
   normalizeWrappedParagraphText,
 } from "./agent9/prose-text.js";
 export { illegalControlCharPattern, persistentMojibakePattern, sanitizeProseText };

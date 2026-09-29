@@ -5,12 +5,8 @@ import {
   fail,
   partial,
   exists,
-  hasMinWords,
-  validateSchema,
   calculateCategoryScore,
-  scoreTextQuality,
   getCriticalFailures,
-  TestCategory,
 } from '../scorer-utils.js';
 
 /**

@@ -12,7 +12,6 @@ import { scoreWorldDocumentPhase } from "./phase-scoring.js";
 import { generateWorldDocument } from "@cml/prompts-llm";
 import {
   type OrchestratorContext,
-  appendRetryFeedback,
   executeAgentWithRetry,
 } from "./shared.js";
 

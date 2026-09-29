@@ -3,7 +3,7 @@
  * This is the CORE agent - the backbone of the mystery generation system
  */
 
-import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
+import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { resolveDesignModel } from "./utils/model-tiers.js";

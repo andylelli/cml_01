@@ -4,10 +4,8 @@ import {
   fail,
   partial,
   exists,
-  hasMinWords,
   calculateCategoryScore,
   getCriticalFailures,
-  scoreTextQuality,
 } from '../scorer-utils.js';
 
 /**

@@ -7,7 +7,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { extractClockValues } from "@cml/cml";
 import { isPhraseLockedBoundaryGuardEnabled } from "./phrase-analysis.js";
-import { countWords, getRequiredClueIdsForScene, restoreProperNounCasing } from "./clue-validation.js";
+import { countWords, restoreProperNounCasing } from "./clue-validation.js";
 import {
   capitalizeWord,
   getSeasonAllowList,

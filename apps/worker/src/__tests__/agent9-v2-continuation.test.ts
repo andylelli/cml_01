@@ -20,7 +20,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildContractInput, generateBookV2 } from "../jobs/agents/agent9-v2/run.js";
+import { generateBookV2 } from "../jobs/agents/agent9-v2/run.js";
 import { resetRoleCache } from "../jobs/agents/agent9-v2/roles.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 

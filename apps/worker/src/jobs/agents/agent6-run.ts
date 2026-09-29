@@ -21,7 +21,6 @@ import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
-  type InferenceCoverageResult,
   applyClueGuardrails,
   clearWarningsInPlace,
   preAgent9LlmRetriesEnabled,
@@ -34,7 +33,6 @@ import {
 import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,
-  type FairPlayFailureClass,
 } from "./agent6-escalation-policy.js";
 import {
   parseRevealGateMode,

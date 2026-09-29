@@ -3,7 +3,7 @@
  */
 
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
-import type { ChatOptions, ChatResponse, Message } from "./types.js";
+import type { ChatOptions, ChatResponse } from "./types.js";
 import { withRetry, CircuitBreaker, defaultRetryConfig } from "./retry.js";
 import { RateLimiter } from "./ratelimit.js";
 import { CostTracker } from "./cost-tracker.js";

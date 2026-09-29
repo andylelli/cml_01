@@ -38,7 +38,7 @@ import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
-import { getSceneTarget, STORY_LENGTH_TARGETS, getStoryLengthTarget } from "@cml/story-validation";
+import { getSceneTarget, getStoryLengthTarget } from "@cml/story-validation";
 
 /**
  * REMOVED 2026-08-20 — `normalizeOutlineTemporalAnchors` and its helpers.

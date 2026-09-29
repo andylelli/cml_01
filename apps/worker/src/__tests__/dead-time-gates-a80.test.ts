@@ -8,7 +8,7 @@
  * have exposed either.
  */
 
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { detectLockedFactClueTimeMismatch } from '../jobs/agents/agent9-run.js';
 import { checkLockedFactTimeAlignment } from '../jobs/agents/agent3-run.js';

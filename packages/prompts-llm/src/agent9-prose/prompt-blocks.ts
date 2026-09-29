@@ -4,20 +4,16 @@
  * location profiles, temporal context, setting, fair-play, pronoun accuracy.
  */
 import { selectChapterAtoms } from "../asset-library.js";
-import {
-  ARC_POS_TO_SCENE_TYPE,
-  HIGH_TENSION_POSITIONS,
-} from "../constants/arc-position.js";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { tagCharacter, selectSensoryVariant, compileSensoryAtoms } from "./phrase-analysis.js";
+import { tagCharacter, selectSensoryVariant } from "./phrase-analysis.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { getSeasonAllowList, deriveTemporalSeasonLock } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { surfaceSpecKeyTerms } from "./clue-validation.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { AssetLibrary } from "../types/asset-library.js";
-import type { ProseChapter, MacroArcEntry, ProseGenerationInputs } from "./types.js";
+import type { ProseGenerationInputs } from "./types.js";
 export function buildPronounAccuracyBlock(cast: any[]): string {
   if (!cast || cast.length === 0) return '';
 

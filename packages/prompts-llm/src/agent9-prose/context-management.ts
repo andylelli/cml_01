@@ -6,12 +6,6 @@
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import { isInjectedSentence } from "./injection-templates.js";
 import {
-  ARC_POSITION_REGISTER,
-  ARC_POS_TO_SCENE_TYPE,
-  HIGH_TENSION_POSITIONS,
-} from "../constants/arc-position.js";
-import {
-  getGenerationParams,
   // X95 — one opening-grounding vocabulary, rendered here rather than re-typed.
   OPENING_SENSORY_MARKERS,
   OPENING_ATMOSPHERE_MARKERS,
@@ -22,7 +16,6 @@ import type { NarrativeState } from "../types/narrative-state.js";
 import type {
   ProseChapter,
   ChapterSummary,
-  ProseGenerationInputs,
 } from "./types.js";
 /**
  * A_73 §30 — `AGENT9_CONTINUITY_SPAN`, read at CALL time, not at module load (the dotenv-freeze

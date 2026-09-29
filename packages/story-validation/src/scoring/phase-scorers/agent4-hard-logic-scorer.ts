@@ -4,7 +4,6 @@ import {
   fail,
   partial,
   exists,
-  hasMinLength,
   calculateCategoryScore,
   getCriticalFailures,
 } from '../scorer-utils.js';

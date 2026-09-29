@@ -5,13 +5,11 @@ import { fileURLToPath } from "url";
 import yaml from "js-yaml";
 import {
   DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS,
-  GROUNDING_STOP_WORDS,
   collectCaseNameTokens,
   collectReaderVisibleEvidenceCorpus,
   extractGroundingPhrases,
   extractGroundingTerms,
   normalizeGroundingText,
-  normalizeGroundingToken,
 } from "./grounding.js";
 
 export type CmlValidationResult = {

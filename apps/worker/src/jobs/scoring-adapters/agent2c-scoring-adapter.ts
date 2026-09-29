@@ -1,4 +1,4 @@
-import type { KeyLocation, LocationProfilesResult } from "@cml/prompts-llm";
+import type { LocationProfilesResult } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 2c: Location Profiles

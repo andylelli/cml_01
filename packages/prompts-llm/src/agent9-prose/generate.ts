@@ -26,7 +26,6 @@ import {
   formatGroundingMarkers,
   getGenerationParams,
   getPronounPolicySettings,
-  getStoryLengthTarget,
   repairChapterPronouns,
   repairPronouns,
   detectPronounDriftEvents,
@@ -35,16 +34,16 @@ import {
 } from "@cml/story-validation";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { CastDesign } from "../agent2-cast.js";
-import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
+import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { NarrativeState } from "../types/narrative-state.js";
-import { classifyOpeningStyle, initNarrativeState, updateNSD } from "../types/narrative-state.js";
-import { buildAssetLibrary, selectChapterAtoms } from "../asset-library.js";
+import { initNarrativeState, updateNSD } from "../types/narrative-state.js";
+import { buildAssetLibrary } from "../asset-library.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import {
   buildProseRequestContract,
   validateRequestContract,
 } from "../contracts/prose-request-contract.js";
-import type { BatchCommitRecord, BatchGateName } from "../contracts/batch-commit-record.js";
+import type { BatchCommitRecord } from "../contracts/batch-commit-record.js";
 import {
   buildRetryFeedback,
   classifyFailure,
@@ -52,41 +51,27 @@ import {
 } from "../retry-protocol.js";
 import type { RetryPacket } from "../retry-protocol.js";
 import {
-  ARC_POSITION_REGISTER,
-  ARC_POS_TO_SCENE_TYPE,
-  HIGH_TENSION_POSITIONS,
-} from "../constants/arc-position.js";
-import {
   countWords,
-  getChapterWordTargets,
   getPromptPreferredWords,
   getAgent9CostTotal,
-  ALL_BATCH_GATES,
   initBatchGateFailureCounts,
-  inferBatchGatesFromError,
   noteBatchGateFailures,
   buildBatchGateOutcomes,
-  CLUE_TOKEN_STOPWORDS,
   tokenizeForClueObligation,
   isBehaviouralClue,
   isDeliveryMethodLabel,
   tokenMatchesText,
-  getRequiredClueIdsForScene,
   buildChapterRequirementLedger,
   chapterMentionsRequiredClue,
   resolveStageModeKey,
   sceneMatchesCmlSceneRef,
   validateChapterPreCommitObligations,
   validateBatchInferenceChain,
-  RESOLUTION_RE,
   buildResolutionBackstopSentence,
   surfaceSpecKeyTerms,
   detectRestagedRevealViolations,
 } from "./clue-validation.js";
 import {
-  tokenizeWords,
-  toNgrams,
-  jaccardSimilarity,
   lintBatchProse,
   findBoundaryIntegrityFindings,
   MONTH_TO_SEASON,
@@ -97,19 +82,14 @@ import {
 } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import {
-  sanitizeScenesCharacters,
   sanitizeGeneratedChapter,
   stripInternalAuditPhrasing,
   enforceMinimumParagraphStructure,
   normalizeProseCastOrThrow,
-  stripAuditField,
   parseProseResponse,
 } from "./sanitization.js";
 import {
-  extractBeatFingerprints,
   detectRecurringPhrases,
-  buildIdentityMap,
-  tagCharacter,
   selectSensoryVariant,
 } from "./phrase-analysis.js";
 import {
@@ -125,9 +105,6 @@ import { buildProsePrompt, resolveVictimName, resolveDeathMethod } from "./promp
 import { stripLocationParagraphs } from "./prompt-blocks.js";
 import {
   extractChapterSummary,
-  buildContinuityContext,
-  buildStoryToDateBlock,
-  buildSceneGroundingChecklist,
 } from "./context-management.js";
 import { buildDiscriminatingTestChecklist } from "./discriminating.js";
 import {
