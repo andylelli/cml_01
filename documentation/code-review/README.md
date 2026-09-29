@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 4 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 5 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -50,7 +50,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 |---|---|---|---|---|---|---|
 | CR-01 | done | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable — `.github/workflows/ci.yml`; 4 Linux-only failures fixed; fresh-clone Linux run 5,146 tests green (`b794b376`) | — | R0 | S |
 | CR-02 | done | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) — `npm run size:check`; 13 files > 1,500 code lines and 24 functions > 400 lines tracked; `runAgent9` baseline 4,676 (`72265dfc`) | A9W-19 | R0 | S |
-| CR-03 | wip | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` — [REPLAY.md](REPLAY.md); `npm run replay:check` in CI; Agent 6.5 telemetry nondeterminism fixed behind `AGENT65_OMIT_RUN_TELEMETRY`; 4 fixtures MATCH incl. the full pipeline (Agents 1 → 9, `RESUME_REDO=setting`) with a pinned novelty ledger; SCO-12 golden scoring characterisation in the worker suite (phase bodies → `phase-scoring.ts`); open: ORC-07/Q02 replay rubric (`1374e38e`, `170696cd`) | A9W-15, SCO-12 | R0 | M–L |
+| CR-03 | done | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` — [REPLAY.md](REPLAY.md); `npm run replay:check` in CI; Agent 6.5 telemetry nondeterminism fixed behind `AGENT65_OMIT_RUN_TELEMETRY`; 4 fixtures MATCH incl. the full pipeline (Agents 1 → 9, `RESUME_REDO=setting`) with a pinned novelty ledger; SCO-12 golden scoring characterisation in the worker suite (phase bodies → `phase-scoring.ts`); ORC-07 refactor (`0126b92e`); open, owner: ORC-D02/Q02 — the old agent9-replay's own rubric copy (`1374e38e`, `170696cd`, `af585b83`) | A9W-15, SCO-12 | R0 | M–L |
 | CR-04 | done | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) — 7 found by `npm run deps:check`, all declared; lockfile no longer needs a Font Awesome token (`fc6f52c7`) | A9V, A1X-D13 | R0 | S |
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
 | CR-06 | todo | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
