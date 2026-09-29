@@ -47,7 +47,7 @@ A9G-11	CR-16	todo
 A9G-12	CR-08	done	3295ad4e 5662ca4c 094de134	imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split)
 A9G-13	CR-30	todo		
 A9G-14	CR-13	todo		
-A9G-15	CR-11	todo		
+A9G-15	CR-11	deferred		measurement for S6; its conclusion (a leaf prose-contracts package) is the owner's question A9G-Q03
 A9G-16	CR-28	todo		
 A9G-17	CR-31	todo		
 A9G-D01	CR-30	todo		
@@ -340,7 +340,7 @@ ORC-06	CR-10	done	9232c483	shared.ts -> context, premise, clue-guardrails, outli
 ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02
 ORC-08	CR-17	todo		
 ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
-ORC-10	CR-11	todo		
+ORC-10	CR-11	done	92aba0fe	111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn)
 ORC-11	CR-07	todo		
 ORC-12	CR-33	todo		
 ORC-13	CR-31	todo		

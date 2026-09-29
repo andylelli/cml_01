@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 8 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 9 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -58,7 +58,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-08 | done | 2 | Delete compiler-proven dead code across the scope — 118 unused imports (dist byte-identical), 21 locals, ~600 lines of dead exports/methods/clones, unreachable Agent 6 branches, Agent 6.5 reads its YAML; `tsc --noUnusedLocals` now reports only castCompositionRule (CR-07) and one test variable. Kept: A/B harness (👤 CR-30), v1-only behaviour (bug-fix-only) (`3295ad4e`…`3d63527f`) | A9W-14, A9G-12, A9V-13, A9R-11, A9P-16, A5-13, A34-13, ORC-09, SCO-11 | R0 | M |
 | CR-09 | todo (waits: v1 kept, bug fixes only) | 2 | Agent 9 helper layer (3,645 lines) → 12 modules behind re-export shims — MEASURED 2026-09-29: every consumer is below `runAgent9`'s v2 early return, so the layer is v1-only and waits with CR-26 | A9W-12 | R0 | M |
 | CR-10 | done | 2 | Split `shared.ts`; break the type-only import cycles — shared.ts → 7 modules + shim, run contract module, leaf cast/clue types, Agent 5 contracts out of the runner (4,600 → 1,961 lines) into 7 modules; agent-metrics reports 0 cycles (`9232c483`, `fdd6c939`) | ORC-06, A1X-13 | R0 | M |
-| CR-11 | todo | 2 | Replace the root barrel with subpath exports (215 of 362 names never imported through it) | ORC-10 | R0 | S |
+| CR-11 | done | 2 | Replace the root barrel with subpath exports (215 of 362 names never imported through it) — re-measured: 451 names, 269 never; the 111 unused values removed, types kept (declaration emit needs them); `exports` map with `./agent9-prose` (`92aba0fe`). S6 itself stays 👤 A9G-Q03 | ORC-10 | R0 | S |
 | CR-12 | todo | 3 | **One identity module**: victim / suspect / detective / culprit predicates (9 + 5 + 8 bodies today) | A9W-04, A1X-01, A34-02, A9R-04, A6-07 | R1→R2 | M |
 | CR-13 | todo | 3 | **One typed case view** (`CaseData = any` today) and one `CaseBrief` for prompt summaries | A5-04, A7-03, A6-10, A6-18, A9P-13, A9W-05 | R1 | L |
 | CR-14 | todo | 3 | **One CML normaliser** (two today, 185 identical lines, 23/25 fields diverge) | A34-01 | R1→R2 | L |

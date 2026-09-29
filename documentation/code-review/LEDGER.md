@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 24 | 30 | 0 | 54 |
-| open | 166 | 109 | 72 | 347 |
+| closed | 25 | 30 | 0 | 55 |
+| open | 165 | 109 | 72 | 346 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -27,7 +27,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 0 | A9W-12 |
 | CR-10 | 5 | 4 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
-| CR-11 | 3 | 0 | A9G-15 A9G-Q03 ORC-10 |
+| CR-11 | 3 | 1 | A9G-15 A9G-Q03 ORC-10 |
 | CR-12 | 17 | 1 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 0 | A34-01 A34-D16 A34-Q01 |
@@ -188,7 +188,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-12 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports | imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split) |
 | A9G-13 | P2 | R2 | CR-30 | todo |  | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry |  |
 | A9G-14 | P2 | R0/R1 | CR-13 | todo |  | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any |  |
-| A9G-15 | P2 | R0 | CR-11 | todo |  | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found |  |
+| A9G-15 | P2 | R0 | CR-11 | deferred |  | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found | measurement for S6; its conclusion (a leaf prose-contracts package) is the owner's question A9G-Q03 |
 | A9G-16 | P2 | R2 | CR-28 | todo |  | context-management does no budgeting; its STORY TO DATE block (all prior text) bypasses budgeting |  |
 | A9G-17 | P3 | R1/R2 | CR-31 | todo |  | Vocabulary and regex copies: hard-coded atmosphere list (28 of 39 words), DT regex ×4, leakage regex ×2 |  |
 | A9G-D01 |  |  | CR-30 | todo |  | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… |  |
@@ -526,7 +526,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
 | ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
 | ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |
-| ORC-10 | P2 | R0 | CR-11 | todo |  | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports |  |
+| ORC-10 | P2 | R0 | CR-11 | done | 92aba0fe | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports | 111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn) |
 | ORC-11 | P2 | R2 | CR-07 | todo |  | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers |  |
 | ORC-12 | P2 | R1 | CR-33 | todo |  | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry |  |
 | ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
