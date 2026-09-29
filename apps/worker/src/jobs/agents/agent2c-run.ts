@@ -75,7 +75,7 @@ const SENSORY_FALLBACK_ATOMS: string[] = ([
   ...SENSORY_FALLBACK_VARIANTS.sounds,
   ...SENSORY_FALLBACK_VARIANTS.smells,
   ...SENSORY_FALLBACK_VARIANTS.tactile,
-] as ReadonlyArray<(place: string) => string>).map((make) => make("").replace(/s+/g, " ").trim());
+] as ReadonlyArray<(place: string) => string>).map((make) => make("").replace(/\s+/g, " ").trim()); // A1X-D02: was /s+/g (the letter s)
 
 const normalizeSensoryPhrase = (value: unknown): string => {
   if (typeof value !== "string") return "";

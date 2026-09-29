@@ -3,6 +3,7 @@
  * Core prose generation loop: generateProse() orchestrator, batch scoring,
  * retry feedback, victim-alive detection, and pronoun-error extraction.
  */
+import { BatchCallbackFailure, runBatchCallback } from "./batch-callback-failure.js";
 import { isVictimArchetype } from "@cml/cml";
 import { detectRetryRegression, retryRegressionGuardEnabled, describeRetryLosses } from "@cml/prose-guard";
 import { createHash } from "node:crypto";
@@ -4613,7 +4614,7 @@ export async function generateProse(
                 chapter: chapterEnd,
               }
             : undefined;
-          await inputs.onBatchComplete(
+          await runBatchCallback(() => inputs.onBatchComplete!( // committed: a throw is never retried (A9G-D04)
             proseBatch.chapters,
             chapterStart,
             chapterEnd,
@@ -4621,7 +4622,7 @@ export async function generateProse(
             batchUsedTextureAtomIds,
             nsdCheckpoint,
             batchCommitRecord,
-          );
+          ));
         }
 
         batchSuccess = true;
@@ -4635,6 +4636,7 @@ export async function generateProse(
 
         break;
       } catch (error) {
+        if (error instanceof BatchCallbackFailure) throw error.cause;
         const errorMsg = error instanceof Error ? error.message : String(error);
         // A_86 item 4 — re-issue rather than spend a content attempt. See the loop header.
         if (transportReissuesLeft > 0 && isTransportFailureMessage(errorMsg)) {

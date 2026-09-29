@@ -320,7 +320,7 @@ code generations differ in ways nothing records.
   `AGENT2C_SCENE_GATE` · `AGENT2C_SPINE_CHECK` · `AGENT2E_DERIVE_BACKGROUND` · `AGENT5_ENABLE_LLM_RETRIES` ·
   `AGENT6_BLIND_READER_BLOCKING` · `AGENT6_REVEAL_GATE` · `AGENT7_CLUE_JOB_AUTHORITY` ·
   `AGENT7_SCHEDULER_AUTHORITATIVE` · `AGENT_PRE9_ENABLE_LLM_RETRIES` ·
-  `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` · `NOVELTY_CROSS_RUN` · `NOVELTY_MODE` · `NOVELTY_SKIP` ·
+  ~~`AGENT_PRE9_ENABLE_CONTRACT_RECOVERY`~~ (default ON — corrected 2026-09-29, see the CR-06 addendum) · `NOVELTY_CROSS_RUN` · `NOVELTY_MODE` · `NOVELTY_SKIP` ·
   `RUBRIC_STRUCTURAL_CAPS_A68`
 - **SET in `.env.local`, so at least the choice is recorded:** `AGENT3B_PLAUSIBILITY_JUDGE=shadow` ·
   `AGENT6_DT_EVIDENCE_COMPLETENESS=true` · `AGENT7_DISCOVERY_TELL=true` ·
@@ -946,3 +946,28 @@ is the only nondeterminism between two rebases of the from-clues replay (byte 91
 | Flag | State | Verdict | Evidence / blocker |
 |---|---|---|---|
 | `AGENT65_OMIT_RUN_TELEMETRY` | unset → off (`=== 'true'`, read at call time); **`true` in the `from-clues-d0ee7b26` replay fixture only** | **DEFER — owner's call to promote** | ON drops the root `cost` and `durationMs` of each artifact before it is serialised into the prompt; nested keys (`"cost": "4d"` in a price list) are story content and stay. Removes ~60 bytes of numbers the model has no use for. No read can measure it — the change is below any instrument this project has — so promotion is a judgement, not a probe. Pinned by `agent65-world-builder.test.ts`. |
+
+## Addendum — nine levers the checker could not see, and one wrong default (code review CR-06, 2026-09-29)
+
+`flag-register-check.mjs` polices env vars by PREFIX, and nine behaviour levers matched none — so the register
+could not name them and `flags:check` reported clean over them (VERIFIED-BUGS #22 found `CML_REPAIR_MODE`). They
+are now named in the checker; three were already documented here, the six below were not. Defaults are read from
+the code at each site (MEASURED).
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `CML_REPAIR_MODE` | unset → `rewrite` | CONFIG | `agent3-cml.ts`: `patch` \| `rewrite` \| `shadow` for Agent 3's CML repair; `patch` is the ANALYSIS_53 opt-in. |
+| `ENABLE_SCORING` | **`true` in `.env` and `.env.local`**; unset → off | CONFIG — the scoring master switch | `mystery-orchestrator.ts`, read through `parseBooleanEnv` since CR-06 (ORC-D07): `1`/`yes`/`on` count; before, only the string `true` did. |
+| `ENABLE_PROSE_BLIND_READER` | unset → off | DEFER — no probe recorded | `prose-blind-reader.ts`; accepts `1`/`true`/`yes`/`y`/`on` since CR-06 (ORC-D07). |
+| `HONEST_SCORERS` | unset → `off` | DEFER — ANALYSIS_50 Phase 3 | `off` returns the vanity score (production); `shadow` logs vanity↔honest; `enforce` returns the honest score. Characterised on the golden bundles by `phase-scoring-golden.test.ts` (SCO-12). |
+| `ALLOW_MULTIPLE_RETRY_GATES` | unset → off | CONFIG | `retry-gate-guard.ts`: overrides the one-retry-gate-per-run refusal. |
+| `LLM_RETRY_TEMP_ESCALATION` | unset → **on** | DEFER | `llm-client/client.ts`: off-words (`0`/`off`/`false`/`no`) disable the temperature escalation on transport retries; anything else, including unset, leaves it on. |
+
+**Correction — `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` is default-ON.** Addendum 5 lists it under "Default OFF,
+mode-valued". `preAgent9ContractRecoveryEnabled()` (`agents/shared.ts`) returns `true` when unset and on any value
+it does not recognise; only `0`/`false`/`no`/`off` disable it (code review A34-D14, SCO-D11, A1X-D07). It belongs
+in Addendum 5's default-ON table:
+
+| Flag | Resolution line | Default |
+|---|---|---|
+| `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` | `if (!raw) return true;` … off-words → `false`; anything else → `true` | **ON** |

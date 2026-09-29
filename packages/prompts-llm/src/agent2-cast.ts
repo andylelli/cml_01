@@ -1021,10 +1021,7 @@ export async function designCast(
         cast,
         attempt,
         latencyMs,
-        // Like every other generator: this label's running total on the client. It was hard-coded 0, so
-        // Agent 2 was absent from every run's totalCost (CR-06 / A1X-09).
-        // Optional-chained: a telemetry read must never turn a good cast into a failed attempt.
-        cost: client.getCostTracker?.()?.getSummary().byAgent["Agent2-CastDesigner"] || 0,
+        cost: client.getCostTracker?.()?.getSummary().byAgent["Agent2-CastDesigner"] || 0, // was 0 (CR-06); `?.`: never fail a cast on telemetry
       };
     } catch (error) {
       if (attempt === resolvedMaxAttempts) {

@@ -11,6 +11,10 @@ export const DEFAULT_THRESHOLDS: Record<string, number> = {
   // Strict phases (logic-critical)
   // Keys must match the `agent` field set by each scorer class
   'agent4-hard-logic': 85,             // HardLogicScorer
+  // SCO-D02: the honest Agent 3b scorer (scoreRealHardLogic) names itself 'agent3b-hard-logic'. Missing here, it
+  // fell to the 75 default under HONEST_SCORERS=enforce while the report showed 85. One bar per phase,
+  // whichever scorer graded it — the same in every mode as 'agent4-hard-logic'.
+  'agent3b-hard-logic': 85,
   'agent9-prose': 80,                  // ProseScorer
 
   // Standard phases (important but recoverable)
@@ -43,6 +47,7 @@ export const THRESHOLD_MODES = {
   strict: {
     default: 85,
     'agent4-hard-logic': 90,
+    'agent3b-hard-logic': 90,
     'agent9-prose': 85,
   },
   standard: {
@@ -52,6 +57,7 @@ export const THRESHOLD_MODES = {
   lenient: {
     default: 65,
     'agent4-hard-logic': 75,
+    'agent3b-hard-logic': 75,
     'agent9-prose': 70,
   },
 };

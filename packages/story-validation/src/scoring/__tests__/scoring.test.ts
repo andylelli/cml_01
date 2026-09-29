@@ -600,3 +600,22 @@ describe("ScoreAggregator", () => {
     expect(report.passed).toBe(false);
   });
 });
+
+// SCO-D02 — the honest Agent 3b scorer names itself 'agent3b-hard-logic'; its bar is the vanity
+// HardLogicScorer's ('agent4-hard-logic') in every mode, not the 75 fallback.
+describe("thresholds — Agent 3b's honest scorer has the hard-logic bar (SCO-D02)", () => {
+  const score = (agent: string, total: number): PhaseScore => ({
+    agent, total, grade: "B", passed: true, tests: [],
+    validation_score: 100, quality_score: 100, completeness_score: 100, consistency_score: 100,
+  } as PhaseScore);
+  it("an 80 fails agent3b-hard-logic exactly as it fails agent4-hard-logic", async () => {
+    const { passesThreshold } = await import("../thresholds.js");
+    for (const mode of ["standard", "strict", "lenient"] as const) {
+      for (const total of [74, 76, 80, 86, 91]) {
+        expect(passesThreshold(score("agent3b-hard-logic", total), { mode }))
+          .toBe(passesThreshold(score("agent4-hard-logic", total), { mode }));
+      }
+    }
+    expect(passesThreshold(score("agent3b-hard-logic", 80), { mode: "standard" })).toBe(false);
+  });
+});

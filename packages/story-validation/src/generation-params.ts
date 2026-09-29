@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "fs";
+import { actRatiosAsPair } from "./act-distribution.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { load as parseYaml } from "js-yaml";
@@ -807,20 +808,6 @@ const clampNumber = (value: unknown, fallback: number, min: number, max: number)
   return Math.min(max, Math.max(min, value));
 };
 
-/**
- * Act ratios are a PAIR: each is clamped to [0.1, 0.8], and act 3 gets what is left. Clamped one at a time,
- * 0.8 + 0.8 left act 3 at -0.6 — a negative scene count in the prompt and a rebalance loop that never ends
- * (A7-D06). A pair that leaves act 3 under the same 0.1 floor falls back to the defaults, as an invalid
- * single value does.
- */
-export const clampActDistribution = (src: { act1_ratio?: unknown; act2_ratio?: unknown } | undefined): { act1_ratio: number; act2_ratio: number } => {
-  const dflt = DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution;
-  const act1_ratio = clampNumber(src?.act1_ratio, dflt.act1_ratio, 0.1, 0.8);
-  const act2_ratio = clampNumber(src?.act2_ratio, dflt.act2_ratio, 0.1, 0.8);
-  if (1 - act1_ratio - act2_ratio < 0.1 - 1e-9) return { act1_ratio: dflt.act1_ratio, act2_ratio: dflt.act2_ratio };
-  return { act1_ratio, act2_ratio };
-};
-
 const resolveDefaultConfigPath = (): string => {
   const currentDir = path.dirname(fileURLToPath(import.meta.url));
   return path.resolve(currentDir, "..", "..", "..", "apps", "worker", "config", "generation-params.yaml");
@@ -1157,7 +1144,10 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         },
         pacing: {
           min_clue_scene_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.min_clue_scene_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.min_clue_scene_ratio, 0.1, 1),
-          act_distribution: clampActDistribution(source.agent7_narrative?.params?.pacing?.act_distribution),
+          act_distribution: actRatiosAsPair({ // A7-D06
+            act1_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.act_distribution?.act1_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution.act1_ratio, 0.1, 0.8),
+            act2_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.act_distribution?.act2_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution.act2_ratio, 0.1, 0.8),
+          }, DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution),
         },
       },
     },

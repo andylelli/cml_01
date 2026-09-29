@@ -101,25 +101,28 @@ After each of the 9 generation agents completes, a scorer evaluates the output a
 | Consistency | 10% | Internal coherence |
 
 A phase score (0–100) is computed as a weighted sum. A phase **passes** if:
-- Composite score ≥ phase threshold (default 75; strict phases use 85)
+- Composite score ≥ phase threshold (see the table below; unlisted phases 75)
 - All four category scores meet their minimum floors: validation ≥ 60, quality ≥ 50, completeness ≥ 60, consistency ≥ 50
 
 ### Retry Behaviour
 
-If a phase fails its threshold, the pipeline automatically retries the LLM call with structured feedback injected into the prompt explaining which tests failed and what is required. Retry limits are configured in `apps/worker/config/retry-limits.yaml`:
+Scoring retries are **off by default**: a phase that fails its threshold is recorded and the run continues. With `AGENT_PRE9_ENABLE_LLM_RETRIES=true`, a failing phase is retried with structured feedback injected into the prompt explaining which tests failed and what is required. Retry limits are configured in `apps/worker/config/retry-limits.yaml`:
 
 - Per-phase retry limits: 2–4 retries depending on phase complexity
-- Global cap: 15 total retries across all phases
-- Backoff: exponential, linear, or none (per-phase config)
-- `abort_on_max_retries: true` — hard-fails the generation if a phase exhausts all retries
+- Global cap: 18 total retries across all phases (`max_total_retries`)
+- Backoff: exponential, linear, or none (per-phase config); the first retry waits the base delay
+- `abort_on_max_retries: true` is set, but the abort is currently swallowed and the run continues (code review VERIFIED-BUGS #13; the fix is an owner decision, CR-07)
 
-### Threshold Modes
+### Phase thresholds (standard mode, the default)
 
-| Mode | Threshold | Used for |
-|---|---|---|
-| Strict | 85 | Hard Logic, Prose |
-| Standard | 75 | Most phases |
-| Lenient | 70 | Background, Temporal |
+| Threshold | Phases |
+|---|---|
+| 85 | Hard logic (Agent 3b — the vanity and the honest scorer alike) |
+| 80 | Prose |
+| 75 | Setting, cast, character and location profiles, narrative outline, and any unlisted phase |
+| 70 | Background, temporal context |
+
+Strict mode raises hard logic to 90 and prose to 85 (85 otherwise); lenient lowers them to 75 and 70 (65 otherwise). The source is `packages/story-validation/src/scoring/thresholds.ts`.
 
 ### Quality Tab in the UI
 
@@ -129,7 +132,7 @@ After a generation run completes, open the **Advanced → Quality** tab to view:
 - **Phase breakdown table** — all 9 phases with scores, grades, expandable category details, test results, and retry history
 - **Trend chart** — score history across the last 10 runs with pass/fail coloring and threshold reference line
 
-The Quality tab is only populated when `ENABLE_SCORING=true` is set and at least one run has completed.
+The Quality tab is only populated when `ENABLE_SCORING` is on (`true`, `1`, `yes` or `on`) and at least one run has completed.
 
 For Agent 9 prose phases, the Quality table now shows two chapter-by-chapter series when a full prose rerun happens: first pass and second run.
 Agent 9 generation now also applies a provisional chapter-scoring loop during batch validation, feeding chapter-specific deficits forward as corrective directives so chapter N influences chapter N+1 prompt constraints before final scoring.

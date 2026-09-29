@@ -53,6 +53,9 @@ export class CharacterProfilesScorer
     output: CharacterProfilesOutput,
     context: ScoringContext
   ): Promise<PhaseScore> {
+    // SCO-D07: every check below reads `output.character_profiles` as an array; a missing one threw, and the caller
+    // logged "Scoring failed" instead of a score. Absent is empty, which the checks grade as a failure.
+    output = { ...output, character_profiles: output?.character_profiles ?? [] };
     const tests: TestResult[] = [];
 
     // VALIDATION TESTS (40% weight)

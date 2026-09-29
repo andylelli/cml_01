@@ -15,6 +15,7 @@
  */
 
 import { parseBooleanEnv } from "./agents/agent9/flags.js";
+import { artifactPersister } from "./artifact-persistence.js";
 import { join } from "path";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { promises as dns } from "dns";
@@ -710,8 +711,7 @@ export async function generateMystery(
   // fingerprint and any agent: nothing has been produced yet, so nothing is lost.
   warnings.push(...assertFlagCapabilities());
 
-  // ORC-D07: `ENABLE_SCORING=1` read as OFF — only the string "true" counted.
-  const enableScoring = parseBooleanEnv(process.env.ENABLE_SCORING, false);
+  const enableScoring = parseBooleanEnv(process.env.ENABLE_SCORING, false); // ORC-D07: `=1` read as off
   let scoreAggregator: ScoreAggregator | undefined;
   let retryManager: RetryManager | undefined;
   let reportRepository: FileReportRepository | undefined;
@@ -1014,16 +1014,18 @@ export async function generateMystery(
       }
     };
 
+    const persistArtifact = artifactPersister(onArtifact, warnings); // ORC-D13
+
     await stage("setting", (c) => runAgent1(c));            // Era & Setting Refiner
-    if (onArtifact && ctx.setting) await onArtifact("setting", ctx.setting).catch(() => {});
+    await persistArtifact("setting", ctx.setting);
     await stage("cast", (c) => runAgent2(c));               // Cast & Motive Designer
-    if (onArtifact && ctx.cast) await onArtifact("cast", ctx.cast).catch(() => {});
+    await persistArtifact("cast", ctx.cast);
     await stage("backgroundContext", (c) => runAgent2e(c)); // Background Context
-    if (onArtifact && ctx.backgroundContext) await onArtifact("background_context", ctx.backgroundContext).catch(() => {});
+    await persistArtifact("background_context", ctx.backgroundContext);
     await stage("hardLogicDevices", (c) => runAgent3b(c));  // Hard-Logic Device Ideation
-    if (onArtifact && ctx.hardLogicDevices) await onArtifact("hard_logic_devices", ctx.hardLogicDevices).catch(() => {});
+    await persistArtifact("hard_logic_devices", ctx.hardLogicDevices);
     await stage("cml", (c) => runAgent3(c));                // CML Generator (+ Agent 4 auto-revision)
-    if (onArtifact && ctx.cml) await onArtifact("cml", ctx.cml).catch(() => {});
+    await persistArtifact("cml", ctx.cml);
 
     // ── Pillar 3 (Unit 3.2): Novelty binding gate ───────────────────────────
     if (inputs.enableBindingGates && ctx.noveltyAudit?.blocking) {
@@ -1043,10 +1045,10 @@ export async function generateMystery(
     }
 
     await stage("clues", (c) => runAgent5(c));              // Clue Distributor
-    if (onArtifact && ctx.clues) await onArtifact("clues", ctx.clues).catch(() => {});
+    await persistArtifact("clues", ctx.clues);
     runClueSpecShadow({ cml: ctx.cml, clues: ctx.clues, warnings }); // shadow: log derived-vs-shipped coverage
     await stage("fairPlayAudit", (c) => runAgent6(c));      // Fair-Play Auditor + clue refinement loop
-    if (onArtifact && ctx.fairPlayAudit) await onArtifact("fair_play_report", ctx.fairPlayAudit).catch(() => {});
+    await persistArtifact("fair_play_report", ctx.fairPlayAudit);
 
     // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
     if (inputs.enableBindingGates && ctx.fairPlayAudit?.blocking) {
@@ -1152,9 +1154,9 @@ export async function generateMystery(
       await stage("locationProfiles", (c) => runAgent2c(c));   // Location Profiles
       await stage("temporalContext", (c) => runAgent2d(c));    // Temporal Context
     }
-    if (onArtifact && ctx.characterProfiles) await onArtifact("character_profiles", ctx.characterProfiles).catch(() => {});
-    if (onArtifact && ctx.locationProfiles) await onArtifact("location_profiles", ctx.locationProfiles).catch(() => {});
-    if (onArtifact && ctx.temporalContext) await onArtifact("temporal_context", ctx.temporalContext).catch(() => {});
+    await persistArtifact("character_profiles", ctx.characterProfiles);
+    await persistArtifact("location_profiles", ctx.locationProfiles);
+    await persistArtifact("temporal_context", ctx.temporalContext);
 
     // ── CML Validation Gate ─────────────────────────────────────────────────
     // Prevents spending prose-generation cost on broken mystery structure.
@@ -1347,7 +1349,7 @@ export async function generateMystery(
 
     // ── World Builder + Narrative Outline ───────────────────────────────────
     await stage("worldDocument", (c) => runAgent65(c));     // World Document synthesis
-    if (onArtifact && ctx.worldDocument) await onArtifact("world_document", ctx.worldDocument).catch(() => {});
+    await persistArtifact("world_document", ctx.worldDocument);
 
     // ── Pillar 2 (Unit 2.1): Assemble Character Context Bundle ────────────────
     if (inputs.enableCharacterBundle && ctx.characterProfiles && ctx.worldDocument) {
@@ -1381,7 +1383,7 @@ export async function generateMystery(
     });
 
     await stage("narrative", (c) => runAgent7(c));          // Narrative Outliner
-    if (onArtifact && ctx.narrative) await onArtifact("outline", ctx.narrative).catch(() => {});
+    await persistArtifact("outline", ctx.narrative);
 
     // ── Agent 7.5: Story Geometry ───────────────────────────────────────────
     // The manuscript contract, derived after the outline and binding on prose
@@ -1391,7 +1393,7 @@ export async function generateMystery(
     // resume. Its artifact is restored by `applyResumeBundle` regardless, and `runAgent75` returns
     // early when the contract is already on ctx. Never throws (ADR-0003).
     await runAgent75(ctx);
-    if (onArtifact && ctx.storyGeometry) await onArtifact("story_geometry", ctx.storyGeometry).catch(() => {});
+    await persistArtifact("story_geometry", ctx.storyGeometry);
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
     if (inputs.enableLockedFactGate && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0 && ctx.narrative) {
@@ -1411,7 +1413,7 @@ export async function generateMystery(
     });
 
     await stage("prose", (c) => runAgent9(c));
-    if (onArtifact && ctx.prose) await onArtifact("prose", ctx.prose).catch(() => {});
+    await persistArtifact("prose", ctx.prose);
 
     // R5 — now that every stage has been decided, name any derived signal a skip cost us.
     noteDegradedResumeSignals();
