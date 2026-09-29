@@ -63,7 +63,7 @@ export async function scoreSettingPhase(setting: AnyObj, warnings: string[]): Pr
   return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(setting), warnings, "agent1-setting") };
 }
 
-/** Agent 2 — cast design. `check` is the runner's memoised `checkCast` (A_53 P10). */
+/** Agent 2 — cast design. `check` is `checkCast` (injected so a test can stub it). */
 export async function scoreCastPhase(
   cast: AnyObj,
   setting: AnyObj,
@@ -85,8 +85,6 @@ export async function scoreCastPhase(
     adapted,
     score: applyHonestScorer(
       score,
-      // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reused by the shadow logger
-      // when this attempt's cast is the one that ships.
       () => scoreRealCast(cast, check(cast, { expectedCount: scorerInput.cast_size }), { expectedCount: scorerInput.cast_size }),
       warnings,
       "agent2-cast",

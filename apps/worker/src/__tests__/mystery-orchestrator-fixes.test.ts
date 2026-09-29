@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { __testables } from "../jobs/mystery-orchestrator.js";
+import {
+  captureNarrativeSceneCountSnapshot,
+  checkNarrativeSceneCountFloor,
+  applyDeterministicCluePreAssignment,
+  rebalanceNarrativeSceneCountsDeterministically,
+} from "../jobs/agents/agent7-run.js";
+import { applyDeterministicProsePostProcessing, isSuspectEliminationCoverageError } from "../jobs/agents/agent9-run.js";
 
 describe("mystery orchestrator fix coverage", () => {
   it("deterministic clue pre-assignment reaches minimum coverage", () => {
@@ -29,7 +36,7 @@ describe("mystery orchestrator fix coverage", () => {
       clueTimeline: { early: ["c1", "c4"], mid: ["c2"], late: ["c3"] },
     } as any;
 
-    const stats = __testables.applyDeterministicCluePreAssignment(narrative, cml, clues, 0.6);
+    const stats = applyDeterministicCluePreAssignment(narrative, cml, clues, 0.6);
     expect(stats.after).toBeGreaterThanOrEqual(stats.minRequired);
 
     const mappedScene = (narrative.acts[0].scenes as any[]).find((s) => s.sceneNumber === 2);
@@ -53,8 +60,8 @@ describe("mystery orchestrator fix coverage", () => {
       ],
     } as any;
 
-    const lock = __testables.captureNarrativeSceneCountSnapshot(baseline);
-    const check = __testables.checkNarrativeSceneCountFloor(candidate, lock);
+    const lock = captureNarrativeSceneCountSnapshot(baseline);
+    const check = checkNarrativeSceneCountFloor(candidate, lock);
 
     expect(check.ok).toBe(false);
     expect(check.message).toContain("changed");
@@ -131,10 +138,10 @@ describe("mystery orchestrator fix coverage", () => {
       clueTimeline: { early: ["c1"], mid: ["c2"], late: ["c3"] },
     } as any;
 
-    const result = __testables.rebalanceNarrativeSceneCountsDeterministically(underfilled, 30, clues);
+    const result = rebalanceNarrativeSceneCountsDeterministically(underfilled, 30, clues);
     expect(result.changed).toBe(true);
 
-    const snapshot = __testables.captureNarrativeSceneCountSnapshot(underfilled);
+    const snapshot = captureNarrativeSceneCountSnapshot(underfilled);
     expect(snapshot.totalScenes).toBe(30);
     expect(snapshot.perAct[1]).toBe(8);
     expect(snapshot.perAct[2]).toBe(14);
@@ -153,7 +160,7 @@ describe("mystery orchestrator fix coverage", () => {
     } as any;
 
     const locationProfiles = [{ name: "The Hall", place: "Harrow", country: "England" }] as any;
-    const processed = __testables.applyDeterministicProsePostProcessing(prose, locationProfiles);
+    const processed = applyDeterministicProsePostProcessing(prose, locationProfiles);
 
     expect(processed.chapters[0].paragraphs.some((p: string) => /atmosphere\s+ripe\s+for\s+revelation/i.test(p))).toBe(false);
     expect(processed.chapters[1].paragraphs[0]).not.toBe(repeated);
@@ -161,7 +168,7 @@ describe("mystery orchestrator fix coverage", () => {
 
   it("suspect elimination classifier recognizes alias error keys", () => {
     const err = { type: "suspect_elimination_coverage_incomplete", message: "coverage missing" };
-    expect(__testables.isSuspectEliminationCoverageError(err)).toBe(true);
+    expect(isSuspectEliminationCoverageError(err)).toBe(true);
   });
 
   it("downgrades standalone Logical Deducibility critical flag when deterministic coverage has no structural corroboration", () => {

@@ -517,74 +517,16 @@ const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contex
     hardLogicLockedFacts,
   });
 
-  const retryDeterministicContractsWithParityBridge = (
-    message: string,
-    errorContext: string,
-  ): { warnings: string[] } => {
-    const parityBridgeId = ensureParityBridgeClue(ctx.cml!, ctx.clues!);
-    if (!parityBridgeId) {
-      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}${errorContext}): ${message}`);
-      throw new Error(message);
-    }
-
-    ctx.warnings.push(
-      `Agent 6 (${contextLabel}) mechanism-visibility fallback: injected essential clue ${parityBridgeId} and retried deterministic contracts.`,
-    );
-
-    try {
-      return runDeterministicContracts();
-    } catch (retryError) {
-      pushError(
-        `Agent 6 regenerated clue deterministic contract (${contextLabel}${errorContext}): ${(retryError as Error).message}`,
-      );
-      throw retryError;
-    }
-  };
-
   let deterministicContracts: { warnings: string[] };
   try {
     deterministicContracts = runDeterministicContracts();
   } catch (error) {
-    const message = (error as Error).message || "";
-    const isMechanismVisibilityFailure = /mechanism visibility gate failed/i.test(message);
-    const isStrictStepCoverageFailure = /strict step coverage gate failed/i.test(message);
-
+    // A6-05: this used to branch on "mechanism visibility gate failed" / "strict step coverage gate failed"
+    // into a parity-bridge retry and a strict-step backstop. Nothing has thrown either message since
+    // 2b76cbfa (2026-06-29) made both gates warnings, so every error took this path already.
     preserveRecoveredEvidenceIdWarnings();
-
-    if (!isMechanismVisibilityFailure && !isStrictStepCoverageFailure) {
-      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
-      throw error;
-    }
-
-    if (isStrictStepCoverageFailure) {
-      const backstopRepairs = ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
-      if (backstopRepairs.length === 0) {
-        pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
-        throw error;
-      }
-
-      backstopRepairs.forEach((repair) =>
-        ctx.warnings.push(`Agent 6 (${contextLabel}) strict-step fallback: ${repair}`),
-      );
-
-      try {
-        deterministicContracts = runDeterministicContracts();
-      } catch (retryError) {
-        const retryMessage = (retryError as Error).message || "";
-        if (!/mechanism visibility gate failed/i.test(retryMessage)) {
-          pushError(
-            `Agent 6 regenerated clue deterministic contract (${contextLabel}, strict-step fallback): ${retryMessage}`,
-          );
-          throw retryError;
-        }
-        deterministicContracts = retryDeterministicContractsWithParityBridge(
-          retryMessage,
-          ", strict-step + mechanism fallback",
-        );
-      }
-    } else {
-      deterministicContracts = retryDeterministicContractsWithParityBridge(message, ", mechanism fallback");
-    }
+    pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${(error as Error).message || ""}`);
+    throw error;
   }
   deterministicContracts.warnings.forEach((warning) =>
     ctx.warnings.push(`Agent 6 (${contextLabel}) ${warning}`),

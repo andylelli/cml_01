@@ -55,17 +55,3 @@ export { runAgent65 } from "./agent65-run.js";
 export { runAgent75, resolveGeometryStageMode, type GeometryStageMode } from "./agent75-run.js";
 export { runAgent9 } from "./agent9-run.js";
 
-// ── Testable helpers (re-exported for orchestrator __testables) ───────────
-export {
-  captureNarrativeSceneCountSnapshot,
-  checkNarrativeSceneCountFloor,
-  applyDeterministicCluePreAssignment,
-  rebalanceNarrativeSceneCountsDeterministically,
-} from "./agent7-run.js";
-export {
-  applyDeterministicProsePostProcessing,
-  isDiscriminatingTestCoverageError,
-  isSuspectClosureCoverageError,
-  isCulpritEvidenceChainCoverageError,
-  isSuspectEliminationCoverageError,
-} from "./agent9-run.js";

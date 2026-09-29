@@ -515,8 +515,8 @@ export const DEFAULT_CONFIG: GenerationParamsConfig = {
   agent65_world_builder: {
     status: "implemented",
     params: {
-      model: { temperature: 0.7, max_tokens: 6000 },
-      generation: { default_max_attempts: 2 },
+      model: { temperature: 0.7, max_tokens: 12000 },
+      generation: { default_max_attempts: 3 },
       quality: {
         arc_description_gate: 200,
         arc_description_prompt_buffer: 100,

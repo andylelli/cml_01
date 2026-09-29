@@ -975,7 +975,10 @@ export async function generateWorldDocument(
   // Having a 3rd attempt ensures that when attempt 1 fails for reason X (JSON/schema/cast),
   // attempt 2 can fix X while still potentially producing short arcDescription, and
   // attempt 3 can then correct the arcDescription specifically.
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  // A6-14: attempts, temperature and max_tokens come from generation-params.yaml (3 / 0.7 / 12000).
+  const wb = getGenerationParams().agent65_world_builder.params;
+  const lastAttempt = wb.generation.default_max_attempts;
+  for (let attempt = 1; attempt <= lastAttempt; attempt++) {
     let attemptMessages = messages;
 
     /**
@@ -1049,7 +1052,7 @@ export async function generateWorldDocument(
 
     const response = await client.chat({
       messages: attemptMessages,
-      temperature: 0.7,
+      temperature: wb.model.temperature,
       /**
        * A_74 §9.6 — was 6000, and the prompt cannot fit inside it.
        *
@@ -1060,7 +1063,7 @@ export async function generateWorldDocument(
        * a failed run. Raising it costs nothing on runs that do not need it — output is billed on
        * tokens produced, not on the limit requested.
        */
-      maxTokens: 12000,
+      maxTokens: wb.model.max_tokens,
       jsonMode: true,
       logContext: {
         runId: inputs.runId ?? '',
@@ -1082,7 +1085,7 @@ export async function generateWorldDocument(
       }
     } catch (parseError) {
       lastError = new Error(`JSON parse failure on attempt ${attempt}: ${parseError}`);
-      if (attempt === 3) {
+      if (attempt === lastAttempt) {
         throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       }
       continue;
@@ -1105,7 +1108,7 @@ export async function generateWorldDocument(
     if (!schemaValidation.valid) {
       const errorSummary = schemaValidation.errors.slice(0, 6).join('; ');
       lastError = new Error(`Schema validation failed on attempt ${attempt}: ${errorSummary}`);
-      if (attempt === 3) {
+      if (attempt === lastAttempt) {
         throw new Error(`Agent 6.5 World Builder failed schema validation: ${errorSummary}`);
       }
       continue;
@@ -1117,7 +1120,7 @@ export async function generateWorldDocument(
       const coverage = enforceCastCoverage(parsed, castMembers);
       if (!coverage.ok) {
         lastError = new Error(coverage.error);
-        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+        if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
         continue;
       }
       if (coverage.missingVictimNames.length > 0) {
@@ -1148,7 +1151,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `humourPlacementMap missing required scenePosition values: ${missingPositions.join(', ')}`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1156,7 +1159,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `humourPlacementMap has duplicate scenePosition values: ${Array.from(duplicatePositions).join(', ')}`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1168,7 +1171,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `humourPlacementMap[${missingRationaleIndex}] (${badPosition}) has an empty rationale`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1194,7 +1197,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `World Builder self-validation failures: ${failedConfirmations.join('; ')}`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1224,7 +1227,7 @@ export async function generateWorldDocument(
         `trace opening emotional register → rising tension → first turn → mid-point → ` +
         `second turn → pre-climax → climax → resolution. A single dense paragraph is not enough.`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1233,7 +1236,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `storyEmotionalArc.arcDescription must be multi-paragraph (found ${arcParagraphs}; minimum ${MIN_ARC_PARAGRAPHS})`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1254,7 +1257,7 @@ export async function generateWorldDocument(
         `Write a complete sentence with a subject, main clause, and a nuanced qualifier about the ` +
         `story's deeper meaning — not a title, fragment, or noun phrase.`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -1270,7 +1273,7 @@ export async function generateWorldDocument(
       lastError = new Error(
         `revealImplications is too short (${revealImplicationsWordCount} words; minimum ${REVEAL_IMPLICATIONS_GATE})`
       );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === lastAttempt) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 

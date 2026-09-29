@@ -13,7 +13,6 @@ import {
   checkCast,
   summarizeCastCheck,
   type NameGeneratorContext,
-  type CastCheckResult,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import {
@@ -41,31 +40,6 @@ const MALE_NAMES = new Set([
 ]);
 // Classic feminine suffixes (-a / -ine / -ette …) are reliable enough for a fallback.
 const FEMININE_SUFFIX_RE = /(?:a|ine|ette|elle|een|ina)$/;
-
-// A_53 P10 (checkcast-recomputed-multiple-times): `checkCast` (archetype maps + relationship-graph
-// walk) was run 2–3× over the SAME cast object (scorer honest-fallback + shadow logger). Memoize by
-// cast-object identity + expectedCount via a WeakMap so each distinct cast is checked at most once;
-// the result is identical and the entry is GC'd with the cast. Generic/holistic — no story data.
-const castCheckCache = new WeakMap<object, Map<number, CastCheckResult>>();
-function checkCastMemo(
-  cast: Parameters<typeof checkCast>[0],
-  opts: { expectedCount: number },
-): CastCheckResult {
-  const key = (cast as unknown as object) ?? null;
-  if (!key || typeof key !== "object") {
-    return checkCast(cast, opts);
-  }
-  let byCount = castCheckCache.get(key);
-  if (!byCount) {
-    byCount = new Map<number, CastCheckResult>();
-    castCheckCache.set(key, byCount);
-  }
-  const cached = byCount.get(opts.expectedCount);
-  if (cached) return cached;
-  const result = checkCast(cast, opts);
-  byCount.set(opts.expectedCount, result);
-  return result;
-}
 
 /**
  * Normalise common LLM field-name variants in a raw cast artifact.
@@ -792,7 +766,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: castResult, cost: castResult.cost };
       },
-      async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCastMemo, ctx.warnings),
+      async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,
@@ -930,7 +904,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     try {
       // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reuses the scorer's result for
       // the shipping cast object instead of recomputing the full check.
-      const check = checkCastMemo(ctx.cast!.cast, { expectedCount: totalCastSize });
+      const check = checkCast(ctx.cast!.cast, { expectedCount: totalCastSize }); // fresh: the cast was normalised in place since scoring (A1X-D05)
       ctx.warnings.push(`[agent2-cast-check][shadow] ${summarizeCastCheck(check)}`);
       for (const issue of check.issues) {
         ctx.warnings.push(`[agent2-cast-check][shadow] ${issue.severity}: ${issue.message}`);
