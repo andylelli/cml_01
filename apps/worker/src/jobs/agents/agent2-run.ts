@@ -5,6 +5,7 @@
  * scoring-path retry and schema-repair retry, and writes ctx.cast.
  */
 
+import { scoreCastPhase } from "./phase-scoring.js";
 import {
   designCast,
   generateCastNames,
@@ -14,15 +15,12 @@ import {
   type CastCheckResult,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { CastDesignScorer, scoreRealCast } from "@cml/story-validation";
-import { adaptCastForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
   preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
-  applyHonestScorer,
 } from "./shared.js";
 import { isDetectiveArchetype } from "./identity-match.js";
 
@@ -795,29 +793,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: castResult, cost: castResult.cost };
       },
-      async (castResult) => {
-        const scorer = new CastDesignScorer();
-        const adapted = adaptCastForScoring(castResult.cast);
-        const scorerInput = {
-          cast_size: ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1,
-        };
-        const score = await scorer.score(scorerInput, adapted, {
-          previous_phases: { agent1_setting: setting.setting },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return {
-          adapted,
-          score: applyHonestScorer(
-            score,
-            // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reused by the shadow logger
-            // when this attempt's cast is the one that ships.
-            () => scoreRealCast(castResult.cast, checkCastMemo(castResult.cast, { expectedCount: scorerInput.cast_size }), { expectedCount: scorerInput.cast_size }),
-            ctx.warnings,
-            "agent2-cast",
-          ),
-        };
-      },
+      async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCastMemo, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

@@ -8,8 +8,8 @@
  * Pipeline position: after Agent 2d (temporal context), before Agent 7 (narrative).
  */
 
+import { scoreWorldDocumentPhase } from "./phase-scoring.js";
 import { generateWorldDocument } from "@cml/prompts-llm";
-import { Agent65WorldBuilderScorer } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
@@ -42,17 +42,7 @@ export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
         );
         return { result: worldDoc, cost: worldDoc.cost };
       },
-      async (worldDoc) => {
-        const scorer = new Agent65WorldBuilderScorer();
-        const castSize = ((ctx.cml as any)?.CASE?.cast ?? []).length;
-        const score = await scorer.score({}, worldDoc as any, {
-          previous_phases: {},
-          cml: ctx.cml!,
-          threshold_config: { mode: "standard" },
-          castSize,
-        } as any);
-        return { adapted: worldDoc, score };
-      },
+      async (worldDoc) => scoreWorldDocumentPhase(worldDoc, ctx.cml!),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

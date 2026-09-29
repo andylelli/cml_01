@@ -6,15 +6,14 @@
  * and writes ctx.temporalContext.
  */
 
+import { scoreTemporalContextPhase } from "./phase-scoring.js";
 import { generateTemporalContext, deriveSeasonFromMonth } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { TemporalContextScorer } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
   executeAgentWithRetry,
 } from "./shared.js";
-import { adaptTemporalContextForScoring } from "../scoring-adapters/index.js";
 
 export async function runAgent2d(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("temporal-context", "Generating temporal context...", 89);
@@ -33,19 +32,7 @@ export async function runAgent2d(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: tempResult, cost: tempResult.cost };
       },
-      async (tempResult) => {
-        const scorer = new TemporalContextScorer();
-        const adapted = adaptTemporalContextForScoring(tempResult, ctx.setting!.setting);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: ctx.setting!.setting,
-            agent2e_background_context: ctx.backgroundContext!,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score };
-      },
+      async (tempResult) => scoreTemporalContextPhase(tempResult, ctx.setting!.setting, ctx.backgroundContext!),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

@@ -5,17 +5,15 @@
  * scoring-path retry and schema-repair retry, and writes ctx.setting.
  */
 
+import { scoreSettingPhase } from "./phase-scoring.js";
 import { refineSetting } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { SettingRefinementScorer, scoreRealSetting } from "@cml/story-validation";
-import { adaptSettingForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedbackOptional,
   preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
-  applyHonestScorer,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
@@ -39,16 +37,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: settingResult, cost: settingResult.cost };
       },
-      async (settingResult) => {
-        const scorer = new SettingRefinementScorer();
-        const adapted = adaptSettingForScoring(settingResult.setting);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {},
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(settingResult.setting), ctx.warnings, "agent1-setting") };
-      },
+      async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

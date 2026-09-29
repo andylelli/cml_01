@@ -1,8 +1,8 @@
 # Record / replay harness (CR-03)
 
 **Written:** 2026-09-29 · **Status:** v2 and v1 prose stages and the from-clues pipeline (Agents 5 → 9 through
-`generateMystery`) covered — 3 fixtures, all MATCH; Agents 1–4 and the scoring characterisation still to
-add (tracker row CR-03).
+`generateMystery`) covered — 3 fixtures, all MATCH; the scoring characterisation (SCO-12) runs in the
+worker suite; Agents 1–4 still to add (tracker row CR-03).
 
 ## What it is for
 
@@ -59,6 +59,17 @@ byte), a recorded call was never requested, or the prose digest moved.
 | Environment | each fixture records 146 flags read through the pipeline's own `loadEnvFiles` (credentials and endpoints dropped); `replay:check` ignores `.env.local`, as CI does |
 | Containment | `git status` identical before and after every sandboxed replay |
 
+## The scoring characterisation (SCO-12)
+
+`apps/worker/src/__tests__/phase-scoring-golden.test.ts` scores the 4 committed `eval/golden` bundles through
+every wired upstream phase — Agents 1, 2, 2b, 2c, 2d, 2e, 3b, 6.5, 7, plus Agent 3's honest `scoreRealCml` —
+under both `HONEST_SCORERS=off` (the vanity scores production reports) and `enforce`, and snapshots each
+`PhaseScore` with a digest of the adapter's output. The phase bodies were closures inside each runner; they
+are now `apps/worker/src/jobs/agents/phase-scoring.ts`, moved verbatim, and the runners call them (the
+from-clues replay, which scores 6.5 and 7, still MATCHes). MEASURED: vanity grades A in 40/40 cells; honest
+grades Agent 7 C on all 4 bundles and Agent 3b B on one. Not covered: Agent 3's vanity score (built from run
+counters) and Agent 9 (the bundles carry no prose; a prose fixture from a replay store is the next step).
+
 ## Nondeterminism the harness found
 
 A replay must produce the same prompts twice from the same input. Two sources broke that:
@@ -97,6 +108,5 @@ A replay must produce the same prompts twice from the same input. Two sources br
 
 - Agents 1–4: `resume-run` refuses to redo from `setting` (it needs a CML), so they need a fresh-run replay
   entry point (`canary-core.mjs` builds its own client) that also reproduces the run's original inputs.
-- SCO-12: the scoring characterisation over the committed golden bundles.
 - Optionally, one paid recording (~£0.45, `RESUME_REDO=prose`) to replace the two synthetic editor failures
   with real replies.

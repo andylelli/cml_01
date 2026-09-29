@@ -6,6 +6,7 @@
  * and writes ctx.characterProfiles.
  */
 
+import { scoreCharacterProfilesPhase } from "./phase-scoring.js";
 import { resolveBandForRun,
   generateCharacterProfiles,
   extractVoiceCapsule,
@@ -14,13 +15,11 @@ import { resolveBandForRun,
   buildVoiceGateFeedback,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { CharacterProfilesScorer } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
   executeAgentWithRetry,
 } from "./shared.js";
-import { adaptCharacterProfilesForScoring } from "../scoring-adapters/index.js";
 
 export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("profiles", "Generating character profiles...", 88);
@@ -41,16 +40,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: profilesResult, cost: profilesResult.cost };
       },
-      async (profilesResult) => {
-        const scorer = new CharacterProfilesScorer();
-        const adapted = adaptCharacterProfilesForScoring(profilesResult.profiles);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: { agent2_cast: ctx.cast!.cast },
-          cml: ctx.cml!,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score };
-      },
+      async (profilesResult) => scoreCharacterProfilesPhase(profilesResult.profiles, ctx.cast!.cast, ctx.cml!),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

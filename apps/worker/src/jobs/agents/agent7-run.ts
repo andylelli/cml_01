@@ -7,12 +7,13 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
+import { scoreNarrativePhase } from "./phase-scoring.js";
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
 import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, stripClearanceText, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget, distributeChapterWordBudget, applyGridClueJobs, scoreRealNarrative, resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget, distributeChapterWordBudget, applyGridClueJobs, resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -20,7 +21,6 @@ import {
   executeAgentWithRetry,
   preAgent9ContractRecoveryEnabled,
   preAgent9LlmRetriesEnabled,
-  applyHonestScorer,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
 // Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
@@ -2053,75 +2053,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: narrativeResult, cost: narrativeResult.cost };
       },
-      async (narrativeResult) => {
-        const scorer = new NarrativeScorer();
-        const clueMappings: ClueRef[] = (
-          (ctx.cml as any)?.CASE?.prose_requirements?.clue_to_scene_mapping ?? []
-        )
-          .map((m: any): ClueRef => ({
-            id: String(m.clue_id || ""),
-            placement: m.act_number === 1 ? "early" : m.act_number === 2 ? "mid" : m.act_number === 3 ? "late" : undefined,
-          }))
-          .filter((c: ClueRef) => c.id);
-        const adapted = adaptNarrativeForScoring(
-          narrativeResult,
-          (ctx.cml as any)?.CASE?.cast ?? [],
-          clueMappings
-        );
-        const score = await scorer.score({}, adapted, {
-          previous_phases: { agent2_cast: ctx.cast!.cast },
-          cml: ctx.cml!,
-          threshold_config: { mode: "standard" },
-          targetLength: ctx.inputs.targetLength ?? "medium",
-        });
-
-        // Scene-count gate inside the scoring path: force F only when the deviation
-        // exceeds the configured tolerance (±getChapterTargetTolerance()).  Counts within
-        // tolerance are accepted — prose generates one chapter per scene so a ±2 deviation
-        // doesn't break the story structure.
-        const actualSceneCount = (narrativeResult.acts ?? []).flatMap((a: any) =>
-          Array.isArray(a.scenes) ? a.scenes : []
-        ).length;
-        const expectedSceneCount = getSceneTarget(ctx.inputs.targetLength ?? "medium");
-        const sceneCountTolerance = getChapterTargetTolerance();
-        if (Math.abs(actualSceneCount - expectedSceneCount) > sceneCountTolerance) {
-          // Use the SAME act-distribution ratios that buildUserRequest() uses so the
-          // retry feedback tells the LLM exactly what the prompt already asked for.
-          const pacing = getGenerationParams().agent7_narrative.params.pacing;
-          const actI   = Math.round(expectedSceneCount * pacing.act_distribution.act1_ratio);
-          const actII  = Math.round(expectedSceneCount * pacing.act_distribution.act2_ratio);
-          const actIII = expectedSceneCount - actI - actII;
-          return {
-            adapted,
-            score: {
-              ...score,
-              total: 0,
-              grade: 'F' as const,
-              passed: false,
-              failure_reason:
-                `Scene count: generated ${actualSceneCount} scenes but target is ${expectedSceneCount} ` +
-                `(tolerance ±${sceneCountTolerance}; deviation of ${Math.abs(actualSceneCount - expectedSceneCount)} exceeds limit). ` +
-                `Distribute as: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
-                `(these are exact counts, not ranges). Do not merge or drop scenes — ` +
-                `each scene becomes a distinct prose chapter.`,
-              component_failures: [
-                ...(score.component_failures ?? []),
-                `scene_count (${actualSceneCount} vs target ${expectedSceneCount}, tolerance ±${sceneCountTolerance})`,
-              ],
-            },
-          };
-        }
-
-        return {
-          adapted,
-          score: applyHonestScorer(
-            score,
-            () => scoreRealNarrative(narrativeResult, ctx.inputs.targetLength ?? "medium"),
-            ctx.warnings,
-            "agent7-narrative",
-          ),
-        };
-      },
+      async (narrativeResult) => scoreNarrativePhase(narrativeResult, ctx.cml!, ctx.cast!.cast, ctx.inputs.targetLength, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

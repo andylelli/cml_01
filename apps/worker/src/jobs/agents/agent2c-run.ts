@@ -6,6 +6,7 @@
  * and writes ctx.locationProfiles.
  */
 
+import { scoreLocationsPhase } from "./phase-scoring.js";
 import {
   generateLocationProfiles,
   compileSensoryAtoms,
@@ -17,14 +18,11 @@ import {
   buildSceneGateFeedback,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { LocationProfilesScorer, scoreRealLocations } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
   executeAgentWithRetry,
-  applyHonestScorer,
 } from "./shared.js";
-import { adaptLocationsForScoring } from "../scoring-adapters/index.js";
 
 const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
 
@@ -175,19 +173,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: locResult, cost: locResult.cost };
       },
-      async (locResult) => {
-        const scorer = new LocationProfilesScorer();
-        const adapted = adaptLocationsForScoring(locResult);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: ctx.setting!.setting,
-            agent2e_background_context: ctx.backgroundContext!,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score: applyHonestScorer(score, () => scoreRealLocations(locResult), ctx.warnings, "agent2c-location") };
-      },
+      async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

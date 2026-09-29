@@ -5,6 +5,7 @@
  * handles scoring-path retry and schema validation, and writes ctx.backgroundContext.
  */
 
+import { scoreBackgroundPhase } from "./phase-scoring.js";
 import {
   generateBackgroundContext,
   deriveBackgroundContext,
@@ -13,14 +14,11 @@ import {
   type BackgroundContextArtifact,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { BackgroundContextScorer, scoreRealBackground } from "@cml/story-validation";
-import { adaptBackgroundContextForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
   appendRetryFeedbackOptional,
-  applyHonestScorer,
 } from "./shared.js";
 
 export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
@@ -46,34 +44,7 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: bgResult, cost: bgResult.cost };
       },
-      async (bgResult) => {
-        const scorer = new BackgroundContextScorer();
-        const adapted = adaptBackgroundContextForScoring(bgResult.backgroundContext, setting.setting);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: setting.setting,
-            agent2_cast: cast.cast,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return {
-          adapted,
-          score: applyHonestScorer(
-            score,
-            () => scoreRealBackground(bgResult.backgroundContext, {
-              castRoster: (((cast.cast as any)?.characters ?? []) as any[]).map((c) => String(c?.name ?? "")).filter(Boolean),
-              agent1Echo: [
-                setting.setting.location?.description,
-                setting.setting.atmosphere?.mood,
-                setting.setting.atmosphere?.visualDescription,
-              ].filter((x): x is string => Boolean(x)),
-            }),
-            ctx.warnings,
-            "agent2e-background",
-          ),
-        };
-      },
+      async (bgResult) => scoreBackgroundPhase(bgResult.backgroundContext, setting.setting, cast.cast, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,

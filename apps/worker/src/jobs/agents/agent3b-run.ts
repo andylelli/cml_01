@@ -10,6 +10,7 @@
  * to apps/worker/logs/.
  */
 
+import { scoreHardLogicPhase } from "./phase-scoring.js";
 import { isChronologyEnabled as isA90ChronologyEnabled, solveLockedChronology, summariseChronology } from "@cml/cml";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 // A_74 §8 DE8 — the curated device corpus, retrieved deterministically. See device-library-block.ts.
@@ -40,14 +41,11 @@ import {
   dialGapMinutes,
   summariseDecorativeTimes,
 } from "@cml/cml";
-import { HardLogicScorer, scoreRealHardLogic } from "@cml/story-validation";
-import { adaptHardLogicForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
   mergeHardLogicDirectives,
-  applyHonestScorer,
   type LockedFact,
 } from "./shared.js";
 
@@ -630,20 +628,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
         });
         return { result: hlResult, cost: hlResult.cost };
       },
-      async (hlResult) => {
-        const scorer = new HardLogicScorer();
-        const adapted = adaptHardLogicForScoring(hlResult.devices);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: setting.setting,
-            agent2_cast: cast.cast,
-            agent2e_background_context: backgroundContext,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score: applyHonestScorer(score, () => scoreRealHardLogic(hlResult.devices), ctx.warnings, "agent3b-hard-logic") };
-      },
+      async (hlResult) => scoreHardLogicPhase(hlResult.devices, setting.setting, cast.cast, backgroundContext, ctx.warnings),
       ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,
