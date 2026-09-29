@@ -47,6 +47,7 @@ import { createLLMRubricJudge, scoreStory } from "@cml/rubric-score";
 
 import { runAgent9 } from "./agents/agent9-run.js";
 import type { OrchestratorContext } from "./agents/shared.js";
+import { createOrchestratorContext } from "./agents/context.js";
 import { latestArtifact, loadArtifactStore, loadProjectSpec } from "./artifact-store.js";
 import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import { RunLogger } from "./run-logger.js";
@@ -56,6 +57,8 @@ import {
   saveReadableStory,
   storyFolderName,
 } from "./story-output.js";
+
+type Ctx = OrchestratorContext;
 
 // ── shared readers ───────────────────────────────────────────────────────────
 // R5 — `loadStore`, `latestArtifact`, `findSpec`, the .env loader, the client builder and the story
@@ -399,7 +402,7 @@ async function main(): Promise<void> {
 
   // ── reconstruct a minimal OrchestratorContext ──────────────────────────────
   const startMs = Date.now();
-  const ctx = {
+  const ctx = createOrchestratorContext({
     client,
     inputs,
     runId,
@@ -422,8 +425,6 @@ async function main(): Promise<void> {
     initialHardLogicDirectives: {},
     locationSpec: { location: "", institution: "" },
     noveltyConstraints: {},
-    criticalFairPlayRules: new Set<string>(),
-    maxCmlRevisionAttempts: 3,
     /**
       * A_86 item 69 — MEASURED 2026-09-10 against the built loader:
       *   <workspaceRoot>/examples      -> 14 seed files
@@ -438,45 +439,30 @@ async function main(): Promise<void> {
     workerAppRoot,
     workspaceRoot,
     seedEntries: [] as Array<{ filename: string; cml: any }>,
-    revisedByAgent4: false,
-    revisionAttempts: undefined,
-    revisedByAgent4FairPlay: false,
-    fairPlayRevisionAttempts: 0,
-    proseScoringSnapshot: {
-      startedAtMs: null,
-      chaptersGenerated: 0,
-      latestChapterScore: null,
-      latestCumulativeScore: null,
-      postGenerationSummaryLogged: false,
-    },
-    proseChapterScores: [] as any[],
-    proseSecondRunChapterScores: [] as any[],
-    prosePassAccounting: [] as any[],
-    proseRewritePassCount: 0,
-    proseRepairPassCount: 0,
-    latestProseScore: null,
-    nsdTransferTrace: [] as any[],
 
-    // upstream artifacts
-    cml,
-    cast,
-    characterProfiles,
-    locationProfiles,
-    temporalContext,
-    hardLogicDevices,
-    narrative,
-    clues,
-    worldDocument,
-    setting,
-    backgroundContext,
-    fairPlayAudit,
+    // upstream artifacts — stored JSON, trusted as the resume path trusts it
+    cml: cml as Ctx["cml"],
+    cast: cast as Ctx["cast"],
+    characterProfiles: characterProfiles as Ctx["characterProfiles"],
+    locationProfiles: locationProfiles as Ctx["locationProfiles"],
+    temporalContext: temporalContext as Ctx["temporalContext"],
+    hardLogicDevices: hardLogicDevices as Ctx["hardLogicDevices"],
+    narrative: narrative as Ctx["narrative"],
+    clues: clues as Ctx["clues"],
+    worldDocument: worldDocument as Ctx["worldDocument"],
+    setting: setting as Ctx["setting"],
+    backgroundContext: backgroundContext as Ctx["backgroundContext"],
+    fairPlayAudit: fairPlayAudit as Ctx["fairPlayAudit"],
     noveltyAudit: undefined,
     characterBundle: undefined,
 
-    // computed-but-not-persisted → stubbed (see fidelity note)
-    coverageResult: { hasCriticalGaps: false, issues: [] as any[] },
-    outlineCoverageIssues: [] as any[],
-  } as unknown as OrchestratorContext;
+    // computed-but-not-persisted → stubbed (see fidelity note).
+    // KNOWN DEFECT (code review ORC-07, owner's call with ORC-Q02): a stub reads as "coverage evaluated,
+    // no gaps", which Agent 9's precondition block says must never happen — a resume leaves these
+    // absent and reports UNEVALUATED. Kept as it was so this replay's reports do not move silently.
+    coverageResult: { hasCriticalGaps: false, issues: [], coverageMap: new Map(), uncoveredSteps: [] },
+    outlineCoverageIssues: [],
+  });
 
   if (dry) {
     console.log("[replay-agent9] DRY run: context assembled and precondition fields present. Exiting before LLM calls.");
