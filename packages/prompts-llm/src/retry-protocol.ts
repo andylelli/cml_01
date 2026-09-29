@@ -168,7 +168,7 @@ export function classifyFailure(args: {
   };
 }
 
-export function buildRetryFeedback(packet: RetryPacket): string {
+export function buildRetryPacketFeedback(packet: RetryPacket): string {
   const lines: string[] = [];
   lines.push(`RETRY CLASS: ${packet.failureClass}`);
   if (packet.failureSubcode) {

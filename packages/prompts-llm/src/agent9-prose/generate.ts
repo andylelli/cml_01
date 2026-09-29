@@ -41,7 +41,7 @@ import {
 } from "../contracts/prose-request-contract.js";
 import type { BatchCommitRecord } from "../contracts/batch-commit-record.js";
 import {
-  buildRetryFeedback,
+  buildRetryPacketFeedback,
   classifyFailure,
   shouldContinueRetry,
 } from "../retry-protocol.js";
@@ -2123,7 +2123,7 @@ export function buildCanonicalRetryBrief(args: {
   }
 
   if (redesignEnabled && packet) {
-    feedback = `${feedback}\n\n${buildRetryFeedback(packet)}`;
+    feedback = `${feedback}\n\n${buildRetryPacketFeedback(packet)}`;
   }
 
   return { feedback, strategy };
