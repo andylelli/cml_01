@@ -13,7 +13,6 @@ import {
   getSeasonAllowList,
 } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
-import { sanitizeGeneratedChapter } from "./sanitization.js";
 import { parseProseResponse } from "./sanitization.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 export const parseExpandedChapterResponse = (content: string): ProseChapter => {

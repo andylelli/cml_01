@@ -758,7 +758,6 @@ export class ProseScorer
   ): { score: number; reason: string } {
     // Extract all character references from prose
     const allProse = chapters.map(c => c.prose || '').join(' ');
-    const words = allProse.split(/\s+/);
 
     // Count references to each cast member. RC4.4: a member counts as referenced when prose uses any
     // natural short form (surname / first+surname), not only the verbatim full name — Golden-Age prose
@@ -773,9 +772,6 @@ export class ProseScorer
     const coverageRate = castNames.length > 0 ? referencedMembers / castNames.length : 1;
 
     // Check for name variations or typos (simple check)
-    const uniqueCapitalizedWords = new Set(
-      words.filter(w => /^[A-Z][a-z]+/.test(w))
-    );
 
     let score = coverageRate * 100;
     

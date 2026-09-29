@@ -6,9 +6,6 @@
 import { getGenerationParams } from "@cml/story-validation";
 import { detectControlPlaneLeakage } from "@cml/story-validation";
 import { classifyOpeningStyle } from "../types/narrative-state.js";
-import {
-  ARC_POSITION_REGISTER,
-} from "../constants/arc-position.js";
 import { detectConfiguredBannedPhrases } from "./banned-phrases.js";
 import type { ProseChapter, ProseLinterIssue, MacroArcEntry, ProseGenerationInputs } from "./types.js";
 import { MONTH_TO_SEASON, normalizeMonthToken, type CanonicalSeason } from "../shared/temporal-anchor.js";

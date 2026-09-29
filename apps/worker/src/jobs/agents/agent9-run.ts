@@ -2135,7 +2135,6 @@ export const applyRecollectionFrame = (frame: string, sentence: string, lowercas
   return frame + trimmed[0]!.toLowerCase() + trimmed.slice(1);
 };
 /** Retained as the canonical first frame; rotation starts here. */
-const VICTIM_RECOLLECTION_PREFIX = VICTIM_RECOLLECTION_FRAMES[0];
 const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before the death\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
 
 /**

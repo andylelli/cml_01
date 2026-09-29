@@ -38,9 +38,6 @@ export function adaptCastForScoring(castDesign: CastDesign): CastDesignOutput {
   const possibleCulprits = Array.isArray((castDesign as any)?.crimeDynamics?.possibleCulprits)
     ? (castDesign as any).crimeDynamics.possibleCulprits
     : [];
-  const redHerrings = Array.isArray((castDesign as any)?.crimeDynamics?.redHerrings)
-    ? (castDesign as any).crimeDynamics.redHerrings
-    : [];
   // A_71 (A_70 §6) — accept BOTH shapes.
   //
   // `normalizeRelationshipWeb` now coerces at the source, but this adapter also runs over hydrated
@@ -58,7 +55,6 @@ export function adaptCastForScoring(castDesign: CastDesign): CastDesignOutput {
   const cast: CastMember[] = castDesign.characters.map(ch => {
     // Derive culprit eligibility from the crimeDynamics block
     const isEligible = possibleCulprits.includes(ch.name);
-    const isRedHerring = redHerrings.includes(ch.name);
     const culprit_eligibility = isEligible ? 'eligible' : 'ineligible';
 
     // Build relationship list from the relationship web

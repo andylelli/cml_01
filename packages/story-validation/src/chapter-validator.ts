@@ -94,7 +94,6 @@ export class ChapterValidator {
   validateChapter(chapter: ChapterContent, cml: CMLData): ChapterValidationResult {
     const issues: ChapterValidationIssue[] = [];
     const cmlCase = cml.CASE;
-    const chapterText = chapter.paragraphs.join('\n');
 
     // 1. Check for character name consistency (ALL CHAPTERS)
     // PHASE 5: Apply to all chapters to prevent bad data in continuity record

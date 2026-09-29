@@ -2,7 +2,6 @@
  * agent9-prose/types.ts
  * Shared types, interfaces and arc-planning utilities for Agent 9 prose generation.
  */
-import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { CastDesign } from "../agent2-cast.js";
@@ -10,9 +9,7 @@ import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { StoryContract } from "../story-contract.js";
 import type { StoryGeometry } from "@cml/story-geometry";
 import type { NarrativeState } from "../types/narrative-state.js";
-import type { AssetLibrary } from "../types/asset-library.js";
 import type { BatchCommitRecord } from "../contracts/batch-commit-record.js";
-import type { RetryPacket } from "../retry-protocol.js";
 export interface ProseChapter {
   title: string;
   summary?: string;

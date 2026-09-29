@@ -96,7 +96,6 @@ export function adaptNarrativeForScoring(
   }
 
   // Transform acts and scenes into chapters structure (with character name normalisation)
-  const totalActs = (narrative.acts || []).length;
   let sequentialChapterNum = 0;
   let discriminatingChapterNum = 0; // Tracks sequential number of the discriminating scene
   const chapters: ScorerChapter[] = (narrative.acts || []).flatMap((act, actIndex) => {

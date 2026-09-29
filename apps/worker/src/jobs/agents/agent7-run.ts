@@ -20,7 +20,6 @@ import {
   buildOutlineRepairGuardrails,
   executeAgentWithRetry,
   preAgent9ContractRecoveryEnabled,
-  preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
 // Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
@@ -2013,7 +2012,6 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // pass it directly), repair identity_rules in place so every one sees the same corrected data.
   applyIdentityRuleCollisionRepair(ctx);
 
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
   const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;

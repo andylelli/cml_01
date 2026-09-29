@@ -745,7 +745,7 @@ export async function executeAgentWithRetry<T>(
     const attemptDuration = Date.now() - attemptStart;
 
     try {
-      const { adapted, score } = await scoreOutput(result);
+      const { score } = await scoreOutput(result);
 
       scoreAggregator.upsertPhaseScore(agentId, phaseName, score, attemptDuration, cost);
       scoringLogger.logPhaseScore(agentId, phaseName, score, attemptDuration, cost, runId, projectId);

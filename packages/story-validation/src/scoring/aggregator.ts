@@ -186,7 +186,6 @@ export class ScoreAggregator {
         ? phaseScores.reduce((sum, score) => sum + score, 0) / phaseScores.length
         : 0;
 
-    const overallGrade = calculateGrade(overallScore);
 
     // Determine if all phases passed threshold. This is not the final run status,
     // because release-gate hard stops can still force failed/aborted outcomes.

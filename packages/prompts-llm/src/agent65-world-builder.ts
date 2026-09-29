@@ -322,7 +322,7 @@ function withoutRunTelemetry<T>(artifact: T): T {
 }
 
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
-  const { gate: ARC_DESC_GATE, prompt: ARC_DESC_PROMPT } = getArcDescParams();
+  const { prompt: ARC_DESC_PROMPT } = getArcDescParams();
   const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
   const lockedFacts = inputs.hardLogicDevices?.lockedFacts
     ?? inputs.hardLogicDevices?.devices?.flatMap((d: any) => d.lockedFacts ?? [])

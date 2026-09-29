@@ -3,7 +3,6 @@
  * Chapter summary extraction, continuity-context building, story-to-date block,
  * opening-style rotation, and scene-grounding checklist generation.
  */
-import type { ClueDistributionResult } from "../agent5-clues.js";
 import { isInjectedSentence } from "./injection-templates.js";
 import {
   // X95 — one opening-grounding vocabulary, rendered here rather than re-typed.
@@ -12,7 +11,6 @@ import {
   formatGroundingMarkers,
   groundingPaletteFor,
 } from "@cml/story-validation";
-import type { NarrativeState } from "../types/narrative-state.js";
 import type {
   ProseChapter,
   ChapterSummary,

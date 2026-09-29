@@ -51,24 +51,6 @@ const DETECTIVE_ONLY_BEHAVIOR_PATTERNS = [
   /\bconfess(?:ion|es|ed)?\b/i,
 ];
 
-const IRREGULAR_GROUNDING_TOKEN_MAP: Record<string, string> = {
-  testimonies: "testimony",
-  comparison: "compare",
-  comparing: "compare",
-  revealed: "reveal",
-  reveals: "reveal",
-  proven: "prove",
-  proves: "prove",
-  manipulation: "manipulate",
-  manipulated: "manipulate",
-  manipulates: "manipulate",
-  controlled: "control",
-  controlling: "control",
-  shifting: "shift",
-  shifted: "shift",
-  investigations: "investigation",
-  rewound: "wound",
-};
 
 const loadSchemaFile = (filename: string): Record<string, SchemaNode> => {
   if (schemaFileCache.has(filename)) return schemaFileCache.get(filename)!;

@@ -20,7 +20,6 @@ import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
-  preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 import { isDetectiveArchetype } from "./identity-match.js";
@@ -760,7 +759,6 @@ function repairCastSchemaFields(castRaw: Record<string, unknown>): number {
 }
 
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 

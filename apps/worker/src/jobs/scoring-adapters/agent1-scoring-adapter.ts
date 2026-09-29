@@ -27,7 +27,6 @@ export interface SettingRefinementOutput {
  * Also needs >=100 words for full scoreLayoutDetail() points.
  */
 function buildSpatialLayout(name: string, description: string, constraints: string[], accessItems: string[]): string {
-  const base = description || `The ${name} is a carefully defined space within the property.`;
   const constraintSentences = constraints.slice(0, 3).map(c => c.trim()).filter(Boolean).join('. ');
   const accessSentences = accessItems.slice(0, 3).map(a => a.split(/[—–-]/)[0].trim()).filter(Boolean).join(', ');
 

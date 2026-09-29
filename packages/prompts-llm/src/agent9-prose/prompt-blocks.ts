@@ -5,9 +5,7 @@
  */
 import { selectChapterAtoms } from "../asset-library.js";
 import type { CaseData } from "@cml/cml";
-import { getGenerationParams } from "@cml/story-validation";
 import { tagCharacter, selectSensoryVariant } from "./phrase-analysis.js";
-import type { BeatFingerprint } from "./phrase-analysis.js";
 import { getSeasonAllowList, deriveTemporalSeasonLock } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { surfaceSpecKeyTerms } from "./clue-validation.js";

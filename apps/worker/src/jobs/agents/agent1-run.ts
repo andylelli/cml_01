@@ -12,12 +12,10 @@ import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedbackOptional,
-  preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 

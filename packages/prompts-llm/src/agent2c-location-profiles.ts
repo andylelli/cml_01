@@ -102,7 +102,6 @@ export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, prev
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
   const era = inputs.settingRefinement.era.decade ?? "Unknown era";
-  const location = inputs.settingRefinement.location.type ?? "Unknown location";
   const locationType = inputs.settingRefinement.location.type ?? "Unknown";
   const locationDescription = inputs.settingRefinement.location.description ?? "";
   const weather = inputs.settingRefinement.atmosphere.weather ?? "Clear";

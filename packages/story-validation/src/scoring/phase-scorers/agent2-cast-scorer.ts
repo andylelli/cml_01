@@ -450,7 +450,6 @@ export class CastDesignScorer
     const tests: TestResult[] = [];
 
     const eligible = cast.filter(c => c.culprit_eligibility === 'eligible');
-    const ineligible = cast.filter(c => c.culprit_eligibility === 'ineligible');
     const locked = cast.filter(c => c.culprit_eligibility === 'locked');
 
     // Should have at least one eligible

@@ -7,7 +7,6 @@ import { BatchCallbackFailure, runBatchCallback } from "./batch-callback-failure
 import { isVictimArchetype } from "@cml/cml";
 import { detectRetryRegression, retryRegressionGuardEnabled, describeRetryLosses } from "@cml/prose-guard";
 import { createHash } from "node:crypto";
-import { jsonrepair } from "jsonrepair";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { isTransportFailureMessage } from "@cml/llm-client";
 
@@ -32,13 +31,10 @@ import {
   type PronounDriftCastEntry,
   detectVerbatimFieldEcho,
 } from "@cml/story-validation";
-import type { NarrativeOutline } from "../agent7-narrative.js";
-import type { CastDesign } from "../agent2-cast.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 import { initNarrativeState, updateNSD } from "../types/narrative-state.js";
 import { buildAssetLibrary } from "../asset-library.js";
-import type { AssetLibrary } from "../types/asset-library.js";
 import {
   buildProseRequestContract,
   validateRequestContract,
@@ -99,14 +95,11 @@ import {
   getWarningBannedPhrases,
   mergeUniquePhrases,
 } from "./banned-phrases.js";
-import type { BeatFingerprint } from "./phrase-analysis.js";
-import { buildChapterObligationBlock } from "./obligation-block.js";
 import { buildProsePrompt, resolveVictimName, resolveDeathMethod } from "./prompt-builder.js";
 import { stripLocationParagraphs } from "./prompt-blocks.js";
 import {
   extractChapterSummary,
 } from "./context-management.js";
-import { buildDiscriminatingTestChecklist } from "./discriminating.js";
 import {
   attemptUnderflowExpansion,
   runAtmosphereRepairIfNeeded,
@@ -1265,7 +1258,6 @@ export const buildEnhancedRetryFeedback = (
       !clueAbsentErrors.includes(e) &&
       !clueLatePlacedErrors.includes(e)
     );
-    const clueErrors = clueAbsentErrors.length > 0 || clueLatePlacedErrors.length > 0 || otherClueErrors.length > 0;
     const stageModeRawErrors = rawErrors.filter((e) => /stage-mode outcome failed/i.test(e));
 
     // Extract quoted strings (“description”) from a set of error messages.
@@ -2533,7 +2525,6 @@ export async function generateProse(
      * arithmetic destroyed. The retry cleared the complaint and lost the mystery.
      */
     let firstAttemptChapters: ProseChapter[] | null = null;
-    let bestAttemptErrorCount = Number.POSITIVE_INFINITY;
     // A_55 #4: severity rank of the retained best attempt (structuralCount*1000 + totalCount). Lower is
     // better; a structurally-clean attempt always outranks one with a structural defect.
     let bestAttemptSeverityRank = Number.POSITIVE_INFINITY;
@@ -4013,7 +4004,6 @@ export async function generateProse(
         const attemptSeverity = scoreBatchErrorSeverity(batchErrors);
         if (attemptSeverity.rank < bestAttemptSeverityRank) {
           bestAttemptSeverityRank = attemptSeverity.rank;
-          bestAttemptErrorCount = batchErrors.length;
           bestAttemptChapters = proseBatch.chapters.map(cloneProseChapter);
         }
 
