@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 7 | 12 | 0 | 19 |
-| open | 183 | 127 | 72 | 382 |
+| closed | 8 | 12 | 0 | 20 |
+| open | 182 | 127 | 72 | 381 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -20,7 +20,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR | items | closed | keys |
 |---|---:|---:|---|
 | CR-02 | 1 | 1 | A9W-19 |
-| CR-03 | 5 | 2 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
+| CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
@@ -523,7 +523,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |
 | ORC-06 | P2 | R0 | CR-10 | todo |  | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split |  |
-| ORC-07 | P2 | R1 (replay R2) | CR-03 | todo |  | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted |  |
+| ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
 | ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
 | ORC-09 | P2 | R0 | CR-08 | todo |  | Compiler-proven and grep-proven dead code in scope (11 items) |  |
 | ORC-10 | P2 | R0 | CR-11 | todo |  | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports |  |
@@ -534,7 +534,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-15 | P3 | R0 | CR-13 | todo |  | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts |  |
 | ORC-16 | P3 | R1 | CR-26 | todo |  | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read |  |
 | ORC-D01 |  |  | CR-07 | todo |  | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert |  |
-| ORC-D02 |  |  | CR-03 | todo |  | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones |  |
+| ORC-D02 |  |  | CR-03 | todo |  | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones | waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented) |
 | ORC-D03 |  |  | CR-06 | todo |  | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
 | ORC-D04 |  |  | CR-06 | todo |  | AGENT2B_VOICE_MAX_RETRIES is uncapped: Infinity or a large value makes an unbounded LLM regeneration loop (the "Phase-1 lesson" 3b guards against); t… |  |
 | ORC-D05 |  |  | CR-17 | todo |  | The tonal-contrast check compares arc labels from two different ladders |  |

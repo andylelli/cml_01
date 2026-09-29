@@ -337,7 +337,7 @@ ORC-03	CR-19	todo
 ORC-04	CR-20	todo		
 ORC-05	CR-22	todo		
 ORC-06	CR-10	todo		
-ORC-07	CR-03	todo		
+ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02
 ORC-08	CR-17	todo		
 ORC-09	CR-08	todo		
 ORC-10	CR-11	todo		
@@ -348,7 +348,7 @@ ORC-14	CR-32	todo
 ORC-15	CR-13	todo		
 ORC-16	CR-26	todo		
 ORC-D01	CR-07	todo		
-ORC-D02	CR-03	todo		
+ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
 ORC-D03	CR-06	todo		
 ORC-D04	CR-06	todo		
 ORC-D05	CR-17	todo		
