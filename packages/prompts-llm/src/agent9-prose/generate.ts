@@ -2373,8 +2373,6 @@ export async function generateProse(
     : [];
   const redesignEnabled = inputs.bottomUpRedesignEnabled !== false;
 
-  const escapeForRegex = (value: string): string =>
-    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const victimNamesForActiveCoverage = new Set<string>(
     ((inputs.caseData as any)?.CASE?.cast ?? [])
       .filter((entry: any) => isVictimArchetype(entry?.role_archetype ?? entry?.role))
@@ -2405,7 +2403,7 @@ export async function generateProse(
         if (chapterTextLower.includes(normalized)) return true;
         const surname = normalized.split(/\s+/).pop() ?? "";
         return surname.length >= 4
-          && new RegExp(`\\b${escapeForRegex(surname)}\\b`, 'i').test(chapterText);
+          && new RegExp(`\\b${escapeRegExp(surname)}\\b`, 'i').test(chapterText);
       });
 
       if (matched.length === 0) {
@@ -2426,7 +2424,7 @@ export async function generateProse(
       const hasLocationMention =
         chapterTextLower.includes(normalizedLocation)
         || locationTokens.some((token) =>
-          new RegExp(`\\b${escapeForRegex(token)}\\b`, 'i').test(chapterText),
+          new RegExp(`\\b${escapeRegExp(token)}\\b`, 'i').test(chapterText),
         );
 
       if (!hasLocationMention) {
@@ -3945,13 +3943,7 @@ export async function generateProse(
             console.warn(
               `[Agent 9] G3 inference-chain soft misses for ch${batchLabel}:\n` +
               g3Misses.map(m => `  - ${m}`).join('\n')
-            );
-            // Feed into batchErrors on first attempt only as non-blocking advisory (won't cause a retry
-            // on its own — if batchErrors already has hard failures these are appended; if no hard
-            // failures exist the error block is skipped and the batch is committed normally).
-            if (attempt === 1) {
-              // Log but do NOT add to batchErrors — this is advisory only
-            }
+            ); // advisory only: never added to batchErrors
           }
         }
 

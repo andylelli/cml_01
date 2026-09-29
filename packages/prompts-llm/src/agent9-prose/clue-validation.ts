@@ -27,14 +27,6 @@ export type StageModeKey =
   | "final_reveal"
   | "aftermath_consequence";
 
-export type CompositionPhaseKey =
-  | "chapter1"
-  | "early_investigation"
-  | "middle_chapters"
-  | "false_suspect_chapters"
-  | "discriminating_test_chapter"
-  | "final_reveal";
-
 export type ClueObligationState = {
   clueId: string;
   clue?: Clue;
@@ -59,26 +51,6 @@ export const formatStageModeLabel = (value: StageModeKey): string =>
   value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (ch) => ch.toUpperCase());
-
-export const mapStageModeToCompositionPhase = (mode: StageModeKey): CompositionPhaseKey => {
-  switch (mode) {
-    case "discovery_opening":
-      return "chapter1";
-    case "early_investigation":
-      return "early_investigation";
-    case "false_suspect_clearing":
-      return "false_suspect_chapters";
-    case "discriminating_test":
-      return "discriminating_test_chapter";
-    case "final_reveal":
-    case "aftermath_consequence":
-      return "final_reveal";
-    case "suspect_pressure":
-    case "clue_reinterpretation":
-    default:
-      return "middle_chapters";
-  }
-};
 
 const normalizeSceneSignalText = (scene: any): string => {
   const purpose = String(scene?.purpose ?? "");

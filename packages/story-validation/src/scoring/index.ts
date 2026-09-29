@@ -76,22 +76,12 @@ export {
   fail,
   partial,
   exists,
-  hasMinLength,
-  hasMaxLength,
-  inRange,
   hasMinWords,
-  hasRequiredFields,
   calculateWeightedScore,
   calculateCategoryScore,
-  getFailedTests,
   getCriticalFailures,
-  hasCriticalFailures,
-  calculatePassRate,
-  validateSchema,
-  scoreTextQuality,
   scoreArrayCompleteness,
   checkDuplicates,
-  scoreConsistency,
   Severity,
   TestCategory,
 } from './scorer-utils.js';
@@ -122,8 +112,6 @@ export { scoreRealNarrative } from './phase-scorers/agent7-narrative-real-scorer
 // Retry feedback
 export { 
   buildRetryFeedback, 
-  buildConciseRetryFeedback, 
-  getTopFailures 
 } from './retry-feedback.js';
 
 // Report invariant guardrails

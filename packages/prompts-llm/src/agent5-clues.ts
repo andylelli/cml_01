@@ -190,13 +190,6 @@ export function deriveClueObservable(clue: Pick<Clue, "observable" | "descriptio
   return String(clue.description ?? "").trim();
 }
 
-/** P1.2 — canonical planning description; falls back to `observable` only if description is blank. */
-export function deriveClueDescription(clue: Pick<Clue, "description" | "observable">): string {
-  const description = String(clue.description ?? "").trim();
-  if (description.length > 0) return description;
-  return String(clue.observable ?? "").trim();
-}
-
 export interface PointsToCollision {
   normalized: string;
   clueIds: string[];

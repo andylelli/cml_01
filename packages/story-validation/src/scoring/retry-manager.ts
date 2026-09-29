@@ -282,13 +282,6 @@ export class RetryManager {
   }
 
   /**
-   * Check if enhanced feedback should be provided on retry
-   */
-  shouldProvideEnhancedFeedback(): boolean {
-    return this.config.global.enhanced_feedback;
-  }
-
-  /**
    * Check if generation should be aborted when a phase exceeds max retries
    * Reads abort_on_max_retries from the global config section
    */
@@ -296,19 +289,4 @@ export class RetryManager {
     return this.config.global.abort_on_max_retries;
   }
 
-  /**
-   * Reset retry tracking (for new generation attempt)
-   */
-  reset(): void {
-    this.retryCounts.clear();
-    this.totalRetries = 0;
-    this.retryHistory.clear();
-  }
-
-  /**
-   * Get the complete configuration
-   */
-  getConfig(): RetryLimitsConfig {
-    return this.config;
-  }
 }

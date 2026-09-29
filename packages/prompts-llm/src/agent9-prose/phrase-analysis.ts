@@ -105,20 +105,6 @@ export function buildIdentityMap(cast: any[]): Map<string, string> {
   }));
 }
 
-/**
- * Phase 2A: Strip internal agent annotation language that bleeds into prompts.
- * These strings come from CML generation agents and must never appear in chapter obligation text.
- */
-export const sanitizeClueField = (text: string): string =>
-  text
-    .replace(/The detail is explicit:\s*/gi, '')
-    .replace(/This detail added\s+\w+\s+texture[^.]+\./gi, '')
-    .replace(/without changing the essential deduction chain[^.]*\./gi, '')
-    // P2-18: Require "in the case background" to start a sentence (preceded only by a period/newline
-    // or at string start) so the pattern doesn't strip legitimate narrative uses of this phrase.
-    .replace(/(^|\.\s{0,2})in the case background[^.]*\./gim, (m, p1) => p1 || '')
-    .trim();
-
 
 /**
  * A_65b Ph4 (reliability plan) — MANDATED-REPETITION exclusions for the recurrence detector.

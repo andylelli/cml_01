@@ -1581,7 +1581,6 @@ export async function generateCML(
     }
 
     // Add missing entries.
-    let gapFillCount = 0;
     for (const castMember of normalizedCast as any[]) {
       const nameLower = String(castMember.name ?? "").trim().toLowerCase();
       if (!nameLower) continue;
@@ -1601,15 +1600,10 @@ export async function generateCML(
         clearance_method: clearanceMethod,
         supporting_clues: suspectEliminationClues.get(nameLower) ?? [],
       });
-      gapFillCount += 1;
     }
 
     proseRequirements.suspect_clearance_scenes = existingClearances;
 
-    if (gapFillCount > 0) {
-      // Log is not available here; the caller will surface this in warnings.
-      // The patch is silent — it corrects the LLM output without burning a retry attempt.
-    }
 
     return cml;
   };

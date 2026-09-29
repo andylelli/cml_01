@@ -360,9 +360,6 @@ export async function runInsertionRegenPass(args: {
   return finishRegenPass(result.chapter, args.defects, result.unresolved);
 }
 
-/** Back-compat alias of the result shape for the clue pass. */
-export type ClueRegenPassResult = InsertionRegenPassResult;
-
 /**
  * P3.3 — the clue-miss regen pass (the A1 replacement). Detects required clues absent from the chapter
  * via the SAME presence check the deterministic patch uses — and required EARLY clues that are present
@@ -382,7 +379,7 @@ export async function runClueRegenPass(args: {
   castNames?: string[];
   maxAttemptsPerDefect?: number;
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
-}): Promise<ClueRegenPassResult> {
+}): Promise<InsertionRegenPassResult> {
   const ledgerEntry = args.ledgerEntry;
   const requiredClueIds = ledgerEntry?.requiredClueIds ?? [];
   const missing = requiredClueIds.filter(

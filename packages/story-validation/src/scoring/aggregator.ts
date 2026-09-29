@@ -527,13 +527,6 @@ export class ScoreAggregator {
   }
 
   /**
-   * Get current phases (useful for debugging)
-   */
-  getPhases(): PhaseReport[] {
-    return [...this.phases];
-  }
-
-  /**
    * Reset aggregator (for new generation)
    */
   reset(): void {
@@ -541,33 +534,4 @@ export class ScoreAggregator {
     this.diagnostics = [];
   }
 
-  /**
-   * Get phase count
-   */
-  getPhaseCount(): number {
-    return this.phases.length;
-  }
-
-  /**
-   * Check if any phases have failed
-   */
-  hasFailures(): boolean {
-    return this.phases.some((p) => !p.passed);
-  }
-
-  /**
-   * Get failed phases
-   */
-  getFailedPhases(): PhaseReport[] {
-    return this.phases.filter((p) => !p.passed);
-  }
-
-  /**
-   * Get current overall score (before final report generation)
-   */
-  getCurrentOverallScore(): number {
-    if (this.phases.length === 0) return 0;
-    const sum = this.phases.reduce((acc, p) => acc + p.score.total, 0);
-    return sum / this.phases.length;
-  }
 }

@@ -32,7 +32,7 @@ export type {
   RejectedPatch,
   ContractResult,
 } from "./agent4-patch.js";
-export { buildCluePrompt, extractClues, deriveClueObservable, deriveClueDescription, checkPointsToDistinctness } from "./agent5-clues.js";
+export { buildCluePrompt, extractClues, deriveClueObservable, checkPointsToDistinctness } from "./agent5-clues.js";
 export { buildFairPlayPrompt, auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { buildNarrativePrompt, formatNarrative, GOLDEN_AGE_BEATS, GOLDEN_AGE_BEAT_GUIDE } from "./agent7-narrative.js";
 // R4 — the structured-output flag reader, exported so the worker's coercion telemetry can stamp
@@ -195,7 +195,6 @@ export type {
   RegenRequest,
   RegenFn,
   ChapterValidator,
-  ClueRegenPassResult,
   InsertionRegenPassResult,
   FullStoryFinding,
   FullStoryFindingClass,
@@ -279,7 +278,7 @@ export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./
 export type { HardLogicDeviceIdea } from "./types.js";
 
 // Narrative state (sprint 2 — inter-batch style + fact tracking)
-export { initNarrativeState, updateNSD, migrateNarrativeState, stampDeployedAtoms, checkNSDParity } from "./types/narrative-state.js";
+export { initNarrativeState, updateNSD, stampDeployedAtoms, checkNSDParity } from "./types/narrative-state.js";
 export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
 
 // Asset library (Phase 2/5 — obligation stamping + texture selection + diagnostics)
@@ -313,7 +312,6 @@ export type { BackgroundContextInput } from "./types.js";
 export {
   MYSTERY_EXPERT_SYSTEM,
   CML_SPECIALIST_SYSTEM,
-  GROUNDING_PRINCIPLE,
   FAIR_PLAY_CHECKLIST,
 } from "./shared/system.js";
 
@@ -346,8 +344,6 @@ export type { NameGeneratorContext } from "./utils/name-generator.js";
 
 export {
   resolveDesignModel,
-  resolveProseModel,
-  resolveBaseModel,
 } from "./utils/model-tiers.js";
 
 // A_71 — false-time concealment direction check (external review headline defect).

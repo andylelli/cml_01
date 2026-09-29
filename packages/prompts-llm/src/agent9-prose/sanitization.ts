@@ -90,16 +90,11 @@ export function stripInternalAuditPhrasing(text: string): string {
 }
 
 export const parseProseResponse = (content: string) => {
-  const stripAuditLocal = (parsed: any): any => {
-    if (!parsed || typeof parsed !== 'object' || !('audit' in parsed)) return parsed;
-    const { audit: _audit, ...rest } = parsed;
-    return rest;
-  };
   try {
-    return stripAuditLocal(JSON.parse(content)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
+    return stripAuditField(JSON.parse(content)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
   } catch (error) {
     const repaired = jsonrepair(content);
-    return stripAuditLocal(JSON.parse(repaired)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
+    return stripAuditField(JSON.parse(repaired)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
   }
 };
 export function sanitizeScenesCharacters(scenes: any[], validCastNames: string[]): any[] {

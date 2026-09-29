@@ -539,43 +539,9 @@ export const hasRepetitionRewriteRegression = (args: {
    * Optional so existing callers keep working; absent ⇒ previous behaviour exactly.
    */
   clueTerms?: ReadonlyArray<string>;
-}): boolean => {
-  const originalText = chapterFullText(args.original);
-  const rewrittenText = chapterFullText(args.rewritten);
-  const originalLower = originalText.toLowerCase();
-  const rewrittenLower = rewrittenText.toLowerCase();
-
-  const originalWords = countWords(originalText);
-  const rewrittenWords = countWords(rewrittenText);
-  if (originalWords >= 80 && rewrittenWords < Math.floor(originalWords * 0.88)) return true;
-
-  for (const raw of args.lockedValues) {
-    const value = String(raw ?? "").trim().toLowerCase();
-    if (!value) continue;
-    if (originalLower.includes(value) && !rewrittenLower.includes(value)) return true;
-  }
-  for (const raw of args.castNames) {
-    const name = String(raw ?? "").trim().toLowerCase();
-    if (!name) continue;
-    if (originalLower.includes(name) && !rewrittenLower.includes(name)) return true;
-  }
-  // A clue present before the rewrite must survive it.
-  for (const raw of args.clueTerms ?? []) {
-    const term = String(raw ?? "").trim().toLowerCase();
-    if (term.length < 4) continue;
-    if (originalLower.includes(term) && !rewrittenLower.includes(term)) return true;
-  }
-  // Every number/time token present before must survive (a dropped time/number is a lost fact).
-  const before = digitTokens(originalText);
-  const afterCounts = new Map<string, number>();
-  for (const t of digitTokens(rewrittenText)) afterCounts.set(t, (afterCounts.get(t) ?? 0) + 1);
-  const beforeCounts = new Map<string, number>();
-  for (const t of before) beforeCounts.set(t, (beforeCounts.get(t) ?? 0) + 1);
-  for (const [token, n] of beforeCounts) {
-    if ((afterCounts.get(token) ?? 0) < n) return true;
-  }
-  return false;
-};
+}): boolean =>
+  // A9R-11: was a 48-line clone of the checks below; fullstory-polish-visibility.test.ts pins the equivalence.
+  repetitionRewriteRegressionReason(args) !== null;
 
 /**
  * The same decision, but it SAYS WHY — returns the failing check, or null to accept.

@@ -3454,13 +3454,6 @@ export function enforceAgent5DeterministicContracts(
   return { warnings };
 }
 
-export function recomputeInferenceCoverageForAgent6(
-  cml: CaseData,
-  clues: ClueDistributionResult,
-): InferenceCoverageResult {
-  return recomputeCoverageSnapshotForAgent6(cml, clues).coverageResult;
-}
-
 export function recomputeCoverageSnapshotForAgent6(
   cml: CaseData,
   clues: ClueDistributionResult,
@@ -4624,16 +4617,13 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 }
 
 export const __testables = {
-  buildSuspectCoverage,
   analyzeSuspectCoverage,
   reconcileModelAudit,
   checkModelAuditConsistency,
   buildStrictPromptFeedback,
   enforceAgent5DeterministicContracts,
-  recomputeInferenceCoverageForAgent6,
   checkDiscriminatingTestReachability,
   checkMechanismVisibility,
-  sanitizeDiscriminatingEvidenceClueIds,
   alignDiscriminatingEvidenceIdsWithSceneMapping,
   remapMissingDiscriminatingEvidenceIdsToExistingClues,
   synthesizeMissingDiscriminatingEvidenceClues,
@@ -4650,6 +4640,5 @@ export const __testables = {
   synthesizeMissingCulpritDiscriminatingClues,
   pruneOverlappingRedHerrings,
   findRedHerringOverlapDetails,
-  detectTemporalLexicalCollision,
   findRedHerringTrueSolutionOverlap,
 };

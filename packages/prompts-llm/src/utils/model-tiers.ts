@@ -23,12 +23,3 @@ export function resolveDesignModel(): string | undefined {
   return process.env.AZURE_OPENAI_DEPLOYMENT_NAME_DESIGN || baseDeployment();
 }
 
-/** Model for prose generation (Agent 9). */
-export function resolveProseModel(): string | undefined {
-  return process.env.AZURE_OPENAI_DEPLOYMENT_NAME_PROSE || baseDeployment();
-}
-
-/** Model for mechanical agents — the shared client default. */
-export function resolveBaseModel(): string | undefined {
-  return baseDeployment();
-}

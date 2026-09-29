@@ -1,4 +1,4 @@
-import type { PhaseScore, TestResult } from './types.js';
+import type { PhaseScore } from './types.js';
 
 /**
  * Builds detailed retry feedback for LLM based on scoring failure
@@ -67,47 +67,3 @@ export function buildRetryFeedback(score: PhaseScore, attemptNumber: number): st
   return parts.join('\n');
 }
 
-/**
- * Get top N failed tests for concise feedback
- */
-export function getTopFailures(tests: TestResult[], maxCount = 5): TestResult[] {
-  return tests
-    .filter(t => !t.passed)
-    .sort((a, b) => {
-      // Sort by severity (critical > major > moderate > minor)
-      const severityOrder: Record<string, number> = { critical: 0, major: 1, moderate: 2, minor: 3 };
-      const severityA = severityOrder[a.severity || 'minor'] ?? 3;
-      const severityB = severityOrder[b.severity || 'minor'] ?? 3;
-      
-      if (severityA !== severityB) {
-        return severityA - severityB;
-      }
-      
-      // Then by weight (higher weight = more important)
-      return (b.weight || 0) - (a.weight || 0);
-    })
-    .slice(0, maxCount);
-}
-
-/**
- * Build concise feedback for retry (shorter version)
- */
-export function buildConciseRetryFeedback(score: PhaseScore, attemptNumber: number): string {
-  const parts: string[] = [];
-
-  parts.push(`Attempt ${attemptNumber} failed: Score ${score.total}/100`);
-
-  if (score.component_failures && score.component_failures.length > 0) {
-    parts.push(`Components below minimum: ${score.component_failures.join(', ')}`);
-  }
-
-  const topFailures = getTopFailures(score.tests, 3);
-  if (topFailures.length > 0) {
-    parts.push(`\nTop issues to fix:`);
-    topFailures.forEach((t, i) => {
-      parts.push(`${i + 1}. ${t.name}: ${t.message || 'failed'}`);
-    });
-  }
-
-  return parts.join('\n');
-}

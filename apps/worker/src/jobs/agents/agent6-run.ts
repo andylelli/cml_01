@@ -1416,7 +1416,6 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   const transientProgressWarnings = new Set<string>();
   const transientDiagnosticWarnings = new Set<string>();
-  const persistentRiskWarnings = new Set<string>();
 
   const emitAgent6Warning = (message: string, kind: Agent6WarningKind): void => {
     const normalized = String(message ?? "").trim();
@@ -1434,7 +1433,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       transientDiagnosticWarnings.add(normalized);
       return;
     }
-    persistentRiskWarnings.add(normalized);
+    // "persistent-risk": pushed to ctx.warnings above and nowhere else (its Set was write-only — A6-14).
   };
 
   /**

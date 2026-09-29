@@ -576,7 +576,6 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     ctx.inputs.theme,
     ctx.initialHardLogicDirectives.mechanismFamilies,
   );
-  (ctx as { lockedThemeFamilies?: string[] }).lockedThemeFamilies = lockedThemeFamilies;
 
   /**
    * A_74 §8 DE8 — retrieve ONCE, here, and pass the same block to all three generate calls below.

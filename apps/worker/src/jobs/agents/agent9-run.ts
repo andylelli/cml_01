@@ -63,7 +63,6 @@ import {
   repairCaseSoundness,
   genderMapFromBible,
   deriveMechanismTerms,
-  chapterFullyExplainsMechanism,
   resolveDiscriminatingTestChapter,
   // A_69 Increment 3 — whole-story read-only diagnostic. Lives HERE, not in generate.ts: the A_69
   // smoke probe proved the prose keeps changing after generate.ts returns (scaffold regen replaced
@@ -101,7 +100,7 @@ import {
   humourBand,  // A_92 — the band the run asked for, for the ship-check
   auditMechanismActors, // A_96 F3
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED, repetitionDensity, summariseRepetitionDensity } from "@cml/prose-guard";
+import { detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED, repetitionDensity, summariseRepetitionDensity } from "@cml/prose-guard";
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
@@ -206,54 +205,6 @@ import {
   isBibleAuthoritativeEnabled,
   voiceEnforceMode,
 } from "./agent9/flags.js";
-
-/**
- * Ledger P4.2 — the critique-rewrite acceptance validator: a creative-temperature rewrite may not
- * REINTRODUCE defect classes the regen passes (which run BEFORE the rewrite) already cleared.
- * Evaluated on the original first (critiqueAndRewriteChapter's isRegression), so pre-existing
- * defects self-baseline: only NEW violations roll a rewrite back.
- * (a) case-transition: the candidate is swapped into the chapter snapshot and any
- *     missing_case_transition_bridge defect touching the rewritten position (as the death-side
- *     chapter, or as the disappearance frame for the NEXT chapter) is a violation.
- * (b) mechanism-too-early: a pre-discriminating-test chapter must not gain a full mechanism
- *     explanation (same predicate as the S8 regen and the rubric cap).
- * Snapshot note: within one pass, earlier accepted rewrites aren't reflected in the snapshot — a
- * combination defect across two same-pass rewrites still lands on the final release gate.
- */
-export const buildRewriteAcceptanceValidator = (args: {
-  atomicValues: ReadonlyArray<string>;
-  chapterSnapshot: ReadonlyArray<any>;
-  mechanismTerms: ReadonlyArray<string>;
-  dtChapter: number | null;
-  index: number;
-  original: any;
-}): ((cand: any) => { ok: boolean; score: number; violations: string[] }) => {
-  const presentValues = args.atomicValues.filter((v) =>
-    ((args.original?.paragraphs ?? []) as string[]).join(" ").includes(v),
-  );
-  return (cand: any) => {
-    const text = ((cand?.paragraphs ?? []) as string[]).join(" ");
-    const scaffold = noScaffoldValidator(text);
-    const dropped = presentValues.filter((v) => !text.includes(v));
-    const candList = args.chapterSnapshot.map((ch, i) => (i === args.index ? cand : ch));
-    const transitionViolations = detectMissingCaseTransitionBridge(candList as any)
-      .filter((d) => d.chapterNumber === args.index + 1 || d.chapterNumber === args.index + 2)
-      .map((d) => `case_transition_defect_ch${d.chapterNumber}`);
-    const mechanismViolations =
-      args.mechanismTerms.length > 0 &&
-      args.dtChapter != null &&
-      args.index + 1 < args.dtChapter &&
-      chapterFullyExplainsMechanism(text.toLowerCase(), [...args.mechanismTerms])
-        ? ["mechanism_revealed_early"]
-        : [];
-    const introduced = [...transitionViolations, ...mechanismViolations];
-    return {
-      ok: scaffold.ok && dropped.length === 0 && introduced.length === 0,
-      score: scaffold.score + (presentValues.length - dropped.length) * 10 - introduced.length * 25,
-      violations: [...scaffold.violations, ...dropped.map((v) => `dropped_locked_fact:${v}`), ...introduced],
-    };
-  };
-};
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
