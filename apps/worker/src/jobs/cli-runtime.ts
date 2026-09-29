@@ -13,7 +13,35 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
+import { AzureOpenAIClient, LLMLogger, ReplayClient, writeCassette } from "@cml/llm-client";
+
+/** The replay client built for this process, if any — so a CLI can check completeness at exit. */
+export let activeReplayClient: ReplayClient | undefined;
+
+/**
+ * CR-03 — after a replayed stage: every recorded attempt must have been asked for, or the code made
+ * fewer calls than the run it replays. Returns the lines to print; empty = the replay was exact.
+ */
+export function replayCompletenessProblems(): { lines: string[]; failed: boolean } {
+  if (!activeReplayClient) return { lines: [], failed: false };
+  const left = activeReplayClient.unconsumed();
+  const r = activeReplayClient.report();
+  const lines = r.parameterDrift.map((d) => `[replay] parameter drift: ${d}`);
+  for (const m of r.mismatches) lines.push(`[replay] MISMATCH: ${m}`);
+  if (left.length) lines.push(`[replay] ${left.length} recorded attempt(s) never requested: ${left.slice(0, 8).map((e) => e.agent).join(", ")}`);
+  // rebase: write the cassette with the current prompts, even when it failed — the diff is the evidence.
+  const out = (process.env.LLM_REPLAY_REBASE_OUT ?? "").trim();
+  if (r.mode === "rebase" && out) {
+    const rebased = activeReplayClient.rebased();
+    writeCassette(out, rebased);
+    const syn = (rebased.source.syntheticFailures as string[]) ?? [];
+    lines.push(`[replay] rebased cassette written to ${out}: ${rebased.entries.length} attempts; ${rebased.source.promptsChangedByRebase} call(s) with a changed prompt; ${rebased.source.droppedByRebase} recorded attempt(s) dropped; ${syn.length} synthetic failure(s)${syn.length ? ` (${syn.join(", ")})` : ""}`);
+    return { lines: [...lines, `[replay] RESULT: REBASED — replay it in strict mode to confirm a MATCH`], failed: r.mismatches.length > 0 };
+  }
+  const failed = r.mismatches.length > 0 || left.length > 0;
+  lines.push(failed ? `[replay] RESULT: NO MATCH (${r.mode})` : `[replay] RESULT: MATCH — ${r.calls} calls, ${r.attemptsServed} recorded attempts, all served (${r.mode})`);
+  return { lines, failed };
+}
 
 /**
  * Minimal .env reader — no dependency, never echoes values.
@@ -140,6 +168,19 @@ export function requireAzureDeployment(): string {
 
 /** Mirrors `apps/api`'s client construction, including the logger. Credentials are never printed. */
 export function buildClient(workspaceRoot: string): AzureOpenAIClient {
+  // CR-03 — offline replay. With a cassette (scripts/cassette-from-logs.mjs) every call is answered
+  // from the recording and a prompt that differs by one byte throws, naming the agent and the byte.
+  // No credentials, no network, no cost. Read at call time (ADR-0004).
+  const cassette = (process.env.LLM_REPLAY_CASSETTE ?? "").trim();
+  if (cassette) {
+    const mode = (process.env.LLM_REPLAY_MODE ?? "").trim() === "rebase" ? "rebase" : "strict";
+    const replay = ReplayClient.fromFile(cassette, mode);
+    console.log(`[replay] LLM_REPLAY_CASSETTE=${cassette} (${mode}): ${replay.cassette.entries.length} recorded attempts; no LLM calls will be made`);
+    activeReplayClient = replay;
+    // The pipeline uses chat / chatWithRetry / getCostTracker / getLogger / getContentFilterTracker,
+    // all of which ReplayClient provides; the cast is the one place that knowledge lives.
+    return replay as unknown as AzureOpenAIClient;
+  }
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
   if (!endpoint || !apiKey) {

@@ -35,7 +35,7 @@ import { join } from "node:path";
 import { generateMystery, type MysteryGenerationInputs } from "./mystery-orchestrator.js";
 import { loadArtifactStore, resolveProjectSpec, specToInputs } from "./artifact-store.js";
 import { makeJsonArtifactPersister } from "./json-artifact-store.js";
-import { buildClient, loadEnvFiles } from "./cli-runtime.js";
+import { buildClient, loadEnvFiles, replayCompletenessProblems } from "./cli-runtime.js";
 import {
   checkBuildFingerprint,
   computeBuildFingerprint,
@@ -206,6 +206,12 @@ async function main(): Promise<void> {
           resumeAgent9FromCheckpoint: true,
         }
       : {}),
+    // CR-03 — a replay keeps its checkpoint in its sandbox. Without this the v2 engine writes (and on
+    // the next run REUSES) apps/worker/logs/agent9v2-checkpoint-<project>.json, so one replay would
+    // silently make a later paid resume skip the writer.
+    ...((process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim()
+      ? { agent9CheckpointPath: (process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim() }
+      : {}),
   };
   if (redoChapter) {
     console.log(`[resume-run] REDO CHAPTER: ${redoChapter} — chapters before it stand, chapters after it are kept from the checkpoint, only chapter ${redoChapter} is written again.`);
@@ -306,7 +312,9 @@ async function main(): Promise<void> {
   }
   for (const error of result.errors ?? []) console.log(`[resume-run] ERROR      : ${error}`);
 
-  const storyDir = join(workspaceRoot, "stories", storyFolderName(new Date()));
+  // CML_STORIES_DIR (CR-03): a replay writes its book beside its scratch store, not into stories/.
+  const storiesRoot = (process.env.CML_STORIES_DIR ?? "").trim() || join(workspaceRoot, "stories");
+  const storyDir = join(storiesRoot, storyFolderName(new Date()));
   const { filePath } = saveReadableStory(result.prose, runId, storyDir, `Resumed ${runId}`);
   const chapters = Array.isArray((result.prose as { chapters?: unknown[] })?.chapters)
     ? (result.prose as { chapters: unknown[] }).chapters.length
@@ -328,6 +336,11 @@ async function main(): Promise<void> {
     `[resume-run] NOTE       : regenerated stages WERE written back to data/store.json under ` +
       `projectId '${projectId}' (A_86 item 5). A second failure resumes from where this run reached.`,
   );
+
+  // CR-03 — a replay that served fewer calls than it recorded is not a match, whatever it printed.
+  const replay = replayCompletenessProblems();
+  for (const line of replay.lines) console.log(line);
+  if (replay.failed) process.exitCode = 5;
 }
 
 main().catch((e) => {

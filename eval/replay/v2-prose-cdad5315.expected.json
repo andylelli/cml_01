@@ -1,0 +1,12 @@
+{
+  "project": "proj_cdad5315-bd36-499f-81f9-1f327f4d444a",
+  "stage": "prose",
+  "digest": "8312428c1259b1d3",
+  "result": "MATCH — 46 calls, 52 recorded attempts, all served (strict)",
+  "syntheticFailures": [
+    "Agent9v2-Editor-Ch4-R2",
+    "Agent9v2-Editor-Ch5-R2"
+  ],
+  "recordedFrom": "resume-1790356483365",
+  "rebasedAt": "2026-09-29T17:51:53.965Z"
+}

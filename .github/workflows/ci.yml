@@ -30,5 +30,7 @@ jobs:
         run: npm run ledger:check
       - name: Build and unit suites (all workspaces)
         run: npm test
+      - name: Replay fixtures — every prompt byte-identical, prose unchanged (CR-03)
+        run: npm run replay:check
       - name: Script suites
         run: npm run test:scripts && npm run test:canary-loop && npm run test:exp-regen-clue
