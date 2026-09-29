@@ -345,5 +345,8 @@ async function main(): Promise<void> {
 
 main().catch((e) => {
   console.error("[resume-run] FAILED:", e?.stack ?? e);
+  // CR-03 — a replay that aborted the stage still owes its diagnosis (the mismatch, the byte) and, in
+  // rebase mode, the rebased cassette.
+  for (const line of replayCompletenessProblems().lines) console.log(line);
   process.exit(1);
 });

@@ -59,6 +59,23 @@ describe("ReplayClient — strict", () => {
     await expect(call(c, "A", "p")).rejects.toThrow("content_filter refusal");
   });
 
+  it("treats a changed maxTokens or temperature as a mismatch — the recorded text would not survive it", async () => {
+    const e = { ...ok("A", "p", "x"), maxTokens: 4000, temperature: 0.7 };
+    const c = new ReplayClient(cassette(e));
+    await c.chat({ messages: msgs("p"), maxTokens: 8000, logContext: { agent: "A", runId: "r", projectId: "p" } });
+    expect(c.report().mismatches.join("\n")).toMatch(/maxTokens 4000 recorded, 8000 now/);
+  });
+
+  it("does NOT swallow an error the caller saw and answered with its own retry (new attempt number)", async () => {
+    const first = { ...fail("A", "p", "content_filter"), retryAttempt: 0 };
+    const second = { ...ok("A", "p", "second call"), retryAttempt: 1 };
+    const c = new ReplayClient(cassette(first, second));
+    const ask = (retryAttempt: number) =>
+      c.chat({ messages: msgs("p"), logContext: { agent: "A", runId: "r", projectId: "p", retryAttempt } });
+    await expect(ask(0)).rejects.toThrow("content_filter");
+    expect((await ask(1)).content).toBe("second call");
+  });
+
   it("reports recorded attempts the code never asked for", async () => {
     const c = new ReplayClient(cassette(ok("A", "p", "x"), ok("B", "q", "y")));
     await call(c, "A", "p");
@@ -67,6 +84,14 @@ describe("ReplayClient — strict", () => {
 });
 
 describe("ReplayClient — rebase", () => {
+  it("takes one logical call at a time, never a later call that shares the prompt", async () => {
+    const c = new ReplayClient(cassette(ok("A", "P", "one"), ok("A", "Q", "two"), ok("A", "P", "three")), "rebase");
+    expect((await call(c, "A", "P")).content).toBe("one");
+    expect((await call(c, "A", "Q")).content).toBe("two");
+    expect((await call(c, "A", "P")).content).toBe("three");
+    expect(c.rebased().source.syntheticFailures).toEqual([]);
+  });
+
   it("serves by label and order, records the current prompt, drops the unasked, marks new calls synthetic", async () => {
     const c = new ReplayClient(cassette(ok("A", "old prompt", "reply A"), ok("B", "q", "reply B")), "rebase");
     expect((await call(c, "A", "new prompt")).content).toBe("reply A");

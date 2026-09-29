@@ -12,10 +12,11 @@
 // to logs/, API runs to apps/api/logs/, and rotated files go to logs/archive/.
 // Error text is scrubbed of URLs (it carries the Azure endpoint host). Fails if any prompt attempt has
 // no outcome, or any outcome no prompt — a cassette with a hole replays as a lie.
-import { createReadStream, existsSync, readdirSync, writeFileSync } from 'node:fs';
+import { createReadStream, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { gzipSync } from 'node:zlib';
+// The cassette format has ONE body: @cml/llm-client (build:all first).
+import { writeCassette } from '../packages/llm-client/dist/index.js';
 
 const args = process.argv.slice(2);
 const arg = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
@@ -74,7 +75,6 @@ if (entries.some((e) => e.outcome.kind === 'response' && typeof e.outcome.conten
 
 const source = { runId, projectId: prompts[0].projectId, builtFrom: files, builtAt: new Date().toISOString(),
   attempts: entries.length, errors: entries.filter((e) => e.outcome.kind === 'error').length };
-const text = [JSON.stringify({ source }), ...entries.map((e) => JSON.stringify(e))].join('\n') + '\n';
-writeFileSync(out, out.endsWith('.gz') ? gzipSync(text, { level: 9 }) : text);
+writeCassette(out, { source, entries });
 const agents = new Set(entries.map((e) => e.agent.replace(/-(S\d+-D\d+|Ch\d+-R\d+)$/, '')));
 console.log(`cassette ${out}: ${entries.length} attempts (${source.errors} errors), ${agents.size} agent families, project ${source.projectId}`);

@@ -51,6 +51,9 @@ export function replayCompletenessProblems(): { lines: string[]; failed: boolean
  * the experiment being run.
  */
 export function loadEnvFiles(root: string): void {
+  // CR-03 — a replay fixture carries its own flag environment; this machine's .env.local must not
+  // leak into it (CI has none, so a fixture digested against a local file would fail there).
+  if (process.env.CML_SKIP_ENV_FILES === "1") return;
   for (const name of [".env.local", ".env"]) {
     const path = join(root, name);
     if (!existsSync(path)) continue;

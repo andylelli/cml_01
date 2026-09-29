@@ -22,8 +22,10 @@
  * prompts, told apart only by label (-D1/-D2/-D3). Matched by hash alone, draft 1 was served draft 2's
  * recorded reply, a different draft won, and every later prompt differed (MEASURED 2026-09-29). Calls must also be complete: `unconsumed()`
  * lists recorded attempts the code never asked for (it made fewer calls than the recording).
- * Parameter differences (maxTokens, temperature, model) are reported by `report()`, not thrown —
- * the resolved model depends on env routing, which a replay does not own.
+ * Sampling parameters are part of the proof: a recorded maxTokens or temperature (after the client's
+ * retry escalation) that differs from what the code asks for now is a MISMATCH, as is an explicit
+ * model that differs — a replay serves the recorded text either way, so without this a refactor that
+ * changed them would pass while the paid run's output changed.
  *
  * TWO MODES.
  *   strict  (default) — match by prompt hash. The proof mode: a refactor must reproduce every prompt.
@@ -44,6 +46,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { CostTracker } from "./cost-tracker.js";
 import { ContentFilterTracker } from "./content-filter.js";
 import { LLMLogger } from "./logger.js";
+import { escalateRetryTemperature } from "./client.js";
 import type { ChatOptions, ChatResponse, Message, TokenUsage } from "./types.js";
 
 /** One recorded ATTEMPT — a prompt and what came back. */
@@ -87,6 +90,14 @@ export function writeCassette(path: string, cassette: Cassette): void {
   const text = [JSON.stringify({ source: cassette.source }), ...cassette.entries.map((e) => JSON.stringify(e))].join("\n") + "\n";
   writeFileSync(path, path.endsWith(".gz") ? gzipSync(text, { level: 9 }) : text);
 }
+
+/**
+ * Does `next` retry `prev`'s logical call? Only if `prev` failed and `next` is the same prompt at the
+ * same caller attempt number. The client's retry loop keeps `logContext.retryAttempt`; a caller that
+ * catches the error and asks again (with its own attempt counter) is a NEW call, and saw the error.
+ */
+const isRetryOf = (prev: CassetteEntry, next: CassetteEntry | undefined): boolean =>
+  !!next && prev.outcome.kind === "error" && next.promptHash === prev.promptHash && (next.retryAttempt ?? 0) === (prev.retryAttempt ?? 0);
 
 const callKey = (agent: string, promptHash: string): string => `${agent}|${promptHash}`;
 
@@ -170,7 +181,9 @@ export class ReplayClient {
         throw new Error(errorMessage);
       }
       const first = pendingForAgent[0];
-      queue = pendingForAgent.filter((e) => e.promptHash === first.promptHash);
+      // The contiguous attempts of ONE logical call — never a later call that happens to share the prompt.
+      queue = [first];
+      while (isRetryOf(queue[queue.length - 1], pendingForAgent[queue.length])) queue.push(pendingForAgent[queue.length]);
       if (first.promptHash !== hash) this.promptsChanged += 1;
       // Remove them from the hash queue too, so strict bookkeeping stays consistent.
       const hq = this.queues.get(callKey(agent, first.promptHash)) ?? [];
@@ -184,14 +197,24 @@ export class ReplayClient {
     for (;;) {
       const entry = queue.shift()!;
       this.consumed.add(entry.seq);
-      if (this.mode === "rebase") this.served.push({ ...entry, messages: options.messages, promptHash: hash });
+      if (this.mode === "rebase") {
+        this.served.push({
+          ...entry,
+          messages: options.messages,
+          promptHash: hash,
+          maxTokens: options.maxTokens ?? 4000,
+          temperature: escalateRetryTemperature(options.temperature ?? 0.7, options.logContext?.retryAttempt ?? 0),
+          ...(options.model ? { model: options.model } : {}),
+          retryAttempt: options.logContext?.retryAttempt ?? entry.retryAttempt,
+        });
+      }
       this.noteDrift(agent, entry, options);
       if (entry.outcome.kind === "response") {
         const o = entry.outcome;
         this.costTracker.trackCost(o.model, o.usage, agent);
         return { content: o.content, usage: o.usage, model: o.model, finishReason: o.finishReason, latencyMs: o.latencyMs ?? 0 };
       }
-      if (queue.length > 0) continue; // the same prompt was sent again: a retry swallowed this error
+      if (isRetryOf(entry, queue[0])) continue; // the client's retry loop swallowed this error
       throw new Error(entry.outcome.errorMessage);
     }
   }
@@ -242,13 +265,19 @@ export class ReplayClient {
     return { mode: this.mode, calls: this.calls, attemptsServed: this.consumed.size, parameterDrift: [...this.drift], mismatches: [...this.mismatches] };
   }
 
+  /** Sampling parameters are part of a call's identity: a difference is a mismatch, not a note. */
   private noteDrift(agent: string, entry: CassetteEntry, options: ChatOptions): void {
+    if (entry.synthetic) return;
     const maxTokens = options.maxTokens ?? 4000;
-    if (entry.maxTokens !== undefined && entry.maxTokens !== maxTokens) {
-      this.drift.push(`${agent} #${entry.seq}: maxTokens ${entry.maxTokens} recorded, ${maxTokens} now`);
-    }
-    if (options.model && entry.model && options.model !== entry.model) {
-      this.drift.push(`${agent} #${entry.seq}: model ${entry.model} recorded, ${options.model} now`);
+    const temperature = escalateRetryTemperature(options.temperature ?? 0.7, options.logContext?.retryAttempt ?? 0);
+    const diffs: string[] = [];
+    if (entry.maxTokens !== undefined && entry.maxTokens !== maxTokens) diffs.push(`maxTokens ${entry.maxTokens} recorded, ${maxTokens} now`);
+    if (entry.temperature !== undefined && Math.abs(entry.temperature - temperature) > 1e-9) diffs.push(`temperature ${entry.temperature} recorded, ${temperature} now`);
+    if (options.model && entry.model && options.model !== entry.model) diffs.push(`model ${entry.model} recorded, ${options.model} now`);
+    for (const d of diffs) {
+      this.drift.push(`${agent} #${entry.seq}: ${d}`);
+      // rebase re-baselines parameters as it does prompts (the served entry records today's values)
+      if (this.mode === "strict") this.mismatches.push(`Replay: parameter for "${agent}" (seq ${entry.seq}) differs: ${d}`);
     }
   }
 
