@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 5 | 12 | 0 | 17 |
-| open | 185 | 127 | 72 | 384 |
+| closed | 6 | 12 | 0 | 18 |
+| open | 184 | 127 | 72 | 383 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -20,7 +20,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR | items | closed | keys |
 |---|---:|---:|---|
 | CR-02 | 1 | 1 | A9W-19 |
-| CR-03 | 5 | 0 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
+| CR-03 | 5 | 1 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
@@ -149,7 +149,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9W-12 | P2 | R0 | CR-09 | todo |  | Helper layer (3,645 lines) → 12 modules behind re-export shims |  |
 | A9W-13 | P2 | R0 | CR-22 | todo |  | Flag surface has leaked back out of flags.ts |  |
 | A9W-14 | P2 | R0/R1 | CR-08 | todo |  | Compiler-proven dead code and a vestigial counter |  |
-| A9W-15 | P1 | R0 | CR-03 | todo |  | No test reaches runAgent9; golden ship-layer test first |  |
+| A9W-15 | P1 | R0 | CR-03 | done | 1374e38e | No test reaches runAgent9; golden ship-layer test first | ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI |
 | A9W-16 | P3 | R0/R1 | CR-31 | todo |  | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) |  |
 | A9W-17 | P3 | R1 | CR-34 | todo |  | Re-validation ×9 re-pays uncached semantic LLM fallbacks |  |
 | A9W-18 | P3 | R1 | **—** | withdrawn |  | O(n²) cumulative chapter scoring — negligible | CPU is not a lever (README §3); negligible against LLM latency |

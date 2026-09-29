@@ -13,7 +13,7 @@ A9W-11	CR-31	todo
 A9W-12	CR-09	todo		
 A9W-13	CR-22	todo		
 A9W-14	CR-08	todo		
-A9W-15	CR-03	todo		
+A9W-15	CR-03	done	1374e38e	ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI
 A9W-16	CR-31	todo		
 A9W-17	CR-34	todo		
 A9W-18		withdrawn		CPU is not a lever (README §3); negligible against LLM latency
