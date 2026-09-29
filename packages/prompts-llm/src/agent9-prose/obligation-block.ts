@@ -1,6 +1,6 @@
-﻿/**
+/**
  * agent9-prose/obligation-block.ts
- * buildChapterObligationBlock â€” the combined clue-obligation / NSD context block
+ * buildChapterObligationBlock — the combined clue-obligation / NSD context block
  * injected into every prose prompt.
  */
 import { isVictimArchetype, readLockedClocksAndDurations, selectDeceptionPair, parseClockTime } from "@cml/cml";

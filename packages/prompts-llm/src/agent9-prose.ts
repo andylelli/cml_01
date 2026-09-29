@@ -1,4 +1,4 @@
-﻿/**
+/**
  * agent9-prose.ts
  *
  * Transparent re-export barrel. All implementation is in agent9-prose/.
