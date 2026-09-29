@@ -6,8 +6,8 @@
 import { isVictimArchetype } from "@cml/cml";
 import { getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
 import type { AzureOpenAIClient } from "@cml/llm-client";
-import { deriveClueObservable } from "../agent5-clues.js";
-import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
+import { deriveClueObservable } from "../shared/clue-observable.js";
+import type { ClueDistributionResult, Clue } from "../types/clue-distribution.js";
 import type { BatchGateName, BatchCommitRecord } from "../contracts/batch-commit-record.js";
 import type {
   ProseChapter,

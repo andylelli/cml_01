@@ -17,7 +17,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
-import type { ClueDistributionResult } from "./agent5-clues.js";
+import type { ClueDistributionResult } from "./types/clue-distribution.js";
 import type { PromptComponents } from "./types.js";
 import { jsonrepair } from "jsonrepair";
 import { looksTruncatedJson } from "./shared/json-boundary.js";

@@ -31,7 +31,7 @@ import {
   type PronounDriftCastEntry,
   detectVerbatimFieldEcho,
 } from "@cml/story-validation";
-import type { ClueDistributionResult } from "../agent5-clues.js";
+import type { ClueDistributionResult } from "../types/clue-distribution.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 import { initNarrativeState, updateNSD } from "../types/narrative-state.js";
 import { buildAssetLibrary } from "../asset-library.js";

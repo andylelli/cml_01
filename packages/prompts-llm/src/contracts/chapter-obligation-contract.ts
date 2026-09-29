@@ -1,7 +1,7 @@
 import { getStoryLengthTarget } from "@cml/story-validation";
 import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
-import type { ClueDistributionResult } from "../agent5-clues.js";
+import type { ClueDistributionResult } from "../types/clue-distribution.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 
 export interface ChapterObligation {

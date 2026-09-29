@@ -5,7 +5,8 @@
  */
 import { isVictimArchetype, readLockedClocksAndDurations, selectDeceptionPair, parseClockTime } from "@cml/cml";
 import { resolveClearanceOwnership, isClearanceOwnershipEnabled } from "./clearance-ownership.js";
-import { deriveClueObservable, deathMethodTellHints, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
+import type { ClueDistributionResult, Clue } from "../types/clue-distribution.js";
+import { deriveClueObservable, deathMethodTellHints } from "../shared/clue-observable.js";
 import {
   OPENING_ATMOSPHERE_MARKERS,
   formatGroundingMarkers, getGenerationParams } from "@cml/story-validation";

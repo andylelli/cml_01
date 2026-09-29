@@ -14,7 +14,7 @@ import {
 import { selectChapterAtoms, buildAssetLibrary } from "../asset-library.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import type { NarrativeState } from "../types/narrative-state.js";
-import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
+import type { ClueDistributionResult, Clue } from "../types/clue-distribution.js";
 import {
   ARC_POSITION_REGISTER,
   ARC_POS_TO_SCENE_TYPE,

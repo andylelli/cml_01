@@ -6,8 +6,8 @@
 import { isVictimArchetype } from "@cml/cml";
 import { resolveClearanceOwnership, isClearanceOwnershipEnabled } from "./clearance-ownership.js";
 import type { CaseData } from "@cml/cml";
-import { deriveClueObservable } from "../agent5-clues.js";
-import type { ClueDistributionResult } from "../agent5-clues.js";
+import { deriveClueObservable } from "../shared/clue-observable.js";
+import type { ClueDistributionResult } from "../types/clue-distribution.js";
 import {
   composeKeyTermPhrase,
   composeProseTermPhrase,

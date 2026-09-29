@@ -20,7 +20,7 @@ import {
 } from "@cml/prose-guard";
 import type { DiscriminatingPair } from "@cml/prose-guard";
 import type { ValidatorResult } from "@cml/prose-guard";
-import type { ClueDistributionResult } from "../agent5-clues.js";
+import type { ClueDistributionResult } from "../types/clue-distribution.js";
 import type { StoryBible, ChapterBeat } from "../story-bible.js";
 import { chapterMentionsRequiredClue, resolveClueObligationState, RESOLUTION_RE } from "./clue-validation.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";

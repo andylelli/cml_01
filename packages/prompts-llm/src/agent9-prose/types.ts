@@ -5,7 +5,7 @@
 import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { CastDesign } from "../agent2-cast.js";
-import type { ClueDistributionResult } from "../agent5-clues.js";
+import type { ClueDistributionResult } from "../types/clue-distribution.js";
 import type { StoryContract } from "../story-contract.js";
 import type { StoryGeometry } from "@cml/story-geometry";
 import type { NarrativeState } from "../types/narrative-state.js";

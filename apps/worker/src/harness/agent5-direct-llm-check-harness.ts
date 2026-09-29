@@ -13,9 +13,9 @@ import {
 import {
   enforceAgent5DeterministicContracts,
   recomputeCoverageSnapshotForAgent6,
-} from "../jobs/agents/agent5-run.js";
+} from "../jobs/agents/agent5-contracts.js";
 import { applyClueGuardrails } from "../jobs/agents/shared.js";
-import { buildStrictPromptFeedback } from "../jobs/agents/agent5-run.js";
+import { buildStrictPromptFeedback } from "../jobs/agents/agent5-contracts.js";
 
 type CliArgs = {
   cmlPath: string;

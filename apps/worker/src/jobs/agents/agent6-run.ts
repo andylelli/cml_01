@@ -29,7 +29,7 @@ import {
   enforceAgent5DeterministicContracts,
   buildStrictPromptFeedback,
   recomputeCoverageSnapshotForAgent6,
-} from "./agent5-run.js";
+} from "./agent5-contracts.js";
 import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,

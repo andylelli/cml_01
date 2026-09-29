@@ -12,6 +12,11 @@ import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { PromptComponents } from "./types.js";
+import type { Clue, RedHerring, ClueDistributionResult, ClueExtractionAudit } from "./types/clue-distribution.js";
+import { deriveClueObservable, deathMethodTellHints } from "./shared/clue-observable.js";
+// A5-05: moved to leaves; re-exported so every importer of this module keeps its path.
+export type { Clue, RedHerring, ClueDistributionResult, ClueExtractionAudit } from "./types/clue-distribution.js";
+export { deriveClueObservable, deathMethodTellHints } from "./shared/clue-observable.js";
 
 export interface ClueExtractionInputs {
   cml: Record<string, unknown>;    // Validated CML object
@@ -59,28 +64,6 @@ export interface ClueExtractionInputs {
     requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
     requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[]; weaponTrace?: string; weaponPhrase?: string };
   };
-}
-
-/**
- * A_61 RC3.5 — map a physical death method to fair-play tells a witness could observe at the
- * body-discovery scene, plus the tokens Agent 7 uses to locate the generated tell clue. Generic across
- * the canonical methods; defaults to a neutral "manner of death" tell for anything unrecognised.
- */
-export function deathMethodTellHints(deathMethod: string): { examples: string; tokens: string[] } {
-  const m = String(deathMethod ?? "").toLowerCase();
-  if (/poison|toxin|venom|arsenic|cyanide|strychnine/.test(m))
-    return { examples: "for poison: numbness, a bitter almond residue, constriction, or sudden collapse with no wound", tokens: ["numbness", "bitter", "residue", "collapse", "convulsion", "no wound", "froth"] };
-  if (/stab|knife|blade|dagger|puncture/.test(m))
-    return { examples: "for stabbing: a puncture wound, blood pooling, a torn garment, or a missing blade", tokens: ["wound", "blood", "blade", "puncture", "torn"] };
-  if (/blunt|struck|bludgeon|blow|struck down|beaten/.test(m))
-    return { examples: "for blunt-force: a head wound, a bloodied heavy object, or bruising", tokens: ["wound", "blood", "bruis", "struck", "blunt"] };
-  if (/strangl|garrot|throttle|asphyxiat|suffocat/.test(m))
-    return { examples: "for strangulation: ligature marks, petechiae in the eyes, or a disturbed collar", tokens: ["ligature", "marks", "throat", "collar", "petechiae", "bruis"] };
-  if (/shot|gun|firearm|bullet|pistol|revolver/.test(m))
-    return { examples: "for shooting: a bullet wound, powder burns, a spent cartridge, or the report heard", tokens: ["wound", "bullet", "powder", "cartridge", "gunshot"] };
-  if (/drown/.test(m))
-    return { examples: "for drowning: water in the lungs, sodden clothing, or weed on the body", tokens: ["water", "sodden", "drown", "lungs"] };
-  return { examples: "a concrete physical sign of how the victim died, visible at the scene", tokens: ["wound", "mark", "residue", "collapse"] };
 }
 
 /**
@@ -164,32 +147,6 @@ function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
   return 1;
 }
 
-export interface Clue {
-  id: string;                       // Unique clue identifier
-  category: "temporal" | "spatial" | "physical" | "behavioral" | "testimonial";
-  description: string;              // Analytic spec sentence (planning surface — kept OUT of prose)
-  observable?: string;              // P1.2: the on-page anomaly a character can SEE/HEAR/FIND (preferred for prose)
-  inference?: string;               // P1.2: the reasoning the observable supports (embargoed pre-reveal)
-  sourceInCML: string;              // Where it comes from in CML (for traceability)
-  pointsTo: string;                 // What it reveals (without spoiling)
-  first_full_reveal_chapter?: number; // P1.2: earliest chapter the full implication may be stated
-  placement: "early" | "mid" | "late"; // When it should appear
-  criticality: "essential" | "supporting" | "optional";
-  supportsInferenceStep?: number;   // 1-indexed inference_path step this clue enables
-  evidenceType?: "observation" | "contradiction" | "elimination"; // Role the clue plays in the step
-}
-
-/**
- * P1.2 — the on-page surface a character can SEE/HEAR/FIND. Prefer the dedicated `observable`
- * field and fall back to the analytic `description`, so existing distributions stay valid (this
- * lever is inert until the synthesizer/LLM starts emitting `observable`).
- */
-export function deriveClueObservable(clue: Pick<Clue, "observable" | "description">): string {
-  const observable = String(clue.observable ?? "").trim();
-  if (observable.length > 0) return observable;
-  return String(clue.description ?? "").trim();
-}
-
 export interface PointsToCollision {
   normalized: string;
   clueIds: string[];
@@ -223,46 +180,6 @@ export function checkPointsToDistinctness(clues: Clue[]): PointsToDistinctnessRe
     if (clueIds.length > 1) collisions.push({ normalized, clueIds });
   }
   return { ok: collisions.length === 0, collisions };
-}
-
-export interface RedHerring {
-  id: string;
-  description: string;
-  supportsAssumption: string;       // Which false assumption it reinforces
-  misdirection: string;             // How it misleads
-}
-
-export interface ClueExtractionAudit {
-  missingDiscriminatingEvidenceIds?: string[];
-  weakEliminationSuspects?: string[];
-  invalidSourcePaths?: string[];
-}
-
-export interface ClueDistributionResult {
-  clues: Clue[];
-  redHerrings: RedHerring[];
-  status?: "pass" | "fail";
-  audit?: ClueExtractionAudit;
-  /** Parse-boundary anomalies (truncated response, dropped jsonrepair artifacts) for ctx.warnings. */
-  parseWarnings?: string[];
-  clueTimeline: {
-    early: string[];                // Clue IDs for Act I
-    mid: string[];                  // Clue IDs for Act II
-    late: string[];                 // Clue IDs for Act III
-  };
-  fairPlayChecks: {
-    allEssentialCluesPresent: boolean;
-    noNewFactsIntroduced: boolean;
-    redHerringsDontBreakLogic: boolean;
-    /**
-     * A_71 (A_70 §6) — the budget was enforced ONLY as a ceiling (`length <= budget`), so a
-     * response with zero red herrings passed every check and the 07-27 run shipped a fair-play
-     * mystery with no misdirection field. This records the other side of the same number.
-     */
-    redHerringBudgetMet: boolean;
-  };
-  latencyMs: number;
-  cost: number;
 }
 
 /**
