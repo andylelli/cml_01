@@ -327,7 +327,7 @@ A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 
 A1X-Q01	CR-12	todo		
 A1X-Q02	CR-18	todo		
 A1X-Q03	CR-07	todo		
-A1X-Q04	CR-17	todo		
+A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)
 A1X-Q05	CR-30	todo		
 A1X-Q06	CR-30	todo		
 A1X-Q07	CR-29	todo		

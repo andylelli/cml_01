@@ -92,6 +92,19 @@ describe("ReplayClient — rebase", () => {
     expect(c.rebased().source.syntheticFailures).toEqual([]);
   });
 
+  it("keeps two unrecorded calls with the same prompt as two synthetic failures on strict replay", async () => {
+    const c = new ReplayClient(cassette(ok("A", "p", "x")), "rebase");
+    await call(c, "A", "p");
+    await expect(call(c, "N", "q")).rejects.toThrow(/CR-03 rebase/);
+    await expect(call(c, "N", "q")).rejects.toThrow(/CR-03 rebase/);
+    const strict = new ReplayClient(c.rebased());
+    await call(strict, "A", "p");
+    await expect(call(strict, "N", "q")).rejects.toThrow(/CR-03 rebase/);
+    await expect(call(strict, "N", "q")).rejects.toThrow(/CR-03 rebase/);
+    expect(strict.report().mismatches).toHaveLength(0);
+    expect(strict.unconsumed()).toHaveLength(0);
+  });
+
   it("serves by label and order, records the current prompt, drops the unasked, marks new calls synthetic", async () => {
     const c = new ReplayClient(cassette(ok("A", "old prompt", "reply A"), ok("B", "q", "reply B")), "rebase");
     expect((await call(c, "A", "new prompt")).content).toBe("reply A");

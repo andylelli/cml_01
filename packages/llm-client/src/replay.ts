@@ -97,7 +97,9 @@ export function writeCassette(path: string, cassette: Cassette): void {
  * catches the error and asks again (with its own attempt counter) is a NEW call, and saw the error.
  */
 const isRetryOf = (prev: CassetteEntry, next: CassetteEntry | undefined): boolean =>
-  !!next && prev.outcome.kind === "error" && next.promptHash === prev.promptHash && (next.retryAttempt ?? 0) === (prev.retryAttempt ?? 0);
+  // A synthetic failure (rebase: a call the recording never made) is always its own call — two of them
+  // with one prompt are two calls, not an error and its retry.
+  !!next && !prev.synthetic && prev.outcome.kind === "error" && next.promptHash === prev.promptHash && (next.retryAttempt ?? 0) === (prev.retryAttempt ?? 0);
 
 const callKey = (agent: string, promptHash: string): string => `${agent}|${promptHash}`;
 

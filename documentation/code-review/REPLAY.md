@@ -1,6 +1,7 @@
 # Record / replay harness (CR-03)
 
-**Written:** 2026-09-29 · **Status:** v2 prose stage covered; v1 prose, the full pipeline and the scoring
+**Written:** 2026-09-29 · **Status:** v2 and v1 prose stages covered (2 fixtures, both MATCH); the
+from-clues pipeline fixture is blocked on nondeterminism in Agent 6.5's prompt; Agents 1–4 and the scoring
 characterisation still to add (tracker row CR-03).
 
 ## What it is for
@@ -53,7 +54,21 @@ byte), a recorded call was never requested, or the prose digest moved.
 | Rebase to current code | 39 of 46 calls had a changed prompt since the recording (2026-09-25); 5 recorded third drafts no longer requested; 2 editor calls new → synthetic |
 | Strict replay | MATCH, 46 calls, 52 attempts; ~7 s; prose digest `8312428c1259b1d3`, identical across repeated runs and from the 0.2 MB store extract |
 | Known positive | one character added to the writer system prompt → NO MATCH at byte 29 of `Agent9v2-Writer-S0-D1`, exit 5; reverted → MATCH |
+| Fixture 2 | `eval/replay/v1-prose-d0ee7b26` — the v1 prose stage of the fresh run `run_7b1ec2ef` (2026-09-18), `PROSE_ENGINE=v1` override, 1.4 MB. Rebase: 38 calls with a changed prompt, 2 synthetic regen failures. Strict: MATCH, 75 calls, 105 attempts, ~60 s, digest `23e066747bc53699` |
+| Environment | each fixture records 146 flags read through the pipeline's own `loadEnvFiles` (credentials and endpoints dropped); `replay:check` ignores `.env.local`, as CI does |
 | Containment | `git status` identical before and after every sandboxed replay |
+
+## Nondeterminism the harness found
+
+A replay must produce the same prompts twice from the same input. Two sources broke that:
+
+- **Agent 2d dates the story from the run id** (`generateSpecificDate(decade, runId || projectId)`), and
+  `resume-run` names each run `resume-<epoch ms>`. MEASURED: 1935 May recorded, 1933 April on the next replay.
+  Beyond the harness this means **every resume that re-runs Agent 2d re-dates the story** while keeping
+  upstream artifacts written for the original date (ledger A1X-08 / A1X-Q04). The harness pins the id with
+  `RESUME_RUN_ID`; the pipeline behaviour is unchanged and is the owner's call.
+- **Agent 6.5's prompt differs between identical runs** at byte 79,826 of 106,970, same length — still open;
+  it blocks the from-clues fixture (below).
 
 ## Incidents found while building it
 
@@ -64,11 +79,19 @@ byte), a recorded call was never requested, or the prose digest moved.
   deleted: the original it replaced carried the 2026-09-25 contract hash and would have been ignored by
   today's code, so deleting restores the same behaviour. `CML_AGENT9_CHECKPOINT_PATH` now keeps a replay's
   checkpoint in its sandbox.
+- **A replay with the run id pinned overwrote the recorded run's quality report**,
+  `apps/api/data/reports/proj_d0ee7b26…/run_7b1ec2ef….json` (gitignored; keyed by run id; no path override).
+  The sandbox check caught it and failed, but the file had no backup, so **the original 2026-09-18 report is
+  lost**; the file now holds the replay's report (left in place by owner decision). The run's phase scores
+  survive in `apps/worker/logs/scoring.jsonl` (20 lines) and its run log is intact. `replay-stage.mjs` now
+  backs up all of `apps/api/data`; verified: the report is byte-identical after a replay.
 
 ## Still to do (CR-03)
 
-- A v1 prose fixture (`PROSE_ENGINE=v1`) — v1 stays runnable by owner decision, so its refactor proofs need one.
-- A full-pipeline fixture (`generateMystery`, all agents) from a fresh run whose responses are logged.
+- The from-clues pipeline fixture (`RESUME_REDO=clues`: Agents 5, 6, 6.5, 7, 9 through `generateMystery`),
+  from `run_7b1ec2ef` — blocked on the Agent 6.5 nondeterminism above.
+- Agents 1–4: `resume-run` refuses to redo from `setting` (it needs a CML), so they need a fresh-run replay
+  entry point (`canary-core.mjs` builds its own client) that also reproduces the run's original inputs.
 - SCO-12: the scoring characterisation over the committed golden bundles.
 - Optionally, one paid recording (~£0.45, `RESUME_REDO=prose`) to replace the two synthetic editor failures
   with real replies.

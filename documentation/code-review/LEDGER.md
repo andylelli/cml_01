@@ -79,7 +79,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-16 | A7-Q04 | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
 | CR-16 | A9V-Q02 | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) |  |
 | CR-16 | SCO-Q04 | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? |  |
-| CR-17 | A1X-Q04 | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? |  |
+| CR-17 | A1X-Q04 | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
 | CR-17 | A34-Q02 | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
 | CR-17 | A9G-Q02 | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
 | CR-17 | A9P-Q06 | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? |  |
@@ -508,7 +508,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | A1X-Q03 |  |  | CR-07 | todo |  | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
-| A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? |  |
+| A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
 | A1X-Q05 |  |  | CR-30 | todo |  | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
 | A1X-Q06 |  |  | CR-30 | todo |  | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
 | A1X-Q07 |  |  | CR-29 | todo |  | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |

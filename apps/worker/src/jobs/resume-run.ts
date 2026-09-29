@@ -186,7 +186,10 @@ async function main(): Promise<void> {
         `back. This run is NOT a controlled matched pair on those parameters — say so in the ledger.`,
     );
   }
-  const runId = `resume-${Date.now()}`;
+  // RESUME_RUN_ID (CR-03): a replay pins the recorded run's id. The id is not only a label — Agent 2d
+  // seeds the story DATE from it (generateSpecificDate), so `resume-${Date.now()}` re-dates every resumed
+  // run that re-runs Agent 2d (MEASURED: 1935 May recorded, 1933 April on the next replay).
+  const runId = (process.env.RESUME_RUN_ID ?? "").trim() || `resume-${Date.now()}`;
   const redoChapter = Number(process.env.AGENT9_REDO_CHAPTER ?? "") || 0;
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),

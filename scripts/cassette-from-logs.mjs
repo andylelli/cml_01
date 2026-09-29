@@ -67,14 +67,24 @@ prompts.forEach((p, seq) => {
   entries.push({ seq, agent: p.agent, promptHash: p.promptHash, model: p.model, temperature: p.temperature,
     maxTokens: p.maxTokens, retryAttempt: p.retryAttempt, messages: p.messages, outcome });
 });
-for (const [hash, q] of pending) for (const o of q) holes.push(`${o.agent} ${o.timestamp}: outcome with no prompt (${hash})`);
+// An error with NO prompt hash was raised inside the client before anything was sent (a refused
+// schema, say). There is no prompt to key it by, and a replay (which stands in for the whole client)
+// cannot raise it; it is recorded in the provenance, not treated as a hole.
+const preSend = [];
+// A hash-less chat_response is an agent's own telemetry (Agent 5 logs one per extraction), not a
+// client attempt: ignored.
+for (const [hash, q] of pending) for (const o of q) {
+  if (!hash && o.operation === 'chat_error') preSend.push(`${o.agent} ${o.timestamp}: ${scrub(o.errorMessage).slice(0, 160)}`);
+  else if (hash) holes.push(`${o.agent} ${o.timestamp}: outcome with no prompt (${hash})`);
+}
+if (preSend.length) console.warn(`warning: ${preSend.length} pre-send client error(s) cannot be replayed:\n  ` + preSend.join('\n  '));
 if (holes.length) { console.error(`cassette has ${holes.length} hole(s):\n  ` + holes.slice(0, 20).join('\n  ')); process.exit(1); }
 if (entries.some((e) => e.outcome.kind === 'response' && typeof e.outcome.content !== 'string')) {
   console.error('a response record has no text: the outcome log did not keep full responses'); process.exit(1);
 }
 
 const source = { runId, projectId: prompts[0].projectId, builtFrom: files, builtAt: new Date().toISOString(),
-  attempts: entries.length, errors: entries.filter((e) => e.outcome.kind === 'error').length };
+  attempts: entries.length, errors: entries.filter((e) => e.outcome.kind === 'error').length, preSendErrorsNotReplayable: preSend };
 writeCassette(out, { source, entries });
 const agents = new Set(entries.map((e) => e.agent.replace(/-(S\d+-D\d+|Ch\d+-R\d+)$/, '')));
 console.log(`cassette ${out}: ${entries.length} attempts (${source.errors} errors), ${agents.size} agent families, project ${source.projectId}`);

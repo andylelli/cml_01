@@ -27,6 +27,7 @@ import { closeSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, openSync, 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { gunzipSync } from 'node:zlib';
+import { readCassette } from '../packages/llm-client/dist/index.js';
 
 const args = process.argv.slice(2);
 const arg = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
@@ -68,7 +69,10 @@ for (const w of WATCH) for (const f of walk(join(root, w))) {
   const entry = { size: st.size, mtimeMs: st.mtimeMs, backup: null, tail: null };
   // data/*.json is backed up whatever its size (store.json is 36 MB and rewritten whole, never appended);
   // data/narration's audio (365 MB) is not a replay's to touch, so the tail check covers it.
-  const inData = /(^|[\\/])data[\\/][^\\/]+\.json$/.test(f.slice(root.length));
+  // apps/api/data (22 MB, 134 files) is backed up whole: its reports/ are keyed by run id and have no
+  // path override, so a replay with RESUME_RUN_ID pinned overwrites the recorded run's report
+  // (MEASURED 2026-09-29 — the original run_7b1ec2ef report was lost before this rule existed).
+  const inData = /(^|[\\/])data[\\/][^\\/]+\.json$/.test(f.slice(root.length)) || /apps[\\/]api[\\/]data[\\/]/.test(f);
   if (inData || (st.size <= BACKUP_LIMIT && /apps[\\/]worker[\\/]logs/.test(f))) { entry.backup = join(backups, String(n++)); copyFileSync(f, entry.backup); }
   else entry.tail = tailHash(f, st.size);
   snap.set(f, entry);
@@ -85,7 +89,10 @@ if (envFile) {
 } else {
   console.log('[replay-stage] no --env: this machine\'s .env.local applies; a committed fixture always passes --env');
 }
+// The recorded run's id: Agent 2d seeds the story date from the run id, so a fresh id is a new date.
+const recordedRunId = readCassette(resolve(cassette)).source?.runId;
 Object.assign(env, {
+  ...(recordedRunId ? { RESUME_RUN_ID: String(recordedRunId) } : {}),
   LLM_REPLAY_CASSETTE: resolve(cassette),
   LLM_REPLAY_MODE: rebaseOut ? 'rebase' : 'strict',
   ...(rebaseOut ? { LLM_REPLAY_REBASE_OUT: resolve(rebaseOut) } : {}),

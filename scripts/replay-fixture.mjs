@@ -27,6 +27,10 @@ const args = process.argv.slice(2);
 const arg = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const name = arg('--name');
 const rebaseOnly = args.includes('--rebase');
+// --stage: the RESUME_REDO stage (prose = Agent 9 only; setting = the whole pipeline, generateMystery).
+// --set KEY=VALUE: a flag the RECORDING ran under that this machine's .env.local no longer sets
+// (e.g. PROSE_ENGINE=v1 for a run made before v2 became the default). Repeatable.
+const sets = Object.fromEntries(args.flatMap((a, i) => (a === '--set' ? [args[i + 1].split(/=(.*)/s).slice(0, 2)] : [])));
 if (!name) { console.error('usage: --name <name> (--project <id> --run <runId> | --rebase)'); process.exit(2); }
 const DIR = join('eval', 'replay');
 mkdirSync(DIR, { recursive: true });
@@ -67,9 +71,14 @@ const node = (script, extra) => {
 
 let project;
 let source;
+let stage = arg('--stage') ?? 'prose';
+let recordedSets = sets;
 if (rebaseOnly) {
   if (!existsSync(expectedFile)) { console.error(`no fixture ${expectedFile}`); process.exit(2); }
-  project = JSON.parse(readFileSync(expectedFile, 'utf8')).project;
+  const prev = JSON.parse(readFileSync(expectedFile, 'utf8'));
+  project = prev.project;
+  stage = prev.stage ?? stage;
+  recordedSets = { ...(prev.overrides ?? {}), ...sets };
   source = join(tmp, 'previous.cassette.jsonl.gz');
   copyFileSync(cassetteFile, source);
 } else {
@@ -99,21 +108,24 @@ if (rebaseOnly) {
 }
 
 // Rebase to the current code under the recorded environment, then prove it: a strict replay must MATCH.
-const env = captureEnv();
+const env = { ...captureEnv(), ...recordedSets };
 const envFile = join(tmp, 'env.json');
 writeFileSync(envFile, JSON.stringify({ env }));
-console.log(`flag environment: ${Object.keys(env).length} keys from this machine's .env.local (credentials and endpoints dropped)`);
+console.log(`flag environment: ${Object.keys(env).length} keys from this machine's .env.local (credentials and endpoints dropped)` +
+  (Object.keys(recordedSets).length ? `; overrides ${JSON.stringify(recordedSets)}` : ''));
 const rebased = join(tmp, 'rebased.cassette.jsonl.gz');
-const rb = node('scripts/replay-stage.mjs', ['--cassette', source, '--project', project, '--store', storeFile, '--env', envFile, '--rebase', rebased]);
+const common = ['--project', project, '--store', storeFile, '--env', envFile, '--stage', stage];
+const rb = node('scripts/replay-stage.mjs', ['--cassette', source, ...common, '--rebase', rebased]);
 if (!rb.summary || rb.summary.unrestorable) { console.error('rebase failed'); process.exit(1); }
-const proof = node('scripts/replay-stage.mjs', ['--cassette', rebased, '--project', project, '--store', storeFile, '--env', envFile]);
+const proof = node('scripts/replay-stage.mjs', ['--cassette', rebased, ...common]);
 if (!proof.summary?.match) { console.error('the rebased cassette does not replay to a MATCH — nothing written'); process.exit(1); }
 
 copyFileSync(rebased, cassetteFile);
 const head = readCassette(cassetteFile).source;
 writeFileSync(expectedFile, JSON.stringify({
   project,
-  stage: 'prose',
+  stage,
+  overrides: recordedSets,
   digest: proof.summary.digest,
   result: proof.summary.result,
   syntheticFailures: head.syntheticFailures ?? [],
