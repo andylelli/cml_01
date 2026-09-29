@@ -1,8 +1,8 @@
 # Record / replay harness (CR-03)
 
-**Written:** 2026-09-29 · **Status:** v2 and v1 prose stages covered (2 fixtures, both MATCH); the
-from-clues pipeline fixture is blocked on nondeterminism in Agent 6.5's prompt; Agents 1–4 and the scoring
-characterisation still to add (tracker row CR-03).
+**Written:** 2026-09-29 · **Status:** v2 and v1 prose stages and the from-clues pipeline (Agents 5 → 9 through
+`generateMystery`) covered — 3 fixtures, all MATCH; Agents 1–4 and the scoring characterisation still to
+add (tracker row CR-03).
 
 ## What it is for
 
@@ -55,6 +55,7 @@ byte), a recorded call was never requested, or the prose digest moved.
 | Strict replay | MATCH, 46 calls, 52 attempts; ~7 s; prose digest `8312428c1259b1d3`, identical across repeated runs and from the 0.2 MB store extract |
 | Known positive | one character added to the writer system prompt → NO MATCH at byte 29 of `Agent9v2-Writer-S0-D1`, exit 5; reverted → MATCH |
 | Fixture 2 | `eval/replay/v1-prose-d0ee7b26` — the v1 prose stage of the fresh run `run_7b1ec2ef` (2026-09-18), `PROSE_ENGINE=v1` override, 1.4 MB. Rebase: 38 calls with a changed prompt, 2 synthetic regen failures. Strict: MATCH, 75 calls, 105 attempts, ~60 s, digest `23e066747bc53699` |
+| Fixture 3 | `eval/replay/from-clues-d0ee7b26` — `RESUME_REDO=clues` on the same run: Agents 5, 6, 6.5, 7, 7.5 and 9 through `generateMystery`, `PROSE_ENGINE=v1` and `AGENT65_OMIT_RUN_TELEMETRY=true` overrides, 1.5 MB. Rebase: 43 calls with a changed prompt, 13 recorded attempts no longer made (Agents 1–3b are not re-run on a clue redo), 2 synthetic regen failures. Strict: MATCH, 83 calls, 113 attempts, ~46 s, digest `23e066747bc53699` — the same prose as fixture 2, as it should be: both serve the run's recorded Agent 9 replies |
 | Environment | each fixture records 146 flags read through the pipeline's own `loadEnvFiles` (credentials and endpoints dropped); `replay:check` ignores `.env.local`, as CI does |
 | Containment | `git status` identical before and after every sandboxed replay |
 
@@ -67,8 +68,14 @@ A replay must produce the same prompts twice from the same input. Two sources br
   Beyond the harness this means **every resume that re-runs Agent 2d re-dates the story** while keeping
   upstream artifacts written for the original date (ledger A1X-08 / A1X-Q04). The harness pins the id with
   `RESUME_RUN_ID`; the pipeline behaviour is unchanged and is the owner's call.
-- **Agent 6.5's prompt differs between identical runs** at byte 79,826 of 106,970, same length — still open;
-  it blocks the from-clues fixture (below).
+- **Agent 6.5's prompt carried wall-clock telemetry.** It serialises TEMPORAL_CONTEXT and BACKGROUND_CONTEXT
+  whole, and both artifacts carry their own `cost` and `durationMs` at the root (4 fields; no other agent's
+  prompt carries any — the same probe finds none in the v2 prose cassette). Two rebases of the from-clues
+  replay differed at exactly one byte range: `"durationMs": 8` against `5` (MEASURED). Fixed behind
+  `AGENT65_OMIT_RUN_TELEMETRY` (default OFF, ADR-0004; FLAG-AUDIT addendum 2026-09-29), which drops those two
+  ROOT keys — nested `cost` is story content. The from-clues fixture replays with it ON; with it OFF the
+  same fixture fails at `Agent65-WorldBuilder` byte 79,779 (known positive). In production the flag-off
+  prompt sends the model a real LLM latency, which is noise, not harm; promoting it is the owner's call.
 
 ## Incidents found while building it
 
@@ -88,8 +95,6 @@ A replay must produce the same prompts twice from the same input. Two sources br
 
 ## Still to do (CR-03)
 
-- The from-clues pipeline fixture (`RESUME_REDO=clues`: Agents 5, 6, 6.5, 7, 9 through `generateMystery`),
-  from `run_7b1ec2ef` — blocked on the Agent 6.5 nondeterminism above.
 - Agents 1–4: `resume-run` refuses to redo from `setting` (it needs a CML), so they need a fresh-run replay
   entry point (`canary-core.mjs` builds its own client) that also reproduces the run's original inputs.
 - SCO-12: the scoring characterisation over the committed golden bundles.

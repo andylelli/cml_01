@@ -933,3 +933,16 @@ run caught it; `agent9-v2-dry-run.test.ts` pins it.
 `PROSE_V2_AFTERMATH_JOB`, no `PROSE_V2_WIT_SHAPES`. Those are contract and brief content, derived
 from the artifacts and asserted by 107 tests over the 53-project archive. A behaviour worth a flag in
 v2 is a behaviour that has not been measured yet.
+
+## Addendum — `AGENT65_OMIT_RUN_TELEMETRY`, registered 2026-09-29 (code review CR-03)
+
+The Agent 6.5 prompt serialises its upstream artifacts whole, and two of them carry their own run
+telemetry at the root. MEASURED on `run_7b1ec2ef`: `"cost"` and `"durationMs"` in TEMPORAL_CONTEXT and
+BACKGROUND_CONTEXT, 4 fields, in no other agent's prompt (the same probe finds none in the 46-call v2
+prose cassette). `durationMs` is wall-clock, so two runs of one case send Agent 6.5 different bytes; it
+is the only nondeterminism between two rebases of the from-clues replay (byte 91,190 of 106,970:
+`"durationMs": 8` against `5`).
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `AGENT65_OMIT_RUN_TELEMETRY` | unset → off (`=== 'true'`, read at call time); **`true` in the `from-clues-d0ee7b26` replay fixture only** | **DEFER — owner's call to promote** | ON drops the root `cost` and `durationMs` of each artifact before it is serialised into the prompt; nested keys (`"cost": "4d"` in a price list) are story content and stay. Removes ~60 bytes of numbers the model has no use for. No read can measure it — the change is below any instrument this project has — so promotion is a judgement, not a probe. Pinned by `agent65-world-builder.test.ts`. |

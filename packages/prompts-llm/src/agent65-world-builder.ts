@@ -305,6 +305,22 @@ function summarizeClueDistribution(clueDistribution: any): unknown {
   };
 }
 
+/**
+ * CR-03: an upstream artifact carries its own run telemetry at the top level — `cost` and
+ * `durationMs` (MEASURED on run_7b1ec2ef: both in TEMPORAL_CONTEXT and BACKGROUND_CONTEXT). Serialised
+ * whole, a wall-clock number reaches the model and makes this prompt differ between two runs of the same
+ * case. `AGENT65_OMIT_RUN_TELEMETRY=true` drops those two root keys; default OFF (ADR-0004). Nested
+ * keys are left alone — `cost` inside a profile is story content.
+ */
+const RUN_TELEMETRY_KEYS = ['cost', 'durationMs'] as const;
+function withoutRunTelemetry<T>(artifact: T): T {
+  if (process.env.AGENT65_OMIT_RUN_TELEMETRY !== 'true') return artifact;
+  if (!artifact || typeof artifact !== 'object' || Array.isArray(artifact)) return artifact;
+  const copy: Record<string, unknown> = { ...(artifact as Record<string, unknown>) };
+  for (const k of RUN_TELEMETRY_KEYS) delete copy[k];
+  return copy as T;
+}
+
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
   const { gate: ARC_DESC_GATE, prompt: ARC_DESC_PROMPT } = getArcDescParams();
   const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
@@ -318,16 +334,16 @@ function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
 ${JSON.stringify(caseSection, null, 2)}
 
 ### CHARACTER_PROFILES
-${JSON.stringify(inputs.characterProfiles?.profiles ?? inputs.characterProfiles, null, 2)}
+${JSON.stringify(withoutRunTelemetry(inputs.characterProfiles?.profiles ?? inputs.characterProfiles), null, 2)}
 
 ### LOCATION_PROFILES
-${JSON.stringify(inputs.locationProfiles, null, 2)}
+${JSON.stringify(withoutRunTelemetry(inputs.locationProfiles), null, 2)}
 
 ### TEMPORAL_CONTEXT
-${JSON.stringify(inputs.temporalContext, null, 2)}
+${JSON.stringify(withoutRunTelemetry(inputs.temporalContext), null, 2)}
 
 ### BACKGROUND_CONTEXT
-${JSON.stringify(inputs.backgroundContext, null, 2)}
+${JSON.stringify(withoutRunTelemetry(inputs.backgroundContext), null, 2)}
 
 ### LOCKED_FACTS
 ${JSON.stringify(lockedFacts, null, 2)}
@@ -1280,4 +1296,6 @@ export const __testables = {
   buildDefaultStoryEmotionalArc,
   normalizeWorldDocumentStructure,
   enforceCastCoverage,
+  withoutRunTelemetry,
+  buildWorldBuilderUserMessage,
 };
