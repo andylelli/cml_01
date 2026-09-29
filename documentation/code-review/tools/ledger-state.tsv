@@ -378,7 +378,7 @@ SCO-08	CR-18	todo
 SCO-09	CR-18	todo		
 SCO-10	CR-18	todo		
 SCO-11	CR-08	todo		
-SCO-12	CR-03	todo		
+SCO-12	CR-03	done	6ef90064	phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles)
 SCO-13		withdrawn		CPU is not a lever (README §3); ~2.8 s per run
 SCO-D01	CR-06	todo		
 SCO-D02	CR-06	todo		

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 6 | 12 | 0 | 18 |
-| open | 184 | 127 | 72 | 383 |
+| closed | 7 | 12 | 0 | 19 |
+| open | 183 | 127 | 72 | 382 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -20,7 +20,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR | items | closed | keys |
 |---|---:|---:|---|
 | CR-02 | 1 | 1 | A9W-19 |
-| CR-03 | 5 | 1 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
+| CR-03 | 5 | 2 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
@@ -569,7 +569,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-09 | P2 | R0 | CR-18 | todo |  | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field |  |
 | SCO-10 | P2 | R1 | CR-18 | todo |  | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read |  |
 | SCO-11 | P2 | R0 | CR-08 | todo |  | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals |  |
-| SCO-12 | P1 | R0 | CR-03 | todo |  | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused |  |
+| SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
 | SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. |  |
 | SCO-D02 |  |  | CR-06 | todo |  | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
