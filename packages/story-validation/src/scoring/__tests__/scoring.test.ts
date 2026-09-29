@@ -254,6 +254,13 @@ describe("RetryManager", () => {
     expect(delay1).toBeGreaterThan(delay0);
   });
 
+  it("records the delay BEFORE the retry it precedes (SCO-D05: the first retry is the base delay)", () => {
+    manager.recordRetry("agent3b_hard_logic_devices", "low score", 60);
+    manager.recordRetry("agent3b_hard_logic_devices", "low score", 62);
+    const history = (manager as any).retryHistory.get("agent3b_hard_logic_devices");
+    expect(history.map((h: any) => h.backoff_ms)).toEqual([2000, 4000]);
+  });
+
   it("returns zero delay for 'none' backoff strategy", () => {
     // agent2d_temporal_context uses none
     const delay = manager.getBackoffDelay("agent2d_temporal_context");

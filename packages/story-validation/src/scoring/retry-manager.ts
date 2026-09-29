@@ -186,12 +186,14 @@ export class RetryManager {
    */
   recordRetry(agent: string, reason: string, scoreBefore?: number): void {
     const currentCount = this.retryCounts.get(agent) || 0;
+    // The delay before THIS retry: read before the count moves (SCO-D05 — it was read after, so the
+    // first retry recorded and waited the second retry's delay).
+    const backoffMs = this.getBackoffDelay(agent);
     this.retryCounts.set(agent, currentCount + 1);
     this.totalRetries++;
 
     // Add to history
     const history = this.retryHistory.get(agent) || [];
-    const backoffMs = this.getBackoffDelay(agent);
 
     history.push({
       attempt: currentCount + 1,

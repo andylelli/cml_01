@@ -2209,7 +2209,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     });
 
     ctx.agentCosts["agent7_narrative"] =
-      (ctx.agentCosts["agent7_narrative"] || 0) + retriedNarrative.cost;
+      retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent7_narrative"] =
       (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeSchemaRetryStart);
 
@@ -2318,7 +2318,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         ...completenessSpread,
       });
       ctx.agentCosts["agent7_narrative"] =
-        (ctx.agentCosts["agent7_narrative"] || 0) + sceneCountRetried.cost;
+        sceneCountRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
 
@@ -2409,7 +2409,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     });
 
     ctx.agentCosts["agent7_narrative"] =
-      (ctx.agentCosts["agent7_narrative"] || 0) + retriedNarrative.cost;
+      retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent7_narrative"] =
       (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeRetryStart);
 
@@ -2496,7 +2496,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           ...completenessSpread,
         });
         ctx.agentCosts["agent7_narrative"] =
-          (ctx.agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
+          pacingRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
         ctx.agentDurations["agent7_narrative"] =
           (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
 
@@ -2548,7 +2548,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
               ...completenessSpread,
             });
             ctx.agentCosts["agent7_narrative"] =
-              (ctx.agentCosts["agent7_narrative"] ?? 0) + secondRetry.cost;
+              secondRetry.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
             ctx.agentDurations["agent7_narrative"] =
               (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - secondStart);
             const secondScenes = (secondRetry.acts ?? []).flatMap((a: any) => a.scenes || []);
@@ -2651,7 +2651,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       });
 
       ctx.agentCosts["agent7_narrative"] =
-        (ctx.agentCosts["agent7_narrative"] ?? 0) + remediatedNarrative.cost;
+        remediatedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - remediationStart);
 

@@ -900,7 +900,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       });
-      ctx.agentCosts["agent2_cast"] = (ctx.agentCosts["agent2_cast"] || 0) + retriedCast.cost;
+      ctx.agentCosts["agent2_cast"] = retriedCast.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent2_cast"] = (ctx.agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);
       normaliseCastOutput((retriedCast.cast as unknown) as Record<string, unknown>, ctx.warnings);
       const retriedPayload = {

@@ -158,7 +158,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
       storyAngle: ctx.inputs.storyAngle,
       tone: ctx.inputs.tone,
     }, 2);
-    ctx.agentCosts["agent1_setting"] = (ctx.agentCosts["agent1_setting"] || 0) + retriedSetting.cost;
+    ctx.agentCosts["agent1_setting"] = retriedSetting.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent1_setting"] = (ctx.agentDurations["agent1_setting"] || 0) + (Date.now() - settingSchemaRetryStart);
     let retryValidation = validateArtifact("setting_refinement", retriedSetting.setting);
     if (!retryValidation.valid) {

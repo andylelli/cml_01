@@ -738,7 +738,9 @@ export async function executeAgentWithRetry<T>(
     const attemptStart = Date.now();
 
     const { result, cost } = await executeAgent(retryFeedback);
-    totalCost += cost;
+    // Every generator reports its label's RUNNING total on this client (cost-tracker byAgent), not the
+    // cost of this attempt, so summing attempts counted k(k+1)/2 calls (CR-06 / ORC-D03). Keep the latest.
+    totalCost = cost;
 
     const attemptDuration = Date.now() - attemptStart;
 
@@ -792,9 +794,10 @@ export async function executeAgentWithRetry<T>(
             : `Score ${score.total}/100 (${score.grade}) below threshold`);
 
       attempts++;
-      retryManager.recordRetry(agentId, effectiveFailureReason, score.total);
-
+      // SCO-D05: the delay before this retry is read BEFORE recordRetry moves the count (it was read
+      // after, so the first retry waited the second retry's delay).
       const backoffMs = retryManager.getBackoffDelay(agentId);
+      retryManager.recordRetry(agentId, effectiveFailureReason, score.total);
       const maxRetries = retryManager.getMaxRetries(agentId);
       scoringLogger.logRetryAttempt(agentId, phaseName, attempts, effectiveFailureReason, backoffMs, maxRetries, runId, projectId);
 

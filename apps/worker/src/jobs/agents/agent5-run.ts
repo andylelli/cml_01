@@ -3675,7 +3675,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   }
 
   ctx.agentCosts["agent5_clues"] =
-    (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+    clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
   ctx.agentDurations["agent5_clues"] = Date.now() - cluesStart;
 
   // Surface parse-boundary anomalies (truncated payload, dropped jsonrepair artifacts — the
@@ -3763,7 +3763,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       });
 
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
 
@@ -3867,7 +3867,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       });
 
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - coverageRetryStart);
 
@@ -3955,7 +3955,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         projectId: ctx.projectId || "",
       });
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - suspectRetryStart);
 
@@ -4075,7 +4075,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       });
-      ctx.agentCosts["agent5_clues"] = (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentCosts["agent5_clues"] = clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringFloorStart);
 
@@ -4181,7 +4181,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     });
 
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringRetryStart);
 
@@ -4408,7 +4408,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     });
 
     ctx.agentCosts["agent5_clues"] =
-      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent5_clues"] =
       (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - idContractRetryStart);
 

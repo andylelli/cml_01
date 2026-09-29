@@ -107,7 +107,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           runId: ctx.runId,
           projectId: ctx.projectId || "",
         });
-        ctx.agentCosts["agent2b_profiles"] = (ctx.agentCosts["agent2b_profiles"] ?? 0) + regenerated.cost;
+        ctx.agentCosts["agent2b_profiles"] = regenerated.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
         ctx.agentDurations["agent2b_profiles"] =
           (ctx.agentDurations["agent2b_profiles"] ?? 0) + (Date.now() - regenStart);
         const regenCheck = checkVoiceCapsules(regenerated.profiles.map((profile) => extractVoiceCapsule(profile)));
