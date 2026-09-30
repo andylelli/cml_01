@@ -311,58 +311,7 @@ export class LocationProfilesScorer
         : fail('No duplicate locations', 'consistency', 1.0, `${names.length - uniqueNames.size} duplicate(s)`, 'major')
     );
 
-    // Check atmosphere consistency with era/setting
-    if (context.previous_phases && context.cml) {
-      const cml = context.cml as any;
-      const era = cml?.BACKGROUND_CONTEXT?.era_background?.decade;
-      const settingType = cml?.BACKGROUND_CONTEXT?.location_background?.location_type;
-
-      let consistentAtmospheres = 0;
-      for (const profile of output.location_profiles) {
-        if (this.isAtmosphereConsistent(profile, era, settingType)) {
-          consistentAtmospheres++;
-        }
-      }
-
-      if (era || settingType) {
-        const consistencyRate = consistentAtmospheres / output.location_profiles.length;
-        tests.push(
-          consistencyRate >= 0.7
-            ? pass('Atmosphere consistency', 'consistency', 1.0, `${Math.round(consistencyRate * 100)}% consistent`)
-            : partial('Atmosphere consistency', 'consistency', consistencyRate * 100, 1.0, `Only ${Math.round(consistencyRate * 100)}% consistent`)
-        );
-      }
-    }
-
     return tests;
-  }
-
-  private isAtmosphereConsistent(
-    profile: LocationProfile,
-    era?: string,
-    settingType?: string
-  ): boolean {
-    const atmosphere = (profile.atmosphere_and_mood || '').toLowerCase();
-    const visual = (profile.visual_details || '').toLowerCase();
-
-    // Simple heuristics: check for era/setting-appropriate vocabulary
-    if (era && era.includes('1920')) {
-      // Jazz Age markers
-      const markers = ['art deco', 'jazz', 'speakeasy', 'prohibition', 'flapper'];
-      if (markers.some(m => atmosphere.includes(m) || visual.includes(m))) {
-        return true;
-      }
-    }
-
-    if (settingType && settingType.toLowerCase().includes('manor')) {
-      const markers = ['grand', 'elegant', 'refined', 'estate', 'aristocratic'];
-      if (markers.some(m => atmosphere.includes(m) || visual.includes(m))) {
-        return true;
-      }
-    }
-
-    // If we can't determine, assume consistent (benefit of doubt)
-    return true;
   }
 
 }

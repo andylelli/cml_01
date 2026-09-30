@@ -37,7 +37,6 @@ export async function rescoreNarrative(ctx: OrchestratorContext, narrative: Narr
     const score = await rescorer.score({}, adapted, {
       previous_phases: { agent2_cast: ctx.cast!.cast },
       cml: ctx.cml!,
-      threshold_config: { mode: "standard" },
       targetLength: ctx.inputs.targetLength ?? "medium",
     });
     ctx.scoreAggregator.upsertPhaseScore(

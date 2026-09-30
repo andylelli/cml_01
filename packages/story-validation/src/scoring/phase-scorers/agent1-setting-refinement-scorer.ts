@@ -246,37 +246,13 @@ export class SettingRefinementScorer
   ): TestResult[] {
     const tests: TestResult[] = [];
 
-    // Check that key locations from location profiles are covered
-    if (context.previous_phases && context.previous_phases.agent2c_location_profiles) {
-      const profiles = (context.previous_phases.agent2c_location_profiles as any)?.location_profiles || [];
-      const profileNames = profiles.map((p: any) => p.location_name?.toLowerCase()).filter((n: string | undefined): n is string => !!n);
-      const refinementNames = output.locations?.map(l => l.name?.toLowerCase()).filter((n: string | undefined): n is string => !!n) || [];
-
-      let coveredProfiles = 0;
-      for (const profileName of profileNames) {
-        if (refinementNames.some(rn => rn.includes(profileName) || profileName.includes(rn))) {
-          coveredProfiles++;
-        }
-      }
-
-      if (profileNames.length > 0) {
-        const coverageRate = coveredProfiles / profileNames.length;
-        tests.push(
-          coverageRate >= 0.8
-            ? pass('Location coverage', 'completeness', 1.5, `${coveredProfiles}/${profileNames.length} profiles`)
-            : partial('Location coverage', 'completeness', coverageRate * 100, 1.5, `Only ${coveredProfiles}/${profileNames.length} profiles`, 'major')
-        );
-      }
-    } else {
-      // If no profiles, check minimum location count
-      const locationCount = output.locations?.length || 0;
-      tests.push(
-        locationCount >= 3
-          ? pass('Minimum locations', 'completeness', 1.5, `${locationCount} locations`)
-          : partial('Minimum locations', 'completeness', (locationCount / 3) * 100, 1.5, `Only ${locationCount} locations`)
-      );
-    }
-
+    // Agent 1 is scored before any location profiles exist (SCO-10), so completeness is the location count.
+    const locationCount = output.locations?.length || 0;
+    tests.push(
+      locationCount >= 3
+        ? pass('Minimum locations', 'completeness', 1.5, `${locationCount} locations`)
+        : partial('Minimum locations', 'completeness', (locationCount / 3) * 100, 1.5, `Only ${locationCount} locations`)
+    );
     // Check that physical constraints and accessibility are defined
     tests.push(
       exists(output.physical_constraints)
@@ -303,31 +279,6 @@ export class SettingRefinementScorer
       return tests;
     }
 
-    // Check that clue placements reference valid clues from CML
-    if (context.cml) {
-      const cmlClues = this.extractCMLClues(context.cml);
-      const placementClues = output.locations
-        .flatMap(l => l.clue_placements || [])
-        .map(cp => cp.clue_id)
-        .filter((id): id is string => exists(id));
-
-      let validPlacements = 0;
-      for (const placementClue of placementClues) {
-        if (this.clueInCML(placementClue, cmlClues)) {
-          validPlacements++;
-        }
-      }
-
-      if (placementClues.length > 0) {
-        const validRate = validPlacements / placementClues.length;
-        tests.push(
-          validRate >= 0.8
-            ? pass('Clue placement validity', 'consistency', 1.5, `${Math.round(validRate * 100)}% valid`)
-            : partial('Clue placement validity', 'consistency', validRate * 100, 1.5, `Only ${Math.round(validRate * 100)}% valid`)
-        );
-      }
-    }
-
     // Check for duplicate location names
     const locationNames = output.locations.map(l => l.name).filter((name): name is string => exists(name));
     const uniqueNames = new Set(locationNames.map(n => n.toLowerCase()));
@@ -339,26 +290,6 @@ export class SettingRefinementScorer
     );
 
     return tests;
-  }
-
-  private extractCMLClues(cml: any): string[] {
-    const clues: string[] = [];
-
-    // Extract from hard logic devices
-    if (cml.CASE?.hard_logic_devices) {
-      for (const device of cml.CASE.hard_logic_devices) {
-        if (device.clue_id) {
-          clues.push(device.clue_id);
-        }
-      }
-    }
-
-    return clues;
-  }
-
-  private clueInCML(placementClue: string, cmlClues: string[]): boolean {
-    const normalized = placementClue.toLowerCase().trim();
-    return cmlClues.some(cc => cc.toLowerCase().trim().includes(normalized) || normalized.includes(cc.toLowerCase().trim()));
   }
 
 }

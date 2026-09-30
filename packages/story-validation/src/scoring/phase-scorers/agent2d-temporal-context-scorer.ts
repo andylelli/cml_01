@@ -352,39 +352,6 @@ export class TemporalContextScorer
       );
     }
 
-    // Check fashion alignment with era
-    if (output.fashion_and_attire && context.cml) {
-      const era = (context.cml as any)?.BACKGROUND_CONTEXT?.era_background?.decade;
-      if (era) {
-        const fashionEraConsistent = this.checkFashionEraConsistency(
-          output.fashion_and_attire,
-          era
-        );
-        tests.push(
-          fashionEraConsistent
-            ? pass('Fashion/era consistency', 'consistency', 1.0)
-            // F30-3: minor conflict → partial(50) so consistency_score ≥ 50 component minimum.
-            : partial('Fashion/era consistency', 'consistency', 50, 1.0, 'Fashion markers conflict with era (minor — partial credit)')
-        );
-      }
-    }
-
-    // Check date/era consistency
-    if (output.specific_date && context.cml) {
-      const era = (context.cml as any)?.BACKGROUND_CONTEXT?.era_background?.decade;
-      if (era) {
-        const dateEraConsistent = this.checkDateEraConsistency(
-          output.specific_date,
-          era
-        );
-        tests.push(
-          dateEraConsistent
-            ? pass('Date/era consistency', 'consistency', 1.0)
-            : fail('Date/era consistency', 'consistency', 1.0, 'Date conflicts with era', 'major')
-        );
-      }
-    }
-
     return tests;
   }
 
@@ -401,38 +368,6 @@ export class TemporalContextScorer
     }
 
     return true;
-  }
-
-  private checkFashionEraConsistency(fashion: string, era: string): boolean {
-    const f = fashion.toLowerCase();
-
-    // Look for anachronisms
-    if (era.includes('1920') || era.includes('1930')) {
-      const anachronisms = ['sneakers', 'jeans', 't-shirt', 'hoodie', 'tracksuit'];
-      if (anachronisms.some(a => f.includes(a))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private checkDateEraConsistency(date: string, era: string): boolean {
-    // Extract year from date
-    const yearMatch = date.match(/\b(19\d{2}|20\d{2})\b/);
-    if (!yearMatch) return true; // Can't check if no year
-
-    const year = parseInt(yearMatch[1], 10);
-
-    // Extract decade from era
-    const decadeMatch = era.match(/\b(19\d{2}|20\d{2})/);
-    if (!decadeMatch) return true; // Can't check if no decade
-
-    const decade = parseInt(decadeMatch[1], 10);
-    const decadeEnd = decade + 9;
-
-    // Check if year is within decade
-    return year >= decade && year <= decadeEnd;
   }
 
 }

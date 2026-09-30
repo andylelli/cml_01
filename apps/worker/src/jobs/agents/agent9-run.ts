@@ -5002,7 +5002,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         ctx.proseSecondRunChapterScores = secondRunSeries;
       }
 
-      const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
+      const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues, { fallbackTelemetry: (prose.validationDetails as any)?.fallbackTelemetry ?? [] }); // SCO-D06: without it the rescore dropped the committed-fallback trust cap
       const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, buildProseScoreArgs({
         narrativeSceneCount: totalSceneCount || undefined,
       }));

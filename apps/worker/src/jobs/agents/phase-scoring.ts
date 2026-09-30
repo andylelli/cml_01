@@ -57,8 +57,6 @@ export async function scoreSettingPhase(setting: AnyObj, warnings: string[]): Pr
   const adapted = adaptSettingForScoring(setting);
   const score = await scorer.score({}, adapted, {
     previous_phases: {},
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(setting), warnings, "agent1-setting") };
 }
@@ -78,8 +76,6 @@ export async function scoreCastPhase(
   };
   const score = await scorer.score(scorerInput, adapted, {
     previous_phases: { agent1_setting: setting },
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return {
     adapted,
@@ -99,7 +95,6 @@ export async function scoreCharacterProfilesPhase(profiles: AnyObj, cast: AnyObj
   const score = await scorer.score({}, adapted, {
     previous_phases: { agent2_cast: cast },
     cml,
-    threshold_config: { mode: "standard" },
   });
   return { adapted, score };
 }
@@ -118,8 +113,6 @@ export async function scoreLocationsPhase(
       agent1_setting: setting,
       agent2e_background_context: backgroundContext,
     },
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return { adapted, score: applyHonestScorer(score, () => scoreRealLocations(locResult), warnings, "agent2c-location") };
 }
@@ -133,8 +126,6 @@ export async function scoreTemporalContextPhase(tempResult: AnyObj, setting: Any
       agent1_setting: setting,
       agent2e_background_context: backgroundContext,
     },
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return { adapted, score };
 }
@@ -153,8 +144,6 @@ export async function scoreBackgroundPhase(
       agent1_setting: setting,
       agent2_cast: cast,
     },
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return {
     adapted,
@@ -190,8 +179,6 @@ export async function scoreHardLogicPhase(
       agent2_cast: cast,
       agent2e_background_context: backgroundContext,
     },
-    cml: undefined as any,
-    threshold_config: { mode: "standard" },
   });
   return { adapted, score: applyHonestScorer(score, () => scoreRealHardLogic(devices), warnings, "agent3b-hard-logic") };
 }
@@ -203,7 +190,6 @@ export async function scoreWorldDocumentPhase<W>(worldDoc: W, cml: AnyObj): Prom
   const score = await scorer.score({}, worldDoc as any, {
     previous_phases: {},
     cml,
-    threshold_config: { mode: "standard" },
     castSize,
   } as any);
   return { adapted: worldDoc, score };
@@ -234,7 +220,6 @@ export async function scoreNarrativePhase(
   const score = await scorer.score({}, adapted, {
     previous_phases: { agent2_cast: cast },
     cml,
-    threshold_config: { mode: "standard" },
     targetLength: targetLength ?? "medium",
   });
 

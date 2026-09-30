@@ -44,11 +44,8 @@ export interface ScoringContext {
   // Previous phase outputs for consistency checks
   previous_phases: Record<string, any>;
   
-  // CML data for validation
-  cml: CMLData;
-  
-  // Configuration
-  threshold_config: ThresholdConfig;
+  // CML data for validation. Absent for the phases scored before the CML exists (1, 2, 2c, 2d, 2e, 3b).
+  cml?: CMLData;
 
   // Story length selection — drives chapter counts and word count targets
   targetLength?: 'short' | 'medium' | 'long';
