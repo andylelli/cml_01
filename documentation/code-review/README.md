@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 13 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 14 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -69,7 +69,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-19 | wip (core waits on 👤 A6-D01) | 3 | One definition of "cost of a call" — reported costs correct since CR-06; A34-D15 fixed; per-call cost on ChatResponse would also make Agent 6's retry budget charge first retries, which can newly abort a run (A6-D01, owner) | ORC-03, A1X-09, A5 §9.2 | R1 | M |
 | CR-20 | done (R1; guard policy 👤 ORC-Q03) | 4 | **`callLlmJson()`**: one parse ladder with one truncation policy for all 31 LLM call sites — done as `parseLlmJson` (10 ladders → 1, pinned against verbatim copies), one shell for 2b–2e (characterised first), Agent 8 no longer aborts on a sloppy payload, Agent 5 enums lower-cased, withValidationRetry cost over-count fixed; A7-10 deferred (schema library), A9V-14 waits (v1) (`8054d8a6`, `21992344`, `07898bd0`, `5c6f6f9d`) | ORC-04, A1X-03, A34-06 | R1 | M |
 | CR-21 | wip (A34-07 waits on CR-20, CR-14) | 4 | **`runStage()`** over `executeAgentWithRetry` for the 9 runners that fork on scoring — done: runStage (−188), one input builder per runner (Agent 7: 7 literals → 1), one bounded regen gate for 2b/2c/3b, designCast as a step table (characterised first, 26 paths), Agent 3 notes leak fixed; replay pins both scoring modes (`ee93689a`, `aeb90610`, `58a4e72c`, `cbe9e58a`, `f57dae47`, `fe4372dd`) | ORC-02, A1X-02 | R1 | M–L |
-| CR-22 | todo | 4 | **`RunConfig`**: 82 env flags resolved once at run start, written into the report | ORC-05, A9G-08, A9P-14, A7-08 | R1 | M |
+| CR-22 | done (R1; v1 sites wait; vocabulary 👤 ORC-Q05) | 4 | **`RunConfig`**: 82 env flags resolved once at run start, written into the report — done as a RAW record of every read flag at t=0 (run-config file + report diagnostic; names generated and checked), the worker's two boolean idioms as envOn/envNotOff with both flag checks taught the form, a harness flag registered; a parsed RunConfig deferred (a second copy of every parse while v1 reads its own) (`2d009a33`, `50b73fa7`, `ec4665c2`) | ORC-05, A9G-08, A9P-14, A7-08 | R1 | M |
 | CR-23 | todo | 4 | One regen runner and one chapter-rewrite engine (wrapper ×10, skeleton ×13, engines ×5) | A9W-06, A9R-01, A9R-05, A9R-06, A7-02 | R1 | L |
 | CR-24 | done | 5 | Decompose `runAgent7` (8 shared bindings — the cheapest, do first) and `runAgent3/3b` — by the TS language service's extract-function plus AST closure moves: agent7-run.ts 3,100 → 272 lines (12 modules), agent3-run.ts 1,086 → 475 (+ agent3/, agent8-run.ts), agent3b-run.ts 1,031 → 314 (+ agent3b/); one act split (`c5423dfd`, `d292ff22`, `109d271b`) | A7-01, A34-04, A34-12 | R0→R1 | M |
 | CR-25 | done | 5 | Decompose `runAgent5`, `runAgent6`, `generateMystery` over explicit state — run/state objects (checker-typed), TS extract-function, AST closure moves: agent5-run 1,961 → 478, agent6-run 2,515 → 935, mystery-orchestrator 1,732 → 755 (jobs/pipeline/); A6-13 tests. Follow-ups: A5-D06 fabrication fix (👤, changes clues), A6-06/A6-12 (`ad612520`, `71c3fdab`, `a5f9adb0`) | A5-01, A6-01, ORC-01 | R1 | L |

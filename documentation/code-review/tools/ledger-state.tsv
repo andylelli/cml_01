@@ -11,7 +11,7 @@ A9W-09	CR-31	todo
 A9W-10	CR-23	todo		
 A9W-11	CR-31	todo		
 A9W-12	CR-09	deferred		CR-09 waits: every consumer of the helper layer (agent9-run.ts:1-4096) is below runAgent9's v2 early return, so it is v1-only code; owner decision 2026-09-26: v1 takes bug fixes only, no refactors (same as CR-26)
-A9W-13	CR-22	todo		
+A9W-13	CR-22	todo	ec4665c2	CANARY_REPLAY_FAIRPLAY_ADVISORY registered and named in the checker; agent9/flags.ts stale P5 block deleted (ec4665c2). Waits (v1): moving agent9-run.ts's inline getters and fixing its 'ON by default' comment
 A9W-14	CR-08	done	3295ad4e 5662ca4c 094de134	unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only)
 A9W-15	CR-03	done	1374e38e	ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI
 A9W-16	CR-31	todo		
@@ -40,7 +40,7 @@ A9G-04	CR-15	todo
 A9G-05	CR-26	todo		
 A9G-06	CR-29	todo		
 A9G-07	CR-29	todo		
-A9G-08	CR-22	todo		
+A9G-08	CR-22	todo		waits: agent9-prose is the v1 engine (bug fixes only)
 A9G-09	CR-17	todo		
 A9G-10	CR-26	todo		
 A9G-11	CR-16	todo		
@@ -55,7 +55,7 @@ A9G-D02	CR-32	todo
 A9G-D03	CR-17	todo		
 A9G-D04	CR-06	done	ec237e5a	
 A9G-D05	CR-17	todo		
-A9G-D06	CR-22	todo		
+A9G-D06	CR-22	todo		waits: v1 (a flag-parse divergence for yes/TRUE spellings; also ORC-Q05)
 A9G-D07	CR-15	todo		
 A9G-D08	CR-29	todo		
 A9G-D09	CR-19	deferred		v1 prose engine (generate.ts) — telemetry undercount; v1 takes bug fixes only and this is a reporting gap, not a defect in the book
@@ -81,7 +81,7 @@ A9P-10	CR-28	todo
 A9P-11	CR-27	todo		
 A9P-12	CR-28	todo		
 A9P-13	CR-13	todo		
-A9P-14	CR-22	todo		
+A9P-14	CR-22	todo		waits: agent9-prose is the v1 engine (bug fixes only)
 A9P-15	CR-30	todo		
 A9P-16	CR-08	done	3295ad4e bf3fefc9	unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split
 A9P-D01	CR-07	todo		
@@ -130,7 +130,7 @@ A9V-D09	CR-31	todo
 A9V-D10	CR-07	todo		
 A9V-D11	CR-07	todo		
 A9V-D12	CR-27	todo		
-A9V-D13	CR-22	todo		
+A9V-D13	CR-22	done		ENABLE_PROSE_BLIND_READER was named in the checker and registered in CR-06 (VERIFIED-BUGS #22); verify:flags clean
 A9V-Q01	CR-15	todo		
 A9V-Q02	CR-16	todo		
 A9V-Q03	CR-17	todo		
@@ -239,7 +239,7 @@ A7-04	CR-13	todo
 A7-05	CR-24	done	109d271b	computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic)
 A7-06	CR-16	todo		
 A7-07	CR-18	todo		
-A7-08	CR-22	todo		
+A7-08	CR-22	done	50b73fa7	agent7/flags.ts on envOn/envNotOff (vocabulary unchanged); retriesEnabled already gone. OWNER: whether contract-recovery-off is still wanted (R2)
 A7-09	CR-27	todo		
 A7-10	CR-20	todo		DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6)
 A7-11	CR-33	todo		
@@ -335,7 +335,7 @@ ORC-01	CR-25	done	a5f9adb0	generateMystery -> 12 phases in jobs/pipeline/{gates,
 ORC-02	CR-21	done	aeb90610	runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit `characterGenders: undefined` for the owner
 ORC-03	CR-19	todo		waits on A6-D01. CORRECTED 2026-09-30: the note said per-agent costs were correct since dff49644 — false for 2b/2c/2d/2e/3b, whose withValidationRetry still summed running totals; fixed 07898bd0
 ORC-04	CR-20	done	8054d8a6	parseLlmJson(raw, {guard, extract}) replaces the ten repair ladders, pinned against verbatim copies over a 21-payload corpus. Not built: a callLlmJson that also owns chat + finishReason + cost — refusing on finishReason at the other sites is R2 (ORC-Q03) and per-call cost waits on CR-19 (A6-D01)
-ORC-05	CR-22	todo		
+ORC-05	CR-22	done	2d009a33	a run records the RAW flag environment it saw (logs/run-config-<runId>.json + report run_config diagnostic), names generated from what the code reads and checked by flags:check; the worker's two boolean idioms are envOn/envNotOff (50b73fa7), both checks taught the form. DEFERRED, with reason: a typed RunConfig of PARSED values would be a second copy of every flag's parse unless all ~230 reads go through it, and ~45 of them are in the v1 engine (bug fixes only); raw values + the build fingerprint reconstruct a run exactly. Vocabulary unification is ORC-Q05 (owner)
 ORC-06	CR-10	done	9232c483	shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles)
 ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02
 ORC-08	CR-17	todo		
