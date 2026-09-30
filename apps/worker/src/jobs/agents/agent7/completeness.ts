@@ -25,6 +25,12 @@ import {
   rescoreNarrative,
 } from "./generate.js";
 
+/**
+ * A7-06 — a pivotElement / factEstablished value that says nothing. The patch that fills these and the gate
+ * that checks them each wrote this literal (36 lines apart); one, so they cannot disagree.
+ */
+const GENERIC_CONTRACT_VALUE_RE = /^(n\/a|tbd|none|generic|placeholder|investigation continues|scene continues|characters discuss|more clues|\s*)$/i;
+
 function evaluateOutlinePreCommitCompleteness(narrative: NarrativeOutline): string[] {
   const issues: string[] = [];
   const allScenes = flattenNarrativeScenes(narrative);
@@ -143,13 +149,12 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
     // by deriving a concrete fallback from the scene's other rich fields (summary, purpose, title).
     // The LLM occasionally emits "N/A" for bridging/transitional scenes.  This patch replaces
     // those values so the gate can pass without masking real structural gaps.
-    const GENERIC_PATCH_RE = /^(n\/a|tbd|none|generic|placeholder|investigation continues|scene continues|characters discuss|more clues|\s*)$/i;
     let factPatchCount = 0;
     for (const scene of allPatchScenes) {
       const pivot = (scene as any).pivotElement;
       const fact = (scene as any).factEstablished;
-      const pivotGeneric = !pivot || GENERIC_PATCH_RE.test(String(pivot).trim());
-      const factGeneric = !fact || GENERIC_PATCH_RE.test(String(fact).trim());
+      const pivotGeneric = !pivot || GENERIC_CONTRACT_VALUE_RE.test(String(pivot).trim());
+      const factGeneric = !fact || GENERIC_CONTRACT_VALUE_RE.test(String(fact).trim());
       // Derive a fallback: prefer the sibling field if concrete, else use summary/purpose/title.
       const fallbackSource: string = (!pivotGeneric ? String(pivot).trim() : null) ??
         (typeof scene.summary === "string" && scene.summary.trim().length > 10 ? scene.summary.trim().slice(0, 120) : null) ??
@@ -177,17 +182,16 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
   // scene is missing pivotElement / factEstablished (all scenes), or if an Act I–II
   // scene is missing redHerringPlacement (which may be null, but must be present).
   if (ctx.inputs.enableOutlineCompleteness) {
-    const GENERIC_PATTERNS = /^(n\/a|tbd|none|generic|placeholder|investigation continues|scene continues|characters discuss|more clues|\s*)$/i;
     const allCompScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
     const missing: string[] = [];
     for (const scene of allCompScenes) {
       const sn = `Scene ${scene.sceneNumber} (Act ${scene.act})`;
       const pivot = (scene as any).pivotElement;
       const fact = (scene as any).factEstablished;
-      if (!pivot || GENERIC_PATTERNS.test(String(pivot).trim())) {
+      if (!pivot || GENERIC_CONTRACT_VALUE_RE.test(String(pivot).trim())) {
         missing.push(`${sn}: pivotElement missing or generic ("${pivot ?? ''}")`);
       }
-      if (!fact || GENERIC_PATTERNS.test(String(fact).trim())) {
+      if (!fact || GENERIC_CONTRACT_VALUE_RE.test(String(fact).trim())) {
         missing.push(`${sn}: factEstablished missing or generic ("${fact ?? ''}")`);
       }
       // Act I–II scenes must have redHerringPlacement present (null is OK; undefined is not)
