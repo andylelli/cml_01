@@ -5,14 +5,13 @@
  * Similar to character profiles, but for places and atmosphere.
  */
 
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { parseLlmJson } from "./shared/llm-json.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { NarrativeOutline } from "./agent7-narrative.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface SensoryDetails {
   sights: string[];
@@ -347,49 +346,23 @@ export async function generateLocationProfiles(
   inputs: LocationProfilesInputs,
   maxAttempts?: number
 ): Promise<LocationProfilesResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2c_location_profiles.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs } = await generateJsonArtifact<Omit<LocationProfilesResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2c (Location Profiles)",
-    validationFn: (data) => {
-      // Validate against location_profiles schema
-      const validationPayload = {
-        ...(data as Record<string, unknown>),
-        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
-        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
-      };
-      const validation = validateArtifact("location_profiles", validationPayload);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildLocationProfilesPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2c-LocationProfiles",
-          retryAttempt: attempt,
-        },
-      });
-
-      let profiles: Omit<LocationProfilesResult, "cost" | "durationMs">;
-      // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
-      const parsedJson = parseLlmJson<Omit<LocationProfilesResult, "cost" | "durationMs">>(response.content, { guard: false });
-      if (parsedJson.data === undefined) throw parsedJson.repairError;
-      profiles = parsedJson.data;
-
+    label: "Agent2c-LocationProfiles",
+    logName: "[Agent 2c] Location profiles",
+    schema: "location_profiles",
+    withRunMeta: true,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: false, // as it always was (ORC-Q03)
+    buildMessages: (previousErrors) => buildLocationProfilesPrompt(inputs, previousErrors).messages,
+    structuralCheck: (profiles) => {
       // Basic structure validation
       if (!profiles.primary || !Array.isArray(profiles.primary.paragraphs) || profiles.primary.paragraphs.length === 0) {
         throw new Error("Invalid location profiles output: missing primary location");
@@ -438,36 +411,13 @@ export async function generateLocationProfiles(
           'Invalid location profiles output: atmosphere.paragraphs must be a non-empty string array (2-3 narrative paragraphs).'
         );
       }
-
-      const costTracker = client.getCostTracker();
-      const cost = costTracker.getSummary().byAgent["Agent2c-LocationProfiles"] || 0;
-
-      return { result: profiles, cost };
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2c] Location profiles validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2c] Location profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as LocationProfilesResult;
+  const validatedResult = result as LocationProfilesResult;
 
   return {
     ...validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
   };
 }

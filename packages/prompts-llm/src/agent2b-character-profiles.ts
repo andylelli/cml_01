@@ -4,13 +4,13 @@
  * Expands cast details into full narrative profiles.
  */
 
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { CastDesign } from "./agent2-cast.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface CharacterProfileOutput {
   name: string;
@@ -398,78 +398,29 @@ export async function generateCharacterProfiles(
   inputs: CharacterProfilesInputs,
   maxAttempts?: number
 ): Promise<CharacterProfilesResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2b_profiles.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs } = await generateJsonArtifact<Omit<CharacterProfilesResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2b (Character Profiles)",
-    validationFn: (data) => {
-      // Validate against character_profiles schema
-      const validationPayload = {
-        ...(data as Record<string, unknown>),
-        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
-        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
-      };
-      const validation = validateArtifact("character_profiles", validationPayload);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildProfilesPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2b-CharacterProfiles",
-          retryAttempt: attempt,
-        },
-      });
-
-      let profiles: Omit<CharacterProfilesResult, "cost" | "durationMs">;
-      // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
-      const parsedJson = parseLlmJson<Omit<CharacterProfilesResult, "cost" | "durationMs">>(response.content, { guard: false });
-      if (parsedJson.data === undefined) throw parsedJson.repairError;
-      profiles = parsedJson.data;
-
+    label: "Agent2b-CharacterProfiles",
+    logName: "[Agent 2b] Character profiles",
+    schema: "character_profiles",
+    withRunMeta: true,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: false, // as it always was (ORC-Q03)
+    buildMessages: (previousErrors) => buildProfilesPrompt(inputs, previousErrors).messages,
+    structuralCheck: (profiles) => {
       if (!Array.isArray(profiles.profiles) || profiles.profiles.length === 0) {
         throw new Error("Invalid character profiles output: missing profiles");
       }
-
-      const costTracker = client.getCostTracker();
-      const cost = costTracker.getSummary().byAgent["Agent2b-CharacterProfiles"] || 0;
-
-      return { result: profiles, cost };
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2b] Character profiles validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2b] Character profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as CharacterProfilesResult;
+  const validatedResult = result as CharacterProfilesResult;
 
   // Targeted repair: if any profile is still missing paragraphs (e.g. due to token
   // budget truncation on the last profile), repair each one with a focused single-profile call
@@ -493,7 +444,7 @@ export async function generateCharacterProfiles(
 
   return {
     ...validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
   };
 }
