@@ -21,8 +21,6 @@
     "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 518,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
     "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 632,
-    "packages/prompts-llm/src/agent3-cml.ts::generateCML": 440,
-    "packages/prompts-llm/src/agent4-revision.ts::reviseCml": 419,
     "packages/prompts-llm/src/agent5-clues.ts::buildCluePrompt": 610,
     "packages/prompts-llm/src/agent9-prose/generate.ts::buildEnhancedRetryFeedback": 922,
     "packages/prompts-llm/src/agent9-prose/generate.ts::buildEnhancedRetryFeedback>buildRetryMicroPromptDirectives": 429,

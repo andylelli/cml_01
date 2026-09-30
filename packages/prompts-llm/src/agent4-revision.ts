@@ -464,61 +464,7 @@ export async function reviseCml(
   }
 
   const degrade = async (reason: string): Promise<RevisionResult> => {
-    const latencyMs = Date.now() - startTime;
-    const cost = client.getCostTracker().getSummary().byAgent["Agent4-Revision"] || 0;
-    // A_53 P6 (no-revalidation-after-grounding-mutation-in-degrade): when there is no recorded
-    // candidate, normalize + validate the raw parse so the returned `validation` actually describes
-    // the returned CML — the raw fallback was previously shipped with the ORIGINAL doc's validation,
-    // a mismatch (normalize grounds + repairs, which changes the error set).
-    let fallbackCml: Record<string, unknown>;
-    let fallbackValidation = bestValidation;
-    let noCandidate = false;
-    if (bestNormalized) {
-      fallbackCml = bestNormalized;
-    } else {
-      // No real parse candidate was ever recorded (e.g. unparseable output) — fabricate a normalized
-      // skeleton so cml + validation are CONSISTENT, but this is ALWAYS a degrade (meaningless
-      // defaults), never a clean success even if the skeleton happens to validate.
-      noCandidate = true;
-      fallbackCml = normalizeCml(ensureObject(yaml.load(inputs.invalidCml)));
-      fallbackValidation = validateCml(fallbackCml);
-    }
-    // If the best-so-far is actually valid (e.g. the aggressive normalizer recovered a real candidate),
-    // return it as a clean success; only mark `degraded` when validation genuinely remains unresolved
-    // OR there was no real candidate to begin with.
-    const stillInvalid = noCandidate || !fallbackValidation.valid;
-    const unresolvedWarnings = !stillInvalid
-      ? undefined
-      : fallbackValidation.errors.length > 0
-        ? fallbackValidation.errors
-        : ["No parseable CML candidate after exhaustion; returned a normalized skeleton."];
-    revisionsApplied.push(
-      stillInvalid
-        ? `Degraded after exhaustion (${reason}) — returning best-so-far with ${unresolvedWarnings!.length} unresolved warning(s).`
-        : `Recovered a valid CML on the best-so-far candidate after exhaustion (${reason}).`,
-    );
-    await logger.logResponse({
-      runId,
-      projectId,
-      agent: "Agent4-Revision",
-      operation: "revise_cml_degraded",
-      model: "n/a",
-      success: !stillInvalid,
-      validationStatus: stillInvalid ? "fail" : "pass",
-      retryAttempt: attempt,
-      latencyMs,
-      metadata: { reason, unresolvedErrorCount: unresolvedWarnings?.length ?? 0 },
-    });
-    return {
-      cml: fallbackCml,
-      validation: fallbackValidation,
-      revisionsApplied,
-      attempt,
-      latencyMs,
-      cost,
-      degraded: stillInvalid,
-      unresolvedLogicWarnings: unresolvedWarnings,
-    };
+    return await degradeRevision({ attempt, bestNormalized, bestValidation, client, inputs, logger, normalizeCml, projectId, reason, revisionsApplied, runId, startTime });
   };
 
   // Log initial revision request
@@ -602,43 +548,7 @@ export async function reviseCml(
       });
 
       // Parse JSON/YAML
-      let cml: Record<string, unknown> | undefined;
-      let jsonParseError: Error | undefined;
-      let yamlParseError: Error | undefined;
-
-      // CR-20: the one parse ladder, span strict then repaired. Unguarded, as it always was: a truncated
-      // full-CML re-emission is repaired, not refused (A34-D07; guarding it is ORC-Q03, the owner's call).
-      const tryParseJson = (raw: string): Record<string, unknown> | undefined => {
-        const parsed = parseLlmJson<Record<string, unknown>>(raw, { guard: false, extract: "strict+repair" });
-        if (parsed.parseError) jsonParseError = parsed.parseError;
-        return parsed.data;
-      };
-
-      cml = tryParseJson(response.content);
-
-      if (!cml) {
-        try {
-          const sanitized = sanitizeYaml(response.content);
-          const parsed = yaml.load(sanitized) as Record<string, unknown> | undefined;
-          if (parsed && typeof parsed === "object") {
-            cml = parsed;
-            await logger.logResponse({
-              runId,
-              projectId,
-              agent: "Agent4-Revision",
-              operation: "parse_output_sanitized",
-              model: response.model,
-              success: true,
-              validationStatus: "pass",
-              retryAttempt: attempt,
-              latencyMs: Date.now() - startTime,
-              metadata: { note: "YAML sanitized after JSON parse failure" },
-            });
-          }
-        } catch (error) {
-          yamlParseError = error as Error;
-        }
-      }
+      let { cml, jsonParseError, yamlParseError } = await parseRevisionReply(response, logger, runId, projectId, attempt, startTime);
 
       if (!cml || typeof cml !== "object") {
         const jsonMessage = jsonParseError ? jsonParseError.message : "Unknown JSON parse error";
@@ -812,5 +722,108 @@ export async function reviseCml(
 
   // Should never reach here, but TypeScript needs it
   throw new Error("Unexpected end of revision loop");
+}
+
+/**
+ * A34-07 — one Agent 4 reply to a CML: the JSON ladder (unguarded, ORC-Q03), then the YAML fallback. Moved out
+ * of the revision loop, which retries when neither parses.
+ */
+async function parseRevisionReply(response: Awaited<ReturnType<AzureOpenAIClient["chat"]>>, logger: ReturnType<AzureOpenAIClient["getLogger"]>, runId: string, projectId: string, attempt: number, startTime: number) {
+  let cml: Record<string, unknown> | undefined;
+  let jsonParseError: Error | undefined;
+  let yamlParseError: Error | undefined;
+
+  // CR-20: the one parse ladder, span strict then repaired. Unguarded, as it always was: a truncated
+  // full-CML re-emission is repaired, not refused (A34-D07; guarding it is ORC-Q03, the owner's call).
+  const tryParseJson = (raw: string): Record<string, unknown> | undefined => {
+    const parsed = parseLlmJson<Record<string, unknown>>(raw, { guard: false, extract: "strict+repair" });
+    if (parsed.parseError) jsonParseError = parsed.parseError;
+    return parsed.data;
+  };
+
+  cml = tryParseJson(response.content);
+
+  if (!cml) {
+    try {
+      const sanitized = sanitizeYaml(response.content);
+      const parsed = yaml.load(sanitized) as Record<string, unknown> | undefined;
+      if (parsed && typeof parsed === "object") {
+        cml = parsed;
+        await logger.logResponse({
+          runId,
+          projectId,
+          agent: "Agent4-Revision",
+          operation: "parse_output_sanitized",
+          model: response.model,
+          success: true,
+          validationStatus: "pass",
+          retryAttempt: attempt,
+          latencyMs: Date.now() - startTime,
+          metadata: { note: "YAML sanitized after JSON parse failure" },
+        });
+      }
+    } catch (error) {
+      yamlParseError = error as Error;
+    }
+  }
+  return { cml, jsonParseError, yamlParseError };
+}
+
+async function degradeRevision({ attempt, bestNormalized, bestValidation, client, inputs, logger, normalizeCml, projectId, reason, revisionsApplied, runId, startTime }: { attempt: number; bestNormalized: Record<string, unknown> | undefined; bestValidation: { valid: boolean; errors: string[] }; client: AzureOpenAIClient; inputs: RevisionInputs; logger: ReturnType<AzureOpenAIClient["getLogger"]>; normalizeCml: (raw: Record<string, unknown>) => Record<string, unknown>; projectId: string; reason: string; revisionsApplied: string[]; runId: string; startTime: number }) {
+  const latencyMs = Date.now() - startTime;
+  const cost = client.getCostTracker().getSummary().byAgent["Agent4-Revision"] || 0;
+  // A_53 P6 (no-revalidation-after-grounding-mutation-in-degrade): when there is no recorded
+  // candidate, normalize + validate the raw parse so the returned `validation` actually describes
+  // the returned CML — the raw fallback was previously shipped with the ORIGINAL doc's validation,
+  // a mismatch (normalize grounds + repairs, which changes the error set).
+  let fallbackCml: Record<string, unknown>;
+  let fallbackValidation = bestValidation;
+  let noCandidate = false;
+  if (bestNormalized) {
+    fallbackCml = bestNormalized;
+  } else {
+    // No real parse candidate was ever recorded (e.g. unparseable output) — fabricate a normalized
+    // skeleton so cml + validation are CONSISTENT, but this is ALWAYS a degrade (meaningless
+    // defaults), never a clean success even if the skeleton happens to validate.
+    noCandidate = true;
+    fallbackCml = normalizeCml(ensureObject(yaml.load(inputs.invalidCml)));
+    fallbackValidation = validateCml(fallbackCml);
+  }
+  // If the best-so-far is actually valid (e.g. the aggressive normalizer recovered a real candidate),
+  // return it as a clean success; only mark `degraded` when validation genuinely remains unresolved
+  // OR there was no real candidate to begin with.
+  const stillInvalid = noCandidate || !fallbackValidation.valid;
+  const unresolvedWarnings = !stillInvalid
+    ? undefined
+    : fallbackValidation.errors.length > 0
+      ? fallbackValidation.errors
+      : ["No parseable CML candidate after exhaustion; returned a normalized skeleton."];
+  revisionsApplied.push(
+    stillInvalid
+      ? `Degraded after exhaustion (${reason}) — returning best-so-far with ${unresolvedWarnings!.length} unresolved warning(s).`
+      : `Recovered a valid CML on the best-so-far candidate after exhaustion (${reason}).`,
+  );
+  await logger.logResponse({
+    runId,
+    projectId,
+    agent: "Agent4-Revision",
+    operation: "revise_cml_degraded",
+    model: "n/a",
+    success: !stillInvalid,
+    validationStatus: stillInvalid ? "fail" : "pass",
+    retryAttempt: attempt,
+    latencyMs,
+    metadata: { reason, unresolvedErrorCount: unresolvedWarnings?.length ?? 0 },
+  });
+  return {
+    cml: fallbackCml,
+    validation: fallbackValidation,
+    revisionsApplied,
+    attempt,
+    latencyMs,
+    cost,
+    degraded: stillInvalid,
+    unresolvedLogicWarnings: unresolvedWarnings,
+  };
 }
 
