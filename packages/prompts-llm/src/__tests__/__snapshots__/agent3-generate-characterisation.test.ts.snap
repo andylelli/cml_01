@@ -149,7 +149,7 @@ exports[`generateCML characterisation (A34-07) > parse failure, then valid 1`] =
   ],
   "result": {
     "attempt": 2,
-    "cml": "0e896bb0b5ec2ec2",
+    "cml": "286a751f40422633",
     "degraded": false,
     "errors": 0,
     "notes": [
@@ -173,7 +173,7 @@ exports[`generateCML characterisation (A34-07) > valid on the first attempt 1`] 
   ],
   "result": {
     "attempt": 1,
-    "cml": "0e896bb0b5ec2ec2",
+    "cml": "286a751f40422633",
     "degraded": false,
     "errors": 0,
     "notes": [

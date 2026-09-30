@@ -20,6 +20,14 @@ export const ensureObject = (value: unknown) =>
 export const ensureArray = (value: unknown) => (Array.isArray(value) ? value : []);
 export const ensureString = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim() ? value : fallback;
+/** The allowed value matching case-insensitively, else the fallback. Both profiles (owner decision 5). */
+export const normalizeEnum = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T => {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  const match = allowed.find((item) => item.toLowerCase() === normalized);
+  return match ?? fallback;
+};
+/** The schema's cast `role` enum. */
+export const CAST_ROLES = ["detective", "victim", "culprit", "suspect", "witness", "bystander"] as const;
 
 // ── sections both profiles share, byte-identical when they were two closures ─────────────────
 
@@ -201,7 +209,7 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
     const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
       ? culpability
       : "unknown";
-    return {
+    const known = {
       name: ensureString(existing.name, name || `Suspect ${index + 1}`),
       age_range: ensureString(existing.age_range, "adult"),
       role_archetype: ensureString(existing.role_archetype, "suspect"),
@@ -220,6 +228,15 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
       culpability: normalizedCulpability,
       gender: existing.gender || inputs.castGenders?.[name] || undefined,
     };
+    // Owner decision 5 §2 (A34-D16): keep every other field the reply carried — the schema's `role` and
+    // `moral_complexity` among them — as the revise profile always has. Agent 3 dropped them on every run.
+    // Appended after the known fields so a member without extras is byte-for-byte what it was.
+    const extras: Record<string, unknown> = Object.fromEntries(
+      Object.entries(existing).filter(([key]) => !(key in known)),
+    );
+    if (extras.role !== undefined) extras.role = normalizeEnum(extras.role, CAST_ROLES, "suspect");
+    if (extras.moral_complexity !== undefined) extras.moral_complexity = ensureString(extras.moral_complexity, "complex motivations");
+    return { ...known, ...extras } as typeof known & Record<string, unknown>;
   });
 
   const roleIncludes = (role: unknown, tokens: string[]) => {
@@ -727,11 +744,6 @@ function gapFillSuspectClearances(caseBlock: Record<string, unknown>, culpabilit
 // ── profile "revise": Agent 4 (moved verbatim from reviseCml) ───────────────────────────────
 
 export function normalizeCmlForRevision(raw: Record<string, unknown>, config: ReturnType<typeof getGenerationParams>["agent4_cml_validator"]["params"]) {
-  const normalizeEnum = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T => {
-    const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-    const match = allowed.find((item) => item.toLowerCase() === normalized);
-    return match ?? fallback;
-  };
 
   /**
    * A_73 §40 — WAS: anything unrecognised fell through to `return "non-binary"`.
@@ -800,7 +812,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
       const normalizedCulpability = normalizeEnum(existing.culpability, ["guilty", "innocent", "unknown"], "unknown");
       const normalizedRole = existing.role === undefined
         ? undefined
-        : normalizeEnum(existing.role, ["detective", "victim", "culprit", "suspect", "witness", "bystander"], "suspect");
+        : normalizeEnum(existing.role, CAST_ROLES, "suspect");
       const normalizedGender = existing.gender === undefined
         ? undefined
         : normalizeGenderEnum(existing.gender);

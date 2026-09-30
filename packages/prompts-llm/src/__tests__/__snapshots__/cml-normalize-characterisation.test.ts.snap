@@ -3,7 +3,7 @@
 exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "0ccf3dc3ccfd1780",
+    "generate": "6eb541d784b9a906",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -11,7 +11,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "5aa5313f77f1d116",
   },
   "a_study_in_scarlet": {
-    "generate": "e5ae48becabab0b3",
+    "generate": "4059d4d2c281d83e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -20,7 +20,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "95ad260e95079041",
   },
   "aaron_rodd_diviner": {
-    "generate": "187486bff9d54eac",
+    "generate": "e6fad0be2c7064f7",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -29,7 +29,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "e61743d9d934242a",
   },
   "an_african_millionaire": {
-    "generate": "9d632c161fa2f6b5",
+    "generate": "4047d01a00cce3d4",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -38,14 +38,14 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "fe6ab2bd158db0e5",
   },
   "annihilation": {
-    "generate": "3c37fbf77caeea8b",
+    "generate": "f7bdf687234ee9f6",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "c874f240cac0f435",
   },
   "as_a_thief_in_the_night": {
-    "generate": "1d86c98add9b4bfd",
+    "generate": "8e4f5c12e3b72dba",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -113,7 +113,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: cast fields blanked 
 exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "f5176a36ba4dbd63",
+    "generate": "a26ff634736f59be",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -121,7 +121,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "e777f23f4a5d10bc",
   },
   "a_study_in_scarlet": {
-    "generate": "39ead47a0690d61e",
+    "generate": "dd30006a93b4a58c",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -130,7 +130,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "e808cb98d1415049",
   },
   "aaron_rodd_diviner": {
-    "generate": "1b40fddb319ab63b",
+    "generate": "e1fc6b53cb675118",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -139,7 +139,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "df0c10eadb681e5d",
   },
   "an_african_millionaire": {
-    "generate": "b5306d525ae9027c",
+    "generate": "bc4b374665ae7109",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -148,14 +148,14 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "0aca9c14fa36380a",
   },
   "annihilation": {
-    "generate": "37c3bfc24830f9c5",
+    "generate": "40de49816447648d",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "bd636d4b74fa2569",
   },
   "as_a_thief_in_the_night": {
-    "generate": "c8176afb1088a144",
+    "generate": "cdb1c6f61bfd4066",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -233,7 +233,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: near-empty 1`] = `
 exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "f5176a36ba4dbd63",
+    "generate": "1c8571fdf6586d53",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Minnie Foster Wright" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
@@ -242,7 +242,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "43c15ce58e03740e",
   },
   "a_study_in_scarlet": {
-    "generate": "39ead47a0690d61e",
+    "generate": "27afdf6069b8d0d5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -251,7 +251,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "272389b251eb8694",
   },
   "aaron_rodd_diviner": {
-    "generate": "1b40fddb319ab63b",
+    "generate": "3bbfef677a93c520",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Harvey Grimm (Ed. Levy)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
@@ -261,7 +261,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "fcd37d507061e840",
   },
   "an_african_millionaire": {
-    "generate": "b5306d525ae9027c",
+    "generate": "19b83c0cf3a1a5c1",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Cuthbert Clay (Paul Finglemore)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
@@ -271,7 +271,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "101b4280d8cf82e0",
   },
   "annihilation": {
-    "generate": "37c3bfc24830f9c5",
+    "generate": "f633f492c3142809",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Henry Orbit" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -279,7 +279,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "14a029ce5072c6b6",
   },
   "as_a_thief_in_the_night": {
-    "generate": "c8176afb1088a144",
+    "generate": "2744d572f4531e5e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Barbara Monkhouse" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -293,7 +293,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
 exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "2408eeecbaeb4c51",
+    "generate": "f344c6c0f0b250f4",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -301,7 +301,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "436b080176e43bcb",
   },
   "a_study_in_scarlet": {
-    "generate": "3f000578778264df",
+    "generate": "e252beed83efa1ce",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -310,7 +310,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "bdaff2960344d5f6",
   },
   "aaron_rodd_diviner": {
-    "generate": "3859039448ce96a7",
+    "generate": "be45c60b4f04485e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -319,7 +319,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "f704ecea1bf468bd",
   },
   "an_african_millionaire": {
-    "generate": "003893742344410d",
+    "generate": "bb0726e84c568d2d",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -328,14 +328,14 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "e1b62b53e9e909e8",
   },
   "annihilation": {
-    "generate": "aa703b35cae1c66a",
+    "generate": "8ad6550fd9744f70",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "3da03949d8dcbbe1",
   },
   "as_a_thief_in_the_night": {
-    "generate": "b621d5bb69826f09",
+    "generate": "656b9e2f312ba95a",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -348,7 +348,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
 exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "6723f36ed2723a5c",
+    "generate": "fbdaf4924220501f",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -356,7 +356,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "a0ddda3a9d4796ea",
   },
   "a_study_in_scarlet": {
-    "generate": "7750e81c17518225",
+    "generate": "6c4155b8dcb172da",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -365,7 +365,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "4d5ffffbaf847164",
   },
   "aaron_rodd_diviner": {
-    "generate": "b99ea00b42147a07",
+    "generate": "57cdda7a9ec3fa75",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -374,7 +374,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "3bee6fa2610dbfb9",
   },
   "an_african_millionaire": {
-    "generate": "fd02217b2334e4c9",
+    "generate": "37688cd74a233390",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -383,7 +383,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "78f6c5280e8907d7",
   },
   "annihilation": {
-    "generate": "1b731e047571cc48",
+    "generate": "80aff0120446e767",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -391,7 +391,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "9cb5da94dcb96947",
   },
   "as_a_thief_in_the_night": {
-    "generate": "5bd52a29c48a8d20",
+    "generate": "e7c1bee2c9d078dd",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -464,7 +464,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: wrong types 1`] = `
 exports[`CML normaliser characterisation (CR-14) > every authored case, both profiles 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "f5176a36ba4dbd63",
+    "generate": "1c8571fdf6586d53",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -472,7 +472,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "5aa5313f77f1d116",
   },
   "a_study_in_scarlet": {
-    "generate": "39ead47a0690d61e",
+    "generate": "27afdf6069b8d0d5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -481,7 +481,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "95ad260e95079041",
   },
   "aaron_rodd_diviner": {
-    "generate": "1b40fddb319ab63b",
+    "generate": "3bbfef677a93c520",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -490,7 +490,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "e61743d9d934242a",
   },
   "an_african_millionaire": {
-    "generate": "b5306d525ae9027c",
+    "generate": "19b83c0cf3a1a5c1",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -499,14 +499,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "fe6ab2bd158db0e5",
   },
   "annihilation": {
-    "generate": "37c3bfc24830f9c5",
+    "generate": "f633f492c3142809",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "c874f240cac0f435",
   },
   "as_a_thief_in_the_night": {
-    "generate": "c8176afb1088a144",
+    "generate": "2744d572f4531e5e",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -514,7 +514,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c5c60ce5b5d32f73",
   },
   "ashes_to_ashes": {
-    "generate": "35086258444c9240",
+    "generate": "daf691579cc0b4a2",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder disguised as accident with staged evidence" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -522,7 +522,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3bea7c4edac4a64e",
   },
   "bull_dog_drummond": {
-    "generate": "a1fdbd4ff743be06",
+    "generate": "a882bd21943c3760",
     "notes": [
       "Agent 3 authored no death_method and crime_class "mastermind syndicalist revolution plot" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -531,7 +531,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "52ffe2167327eb3e",
   },
   "dark_power": {
-    "generate": "57222347cbb09485",
+    "generate": "e04cd599f922ef94",
     "notes": [
       "Agent 3 authored no death_method and crime_class "imposture and concealment of death" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -540,7 +540,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "830dc1b28f90a2a3",
   },
   "dead_men_s_money": {
-    "generate": "8b0c04994c85155d",
+    "generate": "0df8a3bfbbb78bef",
     "notes": [
       "Agent 3 authored no death_method and crime_class "impostor murder and concealment" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -548,7 +548,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "80ae6f9ea882499e",
   },
   "diana_of_kara_kara": {
-    "generate": "833bc25be1b3f643",
+    "generate": "2e7b9093ee119cf1",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Guiseppi Dempsi (Double Dan), Heloise van Oynne (Sally Chowster)]); normalization assigned "Diana Ford" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "impersonation and safe robbery" names no manner of death; left unset.",
@@ -558,7 +558,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "adabe805958711e3",
   },
   "dorcas_dene_detective": {
-    "generate": "e2bbcd078168457a",
+    "generate": "a12c57c5e1612b2c",
     "notes": [
       "Agent 3 authored no death_method and crime_class "hidden inheritance fraud and staged murder" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -566,7 +566,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "07035cb9c5ca2ba7",
   },
   "dorcas_dene_detective_78210": {
-    "generate": "3b03c7cb310a0a0f",
+    "generate": "60fe7c0c5191d4cf",
     "notes": [
       "Agent 3 authored no death_method and crime_class "kidnapping by anarchists" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -575,7 +575,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "4b7e3c342c43a965",
   },
   "footprints": {
-    "generate": "11e40fb12e0072be",
+    "generate": "ce04bd84adc9eded",
     "notes": [
       "Agent 3 authored no death_method and crime_class "planned assisted death disguised as murder" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -584,7 +584,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "aa0750ec0123cd61",
   },
   "gunman_s_bluff": {
-    "generate": "dd95d0baebd01af9",
+    "generate": "43d098e4d5c11758",
     "notes": [
       "Agent 3 authored no death_method and crime_class "forged check and blackmail scheme" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -593,7 +593,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "01c0dd6405701306",
   },
   "in_the_mayor_s_parlour": {
-    "generate": "6f2de78701f786c9",
+    "generate": "f819a4c422d46cb3",
     "notes": [
       "Agent 3 authored no death_method and crime_class "secret passage murder with political conspiracy" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -601,7 +601,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3b9bcce610dccf92",
   },
   "in_the_onyx_lobby": {
-    "generate": "3fc3205a760fb83e",
+    "generate": "5808bb05f3a64c2b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[George Vail, Doctor Weldon]); normalization assigned "Richard Bates" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "dying message misinterpretation" names no manner of death; left unset.",
@@ -611,7 +611,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "729ec541b70464dc",
   },
   "jack_o_judgment": {
-    "generate": "8d3426b8f5cb2459",
+    "generate": "501eecd0cad959a4",
     "notes": [
       "Agent 3 authored no death_method and crime_class "blackmail and property fraud with covert surveillance" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -620,7 +620,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "1519711d3887225a",
   },
   "jacob_s_ladder": {
-    "generate": "4e86b03f2babe4ad",
+    "generate": "26ca233564ae9a92",
     "notes": [
       "Agent 3 authored no death_method and crime_class "financial swindle involving false property sale and stock market manipulation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -629,7 +629,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "068577201283028a",
   },
   "lady_molly_of_scotland_yard": {
-    "generate": "70194f182af7d9ed",
+    "generate": "37a8ad82d0897a67",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised identity and forged will fraud" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -638,14 +638,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "ebac0a0106fc7ef5",
   },
   "malcolm_sage_detective": {
-    "generate": "d07fc2cf608b0191",
+    "generate": "5415adf87043019e",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
     ],
     "revise": "7cd541fe7c532079",
   },
   "martin_hewitt_investigator": {
-    "generate": "249ae279122040b0",
+    "generate": "8d60d38cc1b0754e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "jewelry theft by trained animal accomplice" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -654,7 +654,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "680d719e3c9b10c0",
   },
   "max_carrados": {
-    "generate": "136a5846f7f88b72",
+    "generate": "c9cc12b524d59f2c",
     "notes": [
       "Agent 3 authored no death_method and crime_class "safe deposit burglary by key duplication and insider observation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -663,14 +663,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "e56bb675c268d238",
   },
   "murder_in_the_maze": {
-    "generate": "d8fe161665cc3035",
+    "generate": "909d607df623df62",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
     ],
     "revise": "e538f9f97f3696fe",
   },
   "mystery_ranch": {
-    "generate": "59ae72d7bc9f0bfb",
+    "generate": "94b1f53d4536e0dc",
     "notes": [
       "Agent 3 authored no death_method and crime_class "identity substitution and staged murder to mislead suspicion" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -679,7 +679,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "43b3bb4ffa297609",
   },
   "no_clue": {
-    "generate": "2a03ee70e29897f4",
+    "generate": "b6644ba09d25236a",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Judge Tom Wilton]); normalization assigned "Catherine Brace" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
@@ -689,7 +689,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "cb20f3f7623881ec",
   },
   "nobody_s_man": {
-    "generate": "97330bd9cc5696f9",
+    "generate": "261d138a8e456af4",
     "notes": [
       "Agent 3 authored no death_method and crime_class "theft and political blackmail" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -698,7 +698,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c106b980930a51b6",
   },
   "poison_shadows": {
-    "generate": "914416eee08f944d",
+    "generate": "78e02568855b2dbe",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -706,7 +706,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f6db96e5ceb7e213",
   },
   "ramshackle_house": {
-    "generate": "d62364e48c392dca",
+    "generate": "c0c3f74d6b612ce3",
     "notes": [
       "Agent 3 authored no death_method and crime_class "contracted gangster murder to frame innocent man" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -714,7 +714,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "de8320bd417039e7",
   },
   "raspberry_jam": {
-    "generate": "d137f76773af951d",
+    "generate": "127c77fecf8a6ebc",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Alvord Hendricks, Willy Hanlon]); normalization assigned "Sanford Embury" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -723,7 +723,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "555393590b418244",
   },
   "ravensdene_court": {
-    "generate": "b11427d5b0a2d2cd",
+    "generate": "7068cd1e7af9c912",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder for possession of stolen monastic treasure" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -731,7 +731,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0e84a009a15c4f3a",
   },
   "room_13": {
-    "generate": "d2a74083dd87b501",
+    "generate": "5ca5bcff751c2d7d",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -739,7 +739,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "783a48ded3307436",
   },
   "stolen_idols": {
-    "generate": "ac22c15728186824",
+    "generate": "780c5dd074348e4d",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder disguised as burglary to conceal suicide" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -747,7 +747,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "aa491e619b5e6ded",
   },
   "tangled_trails": {
-    "generate": "38092a5f8f9249b5",
+    "generate": "c74462fec3cce443",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Shibo Horikawa (Shibo)]); normalization assigned "James Cunningham, Sr." from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
@@ -755,7 +755,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "6cb0c373a43e3c9d",
   },
   "terror_keep": {
-    "generate": "b3a5cf17d3ef2c4a",
+    "generate": "fd457130a722527f",
     "notes": [
       "Agent 3 authored no death_method and crime_class "gold convoy gas incapacitation and cave escape" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -764,7 +764,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "545e49bf31f04fd1",
   },
   "that_affair_next_door": {
-    "generate": "6e59f0b39fd251cf",
+    "generate": "784749d8d73fbb7e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Olive Randolph (Ruth Oliver), Randolph Stone (John Randolph)]); normalization assigned "Franklin Van Burnam" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguise and identity swap" names no manner of death; left unset.",
@@ -773,7 +773,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7dd49263fbb3b266",
   },
   "the_amateur_cracksman": {
-    "generate": "eeffe594d46d43d1",
+    "generate": "c05585cc710e0ebb",
     "notes": [
       "Agent 3 authored no death_method and crime_class "self-defense killing during a burglary" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -781,7 +781,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "02902da28046ce6a",
   },
   "the_angel_of_terror": {
-    "generate": "5b6c1b24dc764a83",
+    "generate": "9580dbc9a75af658",
     "notes": [
       "Agent 3 authored no death_method and crime_class "conspiracy and staged death" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -790,7 +790,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2ac38525b995c08c",
   },
   "the_avenger": {
-    "generate": "aeebe30f8583d2f9",
+    "generate": "9a36753ea691b59e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "execution by guillotine in hidden cave" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -799,7 +799,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "e28a72a4d4e07ca0",
   },
   "the_bellamy_trial": {
-    "generate": "150361c0a45145d0",
+    "generate": "18a9b4d7c24c90d8",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder concealed as robbery with forged alibi" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -808,7 +808,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7e6074e22b9c0626",
   },
   "the_big_bow_mystery": {
-    "generate": "f282eacc78999605",
+    "generate": "d1162813646e2ffa",
     "notes": [
       "Agent 3 authored no death_method and crime_class "locked room throat-cutting" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -816,7 +816,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f0814cbc5c69df98",
   },
   "the_bishop_murder_case": {
-    "generate": "46ca2e309855ef7a",
+    "generate": "ec8cd8fee19d1d42",
     "notes": [
       "Agent 3 authored no death_method and crime_class "mathematically themed multiple murders with nursery rhyme motifs" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -824,7 +824,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f3721379fd1e3437",
   },
   "the_black_abbot": {
-    "generate": "4db561ecede69df2",
+    "generate": "d82629810f0d8afb",
     "notes": [
       "Agent 3 authored no death_method and crime_class "imprisonment and murder in hidden vault" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -832,7 +832,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0b53e49faae6d2d1",
   },
   "the_case_book_of_sherlock_holmes": {
-    "generate": "716582e019167799",
+    "generate": "9e92907dcddccc86",
     "notes": [
       "Agent 3 authored no death_method and crime_class "ingenious concealment and framing" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -841,7 +841,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "31e9531889b517d6",
   },
   "the_case_of_oscar_brodski": {
-    "generate": "fc99e1183ac4e59d",
+    "generate": "37e1a3d9de51577a",
     "notes": [
       "Agent 3 authored no death_method and crime_class "killing indoors, then staged on a railway line as an accident by decapitation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -850,21 +850,21 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "ace2847150bace9e",
   },
   "the_cat_s_paw": {
-    "generate": "b62baf67bc66a604",
+    "generate": "ac296397b2bc6667",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "27293072436ad6a7",
   },
   "the_charing_cross_mystery": {
-    "generate": "98539f70e1cb1b91",
+    "generate": "0c5bbd57db207044",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "9156d738b9656fb5",
   },
   "the_chestermarke_instinct": {
-    "generate": "52f1bf702170c51d",
+    "generate": "c36ef673da03bced",
     "notes": [
       "Agent 3 authored no death_method and crime_class "secret imprisonment and coercion to sign securities" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -873,14 +873,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "b0c580dedde2af0e",
   },
   "the_club_of_masks": {
-    "generate": "bf441b49d83975ec",
+    "generate": "b53171aa856c05fe",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "a7c9f3809f775906",
   },
   "the_clue": {
-    "generate": "71e045bdbb23fd43",
+    "generate": "9af614bc83419dd9",
     "notes": [
       "Agent 3 authored no death_method and crime_class "locked house murder via cellar ash-chute" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -888,7 +888,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2252a6800bfdf107",
   },
   "the_clue_of_the_new_pin": {
-    "generate": "f0e1a112f5ec83d0",
+    "generate": "949b7db3ee42c77a",
     "notes": [
       "Agent 3 authored no death_method and crime_class "locked vault murder with key returned on table by thread and pin trick" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -897,7 +897,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "74a66fe72bd5e8bd",
   },
   "the_clue_of_the_twisted_candle": {
-    "generate": "28def199e0440eb9",
+    "generate": "1ffd0b2f6f39bbeb",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
       "[17-hitting-90 P3.1] death_method names a wound and no place on the body that it kills: "stabbing"",
@@ -906,7 +906,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2d0ae50ac0db2dca",
   },
   "the_come_back": {
-    "generate": "8d935b54b4f2a497",
+    "generate": "8da6c5424ec6b660",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[McClellan Thorpe, Madame Parlato]); normalization assigned "Peter Crane" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -915,7 +915,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "17851f56a22e79b2",
   },
   "the_corbin_necklace": {
-    "generate": "51a3fc295e9ed91e",
+    "generate": "b297f61383de634f",
     "notes": [
       "Agent 3 authored no death_method and crime_class "imitation necklace substitution and staged theft" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -924,7 +924,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f11d63a01bd0f2ca",
   },
   "the_crime_code": {
-    "generate": "d10db39779d02905",
+    "generate": "7e7fc28430891900",
     "notes": [
       "Agent 3 authored no death_method and crime_class "criminal gang revenge and deception" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -932,7 +932,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c0153c7c2de36071",
   },
   "the_crimson_circle": {
-    "generate": "f598ef40787c186b",
+    "generate": "17f4c7355560c774",
     "notes": [
       "Agent 3 authored no death_method and crime_class "criminal mastermind using infiltration and deception" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -941,7 +941,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3fcd48358718dedd",
   },
   "the_crow_s_inn_tragedy": {
-    "generate": "38219d802b62b6db",
+    "generate": "4ada4cd081fd82cd",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Aubrey Todmarsh]); normalization assigned "Rev. James Collyer" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguise and impersonation to commit murder and theft" names no manner of death; left unset.",
@@ -951,7 +951,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "a7de8b4c75abfec0",
   },
   "the_crystal_claw": {
-    "generate": "a6ea5e47c5c91b6e",
+    "generate": "f2d3dbfb1d1d4820",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Hartley Humphreys]); normalization assigned "Rex Yelverton" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -960,7 +960,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d8b605db455f0bd0",
   },
   "the_curse_of_the_reckaviles": {
-    "generate": "151f93323dcbb7be",
+    "generate": "c58271fe5ad054ef",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Giles (Mr. Wheatland)]); normalization assigned "Fletcher" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked room murder with staged alibi and mechanical deception" names no manner of death; left unset.",
@@ -969,7 +969,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d5de8317fdd42074",
   },
   "the_d_arblay_mystery": {
-    "generate": "f211fe81b717c71a",
+    "generate": "69de157f50b6de9c",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Simon Bendelow (alias Morris)]); normalization assigned "Stephen Gray" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "fraudulent death and identity substitution by wax mask" names no manner of death; left unset.",
@@ -978,7 +978,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d46245756e377e48",
   },
   "the_dangerfield_talisman": {
-    "generate": "20f6a189e4514959",
+    "generate": "a09ee850cfc4e8d5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mrs. Caistor Scorton]); normalization assigned "Rollo Dangerfield" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "replica substitution and secret safe concealment" names no manner of death; left unset.",
@@ -988,7 +988,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "fceb4a5e7ba52353",
   },
   "the_dangerous_game": {
-    "generate": "49a2325623e47462",
+    "generate": "6710c3bde3338848",
     "notes": [
       "Agent 3 authored no death_method and crime_class "espionage and betrayal by double agents" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -997,7 +997,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "8f5456257e7986cc",
   },
   "the_dark_eyes_of_london": {
-    "generate": "ca8c43b6345de977",
+    "generate": "05411a9af8afafa1",
     "notes": [
       "Agent 3 authored no death_method and crime_class "insurance fraud with staged death and murder" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1006,7 +1006,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3385838235398715",
   },
   "the_desert_moon_mystery": {
-    "generate": "3e35e628ea3bcb89",
+    "generate": "dcf7e2fb2fc11798",
     "notes": [
       "Agent 3 authored no death_method and crime_class "identity impersonation and staged alibi" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1014,7 +1014,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "6cbaa1ad63b6a4c7",
   },
   "the_devil_s_paw": {
-    "generate": "6f0c91f7cd5083ba",
+    "generate": "81576907aa65d2f4",
     "notes": [
       "Agent 3 authored no death_method and crime_class "political deception and espionage manipulation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1023,7 +1023,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7830069858cffb7b",
   },
   "the_draycott_murder_mystery": {
-    "generate": "2edfeee71be083cc",
+    "generate": "d5cebe11c149d3aa",
     "notes": [
       "Agent 3 authored no death_method and crime_class "blackmail murder disguised as a frame-up" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1032,7 +1032,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d6c4270ed67b23e8",
   },
   "the_eye_of_osiris": {
-    "generate": "8762882a2c71109b",
+    "generate": "824d115be82556e0",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Arthur Jellicoe]); normalization assigned "John Thorndyke" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "body substitution with an Egyptian mummy" names no manner of death; left unset.",
@@ -1041,7 +1041,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c08a039c465282cd",
   },
   "the_eyes_of_max_carrados": {
-    "generate": "0e36a5f97df7719c",
+    "generate": "f14f9335529df7ec",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr Chatton]); normalization assigned "Mr Powis" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "the Virginiola book theft and recovery scheme" names no manner of death; left unset.",
@@ -1051,7 +1051,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "01553b0ad74a5cab",
   },
   "the_fellowship_of_the_frog": {
-    "generate": "8d9926d8e6969243",
+    "generate": "211819925d836b70",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Joshua Broad (Saul Morris), Philo Johnson]); normalization assigned "Ray Bennett" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "criminal mastermind's secret society and framing" names no manner of death; left unset.",
@@ -1061,7 +1061,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "efa2597b88f42725",
   },
   "the_fenchurch_street_mystery": {
-    "generate": "c13d2ca770a210f1",
+    "generate": "6e992abf4e8bbf13",
     "notes": [
       "Agent 3 authored no death_method and crime_class "throat-cutting followed by theft of the victim's identity and prosecution in the victim's name" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1070,7 +1070,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "1a4e22e8dcbd5f18",
   },
   "the_film_mystery": {
-    "generate": "5eb21fa8325d76b0",
+    "generate": "d302efd9e764c1a0",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1078,7 +1078,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0de9668ca1c0b304",
   },
   "the_four_stragglers": {
-    "generate": "34773658fe943b44",
+    "generate": "1b79f12468232601",
     "notes": [
       "Agent 3 authored no death_method and crime_class "masked assailant and hidden treasure intrigue" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1087,7 +1087,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "21a0e5ed8e2dbd23",
   },
   "the_girl_from_hollywood": {
-    "generate": "a6b17926a6e2dd7c",
+    "generate": "60ad5b6225058ccd",
     "notes": [
       "Agent 3 authored no death_method and crime_class "framing by narcotics gang and mistaken identity" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1095,7 +1095,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "8ae27e6e7b398649",
   },
   "the_girl_from_scotland_yard": {
-    "generate": "30ddc27e35e0bf97",
+    "generate": "2e7d9cff95f98aae",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1103,7 +1103,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "af0b1e2a2d097f30",
   },
   "the_golden_face": {
-    "generate": "efe7f4e8be1e2ff9",
+    "generate": "49816a92d973be29",
     "notes": [
       "Agent 3 authored no death_method and crime_class "mastermind's cat's-paw jewel theft and framing" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1112,7 +1112,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "77251284b7a00355",
   },
   "the_golden_slipper_and_other_problems_for_violet_strange": {
-    "generate": "105ede418b5a3406",
+    "generate": "55c5d6557aa7dba3",
     "notes": [
       "Agent 3 authored no death_method and crime_class "mistaken identity and misdirected accusation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1121,7 +1121,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "9cd324a4100ec537",
   },
   "the_gray_mask": {
-    "generate": "dc3978fdbb1643b1",
+    "generate": "3b5969651bbfcbc6",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised murder and conspiracy with false supernatural elements" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1130,7 +1130,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "89e61b195fa90e75",
   },
   "the_greene_murder_case": {
-    "generate": "6754786acde09e54",
+    "generate": "1bab739e8f1c6128",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Ada Greene]); normalization assigned "Philo Vance" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked-room style family mass murder with staged alibis and false clues" names no manner of death; left unset.",
@@ -1140,7 +1140,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "944ecb4eade2a52f",
   },
   "the_haunted_house": {
-    "generate": "a272b359a2eed167",
+    "generate": "9f70cf80cfb41e09",
     "notes": [
       "Agent 3 authored no death_method and crime_class "property acquisition by psychological manipulation and deception" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1149,7 +1149,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "272319fd994106db",
   },
   "the_hound_of_the_baskervilles": {
-    "generate": "200907db04bdd41c",
+    "generate": "be49134768dd8081",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder by induced fright using a trained hound" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1158,14 +1158,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "fb652691e7fc505b",
   },
   "the_house_of_the_arrow": {
-    "generate": "3493f944a3e5303a",
+    "generate": "7f4b488af230f562",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "503348219d799506",
   },
   "the_house_without_a_key": {
-    "generate": "b0510087b3957543",
+    "generate": "453fd89c752dde6f",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
       "[17-hitting-90 P3.1] death_method names a wound and no place on the body that it kills: "stabbing"",
@@ -1174,7 +1174,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c1176c4f76ec9fcb",
   },
   "the_invisible_man": {
-    "generate": "b905b11cf33ae550",
+    "generate": "814c8a40647c1f9b",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
       "[17-hitting-90 P3.1] death_method names a wound and no place on the body that it kills: "stabbing"",
@@ -1183,7 +1183,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "64314b2ea54ab861",
   },
   "the_la_chance_mine_mystery": {
-    "generate": "776edca8a70dbf47",
+    "generate": "0cae93ffa21df6d8",
     "notes": [
       "Agent 3 authored no death_method and crime_class "mine superintendent's secret takeover and murder" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1192,7 +1192,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "90ade1bea22214a3",
   },
   "the_lazy_detective": {
-    "generate": "d105c2ae3050125b",
+    "generate": "84b71a03c7c28a94",
     "notes": [
       "Agent 3 authored no death_method and crime_class "organized burglary with blackmail and forgery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1201,7 +1201,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "38c630d58a73f746",
   },
   "the_leavenworth_case": {
-    "generate": "ceeb92b394b15560",
+    "generate": "0c9f4fcac73b3abc",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mary Leavenworth, James Trueman Harwell]); normalization assigned "Everett Raymond" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "secret marriage and inheritance motive" names no manner of death; left unset.",
@@ -1211,7 +1211,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "29e1d44d9d0db7af",
   },
   "the_lodger": {
-    "generate": "9f71008f90393de5",
+    "generate": "c9ff55f9ec7a83f5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Sleuth]); normalization assigned "Ellen Bunting" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "serial killings by a religiously motivated madman" names no manner of death; left unset.",
@@ -1221,7 +1221,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "b5ddb144b362dc37",
   },
   "the_loudwater_mystery": {
-    "generate": "66eadd5eb932cc7b",
+    "generate": "9ae536673caa766d",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Herbert Manley]); normalization assigned "Lord Loudwater" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "forged letter to secure allowance and murder to prevent exposure" names no manner of death; left unset.",
@@ -1230,7 +1230,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "dde36fb23aea19a3",
   },
   "the_magic_casket": {
-    "generate": "90c3f139d85de4f4",
+    "generate": "2342f9b898804324",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Uyenishi, Mr. Payne (alias Shenstone)]); normalization assigned "Dr. Thorndyke" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "hidden message and staged evidence" names no manner of death; left unset.",
@@ -1239,7 +1239,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "70d9a10e55b255a1",
   },
   "the_man_in_the_dark": {
-    "generate": "9d36d8e270882102",
+    "generate": "127a45d8aa69298d",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Sir Stephen Wye]); normalization assigned "Alexander David Kinloch" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "murder concealed by removal of blind witness" names no manner of death; left unset.",
@@ -1249,7 +1249,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c8f941c8bfc3f0fa",
   },
   "the_man_who_knew_too_much": {
-    "generate": "9ff59631fe86dcfb",
+    "generate": "22851dbe56792f48",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Sir Henry Harland Fisher]); normalization assigned "Lord James Herries" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguised political assassination and espionage" names no manner of death; left unset.",
@@ -1258,7 +1258,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "722604240c6d686e",
   },
   "the_mardi_gras_mystery": {
-    "generate": "27635160f9f5a549",
+    "generate": "c8e0e89acfdd9be1",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised banditry and framing" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1267,7 +1267,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "04cea7d751cd4e2f",
   },
   "the_markenmore_mystery": {
-    "generate": "075a14da2e613a8d",
+    "generate": "22590c0cd0d2597f",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Carter]); normalization assigned "Guy Markenmore" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "murder for trade secret and money" names no manner of death; left unset.",
@@ -1276,7 +1276,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d3f820cd78c07f0b",
   },
   "the_melody_of_death": {
-    "generate": "2041d04212f558ba",
+    "generate": "981ce245bbaa78fb",
     "notes": [
       "Agent 3 authored no death_method and crime_class "safe agency burglary and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1285,7 +1285,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3c7fa49074aaa0c7",
   },
   "the_memoirs_of_sherlock_holmes": {
-    "generate": "386384b3ecf2c1cb",
+    "generate": "0018e0acd67d94f7",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Silas Brown]); normalization assigned "John Straker" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "complex multi-location murder and disappearance with deception and impersonation" names no manner of death; left unset.",
@@ -1295,7 +1295,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f91865d9f15ad6c1",
   },
   "the_meredith_mystery": {
-    "generate": "8fe4e8bb9c686de8",
+    "generate": "7d9cb525094e4d93",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder by concealed weapon and staged scene" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1303,7 +1303,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "442354599113d491",
   },
   "the_middle_of_things": {
-    "generate": "9521e88bad8fe294",
+    "generate": "08baf5548e590c83",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Dr. Cortelyon (Dr. Martincole), Mrs. Killenhall (Mrs. Killerby)]); normalization assigned "Langton Hyde (Edward Cave, Nugent Starr)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "murder for possession of secret papers" names no manner of death; left unset.",
@@ -1313,7 +1313,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "bd213f8f9209b1a2",
   },
   "the_middle_temple_murder": {
-    "generate": "e9b6771cc92a8319",
+    "generate": "8fd16baa18cd1a43",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder disguised as robbery with identity concealment" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1321,7 +1321,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "75d29d3221b4410a",
   },
   "the_mystery_girl": {
-    "generate": "fabbb13494d1c76b",
+    "generate": "819eb465825b8b51",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Nogi]); normalization assigned "John Waring" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked room mystery with disappearing weapon" names no manner of death; left unset.",
@@ -1331,14 +1331,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f54e940323ba2f09",
   },
   "the_mystery_of_31_new_inn": {
-    "generate": "388ab2f05aaede18",
+    "generate": "478541292ddb9f95",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "090b679847900739",
   },
   "the_mystery_of_a_hansom_cab": {
-    "generate": "8ef97a8bef1f4dfc",
+    "generate": "9a9945fd9b8b1f5b",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder by chloroform in hansom cab" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1347,7 +1347,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "831bc37eb7a9009c",
   },
   "the_mystery_of_angelina_frood": {
-    "generate": "cb29a8170706ba42",
+    "generate": "c7751cf5e2ef3e62",
     "notes": [
       "Agent 3 authored no death_method and crime_class "false death by skeleton substitution" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1356,7 +1356,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "649aa88b4fd83fe8",
   },
   "the_mystery_of_the_yellow_room": {
-    "generate": "5681a7f44fce9aaa",
+    "generate": "9da9632f2ec4d6fc",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Frédéric Larsan (Ballmeyer)]); normalization assigned "Monsieur Robert Darzac" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked-room attack with staged escape" names no manner of death; left unset.",
@@ -1365,7 +1365,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "e9da6564d9a6d3ad",
   },
   "the_owl_taxi": {
-    "generate": "eec7797bcbf47bac",
+    "generate": "96d3446f37ade049",
     "notes": [
       "Agent 3 authored no death_method and crime_class "political assassination and impersonation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1374,7 +1374,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3f46dd31c8383321",
   },
   "the_paradise_mystery": {
-    "generate": "5d0c36f5391df24b",
+    "generate": "5b96169d0eef2b62",
     "notes": [
       "Agent 3 authored no death_method and crime_class "hidden revenge and secret inheritance" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1383,7 +1383,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "ee458d35a59d1f13",
   },
   "the_problem_of_cell_13": {
-    "generate": "0b879649f4caf8ab",
+    "generate": "ffa75bc4feefc15f",
     "notes": [
       "Agent 3 authored no death_method and crime_class "complex deception and misdirection involving impersonation and false evidence" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1392,7 +1392,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "6f533ec094e6927d",
   },
   "the_profiteers": {
-    "generate": "635133d37662e492",
+    "generate": "26f85b59c47c9aec",
     "notes": [
       "Agent 3 authored no death_method and crime_class "hostage blackmail to force commodity price manipulation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1401,7 +1401,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7ac373bacbc86ea6",
   },
   "the_rat_trap": {
-    "generate": "271c72aa2b1d02f1",
+    "generate": "73a5a3837f7f9371",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1409,7 +1409,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0047e901e9655600",
   },
   "the_red_thumb_mark": {
-    "generate": "121c26f5ed2841fe",
+    "generate": "2e44df24b120f27e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "forged fingerprint to frame nephew" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1418,7 +1418,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "9ad44c59ee84ad3f",
   },
   "the_scarab_murder_case": {
-    "generate": "60779d5b73cfc17d",
+    "generate": "e0d6e3c6cd4b4e78",
     "notes": [
       "Agent 3 authored no death_method and crime_class "planted evidence to implicate a rival" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1426,7 +1426,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "ef1641171a1da430",
   },
   "the_secret_of_father_brown": {
-    "generate": "ccb8559bdefbca54",
+    "generate": "df1c80c68a9649c7",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[John Bankes]); normalization assigned "Osric Orm" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguise and misdirection to conceal identity and motive" names no manner of death; left unset.",
@@ -1436,7 +1436,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "892949ed4ebce141",
   },
   "the_shadow_of_the_wolf": {
-    "generate": "37d4cd2946f7659d",
+    "generate": "9e5948c68f754f7e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder concealed by forged letters and false sightings" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1445,7 +1445,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f4990072ec001fa9",
   },
   "the_sign_of_the_four": {
-    "generate": "28a4ef3b6ffec9b1",
+    "generate": "8ca86f09608d2412",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jonathan Small, Tonga]); normalization assigned "Miss Mary Morstan" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -1453,14 +1453,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "52473b483044bf9a",
   },
   "the_silent_bullet": {
-    "generate": "8c07960ac231a64a",
+    "generate": "7bc914d27d32a312",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
     ],
     "revise": "13b7828f50fc3120",
   },
   "the_sleuth_of_st_james_s_square": {
-    "generate": "2d3cd437df9e0398",
+    "generate": "e820eafaf794e4d5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Percy Thompson]); normalization assigned "Mr. Anthony Gosford" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "forged will and staged murder to cover inheritance fraud" names no manner of death; left unset.",
@@ -1470,7 +1470,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "ef81bc588ee734c7",
   },
   "the_splendid_outcast": {
-    "generate": "424440ba91ae98c3",
+    "generate": "de285b1fab1d9a4e",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguise and substitution with lay figure decoy" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1478,7 +1478,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "9c1120ed5f5fa4e4",
   },
   "the_sting": {
-    "generate": "fd7e1e9776592578",
+    "generate": "a5333a5104d0d7c3",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Dr. Laidlaw]); normalization assigned "Frank Gough" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -1486,7 +1486,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7c49bf0d3db00dd2",
   },
   "the_story_of_ivy": {
-    "generate": "91322e4f27f15b9e",
+    "generate": "11db339e2c1a2422",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1494,7 +1494,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2561843b00d31c14",
   },
   "the_stowmarket_mystery": {
-    "generate": "454e5e706741b73f",
+    "generate": "cacd1e06e44550cd",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Ooma]); normalization assigned "David Hume-Frazer" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "family feud and inheritance blackmail" names no manner of death; left unset.",
@@ -1503,7 +1503,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "75de93cdb2ac9ac1",
   },
   "the_strange_countess": {
-    "generate": "2221972c29167db1",
+    "generate": "59ce52fbdd4a7018",
     "notes": [
       "Agent 3 authored no death_method and crime_class "orchestrated wrongful imprisonment and attempted murder to secure inheritance" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1512,7 +1512,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7a891f9182aed0ec",
   },
   "the_strange_schemes_of_randolph_mason": {
-    "generate": "533bfdc066d22c90",
+    "generate": "1573129b14e5e33c",
     "notes": [
       "Agent 3 authored no death_method and crime_class "corpus delicti evasion by body disappearance" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1521,7 +1521,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "1a13f4e79048fb90",
   },
   "the_stretton_street_affair": {
-    "generate": "32852e1ab612e990",
+    "generate": "936c157efe97a291",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1529,7 +1529,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0b16eca153d60b1e",
   },
   "the_talleyrand_maxim": {
-    "generate": "50beeb223f16e913",
+    "generate": "ff79f9b4a807cd5b",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder to conceal blackmail over a forged will" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1538,7 +1538,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "43361ad2f70cae8d",
   },
   "the_templeton_case": {
-    "generate": "560f8ab9fb726651",
+    "generate": "397cd033ed70e5a4",
     "notes": [
       "Agent 3 authored no death_method and crime_class "blackmail murder with staged evidence" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1546,7 +1546,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0985d612c473a2fb",
   },
   "the_thirteenth_letter": {
-    "generate": "6fbd070d63736f5e",
+    "generate": "1fd4f255b58100ef",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Doctor Roberts]); normalization assigned "Paul Abbott" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
@@ -1556,7 +1556,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "8256e12670bb9ae6",
   },
   "the_three_just_men": {
-    "generate": "a95e4cf3aea342d1",
+    "generate": "fb44a3948abee513",
     "notes": [
       "Agent 3 authored no death_method and crime_class "frozen snake venom darts concealed in cigarette holders" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1565,14 +1565,14 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0f1c4eb6bee04894",
   },
   "the_trouble_at_pinelands": {
-    "generate": "bb7cb282e275e8ac",
+    "generate": "73c7c172e9359443",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
     ],
     "revise": "9b77e7642ecf0a38",
   },
   "the_unseen_ear": {
-    "generate": "5265fd77987afbec",
+    "generate": "0beda42ed20283dc",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[John Hale, Jim Turner (Maud)]); normalization assigned "Joe Richards" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguise and deception to conceal identity and motive" names no manner of death; left unset.",
@@ -1581,7 +1581,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f5bdc42a87cf2f3e",
   },
   "the_valley_of_fear": {
-    "generate": "cfbe0bc65a20a35e",
+    "generate": "d573411e865c0956",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Boss McGinty]); normalization assigned "Ivy Douglas" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "false identity and staged death" names no manner of death; left unset.",
@@ -1590,7 +1590,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "59a033c2da8014ce",
   },
   "the_vanishing_of_betty_varian": {
-    "generate": "26bac19c10c220a5",
+    "generate": "52d51379b7de3cdd",
     "notes": [
       "Agent 3 authored no death_method and crime_class "secret passage abduction and murder" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1598,7 +1598,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "37f1d0ce3a3eec57",
   },
   "the_wisdom_of_father_brown": {
-    "generate": "c6e4a8096080506f",
+    "generate": "4444230a3472e1c5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Isidore Bruno]); normalization assigned "Father Brown" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguised or misdirected murder with false appearances" names no manner of death; left unset.",
@@ -1608,7 +1608,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "17ff623ede25969b",
   },
   "the_wolves_and_the_lamb": {
-    "generate": "6d0aee5afb0d79cf",
+    "generate": "ec55ee7daa244711",
     "notes": [
       "Agent 3 authored no death_method and crime_class "diamond necklace substitution and financial fraud" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1616,7 +1616,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3576614b7fd43fe5",
   },
   "the_yellow_streak": {
-    "generate": "43f481f3126e1b49",
+    "generate": "67af627b81615622",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1624,7 +1624,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "35462ae2793cdfe0",
   },
   "this_house_to_let_51307": {
-    "generate": "502321fa852c0494",
+    "generate": "597d8af16ac3a5ff",
     "notes": [
       "Agent 3 authored no death_method and crime_class "murder disguised as suicide with forged identity" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -1632,7 +1632,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "771f4d21b46fd174",
   },
   "three_sevens": {
-    "generate": "82925e7c24de2668",
+    "generate": "c4d593b5365dd2e5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Count Wolf (Edwardo Cortinnys y Ottero)]); normalization assigned "Daniel Craig (Thomas Masters, Three Sevens)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "prison break and recapture" names no manner of death; left unset.",
@@ -1642,7 +1642,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "cf5fd9efc03f1463",
   },
   "tragedy_at_ravensthorpe": {
-    "generate": "50f20f636b513a13",
+    "generate": "b2b37b523a85b0e9",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Thomas Marden, J. B. Foss (Thomas Pailton, alias Cocoa Tom)]); normalization assigned "Cecil Chacewater" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "complex theft and murder with staged burglary and secret passage escape" names no manner of death; left unset.",
@@ -1652,7 +1652,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "02a2771b2152d719",
   },
   "unravelled_knots": {
-    "generate": "834bdb6e47596be6",
+    "generate": "5bc66974bb929341",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised murder with staged evidence" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
