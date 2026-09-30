@@ -51,7 +51,7 @@ function buildSuspectCoverage(
     ? caseBlock.culpability.culprits.map((n: any) => String(n ?? "").trim())
     : [];
   const suspects = castArr
-    .filter((c: any) => c?.culprit_eligibility === "eligible" && !culprits.includes(String(c?.name ?? "").trim()))
+    .filter((c: any) => String(c?.culprit_eligibility ?? "").toLowerCase() === "eligible" && !culprits.includes(String(c?.name ?? "").trim())) // A5-D10: the other two bodies lower-case
     .map((c: any) => String(c?.name ?? "").trim())
     .filter(Boolean);
 

@@ -18,6 +18,7 @@
  * Output Format: JSON (structured similarity scores)
  */
 
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
@@ -400,12 +401,12 @@ export async function auditNovelty(
     + config.weighting.structural * score.structuralSimilarity;
 
   // Parse the novelty result
-  let noveltyData: Omit<NoveltyAuditResult, "cost" | "durationMs">;
-  try {
-    noveltyData = JSON.parse(response.content);
-  } catch (error) {
-    throw new Error(`Failed to parse novelty audit JSON: ${error}`);
-  }
+  // A1X-D09: this parse was strict only, and its throw leaves runAgent3 — a sloppy but complete payload
+  // (a trailing comma) aborted the run. The guarded ladder repairs that; a truncated payload is still
+  // refused, and a failure throws the message it always did.
+  const parsedJson = parseLlmJson<Omit<NoveltyAuditResult, "cost" | "durationMs">>(response.content, { guard: true });
+  if (parsedJson.data === undefined) throw new Error(`Failed to parse novelty audit JSON: ${parsedJson.parseError}`);
+  const noveltyData = parsedJson.data;
 
   // Validate required fields
   if (!noveltyData.status || !noveltyData.similarityScores || !noveltyData.summary) {

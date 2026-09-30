@@ -464,6 +464,35 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
       expect(result.clueTimeline).toEqual({ early: [], mid: [], late: [] });
     });
 
+    it("A5-D10: lower-cases the enum fields, so a capitalised placement reaches the timeline", async () => {
+      const client = makeClient(
+        JSON.stringify({
+          clues: [
+            {
+              id: "clue_a",
+              category: "Temporal",
+              description: "Clock hands were moved after dinner.",
+              sourceInCML: "CASE.inference_path.steps[0].observation",
+              pointsTo: "Timeline tampering",
+              placement: "Early",
+              criticality: " Essential ",
+            },
+          ],
+        }),
+      ) as any;
+
+      const result = await extractClues(client, {
+        cml: mockCML as any,
+        clueDensity: "minimal",
+        redHerringBudget: 0,
+        runId: "run-a5-d10",
+        projectId: "proj-a5-d10",
+      });
+
+      expect(result.clueTimeline.early).toEqual(["clue_a"]);
+      expect(result.clues[0]).toMatchObject({ category: "temporal", placement: "early", criticality: "essential" });
+    });
+
     it("infers supportsInferenceStep and evidenceType from source path when missing", async () => {
       const client = makeClient(
         JSON.stringify({

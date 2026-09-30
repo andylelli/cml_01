@@ -1316,6 +1316,11 @@ export async function extractClues(
     // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
     // Prefer inferred values from source paths over null/default model outputs.
     for (const clue of normalizedClues) {
+      // A5-D10: the enum fields are compared exactly downstream (clueTimeline below, the worker's
+      // placement and criticality checks), so a capitalised "Early" was silently left out of the timeline.
+      for (const key of ["category", "placement", "criticality"] as const) {
+        if (typeof clue[key] === "string") clue[key] = clue[key].trim().toLowerCase();
+      }
       // P1.2: normalize the additive restructure fields (inert when the model omits them).
       if (typeof clue.observable === "string") clue.observable = clue.observable.trim();
       if (typeof clue.inference === "string") clue.inference = clue.inference.trim();
