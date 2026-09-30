@@ -7,55 +7,12 @@
  * `agent6-reveal-gate.ts` (which now re-exports `namesMatch` for its existing importers).
  *
  * Everything is pure (no LLM, no IO) and unit-tested.
+ *
+ * CR-12 (A1X-01): surname, namesMatch and nameAppearsAsWord now live in @cml/cml (identity.ts), which every
+ * package can import — the worker-only home is why prompts-llm kept copies. Re-exported here for existing
+ * importers. isDetectiveArchetype stays until the owner picks one detective semantics (A1X-Q01).
  */
-
-/** Last whitespace-separated token, lower-cased — the surname for "Ada Blythe" → "blythe". */
-export const surname = (value: string | undefined): string =>
-  String(value ?? "").trim().split(/\s+/).pop()?.toLowerCase() ?? "";
-
-const escapeRegExpLiteral = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-/**
- * Exact (case-insensitive) match OR shared surname. Deliberately NOT a raw substring match —
- * `"Ann".includes`-style logic false-positives on "Joanna"/"Annabelle". Mirrors prose-blind-reader's
- * surname matcher.
- */
-export const namesMatch = (a: string | undefined, b: string | undefined): boolean => {
-  const x = String(a ?? "").trim().toLowerCase();
-  const y = String(b ?? "").trim().toLowerCase();
-  if (!x || !y) return false;
-  if (x === y) return true;
-  const sa = surname(x);
-  const sb = surname(y);
-  return Boolean(sa) && sa === sb;
-};
-
-/**
- * Does `text` mention the person `name` as a WHOLE WORD (not a substring)? Matches the full name
- * (word-bounded) or, failing that, the surname (≥3 chars, word-bounded) so "A porter cleared Ada
- * Blythe" or "...cleared Blythe" both count, but "Annabelle" never matches suspect "Ann".
- */
-export const nameAppearsAsWord = (name: string | undefined, text: string | undefined): boolean => {
-  const n = String(name ?? "").trim();
-  const t = String(text ?? "");
-  if (!n || !t) return false;
-  if (new RegExp(`\\b${escapeRegExpLiteral(n)}\\b`, "i").test(t)) return true;
-  const sn = surname(n);
-  if (sn.length >= 3) {
-    return new RegExp(`\\b${escapeRegExpLiteral(sn)}\\b`, "i").test(t);
-  }
-  return false;
-};
-
-/**
- * Does the controlled vocabulary string `roleArchetype` contain `role` as a WHOLE WORD? Replaces
- * `ra.includes("victim")`-style tests that false-positive on "victim's confidant"/"victim advocate".
- */
-export const roleArchetypeIncludesWord = (roleArchetype: string | undefined, role: string): boolean => {
-  const ra = String(roleArchetype ?? "").trim();
-  if (!ra) return false;
-  return new RegExp(`\\b${escapeRegExpLiteral(role)}\\b`, "i").test(ra);
-};
+export { surname, namesMatch, nameAppearsAsWord } from "@cml/cml";
 
 // Non-police domain qualifiers that make "inspector"/"investigator" a SUSPECT occupation, not the
 // crime detective — a generic denylist (no story-specific names), extend as new domains surface.

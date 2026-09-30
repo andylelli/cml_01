@@ -3,7 +3,6 @@ import {
   namesMatch,
   surname,
   nameAppearsAsWord,
-  roleArchetypeIncludesWord,
   isDetectiveArchetype,
 } from "../jobs/agents/identity-match.js";
 
@@ -33,15 +32,6 @@ describe("nameAppearsAsWord", () => {
   it("does not substring-match a different name", () => {
     expect(nameAppearsAsWord("Ann", "Annabelle was in the library.")).toBe(false);
     expect(nameAppearsAsWord("Ann", "Joanna left at nine.")).toBe(false);
-  });
-});
-
-describe("roleArchetypeIncludesWord", () => {
-  it("matches a whole word but not a substring qualifier", () => {
-    expect(roleArchetypeIncludesWord("victim", "victim")).toBe(true);
-    expect(roleArchetypeIncludesWord("the victim", "victim")).toBe(true);
-    // word-boundary still matches possessive — the A3 fix uses exact-match, not this helper, for victim.
-    expect(roleArchetypeIncludesWord("doctor", "victim")).toBe(false);
   });
 });
 
