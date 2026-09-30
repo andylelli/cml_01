@@ -70,15 +70,12 @@ export {
   verifyStructure,
   verifyCitations,
   splitProseIntoChapters,
-  findUnplantedDiscriminatingCluesLocal,
 } from "./structural-verifiers.js";
 export type {
   StructuralVerdict,
   VerifyStructureInput,
   FlagCitation,
   CitationCheckResult,
-  FindUnplantedFn,
-  UnplantedCluesLike,
 } from "./structural-verifiers.js";
 
 // K2 §3 — internal↔external calibration hook.

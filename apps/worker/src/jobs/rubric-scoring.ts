@@ -8,7 +8,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // X37 — a refused judge is a measurement that did not happen, and must say so (REVIEW_09 §4).
 import { isContentFilterRefusal } from "@cml/llm-client";
-import { assembleScoringChapterTexts, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
+import { assembleScoringChapterTexts } from "@cml/prompts-llm";
 // LLM critic + deterministic cap engine.
 import { createLLMRubricJudge, scoreStory } from "@cml/rubric-score";
 import type { ScoreAggregator } from "@cml/story-validation";
@@ -112,14 +112,13 @@ export async function runRubricScoring(args: {
         } as any),
       { model, temperature: 0.2, maxTokens: 4000 },
     );
-    // K2 §1: inject the live findUnplantedDiscriminatingClues (A_50 §9.3) and the true chapter boundaries
+    // K2 §1: the true chapter boundaries (the planting check is rubric-score's own import since CR-16 / A34-10)
     // so the structural verifiers can veto/confirm the judge's checkable flags.
     const r = await scoreStory({
       prose: proseText,
       cml: args.cml,
       judge,
       chapters,
-      findUnplanted: findUnplantedDiscriminatingClues,
       discriminatingPair: args.discriminatingPair,
       noResolutionVerdict,
     });

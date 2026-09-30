@@ -13,6 +13,6 @@
     "test:watch": "vitest",
     "type-check": "tsc -p tsconfig.json --noEmit"
   },
-  "dependencies": { "@cml/prose-guard": "file:../prose-guard" },
+  "dependencies": { "@cml/cml": "file:../cml", "@cml/prose-guard": "file:../prose-guard" },
   "devDependencies": { "@types/node": "^20.11.0", "typescript": "^5.5.4", "vitest": "^1.2.0" }
 }

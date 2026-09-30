@@ -14,7 +14,6 @@ import {
   splitProseIntoChapters,
   verifyCitations,
   verifyStructure,
-  type FindUnplantedFn,
   type FlagCitation,
 } from "./structural-verifiers.js";
 import type { CappedScore, RubricScore, StoryFacts, StructuralAdjustments } from "./types.js";
@@ -46,11 +45,6 @@ export interface ScoreStoryInput {
    * have it — the structural verifiers and citation checks are sharper with true chapter boundaries.
    */
   chapters?: string[];
-  /**
-   * The real `findUnplantedDiscriminatingClues` (@cml/prompts-llm). Injected by the orchestrator so the
-   * planted-evidence verifier reuses the live A_50 §9.3 logic; a faithful local fallback runs without it.
-   */
-  findUnplanted?: FindUnplantedFn;
   /**
    * A_57 D2 — the discriminating clue's canonical staged/true value pair (from the world-state ledger).
    * When supplied, enables the high-precision dual-value-without-contrast detector (caps *clues* when the
@@ -101,7 +95,6 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
     cml: input.cml,
     chapters,
     victimName,
-    findUnplanted: input.findUnplanted,
   });
 
   const userMessage = buildRubricUserMessage(input.prose, {
