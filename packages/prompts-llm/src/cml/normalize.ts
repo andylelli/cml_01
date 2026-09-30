@@ -21,6 +21,89 @@ export const ensureArray = (value: unknown) => (Array.isArray(value) ? value : [
 export const ensureString = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim() ? value : fallback;
 
+// ── sections both profiles share, byte-identical when they were two closures ─────────────────
+
+/** constraint_space's four sub-objects, each list field an array. */
+function normalizeConstraintSpaceParts(constraintSpace: Record<string, unknown>) {
+  const constraintTime = ensureObject(constraintSpace.time);
+  constraintSpace.time = constraintTime;
+  constraintTime.anchors = ensureArray(constraintTime.anchors);
+  constraintTime.windows = ensureArray(constraintTime.windows);
+  constraintTime.contradictions = ensureArray(constraintTime.contradictions);
+  const constraintAccess = ensureObject(constraintSpace.access);
+  constraintSpace.access = constraintAccess;
+  constraintAccess.actors = ensureArray(constraintAccess.actors);
+  constraintAccess.objects = ensureArray(constraintAccess.objects);
+  constraintAccess.permissions = ensureArray(constraintAccess.permissions);
+  const constraintPhysical = ensureObject(constraintSpace.physical);
+  constraintSpace.physical = constraintPhysical;
+  constraintPhysical.laws = ensureArray(constraintPhysical.laws);
+  constraintPhysical.traces = ensureArray(constraintPhysical.traces);
+  const constraintSocial = ensureObject(constraintSpace.social);
+  constraintSpace.social = constraintSocial;
+  constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
+  constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
+  return { constraintTime, constraintAccess, constraintPhysical, constraintSocial };
+}
+
+/** Every constraint_space entry as a trimmed, non-empty string — the anchors fallback inference steps cite. */
+function constraintAnchorEntries(parts: ReturnType<typeof normalizeConstraintSpaceParts>): string[] {
+  const { constraintTime, constraintAccess, constraintPhysical, constraintSocial } = parts;
+  return [
+    ...ensureArray(constraintTime.anchors),
+    ...ensureArray(constraintTime.windows),
+    ...ensureArray(constraintTime.contradictions),
+    ...ensureArray(constraintAccess.actors),
+    ...ensureArray(constraintAccess.objects),
+    ...ensureArray(constraintAccess.permissions),
+    ...ensureArray(constraintPhysical.laws),
+    ...ensureArray(constraintPhysical.traces),
+    ...ensureArray(constraintSocial.trust_channels),
+    ...ensureArray(constraintSocial.authority_sources),
+  ]
+    .map((entry) => ensureString(entry, "").trim())
+    .filter((entry) => entry.length > 0);
+}
+
+/** fair_play's four flags, each true unless the case says otherwise. The explanation differs by profile. */
+function normalizeFairPlayFlags(caseBlock: Record<string, unknown>): Record<string, unknown> {
+  const fairPlay = ensureObject(caseBlock.fair_play);
+  caseBlock.fair_play = fairPlay;
+  fairPlay.all_clues_visible = typeof fairPlay.all_clues_visible === "boolean" ? fairPlay.all_clues_visible : true;
+  fairPlay.no_special_knowledge_required =
+    typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
+  fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
+  fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
+  return fairPlay;
+}
+
+/** quality_controls' inference-path and clue-visibility defaults. The discriminating-test timing differs by profile. */
+function normalizeQualityControlDefaults(caseBlock: Record<string, unknown>, defaultMaxSteps: number): Record<string, unknown> {
+  const qualityControls = ensureObject(caseBlock.quality_controls);
+  caseBlock.quality_controls = qualityControls;
+  const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
+  qualityControls.inference_path_requirements = inferenceRequirements;
+  inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
+  inferenceRequirements.max_steps =
+    typeof inferenceRequirements.max_steps === "number"
+      ? inferenceRequirements.max_steps
+      : defaultMaxSteps;
+  inferenceRequirements.require_observation_correction_effect =
+    typeof inferenceRequirements.require_observation_correction_effect === "boolean"
+      ? inferenceRequirements.require_observation_correction_effect
+      : true;
+
+  const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
+  qualityControls.clue_visibility_requirements = clueVisibility;
+  clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
+  clueVisibility.essential_clues_before_test =
+    typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
+  clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
+  clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
+  clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
+  return qualityControls;
+}
+
 // ── profile "generate": Agent 3 (moved verbatim from generateCML) ────────────────────────────
 
 // L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
@@ -57,6 +140,26 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   const caseBlock = ensureObject(cml.CASE);
   cml.CASE = caseBlock;
 
+  const crimeClass = normalizeMeta(caseBlock, inputs);
+
+  const { normalizedCast, roleIncludes } = normalizeCast(caseBlock, inputs);
+
+  const { validCulprits, rawCulprits, normalizedCulprits, culpability } = resolveCulprits(caseBlock, normalizedCast, roleIncludes, normalizationNotes);
+
+  const falseAssumption = normalizeModels(caseBlock, crimeClass, inputs);
+
+  normalizeGenreStructures(caseBlock, falseAssumption);
+
+  normalizeInferencePath(caseBlock, normalizationNotes, validCulprits, rawCulprits, normalizedCulprits);
+
+  normalizeDiscriminatingTestAndControls(caseBlock, config);
+
+  gapFillSuspectClearances(caseBlock, culpability, normalizedCast);
+
+  return cml;
+}
+
+function normalizeMeta(caseBlock: Record<string, unknown>, inputs: CMLPromptInputs) {
   const meta = ensureObject(caseBlock.meta);
   caseBlock.meta = meta;
   meta.title = ensureString(meta.title, "Untitled Mystery");
@@ -77,7 +180,13 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   meta.crime_class = crimeClass;
   crimeClass.category = ensureString(crimeClass.category, "murder");
   crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
+  return crimeClass;
+}
 
+/** A cast member as normalizeCast returns it. */
+type NormalizedCastMember = ReturnType<typeof normalizeCast>["normalizedCast"][number];
+
+function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInputs) {
   const castArray = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
   const names = inputs.castNames?.length ? inputs.castNames : castArray.map((c) => (c as any)?.name).filter(Boolean);
   const normalizedCast = (names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean)).map((name, index) => {
@@ -138,7 +247,10 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   }
 
   caseBlock.cast = normalizedCast;
+  return { normalizedCast, roleIncludes };
+}
 
+function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: NormalizedCastMember[], roleIncludes: (role: unknown, tokens: string[]) => boolean, normalizationNotes: string[]) {
   const culpability = ensureObject(caseBlock.culpability);
   caseBlock.culpability = culpability;
   const detectiveNameSet = new Set(
@@ -227,7 +339,10 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
       member.culpability = "unknown";
     }
   }
+  return { validCulprits, rawCulprits, normalizedCulprits, culpability };
+}
 
+function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<string, unknown>, inputs: CMLPromptInputs) {
   const surface = ensureObject(caseBlock.surface_model);
   caseBlock.surface_model = surface;
   const surfaceNarrative = ensureObject(surface.narrative);
@@ -270,11 +385,14 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   falseAssumption.type = ensureString(falseAssumption.type, inputs.primaryAxis);
   falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
   falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
+  return falseAssumption;
+}
 
-  // SWEEP A — normalise the Golden Age genre structures so they are always present and
-  // schema-valid. Defaults are derived from existing CASE data; the LLM is asked to author
-  // richer versions (see prompt). The genre validator enforces quality (≥2 herrings with
-  // innocent explanations, a false solution with a flaw, culprit inside the closed circle).
+// SWEEP A — normalise the Golden Age genre structures so they are always present and
+// schema-valid. Defaults are derived from existing CASE data; the LLM is asked to author
+// richer versions (see prompt). The genre validator enforces quality (≥2 herrings with
+// innocent explanations, a false solution with a flaw, culprit inside the closed circle).
+function normalizeGenreStructures(caseBlock: Record<string, unknown>, falseAssumption: Record<string, unknown>) {
   const castEntries: any[] = Array.isArray(caseBlock.cast) ? (caseBlock.cast as any[]) : [];
   const culpritNamesForGenre: string[] = Array.isArray((caseBlock.culpability as any)?.culprits)
     ? ((caseBlock.culpability as any).culprits as any[]).map((n) => String(n).trim()).filter(Boolean)
@@ -349,7 +467,9 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
       resolved_in_chapter: coerceChapter(obj.resolved_in_chapter),
     };
   });
+}
 
+function normalizeInferencePath(caseBlock: Record<string, unknown>, normalizationNotes: string[], validCulprits: string[], rawCulprits: string[], normalizedCulprits: string[]) {
   const constraintSpace = ensureObject(caseBlock.constraint_space);
   caseBlock.constraint_space = constraintSpace;
 
@@ -376,24 +496,7 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
       }
     }
   }
-  const constraintTime = ensureObject(constraintSpace.time);
-  constraintSpace.time = constraintTime;
-  constraintTime.anchors = ensureArray(constraintTime.anchors);
-  constraintTime.windows = ensureArray(constraintTime.windows);
-  constraintTime.contradictions = ensureArray(constraintTime.contradictions);
-  const constraintAccess = ensureObject(constraintSpace.access);
-  constraintSpace.access = constraintAccess;
-  constraintAccess.actors = ensureArray(constraintAccess.actors);
-  constraintAccess.objects = ensureArray(constraintAccess.objects);
-  constraintAccess.permissions = ensureArray(constraintAccess.permissions);
-  const constraintPhysical = ensureObject(constraintSpace.physical);
-  constraintSpace.physical = constraintPhysical;
-  constraintPhysical.laws = ensureArray(constraintPhysical.laws);
-  constraintPhysical.traces = ensureArray(constraintPhysical.traces);
-  const constraintSocial = ensureObject(constraintSpace.social);
-  constraintSpace.social = constraintSocial;
-  constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
-  constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
+  const { constraintTime, constraintAccess, constraintPhysical, constraintSocial } = normalizeConstraintSpaceParts(constraintSpace);
 
   const inferencePath = ensureObject(caseBlock.inference_path);
   caseBlock.inference_path = inferencePath;
@@ -404,20 +507,7 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
     // structurally-valid artifact instead of the run dying inside normalize. Evidence on synthesized
     // steps is repaired downstream by repairInferenceRequiredEvidence.
     const steps: any[] = Array.isArray(inferencePath.steps) ? [...inferencePath.steps] : [];
-    const anchors = [
-      ...ensureArray(constraintTime.anchors),
-      ...ensureArray(constraintTime.windows),
-      ...ensureArray(constraintTime.contradictions),
-      ...ensureArray(constraintAccess.actors),
-      ...ensureArray(constraintAccess.objects),
-      ...ensureArray(constraintAccess.permissions),
-      ...ensureArray(constraintPhysical.laws),
-      ...ensureArray(constraintPhysical.traces),
-      ...ensureArray(constraintSocial.trust_channels),
-      ...ensureArray(constraintSocial.authority_sources),
-    ]
-      .map((entry) => ensureString(entry, "").trim())
-      .filter((entry) => entry.length > 0);
+    const anchors = constraintAnchorEntries({ constraintTime, constraintAccess, constraintPhysical, constraintSocial });
     const mechanismHint = ensureString(
       ensureObject(ensureObject(caseBlock.hidden_model).mechanism).description,
       ""
@@ -452,7 +542,9 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
       step.reader_observable = true;
     }
   }
+}
 
+function normalizeDiscriminatingTestAndControls(caseBlock: Record<string, unknown>, config: ReturnType<typeof getGenerationParams>["agent3_cml"]["params"]) {
   const discriminatingTest = ensureObject(caseBlock.discriminating_test);
   caseBlock.discriminating_test = discriminatingTest;
   const method = ensureString(discriminatingTest.method, "trap");
@@ -475,37 +567,10 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   // inference evidence before schema/fair-play validation.
   groundDiscriminatingKnowledgeRevealed(caseBlock);
 
-  const fairPlay = ensureObject(caseBlock.fair_play);
-  caseBlock.fair_play = fairPlay;
-  fairPlay.all_clues_visible = typeof fairPlay.all_clues_visible === "boolean" ? fairPlay.all_clues_visible : true;
-  fairPlay.no_special_knowledge_required =
-    typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
-  fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
-  fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
+  const fairPlay = normalizeFairPlayFlags(caseBlock);
   fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
 
-  const qualityControls = ensureObject(caseBlock.quality_controls);
-  caseBlock.quality_controls = qualityControls;
-  const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
-  qualityControls.inference_path_requirements = inferenceRequirements;
-  inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
-  inferenceRequirements.max_steps =
-    typeof inferenceRequirements.max_steps === "number"
-      ? inferenceRequirements.max_steps
-      : config.inference_requirements.default_max_steps;
-  inferenceRequirements.require_observation_correction_effect =
-    typeof inferenceRequirements.require_observation_correction_effect === "boolean"
-      ? inferenceRequirements.require_observation_correction_effect
-      : true;
-
-  const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
-  qualityControls.clue_visibility_requirements = clueVisibility;
-  clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
-  clueVisibility.essential_clues_before_test =
-    typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
-  clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
-  clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
-  clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
+  const qualityControls = normalizeQualityControlDefaults(caseBlock, config.inference_requirements.default_max_steps);
 
   const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
   qualityControls.discriminating_test_requirements = discriminatingRequirements;
@@ -517,13 +582,15 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
     typeof discriminatingRequirements.must_reference_inference_step === "boolean"
       ? discriminatingRequirements.must_reference_inference_step
       : true;
+}
 
-  // ── Deterministic suspect_clearance_scenes gap-fill ──────────────────────
-  // Agent 3 LLM frequently omits one or more non-culprit suspects from
-  // prose_requirements.suspect_clearance_scenes.  When a suspect is missing,
-  // no clearance obligation is ever injected into prose prompts, and the
-  // SuspectClosureValidator release gate fails even though the clues exist.
-  // This patch ensures EVERY non-culprit, non-detective suspect has an entry.
+// ── Deterministic suspect_clearance_scenes gap-fill ──────────────────────
+// Agent 3 LLM frequently omits one or more non-culprit suspects from
+// prose_requirements.suspect_clearance_scenes.  When a suspect is missing,
+// no clearance obligation is ever injected into prose prompts, and the
+// SuspectClosureValidator release gate fails even though the clues exist.
+// This patch ensures EVERY non-culprit, non-detective suspect has an entry.
+function gapFillSuspectClearances(caseBlock: Record<string, unknown>, culpability: Record<string, unknown>, normalizedCast: NormalizedCastMember[]) {
   const proseRequirements = ensureObject(caseBlock.prose_requirements);
   caseBlock.prose_requirements = proseRequirements;
   const existingClearances: any[] = ensureArray(proseRequirements.suspect_clearance_scenes);
@@ -639,9 +706,6 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
   }
 
   proseRequirements.suspect_clearance_scenes = existingClearances;
-
-
-  return cml;
 }
 
 // ── profile "revise": Agent 4 (moved verbatim from reviseCml) ───────────────────────────────
@@ -793,43 +857,12 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
 
   const constraintSpace = ensureObject(caseBlock.constraint_space);
   caseBlock.constraint_space = constraintSpace;
-  const constraintTime = ensureObject(constraintSpace.time);
-  constraintSpace.time = constraintTime;
-  constraintTime.anchors = ensureArray(constraintTime.anchors);
-  constraintTime.windows = ensureArray(constraintTime.windows);
-  constraintTime.contradictions = ensureArray(constraintTime.contradictions);
-  const constraintAccess = ensureObject(constraintSpace.access);
-  constraintSpace.access = constraintAccess;
-  constraintAccess.actors = ensureArray(constraintAccess.actors);
-  constraintAccess.objects = ensureArray(constraintAccess.objects);
-  constraintAccess.permissions = ensureArray(constraintAccess.permissions);
-  const constraintPhysical = ensureObject(constraintSpace.physical);
-  constraintSpace.physical = constraintPhysical;
-  constraintPhysical.laws = ensureArray(constraintPhysical.laws);
-  constraintPhysical.traces = ensureArray(constraintPhysical.traces);
-  const constraintSocial = ensureObject(constraintSpace.social);
-  constraintSpace.social = constraintSocial;
-  constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
-  constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
+  const { constraintTime, constraintAccess, constraintPhysical, constraintSocial } = normalizeConstraintSpaceParts(constraintSpace);
 
   // A_53 P1 (holistic): evidence anchors derived from THIS document's own constraint space — used
   // both to synthesize fallback inference steps and to repair required_evidence below. Hoisted here
   // (from its later definition) so the step fallback can reference it.
-  const evidenceAnchors = [
-    ...ensureArray(constraintTime.anchors),
-    ...ensureArray(constraintTime.windows),
-    ...ensureArray(constraintTime.contradictions),
-    ...ensureArray(constraintAccess.actors),
-    ...ensureArray(constraintAccess.objects),
-    ...ensureArray(constraintAccess.permissions),
-    ...ensureArray(constraintPhysical.laws),
-    ...ensureArray(constraintPhysical.traces),
-    ...ensureArray(constraintSocial.trust_channels),
-    ...ensureArray(constraintSocial.authority_sources),
-  ]
-    .map((entry) => ensureString(entry, "").trim())
-    .filter((entry) => entry.length > 0)
-    .slice(0, 20);
+  const evidenceAnchors = constraintAnchorEntries({ constraintTime, constraintAccess, constraintPhysical, constraintSocial }).slice(0, 20);
   // A_53 integration: exclude the normalizer's literal "Unknown" default so the fallback step never
   // reads "Re-read against the established mechanism (Unknown)" — fall back to the generic phrasing.
   const mechanismHintRaw = ensureString(hiddenMechanism.description, "").trim();
@@ -969,13 +1002,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
     discriminatingTest.evidence_clues = mappedClueIds.slice(0, 3);
   }
 
-  const fairPlay = ensureObject(caseBlock.fair_play);
-  caseBlock.fair_play = fairPlay;
-  fairPlay.all_clues_visible = typeof fairPlay.all_clues_visible === "boolean" ? fairPlay.all_clues_visible : true;
-  fairPlay.no_special_knowledge_required =
-    typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
-  fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
-  fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
+  const fairPlay = normalizeFairPlayFlags(caseBlock);
   const rawFairPlayExplanation = ensureString(fairPlay.explanation, "");
   if (rawFairPlayExplanation && /step\s*\d+/i.test(rawFairPlayExplanation)) {
     fairPlay.explanation = rawFairPlayExplanation;
@@ -994,28 +1021,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
     fairPlay.explanation = synthesizedExplanation || "Step 1: Concrete evidence is shown before deduction.";
   }
 
-  const qualityControls = ensureObject(caseBlock.quality_controls);
-  caseBlock.quality_controls = qualityControls;
-  const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
-  qualityControls.inference_path_requirements = inferenceRequirements;
-  inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
-  inferenceRequirements.max_steps =
-    typeof inferenceRequirements.max_steps === "number"
-      ? inferenceRequirements.max_steps
-      : config.inference_requirements.default_max_steps;
-  inferenceRequirements.require_observation_correction_effect =
-    typeof inferenceRequirements.require_observation_correction_effect === "boolean"
-      ? inferenceRequirements.require_observation_correction_effect
-      : true;
-
-  const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
-  qualityControls.clue_visibility_requirements = clueVisibility;
-  clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
-  clueVisibility.essential_clues_before_test =
-    typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
-  clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
-  clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
-  clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
+  const qualityControls = normalizeQualityControlDefaults(caseBlock, config.inference_requirements.default_max_steps);
 
   const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
   qualityControls.discriminating_test_requirements = discriminatingRequirements;
