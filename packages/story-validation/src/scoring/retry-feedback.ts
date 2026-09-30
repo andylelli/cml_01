@@ -1,4 +1,5 @@
 import type { PhaseScore } from './types.js';
+import { COMPONENT_MINIMUMS } from './thresholds.js'; // SCO-08: the floors were hard-coded here as well
 
 /**
  * Builds detailed retry feedback for LLM based on scoring failure
@@ -15,10 +16,10 @@ export function buildRetryFeedback(score: PhaseScore, attemptNumber: number): st
 
   // Component scores
   parts.push(`\n**Component Scores**:`);
-  parts.push(`  - Validation: ${score.validation_score}/100 ${score.validation_score < 60 ? '❌ BELOW MINIMUM' : '✓'}`);
-  parts.push(`  - Quality: ${score.quality_score}/100 ${score.quality_score < 50 ? '❌ BELOW MINIMUM' : '✓'}`);
-  parts.push(`  - Completeness: ${score.completeness_score}/100 ${score.completeness_score < 60 ? '❌ BELOW MINIMUM' : '✓'}`);
-  parts.push(`  - Consistency: ${score.consistency_score}/100 ${score.consistency_score < 50 ? '❌ BELOW MINIMUM' : '✓'}`);
+  parts.push(`  - Validation: ${score.validation_score}/100 ${score.validation_score < COMPONENT_MINIMUMS.validation_score ? '❌ BELOW MINIMUM' : '✓'}`);
+  parts.push(`  - Quality: ${score.quality_score}/100 ${score.quality_score < COMPONENT_MINIMUMS.quality_score ? '❌ BELOW MINIMUM' : '✓'}`);
+  parts.push(`  - Completeness: ${score.completeness_score}/100 ${score.completeness_score < COMPONENT_MINIMUMS.completeness_score ? '❌ BELOW MINIMUM' : '✓'}`);
+  parts.push(`  - Consistency: ${score.consistency_score}/100 ${score.consistency_score < COMPONENT_MINIMUMS.consistency_score ? '❌ BELOW MINIMUM' : '✓'}`);
 
   // Critical failures
   const criticalTests = score.tests.filter(t => !t.passed && t.severity === 'critical');

@@ -1,22 +1,11 @@
+import type { HardLogicDevice, HardLogicOutput } from "@cml/story-validation";
+// SCO-09: declared once, by the scorer; re-exported for existing importers of this adapter.
+export type { HardLogicDevice, HardLogicOutput };
 import type { HardLogicDeviceIdea } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 3b: Hard Logic Devices
 // ============================================================================
-
-export interface HardLogicDevice {
-  id: string;
-  name?: string;
-  type?: string;
-  description?: string;
-  why_necessary?: string;
-  implications?: string[];
-  red_herring_potential?: string;
-}
-
-export interface HardLogicOutput {
-  hard_logic_devices: HardLogicDevice[];
-}
 
 export function adaptHardLogicForScoring(devices: HardLogicDeviceIdea[]): HardLogicOutput {
   const hard_logic_devices: HardLogicDevice[] = devices.map((d, index) => ({

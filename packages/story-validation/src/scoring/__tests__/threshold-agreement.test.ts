@@ -44,3 +44,18 @@ describe("displayed and deciding thresholds agree (SCO-04)", () => {
     }
   }
 });
+
+describe("a phase the threshold fails always says why (SCO-D03)", () => {
+  it("Agent 6.5 at 72 passes its own 70 bar, fails the 75 report bar, and now carries a reason", () => {
+    const agg = new ScoreAggregator({ mode: "standard" });
+    agg.upsertPhaseScore("agent65_world_builder", "World Builder", { ...score("agent65-world-builder"), total: 72, passed: true }, 0, 0);
+    const phase = (agg as any).phases[0];
+    expect(phase.passed).toBe(false);
+    expect(phase.score.failure_reason).toBe("Score 72/100 below the 75 phase threshold");
+  });
+  it("a scorer's own failure reason is kept", () => {
+    const agg = new ScoreAggregator({ mode: "standard" });
+    agg.upsertPhaseScore("agent2_cast", "Cast", { ...score("agent2-cast"), total: 40, passed: false, failure_reason: "2 critical failure(s)" }, 0, 0);
+    expect((agg as any).phases[0].score.failure_reason).toBe("2 critical failure(s)");
+  });
+});

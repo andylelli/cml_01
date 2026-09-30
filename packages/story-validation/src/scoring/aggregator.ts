@@ -56,14 +56,22 @@ export class ScoreAggregator {
    * @param cost - Cost of this phase (LLM tokens, etc.)
    * @param errors - Any errors encountered
    */
-  addPhaseScore(
+  /**
+   * The phase report both add and upsert record: the decision from the one threshold resolver, the
+   * score's `passed` normalised to it, retry bookkeeping. SCO-05: this was a 33-line clone in each method.
+   *
+   * SCO-D03: a scorer's own pass rule can be stricter or looser than the threshold (Agent 6.5 passes at
+   * 70, the report bar is 75). When the threshold fails a score the scorer passed, the scorer wrote no
+   * failure_reason, and the report showed a failed phase with none; it now says why.
+   */
+  private buildPhaseReport(
     agent: string,
     phaseName: string,
     score: PhaseScore,
     durationMs: number,
-    cost: number = 0,
-    errors?: string[]
-  ): void {
+    cost: number,
+    errors?: string[],
+  ): PhaseReport {
     const threshold = this.getThresholdForAgent(agent);
     const passed = passesThreshold(score, this.thresholdConfig);
     const retryCount = this.retryManager?.getRetryCount(agent) || 0;
@@ -72,9 +80,12 @@ export class ScoreAggregator {
 
     // Normalise score.passed to match the authoritative passesThreshold result
     // so score.passed and phase.passed always tell the same story in the report.
-    const normalisedScore: PhaseScore = { ...score, passed };
+    const normalisedScore: PhaseScore =
+      !passed && !score.failure_reason
+        ? { ...score, passed, failure_reason: `Score ${score.total}/100 below the ${threshold} phase threshold` }
+        : { ...score, passed };
 
-    const report: PhaseReport = {
+    return {
       agent,
       phase_name: phaseName,
       score: normalisedScore,
@@ -88,8 +99,17 @@ export class ScoreAggregator {
       retry_history: retryHistory.length > 0 ? retryHistory : undefined,
       errors: errors && errors.length > 0 ? errors : undefined,
     };
+  }
 
-    this.phases.push(report);
+  addPhaseScore(
+    agent: string,
+    phaseName: string,
+    score: PhaseScore,
+    durationMs: number,
+    cost: number = 0,
+    errors?: string[]
+  ): void {
+    this.phases.push(this.buildPhaseReport(agent, phaseName, score, durationMs, cost, errors));
   }
 
   /**
@@ -106,29 +126,7 @@ export class ScoreAggregator {
     cost: number = 0,
     errors?: string[]
   ): void {
-    const threshold = this.getThresholdForAgent(agent);
-    const passed = passesThreshold(score, this.thresholdConfig);
-    const retryCount = this.retryManager?.getRetryCount(agent) || 0;
-    const maxRetries = this.retryManager?.getMaxRetries(agent) || 0;
-    const retryHistory = this.retryManager?.getRetryHistory(agent) || [];
-
-    const normalisedScore: PhaseScore = { ...score, passed };
-
-    const report: PhaseReport = {
-      agent,
-      phase_name: phaseName,
-      score: normalisedScore,
-      duration_ms: durationMs,
-      cost,
-      threshold,
-      passed,
-      tests: normalisedScore.tests,
-      retry_count: retryCount > 0 ? retryCount : undefined,
-      max_retries: retryCount > 0 ? maxRetries : undefined,
-      retry_history: retryHistory.length > 0 ? retryHistory : undefined,
-      errors: errors && errors.length > 0 ? errors : undefined,
-    };
-
+    const report = this.buildPhaseReport(agent, phaseName, score, durationMs, cost, errors);
     const existingIndex = this.phases.findIndex(p => p.agent === agent);
     if (existingIndex >= 0) {
       this.phases[existingIndex] = report;

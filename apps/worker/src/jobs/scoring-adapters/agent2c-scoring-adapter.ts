@@ -1,23 +1,11 @@
+import type { LocationProfile, LocationProfilesOutput } from "@cml/story-validation";
+// SCO-09: declared once, by the scorer; re-exported for existing importers of this adapter.
+export type { LocationProfile, LocationProfilesOutput };
 import type { LocationProfilesResult } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 2c: Location Profiles
 // ============================================================================
-
-export interface LocationProfile {
-  location_name?: string;
-  visual_details?: string;
-  sounds?: string;
-  smells?: string;
-  tactile?: string;
-  taste?: string;
-  geographic_grounding?: string;
-  atmosphere_and_mood?: string;
-}
-
-export interface LocationProfilesOutput {
-  location_profiles: LocationProfile[];
-}
 
 export function adaptLocationsForScoring(locResult: LocationProfilesResult): LocationProfilesOutput {
   const primary = locResult?.primary ?? { name: '', place: '', country: '', atmosphere: '' };

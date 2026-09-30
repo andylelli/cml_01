@@ -1,31 +1,11 @@
+import type { CastMember, CastDesignOutput } from "@cml/story-validation";
+// SCO-09: declared once, by the scorer; re-exported for existing importers of this adapter.
+export type { CastMember, CastDesignOutput };
 import type { CastDesign } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 2: Cast Design
 // ============================================================================
-
-export interface CastMember {
-  name: string;
-  age_range?: string;
-  role_archetype?: string;
-  relationships?: string[];
-  public_persona?: string;
-  private_secret?: string;
-  motive_seed?: string;
-  motive_strength?: string;
-  alibi_window?: string;
-  access_plausibility?: string;
-  opportunity_channels?: string[];
-  behavioral_tells?: string[];
-  stakes?: string;
-  evidence_sensitivity?: string[];
-  culprit_eligibility?: string;
-  culpability?: string;
-}
-
-export interface CastDesignOutput {
-  cast: CastMember[];
-}
 
 export function adaptCastForScoring(castDesign: CastDesign): CastDesignOutput {
   interface RelationshipPair {

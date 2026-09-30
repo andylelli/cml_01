@@ -123,3 +123,10 @@ export type { ReportInvariantViolation } from './report-invariants.js';
 
 // SCO-05 — the run outcome, derived once.
 export { deriveRunOutcome, INFRA_SIGNAL_PATTERN } from './run-outcome.js';
+
+// SCO-09 — the scorers' input types, so the worker's adapters do not re-declare them.
+export type { SettingRefinementOutput } from './phase-scorers/agent1-setting-refinement-scorer.js';
+export type { CastMember, CastDesignOutput } from './phase-scorers/agent2-cast-scorer.js';
+export type { CharacterProfile, CharacterProfilesOutput } from './phase-scorers/agent2b-character-profiles-scorer.js';
+export type { LocationProfile, LocationProfilesOutput } from './phase-scorers/agent2c-location-profiles-scorer.js';
+export type { HardLogicDevice, HardLogicOutput } from './phase-scorers/agent4-hard-logic-scorer.js';

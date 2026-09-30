@@ -1,22 +1,11 @@
+import type { CharacterProfile, CharacterProfilesOutput } from "@cml/story-validation";
+// SCO-09: declared once, by the scorer; re-exported for existing importers of this adapter.
+export type { CharacterProfile, CharacterProfilesOutput };
 import type { CharacterProfileOutput } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 2b: Character Profiles
 // ============================================================================
-
-export interface CharacterProfile {
-  character_name?: string;
-  public_persona?: string;
-  private_secrets?: string;
-  motive_and_alibi?: string;
-  stakes?: string;
-  behavioral_tells?: string;
-  humour_style?: string;
-}
-
-export interface CharacterProfilesOutput {
-  character_profiles: CharacterProfile[];
-}
 
 const HUMOUR_DESCRIPTIONS: Record<string, string> = {
   understatement:    'Understatement: deflects tension through deliberate litotes, saying far less than the situation warrants and trusting the listener to fill the gap',

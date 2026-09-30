@@ -1,23 +1,11 @@
+import type { SettingRefinementOutput } from "@cml/story-validation";
+// SCO-09: declared once, by the scorer; re-exported for existing importers of this adapter.
+export type { SettingRefinementOutput };
 import type { SettingRefinement } from "@cml/prompts-llm";
 
 // ============================================================================
 // Agent 1: Setting Refinement
 // ============================================================================
-
-export interface SettingRefinementOutput {
-  locations?: {
-    name?: string;
-    layout?: string;
-    key_features?: string[];
-    clue_placements?: Array<{
-      clue_id?: string;
-      location?: string;
-      physical_justification?: string;
-    }>;
-  }[];
-  physical_constraints?: string;
-  accessibility_notes?: string;
-}
 
 /**
  * Build a spatial layout paragraph that satisfies isPhysicallyPlausible():
