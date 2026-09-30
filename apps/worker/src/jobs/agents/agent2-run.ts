@@ -17,7 +17,7 @@ import {
 import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
+  runStage,
   appendRetryFeedback,
   preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
@@ -746,56 +746,27 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   const effectiveCastNames = ctx.inputs.castNames ?? generateCastNames(ctx.runId, totalCastSize, nameContext);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2_cast",
-      "Cast Design",
-      async (retryFeedback?: string) => {
-        const castResult = await designCast(ctx.client, {
-          characterNames: effectiveCastNames,
-          characterGenders: ctx.inputs.castGenders,
-          castSize: totalCastSize,
-          setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-          crimeType: "Murder",
-          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-          socialContext: setting.setting.era.socialNorms.join(", "),
-          detectiveType: ctx.inputs.detectiveType,
-          storyAngle: ctx.inputs.storyAngle,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: castResult, cost: castResult.cost };
-      },
-      async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-    );
-    ctx.cast = result;
-    ctx.agentCosts["agent2_cast"] = cost;
-    ctx.agentDurations["agent2_cast"] = duration;
-  } else {
-    const castStart = Date.now();
-    ctx.cast = await designCast(ctx.client, {
-      characterNames: effectiveCastNames,
-      characterGenders: ctx.inputs.castGenders,
-      castSize: totalCastSize,
-      setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-      crimeType: "Murder",
-      tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-      socialContext: setting.setting.era.socialNorms.join(", "),
-      detectiveType: ctx.inputs.detectiveType,
-      storyAngle: ctx.inputs.storyAngle,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent2_cast"] = ctx.cast.cost;
-    ctx.agentDurations["agent2_cast"] = Date.now() - castStart;
-  }
+  ctx.cast = await runStage(ctx, {
+    agentId: "agent2_cast",
+    phaseName: "Cast Design",
+    generate: async (retryFeedback?: string) => {
+      const castResult = await designCast(ctx.client, {
+        characterNames: effectiveCastNames,
+        characterGenders: ctx.inputs.castGenders,
+        castSize: totalCastSize,
+        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+        crimeType: "Murder",
+        tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+        socialContext: setting.setting.era.socialNorms.join(", "),
+        detectiveType: ctx.inputs.detectiveType,
+        storyAngle: ctx.inputs.storyAngle,
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      return { result: castResult, cost: castResult.cost };
+    },
+    score: async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),
+  });
 
   const cast = ctx.cast!;
 

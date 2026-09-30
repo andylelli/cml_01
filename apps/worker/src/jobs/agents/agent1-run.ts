@@ -10,7 +10,7 @@ import { refineSetting } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
+  runStage,
   appendRetryFeedbackOptional,
   preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
@@ -19,49 +19,23 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent1_setting",
-      "Setting Refinement",
-      async (retryFeedback?: string) => {
-        const settingResult = await refineSetting(ctx.client, {
-          decade: ctx.inputs.eraPreference || "1930s",
-          location: ctx.locationSpec.location,
-          institution: ctx.locationSpec.institution,
-          storyAngle: ctx.inputs.storyAngle,
-          tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: settingResult, cost: settingResult.cost };
-      },
-      async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-    );
-
-    ctx.setting = result;
-    ctx.agentCosts["agent1_setting"] = cost;
-    ctx.agentDurations["agent1_setting"] = duration;
-  } else {
-    const settingStart = Date.now();
-    ctx.setting = await refineSetting(ctx.client, {
-      decade: ctx.inputs.eraPreference || "1930s",
-      location: ctx.locationSpec.location,
-      institution: ctx.locationSpec.institution,
-      storyAngle: ctx.inputs.storyAngle,
-      tone: ctx.inputs.tone,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent1_setting"] = ctx.setting.cost;
-    ctx.agentDurations["agent1_setting"] = Date.now() - settingStart;
-  }
+  ctx.setting = await runStage(ctx, {
+    agentId: "agent1_setting",
+    phaseName: "Setting Refinement",
+    generate: async (retryFeedback?: string) => {
+      const settingResult = await refineSetting(ctx.client, {
+        decade: ctx.inputs.eraPreference || "1930s",
+        location: ctx.locationSpec.location,
+        institution: ctx.locationSpec.institution,
+        storyAngle: ctx.inputs.storyAngle,
+        tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      return { result: settingResult, cost: settingResult.cost };
+    },
+    score: async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
+  });
 
   if (
     ctx.setting.setting.realism.anachronisms.length > 0 ||

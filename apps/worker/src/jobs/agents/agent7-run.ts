@@ -2,7 +2,7 @@
  * Agent 7: Narrative Formatter
  *
  * Extracted from mystery-orchestrator.ts. Runs formatNarrative() via
- * executeAgentWithRetry (when scoring is enabled), applies schema repair,
+ * runStage (scoring retries when scoring is enabled), applies schema repair,
  * runs the pre-prose outline quality gate, and applies deterministic clue
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */

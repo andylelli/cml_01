@@ -10,6 +10,7 @@ import type {
 } from "@cml/story-validation";
 import { buildRetryFeedback, getFailedComponents, parseHonestScorerMode } from "@cml/story-validation";
 import type { ScoringLogger } from "../scoring-logger.js";
+import type { OrchestratorContext } from "./context.js";
 import { delay, describeError } from "./run-utils.js";
 
 export function appendRetryFeedback(base: string, retryFeedback?: string): string {
@@ -177,4 +178,58 @@ export async function executeAgentWithRetry<T>(
       return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
     }
   }
+}
+
+/** What `runStage` reads and writes on the run: scoring handles, identity, and the cost/duration ledgers. */
+export type StageRunContext = Pick<
+  OrchestratorContext,
+  | "enableScoring" | "scoreAggregator" | "retryManager" | "scoringLogger" | "runId" | "projectId"
+  | "warnings" | "savePartialReport" | "agentCosts" | "agentDurations"
+>;
+
+export interface StageSpec<T> {
+  agentId: string;
+  phaseName: string;
+  /** One generator call. `retryFeedback` is set only on a scoring retry; each runner folds it into its own channel. */
+  generate: (retryFeedback?: string) => Promise<{ result: T; cost: number }>;
+  score: (result: T) => Promise<{ adapted: any; score: PhaseScore }>;
+  /** See executeAgentWithRetry. Default true. */
+  abortCritical?: boolean;
+}
+
+/**
+ * CR-21 (ORC-02, A1X-02): the scoring fork, performed once. Nine runners (1, 2, 2b, 2c, 2d, 2e, 3b,
+ * 6.5, 7) each carried `if (scoring) executeAgentWithRetry(12 args) else <the same generator call, no
+ * feedback, timed by hand>`, with the generator input literal written twice. The copies had drifted:
+ * Agent 6.5's non-scoring branch dropped `onProgress`. With scoring off this is one `generate()` with no
+ * feedback, which is what every non-scoring branch sent — replay:check pins both modes
+ * (full-d0ee7b26 and its -noscore variant: the same cassette, byte for byte).
+ *
+ * Records the stage's cost and duration under `agentId`; returns the result for the runner to store.
+ */
+export async function runStage<T>(ctx: StageRunContext, spec: StageSpec<T>): Promise<T> {
+  let outcome: { result: T; duration: number; cost: number };
+  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
+    outcome = await executeAgentWithRetry(
+      spec.agentId,
+      spec.phaseName,
+      spec.generate,
+      spec.score,
+      ctx.retryManager,
+      ctx.scoreAggregator,
+      ctx.scoringLogger,
+      ctx.runId,
+      ctx.projectId || "",
+      ctx.warnings,
+      ctx.savePartialReport,
+      spec.abortCritical ?? true,
+    );
+  } else {
+    const start = Date.now();
+    const { result, cost } = await spec.generate(undefined);
+    outcome = { result, cost, duration: Date.now() - start };
+  }
+  ctx.agentCosts[spec.agentId] = outcome.cost;
+  ctx.agentDurations[spec.agentId] = outcome.duration;
+  return outcome.result;
 }

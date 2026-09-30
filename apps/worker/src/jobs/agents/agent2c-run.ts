@@ -2,7 +2,7 @@
  * Agent 2c: Location Profiles
  *
  * Extracted from mystery-orchestrator.ts. Runs generateLocationProfiles()
- * via executeAgentWithRetry when scoring is enabled, validates against schema,
+ * via runStage (scoring retries when scoring is enabled), validates against schema,
  * and writes ctx.locationProfiles.
  */
 
@@ -22,7 +22,7 @@ import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
-  executeAgentWithRetry,
+  runStage,
 } from "./shared.js";
 
 const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
@@ -158,55 +158,29 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
 export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("location-profiles", "Generating location profiles...", 89);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2c_location_profiles",
-      "Location Profiles",
-      async (retryFeedback?: string) => {
-        const locResult = await generateLocationProfiles(ctx.client, {
-          settingRefinement: ctx.setting!.setting,
-          caseData: ctx.cml!,
-          narrative: ctx.narrative,
-          tone: appendRetryFeedback(ctx.inputs.tone || "Classic", retryFeedback),
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: locResult, cost: locResult.cost };
-      },
-      async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    ctx.locationProfiles = compileSensoryAtoms(result);
-    ctx.agentCosts["agent2c_location_profiles"] = cost;
-    ctx.agentDurations["agent2c_location_profiles"] = duration;
-  } else {
-    const locationProfilesStart = Date.now();
-    const rawProfiles = await generateLocationProfiles(ctx.client, {
-      settingRefinement: ctx.setting!.setting,
-      caseData: ctx.cml!,
-      // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
-      // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
-      // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
-      // generateLocationProfiles declares the field optional and degrades cleanly (it derives
-      // scene locations only when acts are present). This used to carry a `!` assertion, which
-      // was a no-op at runtime but told every reader the value was available. It is not.
-      narrative: ctx.narrative,
-      tone: ctx.inputs.tone || "Classic",
-      targetWordCount: 1000,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.locationProfiles = compileSensoryAtoms(rawProfiles);
-    ctx.agentCosts["agent2c_location_profiles"] = rawProfiles.cost;
-    ctx.agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
-  }
+  ctx.locationProfiles = compileSensoryAtoms(await runStage(ctx, {
+    agentId: "agent2c_location_profiles",
+    phaseName: "Location Profiles",
+    generate: async (retryFeedback?: string) => {
+      const locResult = await generateLocationProfiles(ctx.client, {
+        settingRefinement: ctx.setting!.setting,
+        caseData: ctx.cml!,
+        // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
+        // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
+        // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
+        // generateLocationProfiles declares the field optional and degrades cleanly (it derives
+        // scene locations only when acts are present). This used to carry a `!` assertion, which
+        // was a no-op at runtime but told every reader the value was available. It is not.
+        narrative: ctx.narrative,
+        tone: appendRetryFeedback(ctx.inputs.tone || "Classic", retryFeedback),
+        targetWordCount: 1000,
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      return { result: locResult, cost: locResult.cost };
+    },
+    score: async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),
+  }));
 
   ctx.locationProfiles = enforceLocationSensoryFallbacks(ctx.locationProfiles, ctx.warnings);
 

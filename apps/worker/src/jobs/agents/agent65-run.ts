@@ -12,70 +12,39 @@ import { scoreWorldDocumentPhase } from "./phase-scoring.js";
 import { generateWorldDocument } from "@cml/prompts-llm";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
+  runStage,
 } from "./shared.js";
 
 export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("world-builder", "Generating World Document...", 90);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent65_world_builder",
-      "World Builder",
-      async (_retryFeedback?: string) => {
-        const worldDoc = await generateWorldDocument(
-          {
-            caseData: ctx.cml!,
-            characterProfiles: ctx.characterProfiles!,
-            locationProfiles: ctx.locationProfiles!,
-            temporalContext: ctx.temporalContext!,
-            backgroundContext: ctx.backgroundContext!,
-            hardLogicDevices: ctx.hardLogicDevices!,
-            clueDistribution: ctx.clues!,
-            runId: ctx.runId,
-            projectId: ctx.projectId || "",
-            onProgress: (phase, msg) =>
-              ctx.reportProgress("world-builder", `${phase}: ${msg}`, 92),
-          },
-          ctx.client
-        );
-        return { result: worldDoc, cost: worldDoc.cost };
-      },
-      async (worldDoc) => scoreWorldDocumentPhase(worldDoc, ctx.cml!),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-      // A_53 P2: Agent 6.5 produces creative texture — a sub-threshold score degrades to a warning +
-      // best-effort document rather than aborting the whole pipeline.
-      false,
-    );
-    ctx.worldDocument = result;
-    ctx.agentCosts["agent65_world_builder"] = cost;
-    ctx.agentDurations["agent65_world_builder"] = duration;
-  } else {
-    const start = Date.now();
-    const worldDoc = await generateWorldDocument(
-      {
-        caseData: ctx.cml!,
-        characterProfiles: ctx.characterProfiles!,
-        locationProfiles: ctx.locationProfiles!,
-        temporalContext: ctx.temporalContext!,
-        backgroundContext: ctx.backgroundContext!,
-        hardLogicDevices: ctx.hardLogicDevices!,
-        clueDistribution: ctx.clues!,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      },
-      ctx.client
-    );
-    ctx.worldDocument = worldDoc;
-    ctx.agentCosts["agent65_world_builder"] = worldDoc.cost;
-    ctx.agentDurations["agent65_world_builder"] = Date.now() - start;
-  }
+  ctx.worldDocument = await runStage(ctx, {
+    agentId: "agent65_world_builder",
+    phaseName: "World Builder",
+    generate: async (_retryFeedback?: string) => {
+      const worldDoc = await generateWorldDocument(
+        {
+          caseData: ctx.cml!,
+          characterProfiles: ctx.characterProfiles!,
+          locationProfiles: ctx.locationProfiles!,
+          temporalContext: ctx.temporalContext!,
+          backgroundContext: ctx.backgroundContext!,
+          hardLogicDevices: ctx.hardLogicDevices!,
+          clueDistribution: ctx.clues!,
+          runId: ctx.runId,
+          projectId: ctx.projectId || "",
+          onProgress: (phase, msg) =>
+            ctx.reportProgress("world-builder", `${phase}: ${msg}`, 92),
+        },
+        ctx.client
+      );
+      return { result: worldDoc, cost: worldDoc.cost };
+    },
+    score: async (worldDoc) => scoreWorldDocumentPhase(worldDoc, ctx.cml!),
+    // A_53 P2: Agent 6.5 produces creative texture — a sub-threshold score degrades to a warning +
+    // best-effort document rather than aborting the whole pipeline.
+    abortCritical: false,
+  });
 
   ctx.reportProgress("world-builder", "World Document complete", 93);
 }

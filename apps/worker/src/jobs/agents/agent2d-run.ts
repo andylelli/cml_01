@@ -2,7 +2,7 @@
  * Agent 2d: Temporal Context
  *
  * Extracted from mystery-orchestrator.ts. Runs generateTemporalContext()
- * via executeAgentWithRetry when scoring is enabled, validates against schema,
+ * via runStage (scoring retries when scoring is enabled), validates against schema,
  * and writes ctx.temporalContext.
  */
 
@@ -11,49 +11,27 @@ import { generateTemporalContext, deriveSeasonFromMonth } from "@cml/prompts-llm
 import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
+  runStage,
 } from "./shared.js";
 
 export async function runAgent2d(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("temporal-context", "Generating temporal context...", 89);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2d_temporal_context",
-      "Temporal Context",
-      async (retryFeedback?: string) => {
-        const tempResult = await generateTemporalContext(ctx.client, {
-          settingRefinement: ctx.setting!.setting,
-          caseData: ctx.cml!,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
-        });
-        return { result: tempResult, cost: tempResult.cost };
-      },
-      async (tempResult) => scoreTemporalContextPhase(tempResult, ctx.setting!.setting, ctx.backgroundContext!),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    ctx.temporalContext = result;
-    ctx.agentCosts["agent2d_temporal_context"] = cost;
-    ctx.agentDurations["agent2d_temporal_context"] = duration;
-  } else {
-    const temporalContextStart = Date.now();
-    ctx.temporalContext = await generateTemporalContext(ctx.client, {
-      settingRefinement: ctx.setting!.setting,
-      caseData: ctx.cml!,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent2d_temporal_context"] = ctx.temporalContext.cost;
-    ctx.agentDurations["agent2d_temporal_context"] = Date.now() - temporalContextStart;
-  }
+  ctx.temporalContext = await runStage(ctx, {
+    agentId: "agent2d_temporal_context",
+    phaseName: "Temporal Context",
+    generate: async (retryFeedback?: string) => {
+      const tempResult = await generateTemporalContext(ctx.client, {
+        settingRefinement: ctx.setting!.setting,
+        caseData: ctx.cml!,
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+        qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
+      });
+      return { result: tempResult, cost: tempResult.cost };
+    },
+    score: async (tempResult) => scoreTemporalContextPhase(tempResult, ctx.setting!.setting, ctx.backgroundContext!),
+  });
 
   // A_53 P6 (agent2d-validation-warns-not-errors): deterministically re-pin the load-bearing temporal
   // fields (seasonal.month + seasonal.season) to the mandated month before they feed the Agent 9

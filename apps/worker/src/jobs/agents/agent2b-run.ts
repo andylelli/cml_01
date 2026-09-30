@@ -2,7 +2,7 @@
  * Agent 2b: Character Profiles
  *
  * Extracted from mystery-orchestrator.ts. Runs generateCharacterProfiles()
- * via executeAgentWithRetry when scoring is enabled, validates against schema,
+ * via runStage (scoring retries when scoring is enabled), validates against schema,
  * and writes ctx.characterProfiles.
  */
 
@@ -19,54 +19,29 @@ import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
-  executeAgentWithRetry,
+  runStage,
 } from "./shared.js";
 
 export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("profiles", "Generating character profiles...", 88);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2b_profiles",
-      "Character Profiles",
-      async (retryFeedback?: string) => {
-        const profilesResult = await generateCharacterProfiles(ctx.client, {
-          caseData: ctx.cml!,
-          cast: ctx.cast!.cast,
-          tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", retryFeedback),
-          humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: profilesResult, cost: profilesResult.cost };
-      },
-      async (profilesResult) => scoreCharacterProfilesPhase(profilesResult.profiles, ctx.cast!.cast, ctx.cml!),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    ctx.characterProfiles = result;
-    ctx.agentCosts["agent2b_profiles"] = cost;
-    ctx.agentDurations["agent2b_profiles"] = duration;
-  } else {
-    const profilesStart = Date.now();
-    ctx.characterProfiles = await generateCharacterProfiles(ctx.client, {
-      caseData: ctx.cml!,
-      cast: ctx.cast!.cast,
-      tone: ctx.inputs.narrativeStyle || "classic",
-      humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
-      targetWordCount: 1000,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent2b_profiles"] = ctx.characterProfiles.cost;
-    ctx.agentDurations["agent2b_profiles"] = Date.now() - profilesStart;
-  }
+  ctx.characterProfiles = await runStage(ctx, {
+    agentId: "agent2b_profiles",
+    phaseName: "Character Profiles",
+    generate: async (retryFeedback?: string) => {
+      const profilesResult = await generateCharacterProfiles(ctx.client, {
+        caseData: ctx.cml!,
+        cast: ctx.cast!.cast,
+        tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", retryFeedback),
+        humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
+        targetWordCount: 1000,
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      return { result: profilesResult, cost: profilesResult.cost };
+    },
+    score: async (profilesResult) => scoreCharacterProfilesPhase(profilesResult.profiles, ctx.cast!.cast, ctx.cml!),
+  });
 
   const validation = validateArtifact("character_profiles", ctx.characterProfiles);
   if (!validation.valid) {

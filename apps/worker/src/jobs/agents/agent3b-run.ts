@@ -34,7 +34,7 @@ import {
 } from "@cml/cml";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
+  runStage,
   appendRetryFeedback,
   mergeHardLogicDirectives,
 } from "./shared.js";
@@ -256,59 +256,28 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
 }
 
 async function generateDevices(ctx: OrchestratorContext, setting: SettingRefinementResult, deviceLibraryBlock: string, cast: CastDesignResult, backgroundContext: BackgroundContextArtifact) {
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent3b_hard_logic_devices",
-      "Hard Logic Devices",
-      async (retryFeedback?: string) => {
-        const hlResult = await generateHardLogicDevices(ctx.client, {
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          decade: setting.setting.era.decade,
-          location: setting.setting.location.description,
-          institution: setting.setting.location.type,
-          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-          theme: appendRetryFeedback(ctx.inputs.theme, retryFeedback),
-          primaryAxis: ctx.primaryAxis,
-          mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
-          hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
-          difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
-          noveltyConstraints: ctx.noveltyConstraints,
-          deviceLibraryBlock,
-        });
-        return { result: hlResult, cost: hlResult.cost };
-      },
-      async (hlResult) => scoreHardLogicPhase(hlResult.devices, setting.setting, cast.cast, backgroundContext, ctx.warnings),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    ctx.hardLogicDevices = result;
-    ctx.agentCosts["agent3b_hard_logic_devices"] = cost;
-    ctx.agentDurations["agent3b_hard_logic_devices"] = duration;
-  } else {
-    const hardLogicStart = Date.now();
-    ctx.hardLogicDevices = await generateHardLogicDevices(ctx.client, {
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-      decade: setting.setting.era.decade,
-      location: setting.setting.location.description,
-      institution: setting.setting.location.type,
-      tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-      theme: ctx.inputs.theme,
-      primaryAxis: ctx.primaryAxis,
-      mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
-      hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
-      difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
-      noveltyConstraints: ctx.noveltyConstraints,
-      deviceLibraryBlock,
-    });
-    ctx.agentCosts["agent3b_hard_logic_devices"] = ctx.hardLogicDevices.cost;
-    ctx.agentDurations["agent3b_hard_logic_devices"] = Date.now() - hardLogicStart;
-  }
+  ctx.hardLogicDevices = await runStage(ctx, {
+    agentId: "agent3b_hard_logic_devices",
+    phaseName: "Hard Logic Devices",
+    generate: async (retryFeedback?: string) => {
+      const hlResult = await generateHardLogicDevices(ctx.client, {
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+        decade: setting.setting.era.decade,
+        location: setting.setting.location.description,
+        institution: setting.setting.location.type,
+        tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+        theme: appendRetryFeedback(ctx.inputs.theme, retryFeedback),
+        primaryAxis: ctx.primaryAxis,
+        mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
+        hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
+        difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
+        noveltyConstraints: ctx.noveltyConstraints,
+        deviceLibraryBlock,
+      });
+      return { result: hlResult, cost: hlResult.cost };
+    },
+    score: async (hlResult) => scoreHardLogicPhase(hlResult.devices, setting.setting, cast.cast, backgroundContext, ctx.warnings),
+  });
 }
 

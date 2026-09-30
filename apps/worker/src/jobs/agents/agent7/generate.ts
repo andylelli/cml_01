@@ -11,7 +11,7 @@ import { NarrativeScorer } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type LockedFactRegistry,
-  executeAgentWithRetry,
+  runStage,
 } from "../shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../../scoring-adapters/index.js";
 import {
@@ -62,55 +62,26 @@ export interface Agent7Run {
 }
 
 export async function generateInitialOutline(ctx: OrchestratorContext, run: Agent7Run): Promise<NarrativeOutline> {
-  let narrative: NarrativeOutline;
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent7_narrative",
-      "Narrative Outline",
-      async (retryFeedback?: string) => {
-        const narrativeResult = await formatNarrative(ctx.client, {
-          caseData: ctx.cml!,
-          clues: ctx.clues!,
-          targetLength: ctx.inputs.targetLength,
-          narrativeStyle: ctx.inputs.narrativeStyle,
-          detectiveType: ctx.inputs.detectiveType,
-          qualityGuardrails: retryFeedback ? [retryFeedback, ...run.pacingGuardrails] : run.pacingGuardrails,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          ...run.lockedFactsSpread,
-          ...run.completenessSpread,
-        });
-        return { result: narrativeResult, cost: narrativeResult.cost };
-      },
-      async (narrativeResult) => scoreNarrativePhase(narrativeResult, ctx.cml!, ctx.cast!.cast, ctx.inputs.targetLength, ctx.warnings),
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    narrative = result;
-    ctx.agentCosts["agent7_narrative"] = cost;
-    ctx.agentDurations["agent7_narrative"] = duration;
-  } else {
-    const narrativeStart = Date.now();
-    narrative = await formatNarrative(ctx.client, {
-      caseData: ctx.cml!,
-      clues: ctx.clues!,
-      targetLength: ctx.inputs.targetLength,
-      narrativeStyle: ctx.inputs.narrativeStyle,
-      detectiveType: ctx.inputs.detectiveType,
-      qualityGuardrails: run.pacingGuardrails,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-      ...run.lockedFactsSpread,
-      ...run.completenessSpread,
-    });
-    ctx.agentCosts["agent7_narrative"] = narrative.cost;
-    ctx.agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
-  }
+  const narrative = await runStage(ctx, {
+    agentId: "agent7_narrative",
+    phaseName: "Narrative Outline",
+    generate: async (retryFeedback?: string) => {
+      const narrativeResult = await formatNarrative(ctx.client, {
+        caseData: ctx.cml!,
+        clues: ctx.clues!,
+        targetLength: ctx.inputs.targetLength,
+        narrativeStyle: ctx.inputs.narrativeStyle,
+        detectiveType: ctx.inputs.detectiveType,
+        qualityGuardrails: retryFeedback ? [retryFeedback, ...run.pacingGuardrails] : run.pacingGuardrails,
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+        ...run.lockedFactsSpread,
+        ...run.completenessSpread,
+      });
+      return { result: narrativeResult, cost: narrativeResult.cost };
+    },
+    score: async (narrativeResult) => scoreNarrativePhase(narrativeResult, ctx.cml!, ctx.cast!.cast, ctx.inputs.targetLength, ctx.warnings),
+  });
   return narrative;
 }
 
