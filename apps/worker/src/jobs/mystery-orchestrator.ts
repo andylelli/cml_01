@@ -16,6 +16,7 @@
 
 import { parseBooleanEnv } from "./agents/agent9/flags.js";
 import { artifactPersister } from "./artifact-persistence.js";
+import { recordRunEnvironment } from "./run-config.js";
 import { join } from "path";
 import { promises as dns } from "dns";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
@@ -259,6 +260,7 @@ export async function generateMystery(
     }
   }
 
+  recordRunEnvironment(WORKER_APP_ROOT, runId, scoreAggregator); // CR-22: the flag environment this run saw
   const reportProgress = (
     stage: MysteryGenerationProgress["stage"],
     message: string,
