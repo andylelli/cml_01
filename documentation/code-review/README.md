@@ -32,6 +32,8 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 **Progress: 16 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
 
+**Owner decisions:** [OWNER-DECISIONS.md](OWNER-DECISIONS.md) — the 98 open decisions in order of what they unblock, each with evidence and one recommendation (2026-09-30).
+
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
 `generateProse` run only under `PROSE_ENGINE=v1`. Until v2 beats v1 on reads: CR-03 records **both**
