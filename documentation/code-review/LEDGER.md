@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 25 | 32 | 0 | 57 |
-| open | 165 | 107 | 72 | 344 |
+| closed | 29 | 32 | 0 | 61 |
+| open | 161 | 107 | 72 | 340 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -40,7 +40,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
 | CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
-| CR-24 | 5 | 0 | A7-01 A7-05 A7-12 A34-04 A34-12 |
+| CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
 | CR-25 | 9 | 0 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
 | CR-26 | 7 | 0 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
 | CR-27 | 14 | 0 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
@@ -403,18 +403,18 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A7-01 | P1 | R0 (+R1 helper) | CR-24 | todo |  | Decompose runAgent7 (978 LOC, cc 159) into a coordinator over 14 phases in agent7/; real shared state is 8 locals |  |
+| A7-01 | P1 | R0 (+R1 helper) | CR-24 | done | c5423dfd | Decompose runAgent7 (978 LOC, cc 159) into a coordinator over 14 phases in agent7/; real shared state is 8 locals | runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/ |
 | A7-02 | P1 | R1 + R2 | CR-23 | todo |  | One outline-candidate pipeline for 8 call sites (inputs, accounting, normalise, validate, rescore) |  |
 | A7-03 | P1 | R1 then R2 | CR-13 | todo |  | One typed CaseBrief accessor for the CML-to-prompt summary shared by Agents 6/7/8 |  |
 | A7-04 | P2 | R0 | CR-13 | todo |  | 126 any: CaseData = any, SceneRef.scene: any, untyped lambdas over a typed outline, stamps missing from Scene |  |
-| A7-05 | P2 | R1 | CR-24 | todo |  | Outline-geometry primitives duplicated: act split ×4, tolerance check ×5, scene flatten ×13 + 4 flatteners |  |
+| A7-05 | P2 | R1 | CR-24 | done | 109d271b | Outline-geometry primitives duplicated: act split ×4, tolerance check ×5, scene flatten ×13 + 4 flatteners | computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic) |
 | A7-06 | P2 | R1 | CR-16 | todo |  | Two clue-coverage force-assigners, placement→act ×4 with divergent defaults, "clue-bearing" defined twice, GENERIC regex ×2 |  |
 | A7-07 | P2 | R1 | CR-18 | todo |  | Scoring twice: retry-scorer closure vs rescoreNarrative diverge; pacing path never rescores |  |
 | A7-08 | P2 | R0/R1/R2 | CR-22 | todo |  | Flags: runtime getters are correct; 4 parse idioms; contractRecoveryEnabled forks the function 4× for a dormant mode; retriesEnabled dead |  |
 | A7-09 | P2 | R0 / R2 | CR-27 | todo |  | buildUserRequest (333 LOC, 6 params) → section builders; prose-requirements block and clue-pacing rule sent twice in 125/125 prompts |  |
 | A7-10 | P2 | R1/R2 | CR-20 | todo |  | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape |  |
 | A7-11 | P1 | R1 (telemetry) | CR-33 | todo |  | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent |  |
-| A7-12 | P3 | R0 | CR-24 | todo |  | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items |  |
+| A7-12 | P3 | R0 | CR-24 | deferred |  | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items | small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change |
 | A7-13 | P3 | R2 | CR-17 | todo |  | Arc position computed 3 ways (A7 vs two in A9); 97/358 prose prompts carry two different emotional registers |  |
 | A7-14 | P3 | R0 | CR-13 | todo |  | Agent 7.5: minor type leaks only; leave structurally as is |  |
 | A7-D01 |  |  | CR-07 | todo |  | Agent 7's case summary is wrong on every CML-2.0 run. It prints "Victim: Unknown" and "Motive: Unknown motive"; the victim-exclusion block names "the… |  |
@@ -440,7 +440,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-01 | P1 | R1 then R2 | CR-14 | todo |  | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge |  |
 | A34-02 | P1 | R2 | CR-12 | todo |  | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives |  |
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
-| A34-04 | P1 | R1 (+R2 slice) | CR-24 | todo |  | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions |  |
+| A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
 | A34-06 | P2 | R1 (+R2) | CR-20 | todo |  | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs |  |
 | A34-07 | P2 | R1 | CR-21 | todo |  | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton |  |
@@ -448,7 +448,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-09 | P2 | R1 (+R2) | CR-29 | todo |  | Theme families derived 3×; retry feedback pollutes the theme lock (measured) |  |
 | A34-10 | P2 | R0/R1 | CR-16 | todo |  | Placement: planting check mirrored in rubric-score; case-soundness clones |  |
 | A34-11 | P2 | R1 (+R2) | CR-18 | todo |  | degraded is an optional boolean one of two callers ignores; X60 policy exists in one place |  |
-| A34-12 | P2 | R1 | CR-24 | todo |  | runAgent3b (325 LOC, cc 52): plausibility loop and registry build inline |  |
+| A34-12 | P2 | R1 | CR-24 | done | d292ff22 | runAgent3b (325 LOC, cc 52): plausibility loop and registry build inline | generateDevices and the registry phase extracted; registry closure -> agent3b/locked-fact-registry.ts. The plausibility gate stays inline (TS will not extract a range with conditional break/continue; the injected-loop rewrite is not a move) |
 | A34-13 | P3 | R0 | CR-08 | done | 094de134 | Dead fields, dead writes, over-export, vestigial blocks | gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split |
 | A34-14 | P3 | R0 then R2 | CR-28 | todo |  | Prompt-as-code: 32k literal chars, volatile seed early, contract restated 2–3×, self-contradiction |  |
 | A34-D01 |  |  | CR-06 | done | pre-audit | checkLockedFactTimeAlignment reads ctx.cml before it is assigned, so it always returns [] | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |

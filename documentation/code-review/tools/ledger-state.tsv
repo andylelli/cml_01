@@ -232,18 +232,18 @@ A6-Q01	CR-29	todo
 A6-Q02	CR-29	todo		
 A6-Q03	CR-34	todo		
 A6-Q04	CR-32	todo		
-A7-01	CR-24	todo		
+A7-01	CR-24	done	c5423dfd	runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/
 A7-02	CR-23	todo		
 A7-03	CR-13	todo		
 A7-04	CR-13	todo		
-A7-05	CR-24	todo		
+A7-05	CR-24	done	109d271b	computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic)
 A7-06	CR-16	todo		
 A7-07	CR-18	todo		
 A7-08	CR-22	todo		
 A7-09	CR-27	todo		
 A7-10	CR-20	todo		
 A7-11	CR-33	todo		
-A7-12	CR-24	todo		
+A7-12	CR-24	deferred		small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change
 A7-13	CR-17	todo		
 A7-14	CR-13	todo		
 A7-D01	CR-07	todo		
@@ -264,7 +264,7 @@ A7-Q05	CR-07	todo
 A34-01	CR-14	todo		
 A34-02	CR-12	todo		
 A34-03	CR-17	todo		
-A34-04	CR-24	todo		
+A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	todo		
 A34-06	CR-20	todo		
 A34-07	CR-21	todo		
@@ -272,7 +272,7 @@ A34-08	CR-07	todo
 A34-09	CR-29	todo		
 A34-10	CR-16	todo		
 A34-11	CR-18	todo		
-A34-12	CR-24	todo		
+A34-12	CR-24	done	d292ff22	generateDevices and the registry phase extracted; registry closure -> agent3b/locked-fact-registry.ts. The plausibility gate stays inline (TS will not extract a range with conditional break/continue; the injected-loop rewrite is not a move)
 A34-13	CR-08	done	094de134	gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split
 A34-14	CR-28	todo		
 A34-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
