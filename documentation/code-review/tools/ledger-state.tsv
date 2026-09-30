@@ -368,30 +368,30 @@ ORC-Q05	CR-22	todo
 ORC-Q06	CR-33	todo		
 ORC-Q07	CR-32	todo		
 SCO-01	CR-30	todo		
-SCO-02	CR-18	todo		
+SCO-02	CR-18	done	6cd2bdae	8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done)
 SCO-03	CR-27	todo		
-SCO-04	CR-18	todo		
-SCO-05	CR-18	todo		
+SCO-04	CR-18	done	d860f265	displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned)
+SCO-05	CR-18	done	2050362e 52cc50ad	deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change)
 SCO-06	CR-16	todo		
-SCO-07	CR-18	todo		
-SCO-08	CR-18	todo		
-SCO-09	CR-18	todo		
+SCO-07	CR-18	todo		R2 where drifted: fair-play weights wait on SCO-Q06; expected-clue-set / trust caps / DT-scene resolver changes move reported numbers — owner sign-off per the finding
+SCO-08	CR-18	done	52cc50ad	R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006
+SCO-09	CR-18	done	52cc50ad	9 identical interface pairs declared once; prose pair differs and stays
 SCO-10	CR-18	todo		
 SCO-11	CR-08	done	094de134	scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30)
 SCO-12	CR-03	done	6ef90064	phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles)
 SCO-13		withdrawn		CPU is not a lever (README §3); ~2.8 s per run
 SCO-D01	CR-06	todo		waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner
 SCO-D02	CR-06	done	ec237e5a	
-SCO-D03	CR-18	todo		
-SCO-D04	CR-18	todo		
+SCO-D03	CR-18	done	52cc50ad	failed phases carry a reason
+SCO-D04	CR-18	todo		OWNER: retry-feedback 'partial successes' never renders (score vs weight) — fixing it changes retry prompt text (retries are off by default)
 SCO-D05	CR-06	done	dff49644	
 SCO-D06	CR-18	todo		
 SCO-D07	CR-06	done	ec237e5a	
-SCO-D08	CR-18	todo		
+SCO-D08	CR-18	todo		OWNER: Agent 1 adapter discards location.description — fixing it changes the vanity score
 SCO-D09	CR-06	done	ec237e5a	
 SCO-D10	CR-13	todo		
 SCO-D11	CR-06	dup		= A34-D14 (flag register)
-SCO-D12	CR-18	todo		
+SCO-D12	CR-18	todo		OWNER: novelty 'skipped' recorded as 100/A in the mean — a report-number policy
 SCO-Q01	CR-30	todo		
 SCO-Q02	CR-18	todo		
 SCO-Q03	CR-18	todo		
