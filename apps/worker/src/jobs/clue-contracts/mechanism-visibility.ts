@@ -38,15 +38,19 @@ export const extractMechanismVisibilityPhrases = (text: string): string[] => {
   return [...new Set(phrases)].slice(0, 6);
 };
 
-export function checkMechanismVisibility(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
-  const issues: ClueGuardrailIssue[] = [];
+/**
+ * The clues that make the core mechanism reader-visible, or null when the mechanism text yields fewer
+ * than three terms (nothing to judge). A5-07: the check below and the late-placement repair
+ * (promoteLateGateCluesToMid) select through this one body.
+ */
+export function selectMechanismVisibleClues(cml: CaseData, clues: ClueDistributionResult): any[] | null {
   const caseBlock = getCaseBlock(cml);
   const mechanismText = `${String(caseBlock?.hidden_model?.mechanism?.description ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`.trim();
   const terms = extractMechanismVisibilityTerms(mechanismText);
-  if (terms.length < 3) return issues;
+  if (terms.length < 3) return null;
 
   const phrases = extractMechanismVisibilityPhrases(mechanismText);
-  const matchingClues = clues.clues.filter((clue: any) => {
+  return clues.clues.filter((clue: any) => {
     const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
     const tokenSet = new Set(normalizeTokens(text));
     const termMatches = terms.filter((term) => tokenSet.has(term)).length;
@@ -57,6 +61,12 @@ export function checkMechanismVisibility(cml: CaseData, clues: ClueDistributionR
     // avoid restating internal mechanism language verbatim.
     return phraseMatch || termMatches >= 1;
   });
+}
+
+export function checkMechanismVisibility(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
+  const issues: ClueGuardrailIssue[] = [];
+  const matchingClues = selectMechanismVisibleClues(cml, clues);
+  if (!matchingClues) return issues;
 
   if (matchingClues.length === 0) {
     issues.push({

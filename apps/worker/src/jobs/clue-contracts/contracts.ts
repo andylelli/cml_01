@@ -18,7 +18,6 @@ import {
   checkEraTimeStyleInClues,
   findLockedFactClueTimeConflicts,
   nameAppearsInText,
-  normalizeTokens,
   repairLockedFactClueTimeTranspositions,
   replaceDigitTimesWithEraWords,
   sanitizeEraTimeStyleInClues,
@@ -38,8 +37,7 @@ import {
 } from "./suspect-coverage.js";
 import {
   checkMechanismVisibility,
-  extractMechanismVisibilityPhrases,
-  extractMechanismVisibilityTerms,
+  selectMechanismVisibleClues,
 } from "./mechanism-visibility.js";
 import {
   CANONICAL_CLUE_ID_RE,
@@ -49,6 +47,7 @@ import {
   checkInferencePathCoverage,
   checkInferenceStepBounds,
   getCanonicalEvidenceClueIds,
+  selectDiscriminatingTestClues,
 } from "./inference-checks.js";
 // Re-exported so existing importers of this module keep their path.
 export {
@@ -376,13 +375,23 @@ const findPreferredCulpritStep = (cml: CaseData, culpritName: string): number =>
   return Math.max(1, steps.length || 1);
 };
 
+/** Early or mid, case-insensitively — what every strict slot but the late one requires. */
+const isEarlyOrMidPlacement = (clue: any): boolean => {
+  const placement = String(clue?.placement ?? "").toLowerCase();
+  return placement === "early" || placement === "mid";
+};
+
+/** A strict slot's clue, by trimmed id (A5-07: the slot checks and their repairs look up the same way). */
+const findClueById = (clues: ClueDistributionResult, id: string): any =>
+  clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === id);
+
 const applyStrictIdToSourceMappingRepairs = (
   clues: ClueDistributionResult,
   requiredMappings: Array<{ id: string; sourceInCML: string }>,
 ): string[] => {
   const repairs: string[] = [];
   for (const mapping of requiredMappings) {
-    const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === mapping.id) as any;
+    const clue = findClueById(clues, mapping.id);
     if (!clue) continue;
 
     if (String(clue?.criticality ?? "") !== "essential") {
@@ -390,8 +399,7 @@ const applyStrictIdToSourceMappingRepairs = (
       repairs.push(`strict mapping contract criticality repair: ${mapping.id} -> essential`);
     }
 
-    const placement = String(clue?.placement ?? "").toLowerCase();
-    if (placement !== "early" && placement !== "mid") {
+    if (!isEarlyOrMidPlacement(clue)) {
       clue.placement = "mid";
       repairs.push(`strict mapping contract placement repair: ${mapping.id} -> mid`);
     }
@@ -421,7 +429,7 @@ const ensureStrictDirectCulpritClue = (
   const nonCulpritClause = nonCulpritSample.length > 0
     ? `No other eligible suspect, including ${nonCulpritSample.join(" and ")}, matches this mechanism-specific evidence.`
     : "No other eligible suspect matches this mechanism-specific evidence.";
-  let clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredDirectCulpritClue.id) as any;
+  let clue = findClueById(clues, requiredDirectCulpritClue.id);
 
   if (!clue) {
     clue = clues.clues.find((entry: any) => {
@@ -486,8 +494,7 @@ const ensureStrictDirectCulpritClue = (
     repairs.push(`strict direct culprit criticality repair: ${requiredDirectCulpritClue.id} -> essential`);
   }
 
-  const placement = String(clue?.placement ?? "").toLowerCase();
-  if (placement !== "early" && placement !== "mid") {
+  if (!isEarlyOrMidPlacement(clue)) {
     clue.placement = "mid";
     repairs.push(`strict direct culprit placement repair: ${requiredDirectCulpritClue.id} -> mid`);
   }
@@ -538,7 +545,7 @@ const ensureStrictLateClueSlot = (
 
   const repairs: string[] = [];
   const protectedIdSet = new Set(protectedClueIds.map((id) => String(id ?? "").trim()).filter(Boolean));
-  let clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredLateClueSlot.id) as any;
+  let clue = findClueById(clues, requiredLateClueSlot.id);
 
   if (!clue) {
     clue = clues.clues.find((entry: any) => {
@@ -654,13 +661,12 @@ const checkStrictIdToSourceMappings = (
 ): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
   for (const mapping of requiredMappings) {
-    const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === mapping.id) as any;
+    const clue = findClueById(clues, mapping.id);
     if (!clue) {
       issues.push({ severity: "critical", message: `Strict mapping contract missing clue id: ${mapping.id}` });
       continue;
     }
-    const placement = String(clue?.placement ?? "").toLowerCase();
-    if (placement !== "early" && placement !== "mid") {
+    if (!isEarlyOrMidPlacement(clue)) {
       issues.push({ severity: "critical", message: `Strict mapping contract requires early/mid placement for ${mapping.id}` });
     }
     if (String(clue?.criticality ?? "") !== "essential") {
@@ -677,7 +683,7 @@ const checkStrictDirectCulpritClue = (
   if (!requiredDirectCulpritClue) return [];
 
   const issues: ClueGuardrailIssue[] = [];
-  const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredDirectCulpritClue.id) as any;
+  const clue = findClueById(clues, requiredDirectCulpritClue.id);
   if (!clue) {
     return [{ severity: "critical", message: `Strict direct culprit slot missing clue id: ${requiredDirectCulpritClue.id}` }];
   }
@@ -689,8 +695,7 @@ const checkStrictDirectCulpritClue = (
     issues.push({ severity: "critical", message: `Strict direct culprit slot uses non-whitelisted source on ${requiredDirectCulpritClue.id}` });
   }
 
-  const placement = String(clue?.placement ?? "").toLowerCase();
-  if (placement !== "early" && placement !== "mid") {
+  if (!isEarlyOrMidPlacement(clue)) {
     issues.push({ severity: "critical", message: `Strict direct culprit slot must be early/mid on ${requiredDirectCulpritClue.id}` });
   }
   if (String(clue?.criticality ?? "") !== "essential") {
@@ -715,7 +720,7 @@ const checkStrictLateClueSlot = (
 ): ClueGuardrailIssue[] => {
   if (!requiredLateClueSlot) return [];
 
-  const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredLateClueSlot.id) as any;
+  const clue = findClueById(clues, requiredLateClueSlot.id);
   if (!clue) {
     return [{ severity: "critical", message: `Strict late clue slot missing clue id: ${requiredLateClueSlot.id}` }];
   }
@@ -777,8 +782,12 @@ const checkStrictPromptContracts = (
   ];
 };
 
-export const checkCastNamePathConsistency = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
-  const issues: ClueGuardrailIssue[] = [];
+/**
+ * Each clue sourced from a CASE.cast[i] path, with the name that path expects and the cast names its
+ * text mentions. A5-07: the check and the repair below select through this one body. Lazy, so the
+ * repair reads each clue's text when it reaches that clue.
+ */
+function* castPathBindings(cml: CaseData, clues: ClueDistributionResult) {
   const caseBlock = getCaseBlock(cml);
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   const castNames = cast
@@ -795,9 +804,21 @@ export const checkCastNamePathConsistency = (cml: CaseData, clues: ClueDistribut
     if (!expectedName) continue;
 
     const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
-    const mentionedNames = castNames.filter((name: string) => nameAppearsInText(name, clueText));
+    yield {
+      clue,
+      sourcePath,
+      expectedName,
+      clueText,
+      mentionedNames: castNames.filter((name: string) => nameAppearsInText(name, clueText)) as string[],
+      isElimination: String(clue?.evidenceType ?? "").toLowerCase() === "elimination",
+    };
+  }
+}
 
-    if ((String(clue?.evidenceType ?? "").toLowerCase() === "elimination") && !nameAppearsInText(expectedName, clueText)) {
+export const checkCastNamePathConsistency = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  for (const { clue, sourcePath, expectedName, clueText, mentionedNames, isElimination } of castPathBindings(cml, clues)) {
+    if (isElimination && !nameAppearsInText(expectedName, clueText)) {
       issues.push({
         severity: "critical",
         message: `Clue ${String(clue?.id ?? "(unknown-id)")} uses ${sourcePath} but does not mention expected suspect "${expectedName}" in elimination text`,
@@ -826,27 +847,10 @@ const replaceNameCaseInsensitive = (text: string, fromName: string, toName: stri
 
 export const repairCastNamePathConsistency = (cml: CaseData, clues: ClueDistributionResult): string[] => {
   const repairs: string[] = [];
-  const caseBlock = getCaseBlock(cml);
-  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  const castNames = cast
-    .map((entry: any) => String(entry?.name ?? "").trim())
-    .filter((name: string) => Boolean(name));
-
-  for (const clue of clues.clues as any[]) {
-    const sourcePath = String(clue?.sourceInCML ?? "").trim();
-    const castPathMatch = sourcePath.match(/^CASE\.cast\[(\d+)\]\./);
-    if (!castPathMatch) continue;
-
-    const castIndex = Number(castPathMatch[1]);
-    const expectedName = String(cast[castIndex]?.name ?? "").trim();
-    if (!expectedName) continue;
-
+  for (const { clue, sourcePath, expectedName, clueText, mentionedNames, isElimination } of castPathBindings(cml, clues)) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const description = String(clue?.description ?? "");
     const pointsTo = String(clue?.pointsTo ?? "");
-    const clueText = `${description} ${pointsTo}`;
-    const mentionedNames = castNames.filter((name: string) => nameAppearsInText(name, clueText));
-    const isElimination = String(clue?.evidenceType ?? "").toLowerCase() === "elimination";
 
     if (mentionedNames.length === 1 && mentionedNames[0] !== expectedName) {
       const wrongName = mentionedNames[0];
@@ -858,7 +862,7 @@ export const repairCastNamePathConsistency = (cml: CaseData, clues: ClueDistribu
       continue;
     }
 
-    if (isElimination && !nameAppearsInText(expectedName, `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`)) {
+    if (isElimination && !nameAppearsInText(expectedName, clueText)) {
       const normalizedPointsTo = String(clue?.pointsTo ?? "").trim();
       if (normalizedPointsTo.length > 0) {
         clue.pointsTo = `Eliminates ${expectedName} because ${normalizedPointsTo}`;
@@ -879,14 +883,19 @@ export const getMissingDiscriminatingEvidenceIds = (cml: CaseData, clues: ClueDi
   return evidenceIds.filter((id: string) => !clueIds.has(id));
 };
 
+/** What the model's self-audit should say. A5-07: the consistency check and the reconciler share it. */
+const expectedModelAudit = (cml: CaseData, clues: ClueDistributionResult) => ({
+  missing: getMissingDiscriminatingEvidenceIds(cml, clues).sort(),
+  invalid: checkSourcePathValidity(cml, clues).invalidPaths.sort(),
+  weak: analyzeSuspectCoverage(cml, clues).weakElimination.sort(),
+});
+
 export const checkModelAuditConsistency = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
   const modelAudit: any = (clues as any).audit;
   if (!modelAudit || typeof modelAudit !== "object") return issues;
 
-  const expectedMissing = getMissingDiscriminatingEvidenceIds(cml, clues).sort();
-  const expectedInvalidSources = checkSourcePathValidity(cml, clues).invalidPaths.sort();
-  const expectedWeak = analyzeSuspectCoverage(cml, clues).weakElimination.sort();
+  const { missing: expectedMissing, invalid: expectedInvalidSources, weak: expectedWeak } = expectedModelAudit(cml, clues);
 
   const actualMissing = (Array.isArray(modelAudit.missingDiscriminatingEvidenceIds) ? modelAudit.missingDiscriminatingEvidenceIds : []).map(String).sort();
   const actualInvalid = (Array.isArray(modelAudit.invalidSourcePaths) ? modelAudit.invalidSourcePaths : []).map(String).sort();
@@ -915,9 +924,7 @@ export const checkModelAuditConsistency = (cml: CaseData, clues: ClueDistributio
 };
 
 export const reconcileModelAudit = (cml: CaseData, clues: ClueDistributionResult): void => {
-  const expectedMissing = getMissingDiscriminatingEvidenceIds(cml, clues).sort();
-  const expectedInvalid = checkSourcePathValidity(cml, clues).invalidPaths.sort();
-  const expectedWeak = analyzeSuspectCoverage(cml, clues).weakElimination.sort();
+  const { missing: expectedMissing, invalid: expectedInvalid, weak: expectedWeak } = expectedModelAudit(cml, clues);
 
   const audit: any = (clues as any).audit && typeof (clues as any).audit === "object"
     ? (clues as any).audit
@@ -1258,46 +1265,15 @@ const promoteLateGateCluesToMid = (cml: CaseData, clues: ClueDistributionResult)
   const promoted: string[] = [];
   const promote = (clue: any) => {
     if (!clue) return;
-    const placement = String(clue.placement ?? "").toLowerCase();
-    if (placement !== "early" && placement !== "mid") {
+    if (!isEarlyOrMidPlacement(clue)) {
       clue.placement = "mid";
       promoted.push(String(clue.id ?? "(unknown-id)"));
     }
   };
 
-  // (1) Discriminating-test evidence clues — by canonical id, else by design/knowledge text overlap
-  // (mirrors checkDiscriminatingTestReachability).
-  const clueById = new Map((clues.clues as any[]).map((c) => [String(c.id), c]));
-  const caseBlock = getCaseBlock(cml);
-  const evidenceIds = getCanonicalEvidenceClueIds(cml);
-  if (evidenceIds.length > 0) {
-    for (const id of evidenceIds) promote(clueById.get(id));
-  } else {
-    const discrimTest = caseBlock?.discriminating_test;
-    const combined = `${String(discrimTest?.design ?? "")} ${String(discrimTest?.knowledge_revealed ?? "")}`.toLowerCase();
-    const testWords = combined.split(/\s+/).filter((w) => w.length > 4);
-    if (testWords.length > 0) {
-      for (const clue of clues.clues as any[]) {
-        const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")} ${String(clue?.sourceInCML ?? "")}`.toLowerCase();
-        const matchCount = testWords.filter((w) => clueText.includes(w)).length;
-        if (matchCount >= Math.ceil(testWords.length * 0.2)) promote(clue);
-      }
-    }
-  }
-
-  // (2) Mechanism-visible clues (mirrors checkMechanismVisibility's selection).
-  const mechanismText = `${String(caseBlock?.hidden_model?.mechanism?.description ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`.trim();
-  const terms = extractMechanismVisibilityTerms(mechanismText);
-  if (terms.length >= 3) {
-    const phrases = extractMechanismVisibilityPhrases(mechanismText);
-    for (const clue of clues.clues as any[]) {
-      const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
-      const tokenSet = new Set(normalizeTokens(text));
-      const termMatches = terms.filter((term) => tokenSet.has(term)).length;
-      const phraseMatch = phrases.some((phrase) => text.includes(phrase));
-      if (phraseMatch || termMatches >= 1) promote(clue);
-    }
-  }
+  // (1) Discriminating-test evidence clues, (2) mechanism-visible clues — the checks' own selections.
+  for (const clue of selectDiscriminatingTestClues(cml, clues).clues) promote(clue);
+  for (const clue of selectMechanismVisibleClues(cml, clues) ?? []) promote(clue);
 
   return [...new Set(promoted)];
 };

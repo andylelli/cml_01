@@ -182,6 +182,39 @@ export function checkFalseAssumptionContradiction(cml: CaseData, clues: ClueDist
   return issues;
 }
 
+/**
+ * The clues the discriminating test rests on — by the case's canonical evidence ids when it names any,
+ * else by design/knowledge_revealed word overlap (at least 20% of its words longer than four letters).
+ * A5-07: the reachability check below and the late-placement repair (promoteLateGateCluesToMid) select
+ * through this one body, so the repair promotes exactly what the check judges.
+ */
+export type DiscriminatingTestSelection =
+  | { byIds: true; missing: string[]; clues: any[] }
+  | { byIds: false; clues: any[] };
+
+export function selectDiscriminatingTestClues(cml: CaseData, clues: ClueDistributionResult): DiscriminatingTestSelection {
+  const evidenceIds = getCanonicalEvidenceClueIds(cml);
+  if (evidenceIds.length > 0) {
+    const clueById = new Map(clues.clues.map((c: any) => [String(c.id), c]));
+    return {
+      byIds: true,
+      missing: evidenceIds.filter((id: string) => !clueById.has(id)),
+      clues: evidenceIds.map((id: string) => clueById.get(id)).filter(Boolean) as any[],
+    };
+  }
+  const discrimTest = ((cml as any)?.CASE ?? cml)?.discriminating_test;
+  const combined = `${String(discrimTest?.design ?? "")} ${String(discrimTest?.knowledge_revealed ?? "")}`.toLowerCase();
+  const testWords = combined.split(/\s+/).filter((w: string) => w.length > 4);
+  if (testWords.length === 0) return { byIds: false, clues: [] };
+  return {
+    byIds: false,
+    clues: clues.clues.filter((c: any) => {
+      const clueText = `${String(c?.description ?? "")} ${String(c?.pointsTo ?? "")} ${String(c?.sourceInCML ?? "")}`.toLowerCase();
+      return testWords.filter((w: string) => clueText.includes(w)).length >= Math.ceil(testWords.length * 0.2);
+    }),
+  };
+}
+
 export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
   const issues: ClueGuardrailIssue[] = [];
   const caseBlock = (cml as any)?.CASE ?? cml;
@@ -191,10 +224,9 @@ export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDi
     return issues;
   }
 
-  const evidenceClueIds = getCanonicalEvidenceClueIds(cml);
-  if (evidenceClueIds.length > 0) {
-    const clueById = new Map(clues.clues.map((c: any) => [String(c.id), c]));
-    const missing = evidenceClueIds.filter((id: string) => !clueById.has(id));
+  const selection = selectDiscriminatingTestClues(cml, clues);
+  if (selection.byIds) {
+    const { missing } = selection;
     if (missing.length > 0) {
       issues.push({
         severity: "critical",
@@ -202,9 +234,7 @@ export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDi
       });
     }
 
-    const mappedClues = evidenceClueIds
-      .map((id: string) => clueById.get(id))
-      .filter(Boolean) as any[];
+    const mappedClues = selection.clues;
 
     if (mappedClues.length === 0) {
       issues.push({ severity: "critical", message: "Discriminating test references no evidence found in the clue set" });
@@ -223,15 +253,7 @@ export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDi
     return issues;
   }
 
-  const designText = (discrimTest.design || "").toLowerCase();
-  const knowledgeText = (discrimTest.knowledge_revealed || "").toLowerCase();
-  const combinedTestText = designText + " " + knowledgeText;
-  const relevantClues = clues.clues.filter((c: any) => {
-    const clueText = `${String(c.description ?? "")} ${String(c.pointsTo ?? "")} ${String(c.sourceInCML ?? "")}`.toLowerCase();
-    const testWords = combinedTestText.split(/\s+/).filter((w: string) => w.length > 4);
-    const matchCount = testWords.filter((w: string) => clueText.includes(w)).length;
-    return testWords.length > 0 && matchCount >= Math.ceil(testWords.length * 0.2);
-  });
+  const relevantClues = selection.clues;
   if (relevantClues.length === 0) {
     issues.push({ severity: "critical", message: "Discriminating test references no evidence found in the clue set" });
   }

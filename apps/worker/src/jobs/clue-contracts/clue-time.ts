@@ -194,6 +194,55 @@ const statesExplicitMeridiem = (text: string): boolean => {
   return /\b(am|pm|a\.m\.|p\.m\.)\b/i.test(String(text));
 };
 
+/** The locked facts a check reads: the override when given, else the case's own registry. */
+const lockedFactsOf = (cml: CaseData, lockedFactsOverride?: any[]): any[] => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  return Array.isArray(lockedFactsOverride)
+    ? lockedFactsOverride
+    : Array.isArray(caseBlock?.locked_facts)
+      ? caseBlock.locked_facts
+      : [];
+};
+
+/**
+ * Every (locked time fact, mapped clue) pair the clue can be about: the fact's value parses as a clock
+ * time, the clue is in clue_to_scene_mapping, the clue names the fact or restates its value, and the
+ * clue states a parseable time. A5-07: the conflict detector and the transposition repair select
+ * through this one body. Lazy, so the repair reads each clue's text when it reaches that pair.
+ */
+function* lockedTimeFactPairs(cml: CaseData, clues: ClueDistributionResult, lockedFacts: any[]) {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const mapping = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+    : [];
+  const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
+  const mappedClueIds: string[] = mapping
+    .map((m: any) => String(m?.clue_id ?? ""))
+    .filter((id: string) => id.length > 0);
+
+  for (const fact of lockedFacts) {
+    const factId = String(fact?.id ?? "");
+    const factDesc = String(fact?.description ?? "");
+    const factValue = String(fact?.value ?? "").trim();
+    if (!factValue) continue;
+    const factMinutes = parseFactClockMinutes(factValue);
+    if (factMinutes === null) continue;
+
+    for (const clueId of mappedClueIds) {
+      const clue = clueById.get(clueId);
+      if (!clue) continue;
+      const description = String((clue as any).description ?? "");
+      const pointsTo = String((clue as any).pointsTo ?? "");
+      const clueText = `${description} ${pointsTo}`;
+      if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
+
+      const clueMinutes = parseFactClockMinutes(clueText);
+      if (clueMinutes === null) continue;
+      yield { factId, factDesc, factValue, factMinutes, clueId, clue, description, pointsTo, clueText, clueMinutes };
+    }
+  }
+}
+
 /**
  * Repair a locked-fact/clue time TRANSPOSITION — the two canonical values swapped — and nothing else.
  *
@@ -224,15 +273,7 @@ export const repairLockedFactClueTimeTranspositions = (
   clues: ClueDistributionResult,
   lockedFactsOverride?: any[],
 ): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
-  const mapping = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
-    ? caseBlock.prose_requirements.clue_to_scene_mapping
-    : [];
-  const lockedFacts = Array.isArray(lockedFactsOverride)
-    ? lockedFactsOverride
-    : Array.isArray(caseBlock?.locked_facts)
-      ? caseBlock.locked_facts
-      : [];
+  const lockedFacts = lockedFactsOf(cml, lockedFactsOverride);
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];
 
   /** Every OTHER registry value that parses as a clock time — the only strings we may substitute away. */
@@ -241,51 +282,31 @@ export const repairLockedFactClueTimeTranspositions = (
     .filter((f) => f.value.length > 0 && parseFactClockMinutes(f.value) !== null);
   if (timeFacts.length < 2) return [];
 
-  const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
-  const mappedClueIds: string[] = mapping
-    .map((m: any) => String(m?.clue_id ?? ""))
-    .filter((id: string) => id.length > 0);
   const repairs: string[] = [];
 
-  for (const fact of lockedFacts) {
-    const factId = String(fact?.id ?? "");
-    const factDesc = String(fact?.description ?? "");
-    const factValue = String(fact?.value ?? "").trim();
-    if (!factValue) continue;
-    const factMinutes = parseFactClockMinutes(factValue);
-    if (factMinutes === null) continue;
+  // The detector's own pair selection. (Since A_80 F14 the detector reports a pair it is not confident
+  // about as a soft note; this repair still acts on it when the transposition is provable.)
+  for (const { factId, factDesc, factValue, factMinutes, clueId, clue, description, pointsTo, clueText, clueMinutes } of lockedTimeFactPairs(cml, clues, lockedFacts)) {
+    if (clueMinutes === factMinutes) continue;
+    // Meridiem mismatches are a DIFFERENT violation with a different remedy; leave them to the gate.
+    if (statesExplicitMeridiem(factValue) !== statesExplicitMeridiem(clueText)) continue;
 
-    for (const clueId of mappedClueIds) {
-      const clue = clueById.get(clueId);
-      if (!clue) continue;
-      const description = String((clue as any).description ?? "");
-      const pointsTo = String((clue as any).pointsTo ?? "");
-      const clueText = `${description} ${pointsTo}`;
-      // Same reachability test the detector uses — repair exactly the pairs it would have flagged.
-      if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
+    // The provable case: the clue literally carries another registry value here.
+    const other = timeFacts.find(
+      (t) => t.value !== factValue && parseFactClockMinutes(t.value) === clueMinutes && clueText.includes(t.value),
+    );
+    if (!other) continue;
 
-      const clueMinutes = parseFactClockMinutes(clueText);
-      if (clueMinutes === null || clueMinutes === factMinutes) continue;
-      // Meridiem mismatches are a DIFFERENT violation with a different remedy; leave them to the gate.
-      if (statesExplicitMeridiem(factValue) !== statesExplicitMeridiem(clueText)) continue;
-
-      // The provable case: the clue literally carries another registry value here.
-      const other = timeFacts.find(
-        (t) => t.value !== factValue && parseFactClockMinutes(t.value) === clueMinutes && clueText.includes(t.value),
-      );
-      if (!other) continue;
-
-      if (description.includes(other.value)) {
-        (clue as any).description = description.split(other.value).join(factValue);
-      }
-      if (pointsTo.includes(other.value)) {
-        (clue as any).pointsTo = pointsTo.split(other.value).join(factValue);
-      }
-      repairs.push(
-        `${clueId}: carried "${other.value}" (the canonical value of locked fact "${other.id}") where ` +
-          `locked fact "${factId || factDesc}" requires "${factValue}" — transposition rewritten to canonical`,
-      );
+    if (description.includes(other.value)) {
+      (clue as any).description = description.split(other.value).join(factValue);
     }
+    if (pointsTo.includes(other.value)) {
+      (clue as any).pointsTo = pointsTo.split(other.value).join(factValue);
+    }
+    repairs.push(
+      `${clueId}: carried "${other.value}" (the canonical value of locked fact "${other.id}") where ` +
+        `locked fact "${factId || factDesc}" requires "${factValue}" — transposition rewritten to canonical`,
+    );
   }
 
   return repairs;
@@ -303,100 +324,68 @@ export const findLockedFactClueTimeConflicts = (
   clues: ClueDistributionResult,
   lockedFactsOverride?: any[],
 ): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
-  const mapping = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
-    ? caseBlock.prose_requirements.clue_to_scene_mapping
-    : [];
-  const lockedFacts = Array.isArray(lockedFactsOverride)
-    ? lockedFactsOverride
-    : Array.isArray(caseBlock?.locked_facts)
-      ? caseBlock.locked_facts
-      : [];
-
+  const lockedFacts = lockedFactsOf(cml, lockedFactsOverride);
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];
 
-  const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
   const violations: string[] = [];
   /** A_80 F14 — reported, never fatal. See the block below for why the distinction matters. */
   const softViolations: string[] = [];
 
-  for (const fact of lockedFacts) {
-    const factId = String(fact?.id ?? "");
-    const factDesc = String(fact?.description ?? "");
-    const factValue = String(fact?.value ?? "").trim();
-    if (!factValue) continue;
-
-    const factMinutes = parseFactClockMinutes(factValue);
-    if (factMinutes === null) continue;
+  for (const { factId, factDesc, factValue, factMinutes, clueId, clueText, clueMinutes } of lockedTimeFactPairs(cml, clues, lockedFacts)) {
     const factStatesMeridiem = statesExplicitMeridiem(factValue);
+    /**
+     * A_80 F14 — MENTIONING AN EVENT IS NOT THE SAME AS TIMING IT.
+     *
+     * This gate aborted run mystery-1788285698781 (2026-09-01) on a locked fact
+     * `staff_shift_change_time = "half past ten"` versus a clue about the KITCHEN SERVICE BELL
+     * ringing at a quarter past ten. Those are two different events. The clue paired with the fact
+     * only because it mentioned the shift change in passing — "…Captain Hale was seen near the
+     * lobby during the staff shift change" — and the gate then read the clue's only time as if it
+     * were the fact's time.
+     *
+     * The case being destroyed was built on exactly that disagreement: its own discriminating test
+     * reads "comparing the lobby clock's displayed time with the independently timed kitchen
+     * service bell … the displayed time remains twenty minutes behind the bell's chime". **The gate
+     * aborted a clock-tampering mystery for containing a second, disagreeing timepiece**, which is
+     * the mechanism of the entire sub-genre.
+     *
+     * A clue that carries MORE THAN ONE time expression is describing a relationship between times,
+     * not restating one fact's value — which is what a discriminating test looks like. The
+     * confident case, and the only one worth aborting a paid run for, is a clue that states exactly
+     * one time and is unambiguously ABOUT this fact. Anything looser is reported and the run
+     * continues, because a false abort costs a whole run and a false warning costs a log line.
+     */
+    const timeExpressions = countClockTimeExpressions(clueText);
+    const factValueRestated = valueAppearsInText(factValue, clueText);
+    const attributionGap = timeAttributionGap(factDesc, clueText);
+    // Confident only when the clue restates this fact's value, or states a time right beside a
+    // mention of this fact's event. A clue carrying several times is describing a RELATIONSHIP
+    // between them — the shape of a discriminating test — and is never a restatement of one fact.
+    const confidentlyAboutThisFact =
+      factValueRestated || (timeExpressions === 1 && attributionGap <= MAX_ATTRIBUTION_GAP_WORDS);
+    if (!confidentlyAboutThisFact) {
+      softViolations.push(
+        `CML time NOTE (not a conflict): clue "${clueId}" states ${timeExpressions} time(s), the nearest ` +
+          `${attributionGap === Infinity ? "unrelated to" : `${attributionGap} words from`} any mention of ` +
+          `"${factDesc}", and does not restate its value "${factValue}". Reads as a clue that MENTIONS this ` +
+          `event rather than one that TIMES it, so it is not treated as a contradiction (A_80 F14).`,
+      );
+      continue;
+    }
+    const clueStatesMeridiem = statesExplicitMeridiem(clueText);
 
-    const mappedClueIds = mapping
-      .map((m: any) => String(m?.clue_id ?? ""))
-      .filter((id: string) => id.length > 0);
+    // AM/PM ambiguity guard: do not silently infer when only one side is explicit.
+    if (factStatesMeridiem !== clueStatesMeridiem) {
+      violations.push(
+        `CML time ambiguity: locked fact "${factId || factDesc}" value "${factValue}" and clue "${clueId}" include mismatched AM/PM specificity. Make both explicit (or both implicit) before prose generation.`
+      );
+      continue;
+    }
 
-    for (const clueId of mappedClueIds) {
-      const clue = clueById.get(clueId);
-      if (!clue) continue;
-      const clueText = `${String(clue.description ?? "")} ${String((clue as any).pointsTo ?? "")}`;
-      if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
-
-      const clueMinutes = parseFactClockMinutes(clueText);
-      if (clueMinutes === null) continue;
-
-      /**
-       * A_80 F14 — MENTIONING AN EVENT IS NOT THE SAME AS TIMING IT.
-       *
-       * This gate aborted run mystery-1788285698781 (2026-09-01) on a locked fact
-       * `staff_shift_change_time = "half past ten"` versus a clue about the KITCHEN SERVICE BELL
-       * ringing at a quarter past ten. Those are two different events. The clue paired with the fact
-       * only because it mentioned the shift change in passing — "…Captain Hale was seen near the
-       * lobby during the staff shift change" — and the gate then read the clue's only time as if it
-       * were the fact's time.
-       *
-       * The case being destroyed was built on exactly that disagreement: its own discriminating test
-       * reads "comparing the lobby clock's displayed time with the independently timed kitchen
-       * service bell … the displayed time remains twenty minutes behind the bell's chime". **The gate
-       * aborted a clock-tampering mystery for containing a second, disagreeing timepiece**, which is
-       * the mechanism of the entire sub-genre.
-       *
-       * A clue that carries MORE THAN ONE time expression is describing a relationship between times,
-       * not restating one fact's value — which is what a discriminating test looks like. The
-       * confident case, and the only one worth aborting a paid run for, is a clue that states exactly
-       * one time and is unambiguously ABOUT this fact. Anything looser is reported and the run
-       * continues, because a false abort costs a whole run and a false warning costs a log line.
-       */
-      const timeExpressions = countClockTimeExpressions(clueText);
-      const factValueRestated = valueAppearsInText(factValue, clueText);
-      const attributionGap = timeAttributionGap(factDesc, clueText);
-      // Confident only when the clue restates this fact's value, or states a time right beside a
-      // mention of this fact's event. A clue carrying several times is describing a RELATIONSHIP
-      // between them — the shape of a discriminating test — and is never a restatement of one fact.
-      const confidentlyAboutThisFact =
-        factValueRestated || (timeExpressions === 1 && attributionGap <= MAX_ATTRIBUTION_GAP_WORDS);
-      if (!confidentlyAboutThisFact) {
-        softViolations.push(
-          `CML time NOTE (not a conflict): clue "${clueId}" states ${timeExpressions} time(s), the nearest ` +
-            `${attributionGap === Infinity ? "unrelated to" : `${attributionGap} words from`} any mention of ` +
-            `"${factDesc}", and does not restate its value "${factValue}". Reads as a clue that MENTIONS this ` +
-            `event rather than one that TIMES it, so it is not treated as a contradiction (A_80 F14).`,
-        );
-        continue;
-      }
-      const clueStatesMeridiem = statesExplicitMeridiem(clueText);
-
-      // AM/PM ambiguity guard: do not silently infer when only one side is explicit.
-      if (factStatesMeridiem !== clueStatesMeridiem) {
-        violations.push(
-          `CML time ambiguity: locked fact "${factId || factDesc}" value "${factValue}" and clue "${clueId}" include mismatched AM/PM specificity. Make both explicit (or both implicit) before prose generation.`
-        );
-        continue;
-      }
-
-      if (factMinutes !== clueMinutes) {
-        violations.push(
-          `CML time contradiction: locked fact "${factId || factDesc}" canonical "${factValue}" conflicts with clue "${clueId}" time expression (parsed ${Math.floor(clueMinutes / 60)}:${String(clueMinutes % 60).padStart(2, "0")} on the dial).`
-        );
-      }
+    if (factMinutes !== clueMinutes) {
+      violations.push(
+        `CML time contradiction: locked fact "${factId || factDesc}" canonical "${factValue}" conflicts with clue "${clueId}" time expression (parsed ${Math.floor(clueMinutes / 60)}:${String(clueMinutes % 60).padStart(2, "0")} on the dial).`
+      );
     }
   }
 
