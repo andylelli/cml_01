@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 38 | 33 | 0 | 71 |
-| open | 152 | 106 | 72 | 330 |
+| closed | 39 | 34 | 0 | 73 |
+| open | 151 | 105 | 72 | 328 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -34,7 +34,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
-| CR-18 | 23 | 7 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
+| CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
@@ -564,10 +564,10 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-04 | P1 | R1 | CR-18 | done | d860f265 | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored | displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned) |
 | SCO-05 | P1 | R1 | CR-18 | done | 2050362e 52cc50ad | generateReport (324 LOC, cc 59) and five writers of run outcome | deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change) |
 | SCO-06 | P1 | R0/R1 | CR-16 | todo |  | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites |  |
-| SCO-07 | P2 | R1/R2 | CR-18 | todo |  | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | R2 where drifted: fair-play weights wait on SCO-Q06; expected-clue-set / trust caps / DT-scene resolver changes move reported numbers — owner sign-off per the finding |
+| SCO-07 | P2 | R1/R2 | CR-18 | todo | a422bd65 | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | OWNER: normalizeClueIdForMatch deduped (a422bd65). Remaining pairs have drifted and move reported numbers: fair-play weights (waits SCO-Q06), trust cap 88 vs 85, three expected-clue sets, keyword vs CML discriminating-scene resolver |
 | SCO-08 | P2 | R0/R2 | CR-18 | done | 52cc50ad | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 | R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006 |
 | SCO-09 | P2 | R0 | CR-18 | done | 52cc50ad | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field | 9 identical interface pairs declared once; prose pair differs and stays |
-| SCO-10 | P2 | R1 | CR-18 | todo |  | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read |  |
+| SCO-10 | P2 | R1 | CR-18 | done | 1db19ec1 | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read | 5 unreachable branches + 5 helpers deleted (-192 lines); ScoringContext.cml optional, threshold_config dropped; SCO-12 snapshots identical. The v1 buildProseScoreArgs still builds threshold_config (harmless, v1 rule) |
 | SCO-11 | P2 | R0 | CR-08 | done | 094de134 | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals | scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30) |
 | SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
@@ -576,7 +576,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-D03 |  |  | CR-18 | done | 52cc50ad | Scorer-local pass rules are silently overridden: agent65 at 72 passes by its own rule (≥70), then fails in the report at 75 | failed phases carry a reason |
 | SCO-D04 |  |  | CR-18 | todo |  | retry-feedback.ts:54 "partial successes" compares score (0–100) to weight (≤3), so it never renders. :45 hides all minor | OWNER: retry-feedback 'partial successes' never renders (score vs weight) — fixing it changes retry prompt text (retries are off by default) |
 | SCO-D05 |  |  | CR-06 | done | dff49644 | RetryManager backoff off-by-one: recordRetry increments before getBackoffDelay is read (shared.ts:789-791), so the first retry |  |
-| SCO-D06 |  |  | CR-18 | todo |  | Prose rescore (agent9-run.ts:4450) omits fallbackTelemetry, so committed-fallback trust caps are dropped after a schema-repair |  |
+| SCO-D06 |  |  | CR-18 | done | 1db19ec1 | Prose rescore (agent9-run.ts:4450) omits fallbackTelemetry, so committed-fallback trust caps are dropped after a schema-repair | rescoreAgent9ProsePhase passes fallbackTelemetry; v1 bug fix |
 | SCO-D07 |  |  | CR-06 | done | ec237e5a | checkCompleteness dereferences arrays without a guard (agent2-cast-scorer.ts:395, agent2b…:322, agent2c…:306, |  |
 | SCO-D08 |  |  | CR-18 | todo |  | Agent 1 adapter discards location.description (agent1-scoring-adapter.ts:30). High. | OWNER: Agent 1 adapter discards location.description — fixing it changes the vanity score |
 | SCO-D09 |  |  | CR-06 | done | ec237e5a | Doc drift: the README gives the global retry cap as 15 (YAML 18) and prose as "strict 85" (code 80), and says retries are |  |

@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 11 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 12 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -65,7 +65,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-15 | todo | 3 | **One failure vocabulary**: typed issue codes instead of message strings re-classified by 11+ regexes | A9V-01, A9G-04, A5-06 | R1→R2 | L |
 | CR-16 | todo | 3 | **One clue contract**: source paths, evidence namespace, matcher (gate vs scorer), synthesis | A5-02, A5-03, A5-08, A6-09, A9V-04, SCO-06 | R1→R2 | L |
 | CR-17 | todo | 3 | One body each for season, arc position, locked facts, Story Bible facts | A9V-05, ORC-08, A7-13, A9G-09, A34-03, A9P-01, A9W-02/03 | R1→R2 | L |
-| CR-18 | todo | 3 | One scoring engine; one run-outcome module; one threshold resolver | SCO-02, SCO-04, SCO-05, SCO-07 | R1 | M |
+| CR-18 | done (R1; drift pairs 👤) | 3 | One scoring engine (`scoring/engine.ts`, −525 lines); one run-outcome module (`scoring/run-outcome.ts`, 36-case matrix); displayed == deciding threshold pinned for 19 phase/scorer pairs; adapter types declared once; unreachable scorer branches gone (−192); prose rescore keeps the fallback cap (`6cd2bdae`, `d860f265`, `2050362e`, `52cc50ad`, `1db19ec1`). 👤: SCO-07 drifted pairs, SCO-D04/D08/D12, SCO-Q02/Q03/Q07/Q08 | SCO-02, SCO-04, SCO-05, SCO-07 | R1 | M |
 | CR-19 | wip (core waits on 👤 A6-D01) | 3 | One definition of "cost of a call" — reported costs correct since CR-06; A34-D15 fixed; per-call cost on ChatResponse would also make Agent 6's retry budget charge first retries, which can newly abort a run (A6-D01, owner) | ORC-03, A1X-09, A5 §9.2 | R1 | M |
 | CR-20 | todo | 4 | **`callLlmJson()`**: one parse ladder with one truncation policy for all 31 LLM call sites | ORC-04, A1X-03, A34-06 | R1 | M |
 | CR-21 | todo | 4 | **`runStage()`** over `executeAgentWithRetry` for the 9 runners that fork on scoring | ORC-02, A1X-02 | R1 | M–L |
