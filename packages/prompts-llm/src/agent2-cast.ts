@@ -8,6 +8,7 @@
  * Agent 3 uses the logger from client, but Agents 1 & 2 follow a simpler pattern.
  */
 
+import { coerceAccessPlausibility, coerceMotiveStrength, coerceRelationshipTension as normalizeRelationshipTension } from "./agent2-cast-boundary.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { checkCast } from "./agent2-cast-checker.js";
@@ -559,18 +560,6 @@ const normalizeGender = (value: unknown): "male" | "female" | undefined => {
   if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
   return undefined;
 };
-const normalizeRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
-  const raw = String(value ?? "").trim().toLowerCase();
-  if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
-    return raw;
-  }
-  if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
-  if (/low|mild|minor|slight/.test(raw)) return "low";
-  if (/moderate|medium|mixed/.test(raw)) return "moderate";
-  if (/high|severe|intense|strong/.test(raw)) return "high";
-  return "moderate";
-};
-
 function countStep(cast: CastDesign, at: CastAttempt): CastStepResult {
   const { attempt, maxAttempts: resolvedMaxAttempts, constrained: noPlaceholderPadding, dynamicGuardrails, expectedCount } = at;
   // 4. Validate and normalize structure
@@ -640,11 +629,7 @@ function coerceEnumsStep(cast: CastDesign, _at: CastAttempt): CastStepResult {
       const accessRaw = String(char.accessPlausibility).trim();
       const accessLower = accessRaw.toLowerCase();
       if (!VALID_ACCESS.has(accessLower)) {
-        let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
-        if (/certain|definite|guarant|easy|high|sure/.test(accessLower))          coerced = "easy";
-        else if (/like|probable|often|common|frequent/.test(accessLower))          coerced = "possible";
-        else if (/unlike|improbab|rare|seldom|difficult|hard/.test(accessLower))  coerced = "unlikely";
-        else if (/impossible|never|no.access|barred/.test(accessLower))           coerced = "impossible";
+        const coerced = coerceAccessPlausibility(accessLower); // CR-12: one body with normaliseCastOutput
         console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
         nextChar = { ...nextChar, accessPlausibility: coerced };
       } else if (accessRaw !== accessLower) {
@@ -656,11 +641,7 @@ function coerceEnumsStep(cast: CastDesign, _at: CastAttempt): CastStepResult {
       const motiveRaw = String(char.motiveStrength).trim();
       const motiveLower = motiveRaw.toLowerCase();
       if (!VALID_MOTIVE.has(motiveLower)) {
-        let coerced: "weak" | "moderate" | "strong" | "compelling" = "moderate";
-        if (/compell|overwhelm|extreme|decisive|certain/.test(motiveLower))         coerced = "compelling";
-        else if (/strong|high|powerful|major|serious/.test(motiveLower))            coerced = "strong";
-        else if (/moderate|medium|mixed|balanced/.test(motiveLower))                coerced = "moderate";
-        else if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(motiveLower)) coerced = "weak";
+        const coerced = coerceMotiveStrength(motiveLower); // CR-12: one body with normaliseCastOutput
         console.warn(`[Agent 2] normalised motiveStrength "${char.motiveStrength}" → "${coerced}"`);
         nextChar = { ...nextChar, motiveStrength: coerced };
       } else if (motiveRaw !== motiveLower) {

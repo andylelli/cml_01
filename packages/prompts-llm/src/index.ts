@@ -4,6 +4,7 @@
 
 export { refineSetting } from "./agent1-setting.js";
 export { designCast } from "./agent2-cast.js";
+export { coerceMotiveStrength, coerceAccessPlausibility, coerceRelationshipTension } from "./agent2-cast-boundary.js";
 export { checkCast, summarizeCastCheck } from "./agent2-cast-checker.js";
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
 export { provesTheAct } from "./agent3-means-link.js";
