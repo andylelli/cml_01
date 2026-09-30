@@ -1,0 +1,1009 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 74,
+  "passed": false,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "Release gate failed",
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": false,
+    "score": 74,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 72.5,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "Release gate failed",
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": false,
+    "score": 72.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "D",
+  "overall_score": 60,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "Release gate failed",
+  "scoring_outcome": {
+    "grade": "D",
+    "passed_threshold": false,
+    "score": 60,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-failed × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 74,
+  "passed": false,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "Release gate failed",
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": false,
+    "score": 74,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Release gate hard-stop",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Release gate hard-stop",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Release gate hard-stop",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-hardstop × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Release gate hard-stop",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 92.5,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 92.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 72.5,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": true,
+    "score": 72.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "D",
+  "overall_score": 60,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "D",
+    "passed_threshold": true,
+    "score": 60,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-other × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 90,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 90,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 92.5,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 92.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 72.5,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": true,
+    "score": 72.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "D",
+  "overall_score": 60,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "D",
+    "passed_threshold": true,
+    "score": 60,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-passed × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 90,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "passed",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 90,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "warning",
+    "hard_stop_count": 0,
+    "warning_count": 2,
+  },
+  "overall_grade": "A",
+  "overall_score": 92.5,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "warning",
+    "warning_count": 2,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 92.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 2,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 2,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 0,
+    "warning_count": 2,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "warning",
+    "warning_count": 2,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "warning",
+    "hard_stop_count": 0,
+    "warning_count": 2,
+  },
+  "overall_grade": "C",
+  "overall_score": 72.5,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "warning",
+    "warning_count": 2,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": true,
+    "score": 72.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "warning",
+    "hard_stop_count": 0,
+    "warning_count": 2,
+  },
+  "overall_grade": "D",
+  "overall_score": 60,
+  "passed": true,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "warning",
+    "warning_count": 2,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "D",
+    "passed_threshold": true,
+    "score": 60,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > gate-warnings × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "warning",
+    "hard_stop_count": 0,
+    "warning_count": 2,
+  },
+  "overall_grade": "A",
+  "overall_score": 90,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": true,
+    "status": "warning",
+    "warning_count": 2,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": undefined,
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 90,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × all-pass 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 92.5,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "unknown",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": "Phase thresholds met; no release-gate evidence recorded (ship status unconfirmed)",
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 92.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × hard-gate 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "aborted",
+    "hard_stop_count": 1,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 59,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 1,
+    "shipped": false,
+    "status": "failed",
+    "warning_count": 0,
+  },
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Deterministic hard gate failure",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 59,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × infra 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "infra_failure",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "F",
+  "overall_score": 40,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "unknown",
+    "warning_count": 0,
+  },
+  "run_outcome": "infra_failure",
+  "run_outcome_reason": "Infrastructure failure (DNS/connectivity)",
+  "scoring_outcome": {
+    "grade": "F",
+    "passed_threshold": false,
+    "score": 40,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × one-fails 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "C",
+  "overall_score": 72.5,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "unknown",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "One or more phases failed threshold",
+  "scoring_outcome": {
+    "grade": "C",
+    "passed_threshold": false,
+    "score": 72.5,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × prose-60 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "D",
+  "overall_score": 60,
+  "passed": false,
+  "phase_thresholds_met": false,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "unknown",
+    "warning_count": 0,
+  },
+  "run_outcome": "failed",
+  "run_outcome_reason": "One or more phases failed threshold",
+  "scoring_outcome": {
+    "grade": "D",
+    "passed_threshold": false,
+    "score": 60,
+  },
+}
+`;
+
+exports[`generateReport run-outcome matrix (SCO-05) > no-gate × prose-100 1`] = `
+{
+  "display_status": {
+    "discrepancies": [],
+    "display_status": "passed",
+    "hard_stop_count": 0,
+    "warning_count": 0,
+  },
+  "overall_grade": "A",
+  "overall_score": 90,
+  "passed": true,
+  "phase_thresholds_met": true,
+  "release_gate_outcome": {
+    "hard_stop_count": 0,
+    "shipped": false,
+    "status": "unknown",
+    "warning_count": 0,
+  },
+  "run_outcome": "passed",
+  "run_outcome_reason": "Phase thresholds met; no release-gate evidence recorded (ship status unconfirmed)",
+  "scoring_outcome": {
+    "grade": "A",
+    "passed_threshold": true,
+    "score": 90,
+  },
+}
+`;

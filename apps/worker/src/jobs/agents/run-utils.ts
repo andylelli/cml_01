@@ -3,6 +3,7 @@
  *
  * Moved verbatim from `shared.ts` (code review ORC-06), which re-exports it.
  */
+import { INFRA_SIGNAL_PATTERN } from "@cml/story-validation";
 import type {
   GenerationReport,
 } from "@cml/story-validation";
@@ -51,9 +52,8 @@ export function describeError(error: unknown): string {
 }
 
 export function applyAbortedRunMetadata(report: GenerationReport, reason: string): void {
-  const infraPattern =
-    /(\[infra[_\-\s]?precheck\]|infra[_\-\s]?failure|enotfound|eai_again|dns\s+resolution\s+failed|azure\s+endpoint\s+dns|etimedout|econnreset|socket\s+hang\s+up)/i;
-  report.run_outcome = infraPattern.test(reason) ? "infra_failure" : "aborted";
+  // SCO-05: the same pattern generateReport uses (this was a verbatim copy of it).
+  report.run_outcome = INFRA_SIGNAL_PATTERN.test(reason) ? "infra_failure" : "aborted";
   report.run_outcome_reason = reason;
   report.passed = false;
 

@@ -120,3 +120,6 @@ export {
   assertGenerationReportInvariants,
 } from './report-invariants.js';
 export type { ReportInvariantViolation } from './report-invariants.js';
+
+// SCO-05 — the run outcome, derived once.
+export { deriveRunOutcome, INFRA_SIGNAL_PATTERN } from './run-outcome.js';
