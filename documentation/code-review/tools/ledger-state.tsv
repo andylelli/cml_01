@@ -172,8 +172,8 @@ A5-03	CR-16	done	04e0bc58	R1: the three evidence-candidate scorers through clue-
 A5-04	CR-13	todo		
 A5-05	CR-10	done	fdd6c939	contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16)
 A5-06	CR-15	todo		
-A5-07	CR-16	todo		NOT STARTED — session stopped after CR-16 at the owner's request. R1: selectors + one declarative ClueRequirement for the check/repair pairs; characterise first
-A5-08	CR-16	todo		NOT STARTED (stopped after CR-16). R1: one ClueSetWriter (mint + timeline computed from placements); the two direct-culprit synthesisers and the shared backstop id families
+A5-07	CR-16	done	6d13cdf7	Selectors shared by each check and its repair (DT, mechanism, cast path, model audit, locked-fact pairs; findClueById, isEarlyOrMidPlacement). MEASURED 0 diffs over 4,680 old-vs-new cases, every probe fired, control 65 diffs (scripts/cr16-clue-contract-characterisation.mjs). ClueRequirement table not built: the slots share 2 rules and carry 22 distinct messages
+A5-08	CR-16	done	9af9b5fd	R1: openClueSynthesis (4 preludes) and appendToClueTimeline (3 appends) in clue-contracts/synthesis.ts; 0 diffs over 2,275 cases (scripts/cr16-synthesis-characterisation.mjs). R2, not built (OWNER): timeline computed from placements, one direct-culprit synthesiser, one backstop id family
 A5-09	CR-27	todo		
 A5-10	CR-28	todo		
 A5-11	CR-29	todo		
@@ -191,7 +191,7 @@ A5-D05	CR-07	todo
 A5-D06	CR-25	todo		OWNER: a 2-line fix (invalidate strictPromptFeedbackCache/strictSourcePathWhitelistCache after remapMissingDiscriminatingEvidenceIdsToExistingClues, as three other sites do) stops a fabricated clue on remap runs — it changes clues, so prompts downstream; needs a flag or the owner's yes
 A5-D07	CR-17	todo		
 A5-D08	CR-15	todo		
-A5-D09	CR-16	todo		NOT STARTED. First find whether ctx.allCoverageIssues reaches a prompt: if it does, including checkMechanismVisibility in both snapshots is R2
+A5-D09	CR-16	done	12131e7c	One body: buildCoverageSnapshot(cml, clues, { mechanismVisibility }) in clue-contracts/contracts.ts; Agent 5 passes false, Agent 6 true. MEASURED: Agent 5's copy feeds the coverage-retry PROMPT (agent5/extraction.ts violations list), so including checkMechanismVisibility there is R2 (a prompt change); the release gates read Agent 6's full snapshot, written last by runAgent6 — absorbed per WF-002
 A5-D10	CR-20	done	21992344	category/placement/criticality lower-cased at parse; suspect-coverage eligibility lower-cased
 A5-Q01	CR-16	todo		
 A5-Q02	CR-07	todo		
@@ -203,12 +203,12 @@ A5-Q07	CR-16	todo
 A6-01	CR-25	done	71c3fdab	runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue)
 A6-02	CR-29	todo		
 A6-03	CR-29	todo		
-A6-04	CR-16	todo		NOT STARTED (stopped after CR-16). R1: applyFairPlayFloor(ctx, label) with the pre-LLM ordering at all four sites; needs per-site characterisation on the golden bundles (the post-revision site's missing log is fixed, 11384aaf)
+A6-04	CR-16	deferred	9af9b5fd	R1 done: refreshCoverageOnContext (4 copies). MEASURED: pre-LLM and post-revision orderings agree in 65/65 planted cases; WP8A (backstop first) differs in 65/65, so one ordering at all four sites is R2 — OWNER
 A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
 A6-06	CR-25	deferred		blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass
 A6-07	CR-12	todo		OWNER (R2): one cast-aware guess resolver changes the blind-reader and T2.1 verdicts that gate
 A6-08	CR-31	todo		
-A6-09	CR-16	todo		NOT STARTED (stopped after CR-16). R0/R1: agents/clue-contracts/ as the shared home so Agents 5 and 6 stop importing each other (evidence-candidates.ts is its first file)
+A6-09	CR-16	done	9af9b5fd	R0: Agent 5's checker library moved to jobs/clue-contracts/ (12131e7c) — no agent6 module imports agent5; R1: shared synthesis prelude, bridge token list once, backstop push once (9af9b5fd). Open, R2: the elimination vocabulary divergence (structural audit accepts 'rules out'/'clears', isEliminationLike does not)
 A6-10	CR-13	todo		
 A6-11	CR-27	todo		
 A6-12	CR-25	deferred		world-builder validate refactor + deleting ~55 lines of unreachable gates: R1, needs the property tests A6-12 names first; next Agent 6.5 pass
@@ -227,7 +227,7 @@ A6-D05	CR-25	deferred		stale verdict after a CML revision (retries arm, off by d
 A6-D06	CR-16	done	11384aaf	the post-revision backstop's repairs are persistent-risk warnings
 A6-D07	CR-12	todo		OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate
 A6-D08	CR-07	todo		
-A6-D09	CR-16	todo		NOT STARTED (low). Creating empty prose_requirements / discriminating_test_scene objects on a no-op can reach a serialised CML — check before fixing
+A6-D09	CR-16	deferred		MEASURED 0/103 archived CMLs lack prose_requirements.discriminating_test_scene, so the empty stub is never created in the corpus. When it is, Agent 7's prompt prints 'Act undefined, Scene undefined' (agent7-narrative.ts:468 tests the object for truthiness) and the schema's required fields fail. The fix (read without creating; create prose_requirements only on a write) changes Agent 7's prompt on that path: R2, owner (CR-07 class)
 A6-Q01	CR-29	todo		
 A6-Q02	CR-29	todo		
 A6-Q03	CR-34	todo		
