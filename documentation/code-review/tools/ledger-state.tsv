@@ -206,7 +206,7 @@ A6-03	CR-29	todo
 A6-04	CR-16	todo		
 A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
 A6-06	CR-25	deferred		blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass
-A6-07	CR-12	todo		
+A6-07	CR-12	todo		OWNER (R2): one cast-aware guess resolver changes the blind-reader and T2.1 verdicts that gate
 A6-08	CR-31	todo		
 A6-09	CR-16	todo		
 A6-10	CR-13	todo		
@@ -221,11 +221,11 @@ A6-18	CR-13	todo
 A6-19	CR-31	todo		
 A6-D01	CR-19	todo		OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29
 A6-D02	CR-07	todo		
-A6-D03	CR-12	todo		
-A6-D04	CR-12	todo		
+A6-D03	CR-12	done	75a049ca	the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing
+A6-D04	CR-12	todo		OWNER (R2): the blind-reader prompt lists the detective and victim as suspects; removing them changes the prompt
 A6-D05	CR-25	deferred		stale verdict after a CML revision (retries arm, off by default) — behaviour; with CR-29
 A6-D06	CR-16	todo		
-A6-D07	CR-12	todo		
+A6-D07	CR-12	todo		OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate
 A6-D08	CR-07	todo		
 A6-D09	CR-16	todo		
 A6-Q01	CR-29	todo		
@@ -262,7 +262,7 @@ A7-Q03	CR-30	todo
 A7-Q04	CR-16	todo		
 A7-Q05	CR-07	todo		
 A34-01	CR-14	done	ac0c76d4	step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner)
-A34-02	CR-12	todo		
+A34-02	CR-12	todo	8f86016c	MEASURED by the item's own rule: 577 old-vs-new disagreements over the archive, so R2 (owner, A1X-Q01). The new predicate fixes 'Actress and victim's former mentee' as victim, but marks some role:suspect members ('Outsider Investigator', 'police inspector, official authority') as detectives
 A34-03	CR-17	todo		
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	todo		
@@ -279,7 +279,7 @@ A34-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VER
 A34-D02	CR-17	todo		
 A34-D03	CR-07	todo		
 A34-D04	CR-07	todo		
-A34-D05	CR-12	todo		
+A34-D05	CR-12	todo		OWNER (A34-Q01): the last-resort culprit fallback (normalizedCast[0]) can name the detective or victim; fixing it changes the CML on that path
 A34-D06	CR-33	done	ba1b5496	notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496)
 A34-D07	CR-20	todo		OWNER (ORC-Q03): Agent 4 is now `parseLlmJson(raw, { guard: false, extract: "strict+repair" })` — guarding it is one word
 A34-D08	CR-29	dup		= A34-09
@@ -296,10 +296,10 @@ A34-Q02	CR-17	todo
 A34-Q03	CR-30	todo		
 A34-Q04	CR-16	todo		
 A34-Q05	CR-32	todo		
-A1X-01	CR-12	todo		
+A1X-01	CR-12	todo	8f86016c	R0 done (8f86016c): surname/namesMatch/nameAppearsAsWord moved to @cml/cml, re-exported; roleArchetypeIncludesWord deleted. OWNER (A1X-Q01): unifying the detective/victim predicates — 577 disagreements over 2,502 archived cast members (scripts/role-predicate-disagreement.mjs)
 A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
 A1X-03	CR-20	done	5c6f6f9d	generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0)
-A1X-04	CR-12	todo		
+A1X-04	CR-12	done	4890dff0	R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers
 A1X-05	CR-21	done	f57dae47	CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss)
 A1X-06	CR-21	done	cbe9e58a	runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests
 A1X-07	CR-31	todo		
@@ -324,7 +324,7 @@ A1X-D10	CR-29	todo
 A1X-D11	CR-07	todo		
 A1X-D12	CR-33	done	ba1b5496	2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected
 A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
-A1X-Q01	CR-12	todo		
+A1X-Q01	CR-12	todo		OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site)
 A1X-Q02	CR-18	todo		
 A1X-Q03	CR-07	todo		
 A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)

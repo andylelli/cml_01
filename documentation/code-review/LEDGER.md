@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 52 | 40 | 0 | 92 |
-| open | 138 | 99 | 72 | 309 |
+| closed | 53 | 41 | 0 | 94 |
+| open | 137 | 98 | 72 | 307 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -28,7 +28,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-09 | 1 | 0 | A9W-12 |
 | CR-10 | 5 | 4 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 1 | A9G-15 A9G-Q03 ORC-10 |
-| CR-12 | 17 | 1 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
+| CR-12 | 17 | 3 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 1 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
@@ -65,7 +65,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
 | CR-07 | ORC-Q01 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
 | CR-11 | A9G-Q03 | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
-| CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
+| CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site) |
 | CR-12 | A9R-Q03 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observation)? |  |
 | CR-12 | A9W-Q04 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
 | CR-14 | A34-Q01 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | OWNER. The two profiles now sit side by side in cml/normalize.ts; each divergent row is one section of one profile, and the characterisation snapshot shows what a convergence moves |
@@ -372,7 +372,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-04 | P1 | R1 | CR-16 | todo |  | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently |  |
 | A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
 | A6-06 | P2 | R0/R1 | CR-25 | deferred |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) | blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass |
-| A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects |  |
+| A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects | OWNER (R2): one cast-aware guess resolver changes the blind-reader and T2.1 verdicts that gate |
 | A6-08 | P2 | R1/R2 | CR-31 | todo |  | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names |  |
 | A6-09 | P2 | R0/R1 | CR-16 | todo |  | Clue-synthesis helpers duplicated with Agent 5; the agent6→agent5 import edge should become a clue-contracts module |  |
 | A6-10 | P2 | R1 | CR-13 | todo |  | CML prompt-header projection: 6 bodies across 4 files; FA-1/2/5 fixes landed only in Agent 6 |  |
@@ -387,11 +387,11 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-19 | P3 | R0/R2 | CR-31 | todo |  | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge |  |
 | A6-D01 |  |  | CR-19 | todo |  | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29 |
 | A6-D02 |  |  | CR-07 | todo |  | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… |  |
-| A6-D03 |  |  | CR-12 | todo |  | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… |  |
-| A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. |  |
+| A6-D03 |  |  | CR-12 | done | 75a049ca | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… | the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing |
+| A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. | OWNER (R2): the blind-reader prompt lists the detective and victim as suspects; removing them changes the prompt |
 | A6-D05 |  |  | CR-25 | deferred |  | Stale state after a CML revision (retries arm). P7's verdict and P10's inputs (:1720–1723) describe the pre-revision CML and clues. Medium confidence. | stale verdict after a CML revision (retries arm, off by default) — behaviour; with CR-29 |
 | A6-D06 |  |  | CR-16 | todo |  | The post-revision floor discards its repairs (:2308): no telemetry (ADR-0010). High confidence. |  |
-| A6-D07 |  |  | CR-12 | todo |  | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. |  |
+| A6-D07 |  |  | CR-12 | todo |  | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. | OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate |
 | A6-D08 |  |  | CR-07 | todo |  | The backstop can emit a "contradiction" clue with the same text as its observation clue when a step has no correction (:1057–1111). Low severity. |  |
 | A6-D09 |  |  | CR-16 | todo |  | synchronizeClueTraceabilityFromCurrentClues creates empty prose_requirements / discriminating_test_scene objects even on a no-op (:1227–1228). Low se… |  |
 | A6-Q01 |  |  | CR-29 | todo |  | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… |  |
@@ -438,7 +438,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A34-01 | P1 | R1 then R2 | CR-14 | done | ac0c76d4 | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge | step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner) |
-| A34-02 | P1 | R2 | CR-12 | todo |  | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives |  |
+| A34-02 | P1 | R2 | CR-12 | todo | 8f86016c | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | MEASURED by the item's own rule: 577 old-vs-new disagreements over the archive, so R2 (owner, A1X-Q01). The new predicate fixes 'Actress and victim's former mentee' as victim, but marks some role:suspect members ('Outsider Investigator', 'police inspector, official authority') as detectives |
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
@@ -455,7 +455,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D02 |  |  | CR-17 | todo |  | Agent 9 prompts and enforces raw device locked facts (all devices), not the registry, so X38/C1/X51 don't reach its contract |  |
 | A34-D03 |  |  | CR-07 | todo |  | Positional gender lookup: if the model reorders the cast and omits gender, genders swap |  |
 | A34-D04 |  |  | CR-07 | todo |  | Cast truncated or padded to castNames length; extra model characters dropped positionally |  |
-| A34-D05 |  |  | CR-12 | todo |  | Last-resort culprit fallback can name the detective or victim |  |
+| A34-D05 |  |  | CR-12 | todo |  | Last-resort culprit fallback can name the detective or victim | OWNER (A34-Q01): the last-resort culprit fallback (normalizedCast[0]) can name the detective or victim; fixing it changes the CML on that path |
 | A34-D06 |  |  | CR-33 | done | ba1b5496 | normalizationNotes from discarded attempts leak; retries' notes never reach warnings | notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496) |
 | A34-D07 |  |  | CR-20 | todo |  | Agent 4 parser has no truncation guard on a full-CML re-emission | OWNER (ORC-Q03): Agent 4 is now parseLlmJson(raw, { guard: false, extract: "strict+repair" }) — guarding it is one word |
 | A34-D08 |  |  | CR-29 | dup |  | Plausibility/scoring feedback pollutes the theme lock | = A34-09 |
@@ -477,10 +477,10 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo |  | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 |  |
+| A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo | 8f86016c | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | R0 done (8f86016c): surname/namesMatch/nameAppearsAsWord moved to @cml/cml, re-exported; roleArchetypeIncludesWord deleted. OWNER (A1X-Q01): unifying the detective/victim predicates — 577 disagreements over 2,502 archived cast members (scripts/role-predicate-disagreement.mjs) |
 | A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
 | A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | done | 5c6f6f9d | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) | generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0) |
-| A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | todo |  | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies |  |
+| A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | done | 4890dff0 | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies | R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers |
 | A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | done | f57dae47 | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls | CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss) |
 | A1X-06 | P2 | R1 | CR-21 | done | cbe9e58a | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting | runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests |
 | A1X-07 | P2 | R1 (R2 F5b) | CR-31 | todo |  | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire |  |
@@ -505,7 +505,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
 | A1X-D12 |  |  | CR-33 | done | ba1b5496 | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… | 2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected |
 | A1X-D13 |  |  | CR-04 | done | fc6f52c7 | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) | declared; deps:check guards it (7 violations found, 0 left) |
-| A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
+| A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site) |
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | A1X-Q03 |  |  | CR-07 | todo |  | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
 | A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
