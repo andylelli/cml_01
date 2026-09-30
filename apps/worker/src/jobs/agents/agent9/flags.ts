@@ -63,14 +63,6 @@ export const isGroundingLeadEnabled = () => parseBooleanEnv(process.env.AGENT9_G
 export const isBibleGatesBlockingEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_GATES_BLOCKING, false);
 
 /**
- * First-principles LLD §6.5 / phase P5 — the critique→rewrite-at-creative-temperature pass. After
- * generation, the lowest-scoring chapters are critiqued against the rubric and rewritten at temp
- * 0.7–0.9, with deterministic re-validation + rollback (the rewrite can never drop a locked fact or
- * smuggle scaffold; clue-presence and pronoun fidelity are additionally backstopped by the downstream
- * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
- */
-
-/**
  * First-principles LLD §6.4 / phase P4 (RC1.2/RC1.3) — the deductive-scaffold / report-style-clearance
  * regen pass. After generation + deterministic hygiene, any chapter whose endgame ships its deduction or
  * a suspect clearance as a templated verdict (the rubric caps: prose ≤ 4 scaffold, prose ≤ 6 / ending ≤ 7

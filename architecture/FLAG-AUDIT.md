@@ -959,6 +959,7 @@ the code at each site (MEASURED).
 | `CML_REPAIR_MODE` | unset → `rewrite` | CONFIG | `agent3-cml.ts`: `patch` \| `rewrite` \| `shadow` for Agent 3's CML repair; `patch` is the ANALYSIS_53 opt-in. |
 | `ENABLE_SCORING` | **`true` in `.env` and `.env.local`**; unset → off | CONFIG — the scoring master switch | `mystery-orchestrator.ts`, read through `parseBooleanEnv` since CR-06 (ORC-D07): `1`/`yes`/`on` count; before, only the string `true` did. |
 | `ENABLE_PROSE_BLIND_READER` | unset → off | DEFER — no probe recorded | `prose-blind-reader.ts`; accepts `1`/`true`/`yes`/`y`/`on` since CR-06 (ORC-D07). |
+| `CANARY_REPLAY_FAIRPLAY_ADVISORY` | unset → off; **never set in .env** | HARNESS-ONLY — added to the checker in CR-22 (A9W-13) | `agent9-run.ts` (`parseBooleanEnv`): demotes the fair-play hard-stop to a warning in A/B replays, where a fresh audit over hydrated artifacts scores near 45/100 in both arms. Set only by `scripts/exp-regen-clue-ab.mjs`. |
 | `HONEST_SCORERS` | unset → `off` | DEFER — ANALYSIS_50 Phase 3 | `off` returns the vanity score (production); `shadow` logs vanity↔honest; `enforce` returns the honest score. Characterised on the golden bundles by `phase-scoring-golden.test.ts` (SCO-12). |
 | `ALLOW_MULTIPLE_RETRY_GATES` | unset → off | CONFIG | `retry-gate-guard.ts`: overrides the one-retry-gate-per-run refusal. |
 | `LLM_RETRY_TEMP_ESCALATION` | unset → **on** | DEFER | `llm-client/client.ts`: off-words (`0`/`off`/`false`/`no`) disable the temperature escalation on transport retries; anything else, including unset, leaves it on. |
