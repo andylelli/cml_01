@@ -167,7 +167,7 @@ A9R-Q03	CR-12	todo
 A9R-Q04	CR-30	todo		
 A9R-Q05	CR-31	todo		
 A5-01	CR-25	done	ad612520	runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/
-A5-02	CR-16	todo		
+A5-02	CR-16	todo	ec47208f	step 1 (R1) done: @cml/cml source-paths.ts is the one table (templates, derived regexes, one enumerator, prompt roots, retry templates); the worker validator, strict whitelist, retry templates, prompts-llm enumerator and the prompt's root list derive from it; equivalence test against verbatim copies over 137 library cases; Agent 5 prompt byte-identical on replay. Step 2 (OWNER): is CASE.death_method legal (the prompt demands it, the worker rewrites it)
 A5-03	CR-16	todo		
 A5-04	CR-13	todo		
 A5-05	CR-10	done	fdd6c939	contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16)
@@ -372,7 +372,7 @@ SCO-02	CR-18	done	6cd2bdae	8 identical scorers -> scoring/engine.ts assemblePhas
 SCO-03	CR-27	todo		
 SCO-04	CR-18	done	d860f265	displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned)
 SCO-05	CR-18	done	2050362e 52cc50ad	deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change)
-SCO-06	CR-16	todo		
+SCO-06	CR-16	done	5107cbf3	move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9)
 SCO-07	CR-18	todo	a422bd65	OWNER: normalizeClueIdForMatch deduped (a422bd65). Remaining pairs have drifted and move reported numbers: fair-play weights (waits SCO-Q06), trust cap 88 vs 85, three expected-clue sets, keyword vs CML discriminating-scene resolver
 SCO-08	CR-18	done	52cc50ad	R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006
 SCO-09	CR-18	done	52cc50ad	9 identical interface pairs declared once; prose pair differs and stays

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 53 | 41 | 0 | 94 |
-| open | 137 | 98 | 72 | 307 |
+| closed | 54 | 41 | 0 | 95 |
+| open | 136 | 98 | 72 | 306 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -32,7 +32,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 1 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
-| CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
+| CR-16 | 25 | 1 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
@@ -328,7 +328,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A5-01 | P1 | R1 | CR-25 | done | ad612520 | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… | runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/ |
-| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo |  | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) |  |
+| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo | ec47208f | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) | step 1 (R1) done: @cml/cml source-paths.ts is the one table (templates, derived regexes, one enumerator, prompt roots, retry templates); the worker validator, strict whitelist, retry templates, prompts-llm enumerator and the prompt's root list derive from it; equivalence test against verbatim copies over 137 library cases; Agent 5 prompt byte-identical on replay. Step 2 (OWNER): is CASE.death_method legal (the prompt demands it, the worker rewrites it) |
 | A5-03 | P1 | R1 / R2 | CR-16 | todo |  | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies |  |
 | A5-04 | P1 | R1 | CR-13 | todo |  | Normalise LLM JSON at the parse boundary + typed case view (removes most any) |  |
 | A5-05 | P1 | R0 | CR-10 | done | fdd6c939 | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) | contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16) |
@@ -563,7 +563,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-03 | P2 | R1 | CR-27 | todo |  | Declarative per-agent check tables over the engine; 129 hand-written pass/partial ternaries |  |
 | SCO-04 | P1 | R1 | CR-18 | done | d860f265 | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored | displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned) |
 | SCO-05 | P1 | R1 | CR-18 | done | 2050362e 52cc50ad | generateReport (324 LOC, cc 59) and five writers of run outcome | deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change) |
-| SCO-06 | P1 | R0/R1 | CR-16 | todo |  | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites |  |
+| SCO-06 | P1 | R0/R1 | CR-16 | done | 5107cbf3 | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites | move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9) |
 | SCO-07 | P2 | R1/R2 | CR-18 | todo | a422bd65 | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | OWNER: normalizeClueIdForMatch deduped (a422bd65). Remaining pairs have drifted and move reported numbers: fair-play weights (waits SCO-Q06), trust cap 88 vs 85, three expected-clue sets, keyword vs CML discriminating-scene resolver |
 | SCO-08 | P2 | R0/R2 | CR-18 | done | 52cc50ad | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 | R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006 |
 | SCO-09 | P2 | R0 | CR-18 | done | 52cc50ad | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field | 9 identical interface pairs declared once; prose pair differs and stays |
