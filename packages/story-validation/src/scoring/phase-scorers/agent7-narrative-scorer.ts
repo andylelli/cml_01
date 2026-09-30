@@ -1,11 +1,10 @@
+import { assemblePhaseScore } from '../engine.js';
 import { Scorer, PhaseScore, ScoringContext, TestResult } from '../types.js';
 import {
   pass,
   fail,
   partial,
   exists,
-  calculateCategoryScore,
-  getCriticalFailures,
 } from '../scorer-utils.js';
 import { getChapterTarget, getChapterTargetTolerance } from '../../story-length-targets.js';
 
@@ -78,43 +77,7 @@ export class NarrativeScorer
     // CONSISTENCY TESTS (10% weight)
     tests.push(...this.checkConsistency(output, context));
 
-    // Calculate component scores
-    const validation_score = calculateCategoryScore(tests, 'validation');
-    const quality_score = calculateCategoryScore(tests, 'quality');
-    const completeness_score = calculateCategoryScore(tests, 'completeness');
-    const consistency_score = calculateCategoryScore(tests, 'consistency');
-
-    // Calculate total
-    const total =
-      validation_score * 0.4 +
-      quality_score * 0.3 +
-      completeness_score * 0.2 +
-      consistency_score * 0.1;
-
-    const criticalFailures = getCriticalFailures(tests);
-    const passed = criticalFailures.length === 0 && total >= 60;
-    
-    const component_failures: string[] = [];
-    if (validation_score < 60) component_failures.push('validation');
-    if (quality_score < 50) component_failures.push('quality');
-    if (completeness_score < 60) component_failures.push('completeness');
-    if (consistency_score < 50) component_failures.push('consistency');
-
-    return {
-      agent: 'agent7-narrative-outline',
-      validation_score,
-      quality_score,
-      completeness_score,
-      consistency_score,
-      total: Math.round(total),
-      grade: this.calculateGrade(total),
-      passed,
-      tests,
-      component_failures: component_failures.length > 0 ? component_failures : undefined,
-      failure_reason: !passed
-        ? this.buildFailureReason(criticalFailures, component_failures)
-        : undefined,
-    };
+    return assemblePhaseScore('agent7-narrative-outline', tests); // SCO-02: the shared assembly (scoring/engine.ts)
   }
 
   private validateStructure(output: NarrativeOutlineOutput, expectedChapters: number): TestResult[] {
@@ -464,28 +427,4 @@ export class NarrativeScorer
     return tests;
   }
 
-  private calculateGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
-    if (score >= 90) return 'A';
-    if (score >= 80) return 'B';
-    if (score >= 70) return 'C';
-    if (score >= 60) return 'D';
-    return 'F';
-  }
-
-  private buildFailureReason(
-    criticalFailures: TestResult[],
-    componentFailures: string[]
-  ): string {
-    const parts: string[] = [];
-
-    if (criticalFailures.length > 0) {
-      parts.push(`${criticalFailures.length} critical failure(s)`);
-    }
-
-    if (componentFailures.length > 0) {
-      parts.push(`Components below minimum: ${componentFailures.join(', ')}`);
-    }
-
-    return parts.join('; ') || 'Score below threshold';
-  }
 }
