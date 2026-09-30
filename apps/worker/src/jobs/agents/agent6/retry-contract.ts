@@ -4,6 +4,7 @@
  * Agent 5's contracts to regenerated clues. Moved from agent6-run.ts (code review A6-01 / CR-25).
  */
 import { appendToClueTimeline, openClueSynthesis } from "../../clue-contracts/synthesis.js";
+import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence-floor.js";
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import { isDetectiveArchetype, isVictimArchetype, roleTextsOf } from "@cml/cml";
@@ -396,6 +397,12 @@ export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext,
   deterministicContracts.warnings.forEach((warning) =>
     ctx.warnings.push(`Agent 6 (${contextLabel}) ${warning}`),
   );
+  // Owner decision 6: Agent 5's evidence floor, re-applied to the regenerated clues before the re-audit —
+  // the pre-prose gate no longer back-fills after it.
+  const evidenceFloorAdded = ensureDiscriminatingEvidenceFloor(ctx.cml, ctx.clues);
+  if (evidenceFloorAdded.length > 0) {
+    ctx.warnings.push(`Agent 6 (${contextLabel}) discriminating-evidence floor: added ${evidenceFloorAdded.join(", ")}`);
+  }
   refreshCoverageOnContext(ctx);
 
   const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);

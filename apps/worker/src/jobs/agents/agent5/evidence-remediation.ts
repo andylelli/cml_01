@@ -3,8 +3,8 @@
  * repair and hard gate. Moved from agent5-run.ts (code review A5-01 / CR-25), which re-exports what it exported.
  */
 import { appendToClueTimeline } from "../../clue-contracts/synthesis.js";
+import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence-floor.js";
 import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
-import { SELECTION_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../../clue-contracts/evidence-candidates.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
@@ -21,7 +21,6 @@ import {
   enforceAgent5DeterministicContracts,
   findCulpritDiscriminatingGaps,
   findLockedFactClueTimeConflicts,
-  getCanonicalEvidenceClueIds,
   getCaseBlock,
   getMissingDiscriminatingEvidenceIds,
   reconcileModelAudit,
@@ -222,15 +221,8 @@ export function purgeUnmappableDiscriminatingEvidenceIds(
   strictSourcePathWhitelistCache.delete(cml as unknown as object);
   strictPromptFeedbackCache.delete(cml as unknown as object);
 
-  let reseeded: string[] = [];
-  if (discrimTest.evidence_clues.length === 0) {
-    reseeded = selectDiscriminatingEvidenceCandidateIds(cml, clues, 3);
-    if (reseeded.length > 0) {
-      discrimTest.evidence_clues = reseeded;
-      strictSourcePathWhitelistCache.delete(cml as unknown as object);
-      strictPromptFeedbackCache.delete(cml as unknown as object);
-    }
-  }
+  // Owner decision 6: the one floor (at least two) — this used to re-seed three, only when the purge emptied it.
+  const reseeded = ensureDiscriminatingEvidenceFloor(cml, clues);
 
   return { removed, reseeded };
 }
@@ -298,40 +290,8 @@ export function synthesizeInferenceStepCoverageClues(
   return repairs;
 }
 
-export function selectDiscriminatingEvidenceCandidateIds(
-  cml: CaseData,
-  clues: ClueDistributionResult,
-  maxIds: number,
-): string[] {
-  const caseBlock = getCaseBlock(cml);
-  const discrimTokens = discriminatingTestTokens(caseBlock?.discriminating_test); // CR-16 (A5-03)
-
-  const scored = clues.clues
-    .map((c: any) => {
-      const score = scoreEvidenceCandidate(c, discrimTokens, SELECTION_WEIGHTS); // CR-16 (A5-03)
-      return {
-        id: String(c?.id ?? "").trim(),
-        score,
-        placement: String(c?.placement ?? "").toLowerCase(),
-      };
-    })
-    .filter((entry) => Boolean(entry.id) && CANONICAL_CLUE_ID_RE.test(entry.id));
-
-  const earlyMid = scored
-    .filter((entry) => entry.placement === "early" || entry.placement === "mid")
-    .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id))
-    .slice(0, Math.max(1, maxIds))
-    .map((entry) => entry.id);
-
-  if (earlyMid.length > 0) {
-    return earlyMid;
-  }
-
-  return scored
-    .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id))
-    .slice(0, Math.max(1, maxIds))
-    .map((entry) => entry.id);
-}
+// Moved to clue-contracts/evidence-floor.ts (owner decision 6); re-exported for existing importers.
+export { selectDiscriminatingEvidenceCandidateIds } from "../../clue-contracts/evidence-floor.js";
 
 export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5Run, clues: ClueDistributionResult) {
   const sourcePathRepairs = repairInvalidSourcePaths(ctx.cml!, clues);
@@ -420,26 +380,15 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
 }
 
 export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult, finalCoverage: CoverageSnapshot, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => CoverageSnapshot) {
-  const existingEvidenceIds = getCanonicalEvidenceClueIds(ctx.cml!);
-  if (existingEvidenceIds.length === 0) {
-    const seededEvidenceIds = selectDiscriminatingEvidenceCandidateIds(ctx.cml!, clues, 3);
-    if (seededEvidenceIds.length > 0) {
-      const caseBlock = getCaseBlock(ctx.cml!);
-      if (caseBlock?.discriminating_test) {
-        caseBlock.discriminating_test.evidence_clues = seededEvidenceIds;
-        // A_53 integration fix: the strict whitelist/feedback memos are keyed by the cml object's
-        // identity and the whitelist includes CASE.discriminating_test.evidence_clues[i] paths — this
-        // in-place mutation would otherwise leave those memos stale. Invalidate them for this cml.
-        strictSourcePathWhitelistCache.delete(ctx.cml! as unknown as object);
-        strictPromptFeedbackCache.delete(ctx.cml! as unknown as object);
-        ctx.reportProgress(
-          "clues",
-          `Agent 5: deterministically seeded discriminating_test.evidence_clues from canonical clue IDs (${seededEvidenceIds.join(", ")}).`,
-          61
-        );
-        finalCoverage = buildCoverageSnapshot(clues);
-      }
-    }
+  // Owner decision 6: the one floor (at least two). This used to seed three, and only when the list was empty.
+  const seededEvidenceIds = ensureDiscriminatingEvidenceFloor(ctx.cml!, clues);
+  if (seededEvidenceIds.length > 0) {
+    ctx.reportProgress(
+      "clues",
+      `Agent 5: deterministically seeded discriminating_test.evidence_clues from canonical clue IDs (${seededEvidenceIds.join(", ")}).`,
+      61
+    );
+    finalCoverage = buildCoverageSnapshot(clues);
   }
 
   // Final targeted remediation: if discriminating-test evidence_clues IDs are still

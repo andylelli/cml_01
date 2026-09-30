@@ -9,7 +9,7 @@
   "result": "MATCH — 58 calls, 61 recorded attempts, all served (strict)",
   "syntheticFailures": [],
   "recordedFrom": "run_7b1ec2ef-c7b2-4897-9c13-9cec3ba13443",
-  "rebasedAt": "2026-09-30T19:58:49.717Z",
+  "rebasedAt": "2026-09-30T20:28:06.560Z",
   "env": {
     "AGENT2_MOTIVE_KIND_ROTATION": "true",
     "AGENT2_SHARED_HISTORY_EVENT": "true",

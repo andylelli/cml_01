@@ -3,15 +3,12 @@
  * structural abort, and the pre-prose CML gate (evidence back-fill, discriminating test, critical coverage).
  * Moved from generateMystery (code review ORC-01 / CR-25); mystery-orchestrator.ts re-exports what it exported.
  */
-import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../clue-contracts/evidence-candidates.js";
+import { DISCRIMINATING_EVIDENCE_MIN } from "../clue-contracts/evidence-floor.js";
 import type { CaseData } from "@cml/cml";
 import type {
   ClueDistributionResult,
   FairPlayAuditResult,
 } from "@cml/prompts-llm";
-import {
-  getGenerationParams,
-} from "@cml/story-validation";
 import {
   type OrchestratorContext,
 } from "../agents/index.js";
@@ -242,83 +239,31 @@ export function applyEarlyStructuralAbort(ctx: OrchestratorContext) {
 
 export function runCmlPreProseGate(ctx: OrchestratorContext) {
   const cmlValidationErrors: string[] = [];
-  const cmlQualityConfig = (getGenerationParams().agent3_cml.params as any)?.quality ?? {};
-  const evidenceBackfillThreshold = Math.max(
-    0,
-    Number(cmlQualityConfig.evidence_clue_backfill_threshold ?? 3)
-  );
-  const failOnBackfillThreshold = cmlQualityConfig.fail_when_backfill_exceeds_threshold !== false;
-  let backfilledEvidenceClues: string[] = [];
-
-  // Back-fill discriminating_test.evidence_clues from finalised clues if missing.
-  // Agent 3 generates the CML skeleton before clues exist; we populate here.
+  // Owner decision 6 (A5-Q05): discriminating_test.evidence_clues is set once, by Agent 5's floor (at least
+  // two), before Agent 6 audits the case. This gate used to back-fill its three top-scored essential clues
+  // here — AFTER the audit had read the field (MEASURED: it fired in 4 of 18 run logs, each time adding a clue
+  // beside Agent 5's three). It now only reads: fewer than two distributed evidence clues is reported as a
+  // warning and a diagnostic, never repaired here and never an abort (the repair belongs upstream).
   const discrimTestNode = (ctx.cml as any)?.CASE?.discriminating_test;
   if (discrimTestNode) {
-    const currentEvidence = Array.isArray(discrimTestNode.evidence_clues)
-      ? discrimTestNode.evidence_clues.map((id: unknown) => String(id))
-      : [];
-    // Filter to IDs that are actually distributed clues — do not use a regex pattern
-    // because placeholder IDs like "clue_1" satisfy /^clue_[a-z0-9_-]+$/i and would
-    // survive the filter, poisoning the final array with stale skeleton IDs.
     const distributedClueIds = new Set(ctx.clues!.clues.map((c) => String(c.id)));
-    const canonicalExistingEvidence = currentEvidence.filter((id: string) => distributedClueIds.has(id));
-    const testContextTokens = discriminatingTestTokens(discrimTestNode); // CR-16 (A5-03)
-
-    const scoredEssential = ctx.clues!.clues
-      .filter((c) => c.criticality === "essential")
-      .map((c) => ({ id: String(c.id), score: scoreEvidenceCandidate(c, testContextTokens, BACKFILL_WEIGHTS) }))
-      .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id));
-
-    const maxBackfillIds = Math.max(1, evidenceBackfillThreshold);
-    const targetedEssentialIds = scoredEssential
-      .filter((entry) => entry.score > 0)
-      .map((entry) => entry.id)
-      .slice(0, maxBackfillIds);
-    const fallbackEssentialIds = scoredEssential
-      .map((entry) => entry.id)
-      .slice(0, maxBackfillIds);
-    const selectedEssentialIds = (targetedEssentialIds.length > 0 ? targetedEssentialIds : fallbackEssentialIds);
-
-    backfilledEvidenceClues = selectedEssentialIds.filter(
-      (id) => !canonicalExistingEvidence.includes(id)
-    );
-    if (backfilledEvidenceClues.length > 0) {
-      discrimTestNode.evidence_clues = [...canonicalExistingEvidence, ...backfilledEvidenceClues];
-      ctx.warnings.push(
-        `CML gate: back-filled evidence_clues with ${backfilledEvidenceClues.length} clue(s): ${backfilledEvidenceClues.join(", ")}`
-      );
-
-      const backfillDiagnostic = {
-        injected_count: backfilledEvidenceClues.length,
-        injected_clues: backfilledEvidenceClues,
-        threshold: evidenceBackfillThreshold,
-        reason: "discriminating_test.evidence_clues missing essential clue IDs required for proof traceability",
+    const distributedEvidence = (Array.isArray(discrimTestNode.evidence_clues) ? discrimTestNode.evidence_clues : [])
+      .map((id: unknown) => String(id))
+      .filter((id: string) => distributedClueIds.has(id));
+    if (distributedEvidence.length < DISCRIMINATING_EVIDENCE_MIN) {
+      const floorDiagnostic = {
+        distributed_count: distributedEvidence.length,
+        required: DISCRIMINATING_EVIDENCE_MIN,
+        evidence_clues: distributedEvidence,
+        reason: "discriminating_test.evidence_clues names fewer distributed clues than Agent 5's floor",
       };
-
-      if (ctx.enableScoring && ctx.scoreAggregator && ctx.scoringLogger) {
-        ctx.scoringLogger.logPhaseDiagnostic(
-          "agent3_cml",
-          "CML Generation",
-          "evidence_clue_backfill",
-          backfillDiagnostic,
-          ctx.runId,
-          ctx.projectId || ""
-        );
-        ctx.scoreAggregator.upsertDiagnostic(
-          "agent3_cml_evidence_clue_backfill",
-          "agent3_cml",
-          "CML Generation",
-          "evidence_clue_backfill",
-          backfillDiagnostic
-        );
-      }
-    }
-
-    if (failOnBackfillThreshold &&
-      backfilledEvidenceClues.length > evidenceBackfillThreshold) {
-      cmlValidationErrors.push(
-        `Discriminating test evidence_clues required heavy backfill (${backfilledEvidenceClues.length} > threshold ${evidenceBackfillThreshold}). Injected clues: ${backfilledEvidenceClues.join(", ")}`
+      ctx.warnings.push(
+        `CML gate: discriminating_test.evidence_clues names ${distributedEvidence.length} distributed clue(s); Agent 5's floor is ${DISCRIMINATING_EVIDENCE_MIN} (owner decision 6 — not repaired here)`
       );
+      if (ctx.enableScoring && ctx.scoreAggregator && ctx.scoringLogger) {
+        ctx.scoringLogger.logPhaseDiagnostic("agent3_cml", "CML Generation", "evidence_clue_floor", floorDiagnostic, ctx.runId, ctx.projectId || "");
+        ctx.scoreAggregator.upsertDiagnostic("agent3_cml_evidence_clue_floor", "agent3_cml", "CML Generation", "evidence_clue_floor", floorDiagnostic);
+      }
     }
   }
 
