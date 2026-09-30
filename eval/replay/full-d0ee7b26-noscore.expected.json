@@ -1,0 +1,7 @@
+{
+  "variantOf": "full-d0ee7b26",
+  "note": "CR-21: the full fixture with ENABLE_SCORING off. It pins the non-scoring branch of every runner against the same cassette and digest; with it, collapsing the two branches is proven in both modes.",
+  "envOverrides": {
+    "ENABLE_SCORING": "false"
+  }
+}

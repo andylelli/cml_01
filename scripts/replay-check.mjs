@@ -8,7 +8,8 @@
 //   node scripts/replay-fixture.mjs --name <name> --rebase
 // and commit the cassette: its diff is the list of prompts the change altered.
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const DIR = join('eval', 'replay');
@@ -16,10 +17,18 @@ const names = existsSync(DIR) ? readdirSync(DIR).filter((f) => f.endsWith('.expe
 if (names.length === 0) { console.error('[replay-check] no fixtures in eval/replay'); process.exit(1); }
 const failures = [];
 for (const name of names) {
-  const expected = JSON.parse(readFileSync(join(DIR, `${name}.expected.json`), 'utf8'));
-  const ledger = join(DIR, `${name}.ledger.json.gz`);
-  const r = spawnSync(process.execPath, ['scripts/replay-stage.mjs', '--cassette', join(DIR, `${name}.cassette.jsonl.gz`),
-    '--project', expected.project, '--store', join(DIR, `${name}.store.json.gz`), '--env', join(DIR, `${name}.expected.json`), '--stage', expected.stage ?? 'prose',
+  // A variant ({ variantOf, envOverrides }) replays its base fixture's cassette, store, ledger and digest
+  // under a changed env — e.g. ENABLE_SCORING off, which pins every runner's non-scoring branch (CR-21).
+  const own = JSON.parse(readFileSync(join(DIR, `${name}.expected.json`), 'utf8'));
+  const base = own.variantOf ?? name;
+  const expected = own.variantOf
+    ? (() => { const b = JSON.parse(readFileSync(join(DIR, `${base}.expected.json`), 'utf8')); return { ...b, env: { ...b.env, ...own.envOverrides } }; })()
+    : own;
+  const envFile = own.variantOf ? join(mkdtempSync(join(tmpdir(), 'replay-variant-')), 'expected.json') : join(DIR, `${name}.expected.json`);
+  if (own.variantOf) writeFileSync(envFile, JSON.stringify(expected));
+  const ledger = join(DIR, `${base}.ledger.json.gz`);
+  const r = spawnSync(process.execPath, ['scripts/replay-stage.mjs', '--cassette', join(DIR, `${base}.cassette.jsonl.gz`),
+    '--project', expected.project, '--store', join(DIR, `${base}.store.json.gz`), '--env', envFile, '--stage', expected.stage ?? 'prose',
     ...(existsSync(ledger) ? ['--ledger', ledger] : [])], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
   const out = r.stdout ?? '';
   const line = out.split('\n').find((l) => l.startsWith('REPLAY_SUMMARY '));
