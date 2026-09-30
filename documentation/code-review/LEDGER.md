@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 43 | 34 | 0 | 77 |
-| open | 147 | 105 | 72 | 324 |
+| closed | 46 | 36 | 0 | 82 |
+| open | 144 | 103 | 72 | 319 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -36,7 +36,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
-| CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
+| CR-20 | 10 | 5 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 4 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
 | CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
@@ -93,7 +93,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
 | CR-20 | A9V-Q06 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? |  |
-| CR-20 | ORC-Q03 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. |  |
+| CR-20 | ORC-Q03 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; and the guard reads only the tail character, so a payload cut just after an inner } passes it (llm-json.test.ts, agent8.test.ts) |
 | CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
 | CR-27 | A9P-Q04 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
@@ -266,7 +266,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9V-11 | P2 | R1 | CR-27 | todo |  | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… |  |
 | A9V-12 | P2 | R2 | CR-15 | todo |  | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) |  |
 | A9V-13 | P3 | R0 | CR-08 | done | 3295ad4e 094de134 | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… | mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param |
-| A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks |  |
+| A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks | waits: agent9-prose is the v1 engine (bug fixes only); the prose parse is ladder (b) unguarded, listed in ORC-Q03 |
 | A9V-15 | P3 | R1 | **—** | withdrawn |  | CPU is negligible: 31 ms mean / 50 ms worst per lint call; ≈1.9 s per 60-call run | CPU is not a lever (README §3); ~2 s per run |
 | A9V-16 | P3 | R0 / R2 | CR-10 | done | fdd6c939 | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt | compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07 |
 | A9V-D01 |  |  | CR-15 | todo |  | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… |  |
@@ -353,7 +353,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-D07 |  |  | CR-17 | todo |  | Gate and prompt read different locked facts — MEDIUM. The prompt uses ctx.lockedFactRegistry (primary |  |
 | A5-D08 |  |  | CR-15 | todo |  | Agent 6 dead branches — HIGH, MEASURED via git (A5-06). |  |
 | A5-D09 |  |  | CR-16 | todo |  | Coverage snapshots diverge — LOW-MEDIUM. buildCoverageSnapshot (:3610) omits checkMechanismVisibility; |  |
-| A5-D10 |  |  | CR-20 | todo |  | No enum validation at parse — LOW-MEDIUM. A capitalised "Early" is dropped from clueTimeline and handled |  |
+| A5-D10 |  |  | CR-20 | done | 21992344 | No enum validation at parse — LOW-MEDIUM. A capitalised "Early" is dropped from clueTimeline and handled | category/placement/criticality lower-cased at parse; suspect-coverage eligibility lower-cased |
 | A5-Q01 |  |  | CR-16 | todo |  | Should CASE.death_method be a legal sourceInCML in the worker (A_67 FIX-2's intent)? |  |
 | A5-Q02 |  |  | CR-07 | todo |  | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
 | A5-Q03 |  |  | CR-28 | todo |  | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
@@ -412,7 +412,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-07 | P2 | R1 | CR-18 | todo |  | Scoring twice: retry-scorer closure vs rescoreNarrative diverge; pacing path never rescores |  |
 | A7-08 | P2 | R0/R1/R2 | CR-22 | todo |  | Flags: runtime getters are correct; 4 parse idioms; contractRecoveryEnabled forks the function 4× for a dormant mode; retriesEnabled dead |  |
 | A7-09 | P2 | R0 / R2 | CR-27 | todo |  | buildUserRequest (333 LOC, 6 params) → section builders; prose-requirements block and clue-pacing rule sent twice in 125/125 prompts |  |
-| A7-10 | P2 | R1/R2 | CR-20 | todo |  | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape |  |
+| A7-10 | P2 | R1/R2 | CR-20 | todo |  | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape | DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6) |
 | A7-11 | P1 | R1 (telemetry) | CR-33 | todo |  | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent |  |
 | A7-12 | P3 | R0 | CR-24 | deferred |  | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items | small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change |
 | A7-13 | P3 | R2 | CR-17 | todo |  | Arc position computed 3 ways (A7 vs two in A9); 97/358 prose prompts carry two different emotional registers |  |
@@ -442,7 +442,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
-| A34-06 | P2 | R1 (+R2) | CR-20 | todo |  | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs |  |
+| A34-06 | P2 | R1 (+R2) | CR-20 | done | 8054d8a6 | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs | Agents 3/4 on the one ladder; sanitizeYaml (byte-identical) moved to shared/llm-json.ts. Not changed: Agent 3's YAML fallback parses with yaml, Agent 4's with js-yaml (js-yaml is declared now) — one library changes what a YAML payload parses to (R2) |
 | A34-07 | P2 | R1 | CR-21 | todo | fe4372dd | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes-leak bug FIXED (fe4372dd, test reproduces it). The loop restructure waits on CR-20 (callLlmJson) and CR-14 (one normaliser), as the item says |
 | A34-08 | P2 | R0 (+R2) | CR-07 | todo |  | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" |  |
 | A34-09 | P2 | R1 (+R2) | CR-29 | todo |  | Theme families derived 3×; retry feedback pollutes the theme lock (measured) |  |
@@ -457,7 +457,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D04 |  |  | CR-07 | todo |  | Cast truncated or padded to castNames length; extra model characters dropped positionally |  |
 | A34-D05 |  |  | CR-12 | todo |  | Last-resort culprit fallback can name the detective or victim |  |
 | A34-D06 |  |  | CR-33 | todo |  | normalizationNotes from discarded attempts leak; retries' notes never reach warnings |  |
-| A34-D07 |  |  | CR-20 | todo |  | Agent 4 parser has no truncation guard on a full-CML re-emission |  |
+| A34-D07 |  |  | CR-20 | todo |  | Agent 4 parser has no truncation guard on a full-CML re-emission | OWNER (ORC-Q03): Agent 4 is now parseLlmJson(raw, { guard: false, extract: "strict+repair" }) — guarding it is one word |
 | A34-D08 |  |  | CR-29 | dup |  | Plausibility/scoring feedback pollutes the theme lock | = A34-09 |
 | A34-D09 |  |  | CR-18 | todo |  | Agent 6 installs a degraded or invalid revision (X60 reopened) |  |
 | A34-D10 |  |  | CR-07 | todo |  | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" |  |
@@ -479,7 +479,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo |  | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 |  |
 | A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
-| A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | todo |  | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) |  |
+| A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | done | 5c6f6f9d | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) | generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0) |
 | A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | todo |  | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies |  |
 | A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | done | f57dae47 | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls | CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss) |
 | A1X-06 | P2 | R1 | CR-21 | done | cbe9e58a | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting | runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests |
@@ -500,7 +500,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D06 |  |  | CR-32 | todo |  | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) |  |
 | A1X-D07 |  |  | CR-06 | dup |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default OFF; code is default ON | = A34-D14 (flag register) |
 | A1X-D08 |  |  | CR-19 | done | dff49644 73b7e54c | Agent 2 cost always 0; retries over-count elsewhere | designCast reads its label from the tracker |
-| A1X-D09 |  |  | CR-20 | todo |  | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 |  |
+| A1X-D09 |  |  | CR-20 | done | 21992344 | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 | auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run |
 | A1X-D10 |  |  | CR-29 | todo |  | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt |  |
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
 | A1X-D12 |  |  | CR-33 | todo |  | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… |  |
@@ -519,8 +519,8 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | ORC-01 | P1 | R1 | CR-25 | done | a5f9adb0 | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules | generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move |
 | ORC-02 | P1 | R1 | CR-21 | done | aeb90610 | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry | runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit characterGenders: undefined for the owner |
-| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total) |
-| ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
+| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01. CORRECTED 2026-09-30: the note said per-agent costs were correct since dff49644 — false for 2b/2c/2d/2e/3b, whose withValidationRetry still summed running totals; fixed 07898bd0 |
+| ORC-04 | P1 | R1 | CR-20 | done | 8054d8a6 | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() | parseLlmJson(raw, {guard, extract}) replaces the ten repair ladders, pinned against verbatim copies over a 21-payload corpus. Not built: a callLlmJson that also owns chat + finishReason + cost — refusing on finishReason at the other sites is R2 (ORC-Q03) and per-call cost waits on CR-19 (A6-D01) |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |
 | ORC-06 | P2 | R0 | CR-10 | done | 9232c483 | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split | shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles) |
 | ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
@@ -548,7 +548,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
 | ORC-Q01 |  |  | CR-07 | todo |  | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
 | ORC-Q02 |  |  | CR-03 | todo |  | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
-| ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. |  |
+| ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; and the guard reads only the tail character, so a payload cut just after an inner } passes it (llm-json.test.ts, agent8.test.ts) |
 | ORC-Q04 |  |  | CR-17 | todo |  | ORC-08: which arc-position formula is canonical? |  |
 | ORC-Q05 |  |  | CR-22 | todo |  | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis… |  |
 | ORC-Q06 |  |  | CR-33 | todo |  | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? |  |
