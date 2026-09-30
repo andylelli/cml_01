@@ -37,3 +37,4 @@ Generated from real run-time LLM request/response logs.
 - [run_20260925-1123_resume](./run_20260925-1123_resume/INDEX.md)
 - [run_20260925-1201_98dec72a](./run_20260925-1201_98dec72a/INDEX.md)
 - [run_20260925-1714_resume](./run_20260925-1714_resume/INDEX.md)
+- [run_20260930-1933_resume](./run_20260930-1933_resume/INDEX.md)

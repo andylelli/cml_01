@@ -2059,6 +2059,20 @@
       "discrimDesign": "A controlled comparison of dust disturbance patterns on the dig site ladder combined with an observation of the true delivery times of letters proves that the person at the dig site ladder was not Charles Wentworth but Leonard Pike impersonating him. The test compares the footprint sizes and dust layers with servant testimony and delivery servant logs, exposing the identity deception and linking Leonard Pike conclusively to the murder.",
       "premise": "At Ashford Manor, amidst the tensions of an archaeological dig and rigid post-war social hierarchies, Dr. Beatrice Langley is found strangled with a silk scarf. The initial assumption points to Evelyn Marsh due to a forged letter and suspicious behavior, but a deeper investigation reveals a cunning identity deception involving impersonation and forged credentials. Only through unraveling the physical impossibilities of simultaneous presence and uncovering forged passes and letters can the true murderer, Leonard Pike, be exposed.",
       "mechanismFamily": "alibi_fabrication"
+    },
+    {
+      "id": "resume-1790796774319",
+      "title": "Shadows over Blakeney: The Hemsworth Impersonation",
+      "era": "1930s",
+      "location": "Blakeney",
+      "crimeSubtype": "strangulation",
+      "deathMethod": "strangled with a silk scarf",
+      "axis": "identity",
+      "falseAssumption": "The two men seen near the lighthouse at the time of the murder were separate individuals, providing independent alibis.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "The discriminating test compares lighthouse, shadow, and mannequin against the claimed timeline.",
+      "premise": "During a brief autumn stay at a modest seaside hotel in Blakeney, Reginald Hemsworth is found strangled with a silk scarf. Witnesses insist two men were seen near the lighthouse around the time of the murder, suggesting multiple possible suspects. Hotel ledger irregularities and confusing seating arrangements at dinner further complicate alibis. The detective, Edith Mallory, uncovers a cunning impersonation and ledger tampering that mask the true murderer among the Hemsworth family and hotel staff.",
+      "mechanismFamily": "unclassified"
     }
   ]
 }
