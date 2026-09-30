@@ -17,30 +17,20 @@
 import { parseBooleanEnv } from "./agents/agent9/flags.js";
 import { artifactPersister } from "./artifact-persistence.js";
 import { join } from "path";
-import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { promises as dns } from "dns";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // Final-story rubric scoring (aligning-the-scoring-system.md) — ORC-07: its own module.
-import { runRubricScoring } from "./rubric-scoring.js";
 // Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
 import { deriveClueSpec } from "@cml/clue-spec";
 import type { CaseData } from "@cml/cml";
-import { isDetectiveArchetype, isVictimArchetype, roleTextsOf } from "@cml/cml";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
-import type {
-  ClueDistributionResult,
-  FairPlayAuditResult,
-  CharacterProfilesResult,
-  WorldDocumentResult,
-} from "@cml/prompts-llm";
 import {
   ScoreAggregator,
   RetryManager,
   FileReportRepository,
-  getGenerationParams,
 } from "@cml/story-validation";
-import type { GenerationReport, PhaseScore } from "@cml/story-validation";
+import type { GenerationReport } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
 import { RunLogger } from "./run-logger.js";
 import { bandRunWarnings } from "./run-warnings.js";
@@ -49,9 +39,6 @@ import {
   runAgent1,
   runAgent2,
   runAgent2e,
-  runAgent2b,
-  runAgent2c,
-  runAgent2d,
   runAgent3b,
   runAgent3,
   runAgent5,
@@ -61,32 +48,17 @@ import {
   runAgent75,
   runAgent9,
   describeError,
-  applyAbortedRunMetadata,
   normalizePrimaryAxis,
   deriveHardLogicDirectives,
   buildNoveltyConstraints,
   type OrchestratorContext,
   type ProseScoringSnapshot,
-  type CharacterBundle,
-  type CharacterBundleEntry,
 } from "./agents/index.js";
 import { createOrchestratorContext, newProseScoringSnapshot } from "./agents/context.js";
-import {
-  isCrossRunNoveltyEnabled,
-  loadNoveltyLedger,
-  appendNoveltyLedger,
-  mergePriorRunsIntoConstraints,
-  extractPriorRunRecord,
-  activeNoveltyLedgerPath,
-} from "./novelty-ledger.js";
-import { logLedgerDispersion } from "./novelty-dispersion.js";
-import { resolveSchedulerMode, scheduleCell, logScheduledCell, loadCorpusCells } from "./cell-scheduler.js";
-import { writeCorpusSnapshot } from "./corpus-snapshot.js";
 import { assertFlagCapabilities } from "./flag-preflight.js";
 import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js";
 import {
   applyResumeBundle,
-  buildResumeDiagnostic,
   computeBuildFingerprint,
   ResumeSkipTracker,
   writeRunFingerprint,
@@ -165,304 +137,36 @@ const preflightAzureEndpointDns = async (params: {
 // Public types — jobs/run-contract.ts (ORC-06); re-exported so importers keep this path.
 export type { MysteryGenerationInputs, MysteryGenerationProgress, MysteryGenerationResult, ProgressCallback, ArtifactCallback } from "./run-contract.js";
 import type { MysteryGenerationInputs, MysteryGenerationProgress, MysteryGenerationResult, ProgressCallback, ArtifactCallback } from "./run-contract.js";
-
-type FairPlayViolationLike = {
-  severity?: string;
-  rule?: string;
-};
-
-const canonicalizeTraceabilityClueId = (value: unknown): string => {
-  const normalized = String(value ?? "").trim();
-  return /^clue_[a-z0-9_-]+$/i.test(normalized) ? normalized : "";
-};
-
-const hasDeterministicPreTestTraceabilityBreak = (params: {
-  cml?: CaseData | null;
-  clues?: ClueDistributionResult | null;
-}): boolean => {
-  const caseBlock = (params.cml as any)?.CASE ?? params.cml;
-  const clueList = Array.isArray(params.clues?.clues) ? params.clues.clues : [];
-  if (!caseBlock || clueList.length === 0) return false;
-
-  const discriminatingScene = caseBlock?.prose_requirements?.discriminating_test_scene ?? {};
-  const discriminatingAct = Number(discriminatingScene?.act_number);
-  const discriminatingSceneNumber = Number(discriminatingScene?.scene_number);
-  const hasDiscriminatingScene = Number.isFinite(discriminatingAct) && discriminatingAct > 0
-    && Number.isFinite(discriminatingSceneNumber) && discriminatingSceneNumber > 0;
-
-  const clueMap = new Map(
-    clueList
-      .map((clue: any) => [canonicalizeTraceabilityClueId(clue?.id), clue] as const)
-      .filter(([clueId]) => clueId.length > 0),
-  );
-  const mappingById = new Map(
-    ((caseBlock?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
-      .map((entry) => ({
-        clueId: canonicalizeTraceabilityClueId(entry?.clue_id),
-        actNumber: Number(entry?.act_number),
-        sceneNumber: Number(entry?.scene_number),
-      }))
-      .filter((entry) => entry.clueId.length > 0)
-      .map((entry) => [entry.clueId, entry] as const),
-  );
-
-  const evidenceClueIds = ((caseBlock?.discriminating_test?.evidence_clues ?? []) as unknown[])
-    .map((id) => canonicalizeTraceabilityClueId(id))
-    .filter(Boolean);
-  if (evidenceClueIds.length === 0) return true;
-
-  for (const clueId of evidenceClueIds) {
-    const clue = clueMap.get(clueId);
-    if (!clue) return true;
-
-    const criticality = String((clue as any)?.criticality ?? "").trim().toLowerCase();
-    const placement = String((clue as any)?.placement ?? "").trim().toLowerCase();
-    if (criticality !== "essential" || (placement !== "early" && placement !== "mid")) {
-      return true;
-    }
-
-    const mapping = mappingById.get(clueId);
-    if (!mapping) return true;
-    if (!Number.isFinite(mapping.actNumber) || !Number.isFinite(mapping.sceneNumber)) return true;
-
-    if (
-      hasDiscriminatingScene
-      && (mapping.actNumber > discriminatingAct
-        || (mapping.actNumber === discriminatingAct && mapping.sceneNumber >= discriminatingSceneNumber))
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const deriveStructuralBlockingFairPlayViolations = (params: {
-  fairPlayAudit?: FairPlayAuditResult | null;
-  coverageResult?: { hasCriticalGaps?: boolean; uncoveredSteps?: unknown[] } | null;
-  allCoverageIssues?: Array<{ severity?: string; message?: string }> | null;
-  cml?: CaseData | null;
-  clues?: ClueDistributionResult | null;
-}): { blockingViolations: FairPlayViolationLike[]; downgradedLogicalDeducibility: boolean } => {
-  const fairPlayAudit = params.fairPlayAudit;
-  if (!fairPlayAudit || fairPlayAudit.overallStatus !== "fail") {
-    return { blockingViolations: [], downgradedLogicalDeducibility: false };
-  }
-
-  const structurallyBlockingRules = new Set([
-    "clue visibility",
-    "logical deducibility",
-    "no withholding",
-  ]);
-
-  const criticalViolations = (fairPlayAudit.violations ?? []).filter(
-    (v) => String(v?.severity ?? "").toLowerCase() === "critical"
-  );
-  const candidateBlocking = criticalViolations.filter((v) =>
-    structurallyBlockingRules.has(String(v?.rule ?? "").toLowerCase().trim())
-  );
-
-  const hasCoverageCorroboration = Boolean(
-    params.coverageResult?.hasCriticalGaps
-    || (params.coverageResult?.uncoveredSteps?.length ?? 0) > 0
-    || (params.allCoverageIssues ?? []).some((issue) =>
-      String(issue?.severity ?? "").toLowerCase() === "critical"
-      && /inference step|discriminating test|suspect|elimination|coverage gap|uncovered/i.test(
-        String(issue?.message ?? "")
-      )
-    )
-  );
-
-  const hasTraceabilityCorroboration = hasDeterministicPreTestTraceabilityBreak({
-    cml: params.cml,
-    clues: params.clues,
-  });
-
-  const logicalDeducibilityCorroborated = hasCoverageCorroboration || hasTraceabilityCorroboration;
-
-  let downgradedLogicalDeducibility = false;
-  const blockingViolations = candidateBlocking.filter((v) => {
-    const rule = String(v?.rule ?? "").toLowerCase().trim();
-    if (rule === "clue visibility" || rule === "no withholding") {
-      return hasCoverageCorroboration || hasTraceabilityCorroboration;
-    }
-    if (rule !== "logical deducibility") return true;
-    if (logicalDeducibilityCorroborated) return true;
-    downgradedLogicalDeducibility = true;
-    return false;
-  });
-
-  return { blockingViolations, downgradedLogicalDeducibility };
-};
-
-const evaluateEarlyStructuralAbort = (params: {
-  fairPlayAudit?: FairPlayAuditResult | null;
-  coverageResult?: { hasCriticalGaps?: boolean; uncoveredSteps?: unknown[] } | null;
-  allCoverageIssues?: Array<{ severity?: string; message?: string }> | null;
-  cml?: CaseData | null;
-  clues?: ClueDistributionResult | null;
-}): {
-  shouldAbort: boolean;
-  reason?: string;
-  blockingRules: string[];
-  downgradedLogicalDeducibility: boolean;
-} => {
-  const fairPlayAudit = params.fairPlayAudit;
-  if (!fairPlayAudit || fairPlayAudit.overallStatus !== "fail") {
-    return {
-      shouldAbort: false,
-      blockingRules: [],
-      downgradedLogicalDeducibility: false,
-    };
-  }
-
-  const { blockingViolations, downgradedLogicalDeducibility } = deriveStructuralBlockingFairPlayViolations(params);
-  const blockingRules = blockingViolations
-    .map((violation) => String(violation?.rule ?? "").trim())
-    .filter((rule) => rule.length > 0);
-
-  if (blockingRules.length === 0) {
-    return {
-      shouldAbort: false,
-      blockingRules: [],
-      downgradedLogicalDeducibility,
-    };
-  }
-
-  return {
-    shouldAbort: true,
-    reason:
-      `Fair play audit failed with ${blockingRules.length} structural blocking violation(s): ` +
-      blockingRules.join(", "),
-    blockingRules,
-    downgradedLogicalDeducibility,
-  };
-};
+import {
+  applyEarlyStructuralAbort,
+  applyFairPlayBindingGate,
+  applyNoveltyBindingGate,
+  deriveStructuralBlockingFairPlayViolations,
+  evaluateEarlyStructuralAbort,
+  runCmlPreProseGate,
+} from "./pipeline/gates.js";
+import {
+  applyCrossRunNoveltyConstraints,
+  assembleCharacterBundleStage,
+  runProfileStages,
+} from "./pipeline/stages.js";
+import {
+  buildScoringReport,
+  recordCrossRunNovelty,
+  runRubricAndContentFilter,
+  writeRunCorpusSnapshot,
+} from "./pipeline/finalize.js";
+import {
+  recordAbortedRun,
+} from "./pipeline/abort.js";
+// Re-exported so existing importers of this module keep their path.
+export {
+  assembleCharacterBundle,
+} from "./pipeline/stages.js";
 
 // ============================================================================
 // Pillar 2 — Character Bundle Assembler
 // ============================================================================
-
-const HUMOUR_STYLE_CLICHE: Record<string, string> = {
-  polite_savagery:  "she felt a wave of unease",
-  sardonic:         "palpable tension filled the room",
-  dry_wit:          "a surge of determination washed over her",
-  self_deprecating: "she knew with certainty she was right",
-  observational:    "everyone could sense the atmosphere",
-  understatement:   "the situation was extremely serious",
-  deadpan:          "he was utterly speechless",
-  blunt:            "she chose her words with great care",
-  none:             "sighed deeply and felt a sense of peace",
-};
-
-/**
- * X63 — the behaviour contract was ROLE-BLIND, and the comment below said otherwise.
- *
- * `permittedBehavioursByAct` is the only per-character behavioural steering that reaches Agent 9
- * (prompt-blocks.ts prints it as "Act N behaviour contract"). It was documented as "derived from
- * motive seed + role" and derived from motive seed alone: `CharacterProfilesResult` carries no role
- * field at all, so there was nothing in scope to read. Two consequences, both on the page:
- *
- *   • THE DETECTIVE was told "May show unease, evasion, or mild defensiveness when questioned. One
- *     behavioural tell is permitted." The detective is not a suspect, and in this genre a behavioural
- *     tell IS the currency of guilt — the same signal X49's GUILT_MARKER sweep exists to police.
- *   • THE VICTIM, dead since Act I scene 1, was given a three-act live contract ending in "Full
- *     character reveal permissible — confrontation, confession, or vindication".
- *
- * DELIBERATELY NOT CHANGED: culprit and innocent suspects still share one contract. Giving the
- * culprit its own Act II allowance would hand Agent 9 a behavioural signal the innocents lack, which
- * is early disclosure by construction — the defect X59 spent three reviews removing.
- */
-export function assembleCharacterBundle(
-  runId: string,
-  characterProfiles: CharacterProfilesResult,
-  worldDocument: WorldDocumentResult,
-  castRoster?: ReadonlyArray<unknown>,
-): CharacterBundle {
-  /** Role lookup by name. Reads `role_archetype ?? roleArchetype ?? role` — the three spellings. */
-  const roleOf = (name: string): "detective" | "victim" | "suspect" => {
-    const entry = (castRoster ?? []).find(
-      (c: any) => String(c?.name ?? "").trim().toLowerCase() === name.trim().toLowerCase(),
-    );
-    if (!entry) return "suspect";
-    const texts = roleTextsOf(entry);
-    if (texts.some(isDetectiveArchetype)) return "detective";
-    if (texts.some(isVictimArchetype)) return "victim";
-    return "suspect";
-  };
-
-  const entries: CharacterBundleEntry[] = (characterProfiles.profiles ?? []).map((profile) => {
-    const name = profile.name ?? "";
-    const humourStyle: string = (profile as any).humourStyle ?? "none";
-    const humourLevel: number = typeof (profile as any).humourLevel === "number" ? (profile as any).humourLevel : 0;
-    const internalConflict: string = (profile as any).internalConflict ?? "";
-    const speechMannerisms: string = (profile as any).speechMannerisms ?? "";
-    const motiveSeed: string = (profile as any).motiveSeed ?? "";
-    // A_61 RC5.3 — the LLM-emitted signature tic (the binding idiolect anchor the dialogue gate checks).
-    const signatureTic: string = String((profile as any).signatureTic ?? "").trim();
-
-    // Voice fragments from world document voice sketches
-    const voiceSketch = (worldDocument.characterVoiceSketches ?? []).find(
-      (s: any) => s.name === name,
-    );
-    const voiceFragments: Array<{ register: string; text: string }> = (
-      (voiceSketch?.fragments ?? []) as Array<{ register?: string; text?: string }>
-    )
-      .filter((f) => f.text)
-      .slice(0, 3)
-      .map((f) => ({ register: f.register ?? "neutral", text: f.text! }));
-
-    // Forbidden cliché: style-matched phrase this character would never say
-    const forbiddenCliché = HUMOUR_STYLE_CLICHE[humourStyle] ?? HUMOUR_STYLE_CLICHE["none"];
-
-    // Per-act permitted behaviours — derived from motive seed, internal conflict AND role (X63).
-    const role = roleOf(name);
-
-    // The detective is not a suspect. Unease, evasion and a "behavioural tell" are the vocabulary of
-    // concealment, and handing them to the investigator both muddies the role and plants the signal
-    // every guilt detector in the pipeline hunts for.
-    const detectiveActs = {
-      act1: `Observe and establish. Curiosity, professional detachment, and misreadings are all permitted; evasion is NOT — nothing this character does may read as concealment. ${internalConflict ? `Private preoccupation, never voiced as guilt: "${internalConflict}"` : ""}`.trim(),
-      act2: `Press, test, and be wrong in public. Frustration and self-doubt are permitted; evasion, defensiveness under questioning and behavioural tells are NOT — this character is not a suspect and must never read as one. ${internalConflict ? `Private preoccupation surfacing as doubt about the case, not about themselves: "${internalConflict}"` : ""}`.trim(),
-      act3: `Full reveal permissible: state the reasoning aloud, including what was misread earlier. Vindication belongs to the deduction, not to the person.`,
-    };
-
-    // The victim is dead from Act I. A live three-act contract for them is a category error, and the
-    // Act III line was inviting a confession from a corpse.
-    const victimActs = {
-      act1: `DECEASED — present as a body, and in others' memory, testimony and flashback only. Write no live behaviour, no dialogue in the present, and no reaction to the investigation. ${motiveSeed ? `What their death sets in motion (context for OTHER characters, never their own action): "${motiveSeed}"` : ""}`.trim(),
-      act2: `DECEASED — appears only through what others remember, claim or produce as evidence. Contradictions between accounts of them are permitted and useful; live behaviour is not.`,
-      act3: `DECEASED — may be characterised retrospectively as the truth lands. No confrontation, no confession, no vindication of their own.`,
-    };
-
-    // Culprit and innocent suspects share one contract, deliberately: a distinct allowance for the
-    // culprit would be a behavioural tell the innocents lack, which is early disclosure by construction.
-    const suspectActs = {
-      act1: `Show normal social behaviour; grief or confusion if appropriate. No guilt signals permitted. ${motiveSeed ? `Hidden motive: "${motiveSeed}" — do not surface in Act I.` : ""}`.trim(),
-      act2: `May show unease, evasion, or mild defensiveness when questioned. One behavioural tell is permitted. ${internalConflict ? `Internal conflict emerging: "${internalConflict}"` : ""}`.trim(),
-      // Act III used to be one byte-identical sentence for every character in every run — the only act
-      // that read nothing from the profile at all. It is the act where the differences finally show.
-      act3: `Full character reveal permissible. Emotional truth should be explicit — confrontation, confession, or vindication as role demands. ${internalConflict ? `Resolve, or fail to resolve, this in the open: "${internalConflict}"` : ""}`.trim(),
-    };
-
-    const acts = role === "detective" ? detectiveActs : role === "victim" ? victimActs : suspectActs;
-    const { act1, act2, act3 } = acts;
-
-    return {
-      name,
-      voiceFragments,
-      humourStyle,
-      humourLevel,
-      forbiddenCliché,
-      internalConflict,
-      speechMannerisms,
-      signatureTic,
-      permittedBehavioursByAct: { act1, act2, act3 },
-    };
-  });
-
-  return { runId, characters: entries };
-}
 
 // ============================================================================
 // Agent 5 clue-spec shadow (10_agent_5_clues_red_herrings.md §4.1 / §9.1)
@@ -504,14 +208,6 @@ function runClueSpecShadow(args: { cml: unknown; clues: unknown; warnings: strin
 // ============================================================================
 // Main Orchestrator
 // ============================================================================
-
-/**
- * R9 — runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`).
- * Default OFF: parallelising the profile trio changes concurrency and error semantics, so it is
- * a behaviour lever under the corpus regime, not a free refactor.
- */
-const profilesParallelEnabled = (): boolean =>
-  process.env.AGENT_PROFILES_PARALLEL === "true" || process.env.AGENT_PROFILES_PARALLEL === "1";
 
 export async function generateMystery(
   client: AzureOpenAIClient,
@@ -709,35 +405,7 @@ export async function generateMystery(
     );
     // Cross-run novelty (ANALYSIS_49 T1.7, opt-in via NOVELTY_CROSS_RUN): fold the most recent shipped
     // runs into the avoidance constraints so Agent 3 diverges from recent runs, not just static seeds.
-    if (isCrossRunNoveltyEnabled()) {
-      try {
-        const priorRuns = await loadNoveltyLedger();
-        noveltyConstraints = mergePriorRunsIntoConstraints(noveltyConstraints, priorRuns);
-        if (priorRuns.length > 0) {
-          warnings.push(`Cross-run novelty: diverging from ${Math.min(priorRuns.length, 20)} recent run(s)`);
-        }
-        // A_74 §8 DE2 — publish coverage at the START too, so a run that never reaches the end (the
-        // ones DE1 shows are missing from the corpus) still reports what the corpus looked like.
-        logLedgerDispersion(priorRuns);
-        /**
-         * A_74 §8 DE5 — what the cell scheduler WOULD choose, computed every run.
-         *
-         * In `shadow` this changes nothing and costs nothing; it exists so the scheduler's judgement
-         * can be inspected across ordinary runs before any paid run depends on it. The assignment
-         * itself is applied at the INPUT layer (scripts/schedule-run.mjs), not here — a scheduler that
-         * rewrites the theme mid-orchestrator would be invisible to the config that names the run.
-         */
-        const schedulerMode = resolveSchedulerMode();
-        // A_79 C — the corpus is passed so an "unoccupied" cell can distinguish "we have not been
-        // there" from "nobody has". `loadCorpusCells` returns [] unless NOVELTY_CELL_SCHEDULER_CORPUS
-        // is on, and an empty corpus leaves the chosen cell unchanged.
-        if (schedulerMode !== "off") {
-          logScheduledCell(scheduleCell(priorRuns, 20, loadCorpusCells()), schedulerMode);
-        }
-      } catch (err) {
-        warnings.push(`Cross-run novelty load skipped: ${describeError(err)}`);
-      }
-    }
+    noveltyConstraints = await applyCrossRunNoveltyConstraints(noveltyConstraints, warnings);
 
     // ── Build shared context ────────────────────────────────────────────────
     ctx = createOrchestratorContext({
@@ -850,21 +518,7 @@ export async function generateMystery(
     await persistArtifact("cml", ctx.cml);
 
     // ── Pillar 3 (Unit 3.2): Novelty binding gate ───────────────────────────
-    if (inputs.enableBindingGates && ctx.noveltyAudit?.blocking) {
-      if (!inputs.forceWarnings) {
-        const errorMsg =
-          `Binding gate: Agent 8 novelty audit is blocking (status: ${ctx.noveltyAudit.status}). ` +
-          `Set forceWarnings: true to override.`;
-        errors.push(errorMsg);
-        throw new Error(errorMsg);
-      } else {
-        ctx.warnings.push(
-          `Binding gate OVERRIDDEN (forceWarnings): Agent 8 novelty audit blocking — ` +
-          `status: ${ctx.noveltyAudit.status}, highest similarity: ${ctx.noveltyAudit.highestSimilarity.toFixed(2)}, ` +
-          `most similar: ${ctx.noveltyAudit.mostSimilarSeed}`
-        );
-      }
-    }
+    applyNoveltyBindingGate(ctx);
 
     await stage("clues", (c) => runAgent5(c));              // Clue Distributor
     await persistArtifact("clues", ctx.clues);
@@ -873,37 +527,9 @@ export async function generateMystery(
     await persistArtifact("fair_play_report", ctx.fairPlayAudit);
 
     // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
-    if (inputs.enableBindingGates && ctx.fairPlayAudit?.blocking) {
-      if (!inputs.forceWarnings) {
-        const errorMsg =
-          `Binding gate: Agent 6 fair-play audit is blocking ` +
-          `(overallStatus: ${ctx.fairPlayAudit.overallStatus}, violations: ${ctx.fairPlayAudit.violations.length}). ` +
-          `Set forceWarnings: true to override.`;
-        errors.push(errorMsg);
-        throw new Error(errorMsg);
-      } else {
-        ctx.warnings.push(
-          `Binding gate OVERRIDDEN (forceWarnings): Agent 6 fair-play audit blocking — ` +
-          `overallStatus: ${ctx.fairPlayAudit.overallStatus}, violations: ${ctx.fairPlayAudit.violations.length}`
-        );
-      }
-    }
+    applyFairPlayBindingGate(ctx);
 
-    const earlyStructuralAbort = evaluateEarlyStructuralAbort({
-      fairPlayAudit: ctx.fairPlayAudit,
-      coverageResult: ctx.coverageResult,
-      allCoverageIssues: ctx.allCoverageIssues,
-      cml: ctx.cml,
-      clues: ctx.clues,
-    });
-    if (earlyStructuralAbort.shouldAbort) {
-      const errorMsg =
-        `CML validation failed before downstream profile generation:\n` +
-        `  • ${earlyStructuralAbort.reason}\n\n` +
-        `Fix CML structure before attempting downstream narrative/prose stages.`;
-      errors.push(errorMsg);
-      throw new Error(errorMsg);
-    }
+    applyEarlyStructuralAbort(ctx);
 
     // ── R9 (architecture/REVIEW_01.md) — the profile trio ───────────────────────
     // 2b/2c/2d are independent reads off the FROZEN CML: each writes a distinct artifact key
@@ -924,279 +550,21 @@ export async function generateMystery(
     // Flag-gated default-OFF: this is a behaviour change (concurrency + error semantics), and the
     // corpus regime says those get probed, not assumed. Acceptance is byte-identical artifacts on a
     // fixed premise — verify before promoting.
-    if (profilesParallelEnabled()) {
-      warnings.push("[R9] Profile agents 2b/2c/2d running in PARALLEL (AGENT_PROFILES_PARALLEL).");
-      const suppressedSave = async () => {};
-      const isolated = (): { sub: OrchestratorContext; buf: string[] } => {
-        const buf: string[] = [];
-        return { sub: { ...ctx, warnings: buf, savePartialReport: suppressedSave } as OrchestratorContext, buf };
-      };
-
-      // REVIEW_02 §3.1 — the resume gate lives in `stage()`, and this branch does not call it. Left
-      // as it was, a resumed run with R9 on would RE-RUN all three profile agents whose artifacts had
-      // just been restored: three needless LLM calls, restored artifacts overwritten with fresh ones,
-      // and `skippedStages` under-reporting what the run did. R5's own acceptance test ("resume →
-      // 0 LLM calls for stages 1-13") failed whenever R9's flag was on, and it looked like a resume
-      // bug rather than a flag interaction. Consult the same tracker, then parallelise the remainder.
-      type ProfileStage = {
-        field: "characterProfiles" | "locationProfiles" | "temporalContext";
-        run: (c: OrchestratorContext) => Promise<void>;
-      };
-      const profileStages: ProfileStage[] = [
-        { field: "characterProfiles", run: runAgent2b },
-        { field: "locationProfiles", run: runAgent2c },
-        { field: "temporalContext", run: runAgent2d },
-      ];
-      const selection = skipTracker.selectPending(
-        ctx as OrchestratorContext,
-        profileStages.map((s) => s.field),
-      );
-      skippedStages.push(...selection.skipped);
-      const isolatedRuns = profileStages
-        .filter((s) => selection.pending.includes(s.field))
-        .map((s) => ({ stage: s, ...isolated() }));
-
-      // Promise.all rejects on the FIRST failure. Each agent keeps its own retry/abort semantics;
-      // a rejection here propagates to the same catch that would have caught it sequentially.
-      await Promise.all(isolatedRuns.map((r) => r.stage.run(r.sub)));
-
-      // Artifact keys are assigned on the clone, so copy them back explicitly — and ONLY for stages
-      // that ran. Copying from a clone of a skipped stage would write back the restored value, which
-      // is harmless today but would mask a future divergence between clone and ctx.
-      for (const r of isolatedRuns) {
-        if (r.stage.field === "characterProfiles") ctx.characterProfiles = r.sub.characterProfiles;
-        if (r.stage.field === "locationProfiles") ctx.locationProfiles = r.sub.locationProfiles;
-        if (r.stage.field === "temporalContext") ctx.temporalContext = r.sub.temporalContext;
-      }
-      // Deterministic merge order — never arrival order. `isolatedRuns` preserves 2b → 2c → 2d.
-      for (const r of isolatedRuns) warnings.push(...r.buf);
-      try { await savePartialReport(); } catch { /* best-effort */ }
-    } else {
-      await stage("characterProfiles", (c) => runAgent2b(c));  // Character Profiles
-      await stage("locationProfiles", (c) => runAgent2c(c));   // Location Profiles
-      await stage("temporalContext", (c) => runAgent2d(c));    // Temporal Context
-    }
+    await runProfileStages(ctx, skipTracker, skippedStages, stage);
     await persistArtifact("character_profiles", ctx.characterProfiles);
     await persistArtifact("location_profiles", ctx.locationProfiles);
     await persistArtifact("temporal_context", ctx.temporalContext);
 
     // ── CML Validation Gate ─────────────────────────────────────────────────
     // Prevents spending prose-generation cost on broken mystery structure.
-    const cmlValidationErrors: string[] = [];
-    const cmlQualityConfig = (getGenerationParams().agent3_cml.params as any)?.quality ?? {};
-    const evidenceBackfillThreshold = Math.max(
-      0,
-      Number(cmlQualityConfig.evidence_clue_backfill_threshold ?? 3),
-    );
-    const failOnBackfillThreshold =
-      cmlQualityConfig.fail_when_backfill_exceeds_threshold !== false;
-    let backfilledEvidenceClues: string[] = [];
-
-    // Back-fill discriminating_test.evidence_clues from finalised clues if missing.
-    // Agent 3 generates the CML skeleton before clues exist; we populate here.
-    const discrimTestNode = (ctx.cml as any)?.CASE?.discriminating_test;
-    if (discrimTestNode) {
-      const currentEvidence = Array.isArray(discrimTestNode.evidence_clues)
-        ? discrimTestNode.evidence_clues.map((id: unknown) => String(id))
-        : [];
-      // Filter to IDs that are actually distributed clues — do not use a regex pattern
-      // because placeholder IDs like "clue_1" satisfy /^clue_[a-z0-9_-]+$/i and would
-      // survive the filter, poisoning the final array with stale skeleton IDs.
-      const distributedClueIds = new Set(ctx.clues!.clues.map((c) => String(c.id)));
-      const canonicalExistingEvidence = currentEvidence.filter((id: string) => distributedClueIds.has(id));
-      const designText = String(discrimTestNode.design ?? "").toLowerCase();
-      const knowledgeText = String(discrimTestNode.knowledge_revealed ?? "").toLowerCase();
-      const testContextTokens = new Set(
-        `${designText} ${knowledgeText}`
-          .replace(/[^a-z0-9\s]/g, " ")
-          .split(/\s+/)
-          .filter((w) => w.length >= 5),
-      );
-
-      const scoredEssential = ctx.clues!.clues
-        .filter((c) => c.criticality === "essential")
-        .map((c) => {
-          const text = `${String(c.description ?? "")} ${String(c.pointsTo ?? "")}`.toLowerCase();
-          let score = 0;
-          for (const token of testContextTokens) {
-            if (text.includes(token)) score += 1;
-          }
-          if (c.placement === "early" || c.placement === "mid") score += 2;
-          if (c.evidenceType === "observation" || c.evidenceType === "contradiction") score += 1;
-          return { id: String(c.id), score };
-        })
-        .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id));
-
-      const maxBackfillIds = Math.max(1, evidenceBackfillThreshold);
-      const targetedEssentialIds = scoredEssential
-        .filter((entry) => entry.score > 0)
-        .map((entry) => entry.id)
-        .slice(0, maxBackfillIds);
-      const fallbackEssentialIds = scoredEssential
-        .map((entry) => entry.id)
-        .slice(0, maxBackfillIds);
-      const selectedEssentialIds = (targetedEssentialIds.length > 0 ? targetedEssentialIds : fallbackEssentialIds);
-
-      backfilledEvidenceClues = selectedEssentialIds.filter(
-        (id) => !canonicalExistingEvidence.includes(id),
-      );
-      if (backfilledEvidenceClues.length > 0) {
-        discrimTestNode.evidence_clues = [...canonicalExistingEvidence, ...backfilledEvidenceClues];
-        warnings.push(
-          `CML gate: back-filled evidence_clues with ${backfilledEvidenceClues.length} clue(s): ${backfilledEvidenceClues.join(", ")}`
-        );
-
-        const backfillDiagnostic = {
-          injected_count: backfilledEvidenceClues.length,
-          injected_clues: backfilledEvidenceClues,
-          threshold: evidenceBackfillThreshold,
-          reason: "discriminating_test.evidence_clues missing essential clue IDs required for proof traceability",
-        };
-
-        if (enableScoring && scoreAggregator && scoringLogger) {
-          scoringLogger.logPhaseDiagnostic(
-            "agent3_cml",
-            "CML Generation",
-            "evidence_clue_backfill",
-            backfillDiagnostic,
-            runId,
-            projectId || "",
-          );
-          scoreAggregator.upsertDiagnostic(
-            "agent3_cml_evidence_clue_backfill",
-            "agent3_cml",
-            "CML Generation",
-            "evidence_clue_backfill",
-            backfillDiagnostic,
-          );
-        }
-      }
-
-      if (
-        failOnBackfillThreshold &&
-        backfilledEvidenceClues.length > evidenceBackfillThreshold
-      ) {
-        cmlValidationErrors.push(
-          `Discriminating test evidence_clues required heavy backfill (${backfilledEvidenceClues.length} > threshold ${evidenceBackfillThreshold}). Injected clues: ${backfilledEvidenceClues.join(", ")}`,
-        );
-      }
-    }
-
-    // Structurally breaking fair-play violations block prose generation.
-    if (ctx.fairPlayAudit && ctx.fairPlayAudit.overallStatus === "fail") {
-      const { blockingViolations, downgradedLogicalDeducibility } = deriveStructuralBlockingFairPlayViolations({
-        fairPlayAudit: ctx.fairPlayAudit,
-        coverageResult: ctx.coverageResult,
-        allCoverageIssues: ctx.allCoverageIssues,
-        cml: ctx.cml,
-        clues: ctx.clues,
-      });
-
-      if (downgradedLogicalDeducibility) {
-        warnings.push(
-          "Fair-play: downgraded uncorroborated Logical Deducibility critical flag to warning because deterministic clue coverage shows no structural gaps"
-        );
-      }
-
-      if (blockingViolations.length > 0) {
-        cmlValidationErrors.push(
-          `Fair play audit failed with ${blockingViolations.length} structural violation(s) ` +
-            `(${blockingViolations.map((v) => v.rule).join(", ")}) — prose cannot realize a broken mystery`
-        );
-      } else {
-        const nonStructuralCritical = ctx.fairPlayAudit.violations.filter(
-          (v) => v.severity === "critical"
-        );
-        if (nonStructuralCritical.length > 0) {
-          warnings.push(
-            `Fair-play: ${nonStructuralCritical.length} non-structural violation(s) remain ` +
-              `(${nonStructuralCritical
-                .map((v) => v.rule)
-                .join(", ")}) — mystery structure is sound, proceeding with prose`
-          );
-          // Downgrade from "fail" to "needs-revision" so the post-prose release gate
-          // reflects the determined-sound verdict (score 70) rather than the LLM
-          // auditor's raw "fail" (score 45 → hard-stop). The deterministic coverage
-          // checks have already established there are no structural gaps.
-          (ctx.fairPlayAudit as any).overallStatus = "needs-revision";
-        }
-      }
-    }
-
-    // Discriminating test must be fully specified.
-    const discriminatingTest = (ctx.cml as any)?.CASE?.discriminating_test;
-    if (!discriminatingTest || !discriminatingTest.design) {
-      cmlValidationErrors.push(
-        "Discriminating test design is missing - prose generator cannot create test scene"
-      );
-    }
-    if (
-      discriminatingTest &&
-      (!discriminatingTest.evidence_clues || discriminatingTest.evidence_clues.length === 0)
-    ) {
-      cmlValidationErrors.push(
-        "Discriminating test has no evidence clues - prose cannot reference supporting evidence"
-      );
-    }
-
-    // Critical clue coverage gaps block prose generation.
-    if (ctx.coverageResult?.hasCriticalGaps) {
-      const gapSummary: string[] = [];
-      if (ctx.coverageResult.uncoveredSteps.length > 0) {
-        gapSummary.push(
-          `${ctx.coverageResult.uncoveredSteps.length} inference step(s) without sufficient clues`
-        );
-      }
-      const allIssues = ctx.allCoverageIssues ?? [];
-      const testIssues = allIssues.filter((i) => i.message.includes("discriminating test"));
-      const eliminationIssues = allIssues.filter(
-        (i) => i.message.includes("suspect") || i.message.includes("elimination")
-      );
-      if (testIssues.length > 0) gapSummary.push("discriminating test evidence incomplete");
-      if (eliminationIssues.length > 0)
-        gapSummary.push(`suspect elimination issues (${eliminationIssues.length})`);
-      if (gapSummary.length > 0) {
-        cmlValidationErrors.push(`Critical clue coverage gaps: ${gapSummary.join(", ")}`);
-      }
-    }
-
-    if (cmlValidationErrors.length > 0) {
-      const errorMsg =
-        `CML validation failed before prose generation:\n` +
-        cmlValidationErrors.map((e) => `  \u2022 ${e}`).join("\n") +
-        `\n\nFix CML structure before attempting prose generation.`;
-      errors.push(errorMsg);
-      throw new Error(errorMsg);
-    }
+    runCmlPreProseGate(ctx);
 
     // ── World Builder + Narrative Outline ───────────────────────────────────
     await stage("worldDocument", (c) => runAgent65(c));     // World Document synthesis
     await persistArtifact("world_document", ctx.worldDocument);
 
     // ── Pillar 2 (Unit 2.1): Assemble Character Context Bundle ────────────────
-    if (inputs.enableCharacterBundle && ctx.characterProfiles && ctx.worldDocument) {
-      ctx.characterBundle = assembleCharacterBundle(
-        ctx.runId,
-        ctx.characterProfiles,
-        ctx.worldDocument,
-        ((ctx.cml as any)?.CASE?.cast ?? (ctx.cast as any)?.characters ?? []) as ReadonlyArray<unknown>,
-      );
-      try {
-        const logsDir = join(WORKER_APP_ROOT, "logs");
-        if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
-        writeFileSync(
-          join(logsDir, `character-bundle-${ctx.runId}.json`),
-          JSON.stringify(ctx.characterBundle, null, 2),
-          "utf8",
-        );
-      } catch (err) {
-        ctx.warnings.push(`Pillar 2: failed to write character-bundle file: ${String(err)}`);
-      }
-      ctx.warnings.push(
-        `Pillar 2: character bundle assembled with ${ctx.characterBundle.characters.length} character(s): ` +
-          ctx.characterBundle.characters.map((c) => c.name).join(", "),
-      );
-    }
+    assembleCharacterBundleStage(ctx);
 
     await preflightAzureEndpointDns({
       stageLabel: "narrative",
@@ -1242,48 +610,7 @@ export async function generateMystery(
 
     // Final-story rubric (shadow): score the finished prose with the LLM critic + cap engine, log it,
     // and attach it to the report as a diagnostic. Never throws into the run.
-    await runRubricScoring({
-      prose: ctx.prose,
-      cml: ctx.cml,
-      client,
-      aggregator: scoreAggregator,
-      warnings,
-      runId,
-      projectId,
-      discriminatingPair: ctx.discriminatingContradiction ?? null,
-    });
-
-    // A_71 (A_70 §5) — surface the content-filter refusal tally. Measured on the 07-27 run: 10
-    // refusals, all `Agent9-Regen-Ch*-missing_clue`, visible ONLY in raw logs. The never-abort gate
-    // held and the story shipped, which is exactly why the class needs a number: it is invisible in
-    // every artifact, premise-dependent (it recurs on the blunt-force-plus-staining story family),
-    // and it injects unmodelled variance into any A/B whose replays regenerate that prose.
-    const contentFilterSummary = client.getContentFilterTracker?.().getSummary();
-    if (contentFilterSummary && contentFilterSummary.total > 0) {
-      const families = Object.entries(contentFilterSummary.byFamily)
-        .sort((a, b) => b[1] - a[1])
-        .map(([family, count]) => `${family} ×${count}`)
-        .join(", ");
-      warnings.push(
-        `Content filter: ${contentFilterSummary.total} Azure refusal(s) — ${families}. ` +
-          `The pipeline generated content its own next call refused; affected regens fell back to the deterministic backstop.`
-      );
-    }
-    if (enableScoring && scoreAggregator && contentFilterSummary) {
-      scoreAggregator.upsertDiagnostic(
-        "content_filter_refusals",
-        "orchestrator",
-        "Content Filter",
-        "content_filter_refusals",
-        {
-          total: contentFilterSummary.total,
-          by_agent: contentFilterSummary.byAgent,
-          by_family: contentFilterSummary.byFamily,
-          // Bounded sample: enough to identify the prompt family without copying the whole log.
-          samples: contentFilterSummary.refusals.slice(0, 10),
-        }
-      );
-    }
+    await runRubricAndContentFilter(ctx);
 
     // ── Complete ─────────────────────────────────────────────────────────────
     const totalDurationMs = Date.now() - startTime;
@@ -1292,75 +619,7 @@ export async function generateMystery(
     runLogger.logComplete("complete", Date.now() - startTime, warnings, errors);
 
     let scoringReport: GenerationReport | undefined;
-    if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
-      try {
-        // A_64 §2 F5 — the run's FULL warnings array must reach the artifact. The 7.5-pool autopsy
-        // found 67 scaffold-regen calls with zero artifact trace (the #12/#13 forensic-blindness
-        // family): chain logs die with the terminal; the report is the durable record. Everything
-        // Agent 9 pushes to ctx.warnings aliases this array, so this captures the whole run.
-        // A_65b Ph2 — banded: `info` (telemetry/status) vs `warn` (defect/floor firings). The
-        // full array is preserved for forensics; status accounting counts `warn` only.
-        // R5 — a resumed run must be distinguishable from a fresh one ON THE ARTIFACT. Its cost,
-        // duration and LLM-call counts cover only the stages that actually executed, so a ledger
-        // that cannot tell the two apart would read a resumed run as a startlingly cheap fresh one
-        // and average it into a batch. `partial_cost_accounting` is the flag that stops that.
-        if (resumeApplication) {
-          scoreAggregator.upsertDiagnostic(
-            "run_resume",
-            "orchestrator",
-            "Run Resume",
-            "run_resume",
-            buildResumeDiagnostic(
-              inputs.resumeFromRunId ?? "(unknown)",
-              resumeApplication,
-              skippedStages,
-              skipTracker.degradedSignals(),
-            ),
-          );
-        }
-        const warningBands = bandRunWarnings(warnings);
-        scoreAggregator.upsertDiagnostic("run_warnings", "orchestrator", "Run Warnings", "run_warnings", {
-          count: warnings.length,
-          warn_count: warningBands.warn.length,
-          info_count: warningBands.info.length,
-          warnings: [...warnings],
-          warn: warningBands.warn,
-          info: warningBands.info,
-        });
-        scoringReport = scoreAggregator.generateReport({
-          story_id: runId,
-          started_at: new Date(startTime),
-          completed_at: new Date(),
-          user_id: projectId,
-        });
-        await reportRepository.save(scoringReport);
-        scoringLogger.logReportGenerated(scoringReport, runId, projectId);
-        const passedCount = scoringReport.summary.phases_passed;
-        const failedCount = scoringReport.summary.phases_failed;
-        const avgScore = scoringReport.overall_score.toFixed(1);
-        warnings.push(
-          `Scoring: ${passedCount}/${passedCount + failedCount} phases passed, avg score ${avgScore}/100 (${scoringReport.overall_grade})`
-        );
-      } catch (reportError) {
-        warnings.push(`Scoring report generation failed: ${describeError(reportError)}`);
-        // A_70 §4 — when finalization fails, the last in_progress partial stays on disk as the ONLY
-        // record of the run. Measured on mystery-1785175520689: the invariant
-        // `failed_phase_signal_cannot_have_passed_outcome` threw here, leaving a snapshot frozen
-        // before Agent 9 that reads `overall_score: 96, run_outcome: passed, 13/13 phases` for a run
-        // that actually scored 66 with three chapters failing validation.
-        //
-        // The API read path already corrects this (A_44 R5a finalizeStaleInProgressReport), but
-        // direct-file consumers do not — scripts/target80-ledger-row.mjs reads the JSON with a bare
-        // readFileSync and would record 96/A. Stamp the truth onto the artifact so every consumer
-        // sees it, not just the ones that go through the API.
-        //
-        // `in_progress` deliberately stays TRUE: report-repository skips in_progress snapshots when
-        // listing, and flipping it would promote this partial to a "real" report. We add the terminal
-        // markers alongside it. Best-effort throughout — this must never turn a bad report into a
-        // failed run (§2.8 never-abort).
-        await markStaleInProgressReport(describeError(reportError));
-      }
-    }
+    scoringReport = await buildScoringReport(enableScoring, scoreAggregator, reportRepository, scoringLogger, resumeApplication, inputs, skippedStages, skipTracker, warnings, scoringReport, runId, startTime, projectId, markStaleInProgressReport);
 
     // A_65b Ph2 — status counts DEFECT-band warnings only: a run whose lines are all telemetry
     // ("Scoring system enabled", shadow scores, pre-audit PASS) reads clean, as it should.
@@ -1388,51 +647,12 @@ export async function generateMystery(
      * no longer invisible, and the count it prints is what tells a reader the corpus is smaller than
      * the number of runs they remember.
      */
-    if (!isCrossRunNoveltyEnabled()) {
-      console.warn("[DE1 ledger] NOT recorded: cross-run novelty is off (NOVELTY_CROSS_RUN=off).");
-    } else if (!ctx.cml) {
-      console.warn("[DE1 ledger] NOT recorded: no CML on the context — the run did not reach Agent 3.");
-    } else if (status === "failure") {
-      console.warn(
-        `[DE1 ledger] NOT recorded: run status is "failure" (${errors.length} error(s)). ` +
-          "The corpus therefore holds only clean runs — a biased sample, and the next run will " +
-          "diverge from a history this one is missing from.",
-      );
-    } else {
-      try {
-        const record = extractPriorRunRecord(ctx.cml, runId);
-        await appendNoveltyLedger(record);
-        const after = await loadNoveltyLedger();
-        console.warn(
-          `[DE1 ledger] recorded ${runId} -> ${activeNoveltyLedgerPath()} ` +
-            `(axis=${record.axis}, family=${record.mechanismFamily ?? "unclassified"}); ` +
-            `corpus is now ${after.length} run(s).`,
-        );
-        // A_74 §8 DE2 — publish coverage every run, with no threshold. See novelty-dispersion.ts.
-        logLedgerDispersion(after);
-      } catch (e) {
-        console.warn(
-          `[DE1 ledger] WRITE FAILED for ${runId} at ${activeNoveltyLedgerPath()}: ${(e as Error).message}. ` +
-            "The next run will diverge from a corpus this one is missing from.",
-        );
-      }
-    }
+    await recordCrossRunNovelty(ctx, status);
 
     // A_67 FIX-3 — per-run corpus snapshot (best-effort; gated by CORPUS_SNAPSHOT_DIR, no-op when unset).
     // The live store retains only the latest project; this accumulates a corpus so the plant→payoff
     // measure (scripts/reveal-cites-plants-coverage.mjs) can be run over many stories. Never affects the run.
-    if (process.env.CORPUS_SNAPSHOT_DIR && status !== "failure") {
-      const snap = writeCorpusSnapshot({
-        dir: process.env.CORPUS_SNAPSHOT_DIR,
-        projectId,
-        runId,
-        cml: ctx.cml,
-        clues: ctx.clues,
-        outline: ctx.narrative,
-        prose: ctx.prose,
-      });
-      if (snap) console.log(`[corpus-snapshot] wrote ${snap} (A_67 FIX-3 plant→payoff corpus).`);
-    }
+    writeRunCorpusSnapshot(status, ctx);
 
     return {
       cml: ctx.cml!,
@@ -1473,169 +693,7 @@ export async function generateMystery(
 
     const templateLinterAbortDetected = /template\s*linter/i.test(errorMessage);
 
-    if (
-      enableScoring &&
-      scoreAggregator &&
-      scoringLogger &&
-      proseScoringSnapshot.startedAtMs !== null &&
-      proseScoringSnapshot.chaptersGenerated > 0 &&
-      !proseScoringSnapshot.postGenerationSummaryLogged
-    ) {
-      const canonicalProseElapsedMs =
-        typeof agentDurations["agent9_prose"] === "number" && agentDurations["agent9_prose"] > 0
-          ? agentDurations["agent9_prose"]
-          : Date.now() - proseScoringSnapshot.startedAtMs;
-      const templateLinterFailedChecks = templateLinterAbortDetected ? 1 : 0;
-      const templateLinterEntropyFailures = /opening-style entropy/i.test(errorMessage) ? 1 : 0;
-
-      const abortedProseSummary: Record<string, unknown> = {
-        fair_play_all_clues_visible: null,
-        fair_play_discriminating_test_complete: null,
-        fair_play_no_solution_spoilers: null,
-        fair_play_component_score: null,
-        template_linter_checks_run: 0,
-        template_linter_failed_checks: templateLinterFailedChecks,
-        template_linter_opening_style_entropy_failures: templateLinterEntropyFailures,
-        template_linter_opening_style_entropy_bypasses: 0,
-        template_linter_paragraph_fingerprint_failures: 0,
-        template_linter_ngram_overlap_failures: 0,
-        score_total: proseScoringSnapshot.latestCumulativeScore,
-        score_grade: null,
-        score_passed_threshold: false,
-        component_failures: ["prose_generation_aborted"],
-        failure_reason: errorMessage,
-        chapters_generated: proseScoringSnapshot.chaptersGenerated,
-        prose_duration_ms_first_pass: canonicalProseElapsedMs,
-        prose_duration_ms_total: canonicalProseElapsedMs,
-        prose_cost_first_pass: agentCosts["agent9_prose"] ?? 0,
-        prose_cost_total: agentCosts["agent9_prose"] ?? 0,
-        rewrite_pass_count: 0,
-        repair_pass_count: 0,
-        per_pass_accounting: [],
-        metrics_snapshot: "aborted_partial",
-        batch_size: inputs.proseBatchSize ?? 1,
-        batches_with_retries: (error as any).retriedBatches ?? 0,
-        total_batches: 0,
-        batch_failure_events: 0,
-        batch_failure_history: [],
-        batch_failure_samples: [],
-        outline_coverage_issue_count: null,
-        critical_clue_coverage_gap: null,
-        nsd_transfer_steps: 0,
-        nsd_transfer_trace: [],
-        aborted_after_chapter: proseScoringSnapshot.chaptersGenerated,
-      };
-
-      scoringLogger.logPhaseDiagnostic(
-        "agent9_prose",
-        "Prose Generation",
-        "post_generation_summary",
-        abortedProseSummary,
-        runId,
-        projectId || ""
-      );
-
-      scoreAggregator.upsertDiagnostic(
-        "agent9_prose_post_generation_summary",
-        "agent9_prose",
-        "Prose Generation",
-        "post_generation_summary",
-        abortedProseSummary
-      );
-    }
-
-    // Prose started but 0 chapters completed (e.g. chapter 1 failed all retries).
-    // Register a failed prose phase so it always appears in the quality tab.
-    if (
-      enableScoring &&
-      scoreAggregator &&
-      scoringLogger &&
-      proseScoringSnapshot.startedAtMs !== null &&
-      proseScoringSnapshot.chaptersGenerated === 0
-    ) {
-      const elapsedMs =
-        typeof agentDurations["agent9_prose"] === "number" && agentDurations["agent9_prose"] > 0
-          ? agentDurations["agent9_prose"]
-          : Date.now() - proseScoringSnapshot.startedAtMs;
-      const zeroedProseScore: PhaseScore = {
-        agent: "agent9-prose",
-        validation_score: 0,
-        quality_score: 0,
-        completeness_score: 0,
-        consistency_score: 0,
-        total: 0,
-        grade: "F",
-        passed: false,
-        tests: [],
-        component_failures: ["prose_generation_aborted"],
-        failure_reason: `Prose aborted before any chapter completed: ${errorMessage.slice(0, 240)}`,
-      };
-      scoreAggregator.upsertPhaseScore(
-        "agent9_prose",
-        "Prose Generation",
-        zeroedProseScore,
-        elapsedMs,
-        agentCosts["agent9_prose"] ?? 0,
-      );
-
-      // Register a minimal post_generation_summary diagnostic to satisfy the E1
-      // report invariant (agent9_prose phase present → diagnostic required).
-      // Without this, assertGenerationReportInvariants throws when saving the aborted
-      // report, leaving the prior in_progress=true partial snapshot on disk.
-      const zeroedPostGenSummary: Record<string, unknown> = {
-        chapters_generated: 0,
-        prose_duration_ms_first_pass: elapsedMs,
-        prose_duration_ms_total: elapsedMs,
-        prose_cost_first_pass: agentCosts["agent9_prose"] ?? 0,
-        prose_cost_total: agentCosts["agent9_prose"] ?? 0,
-        score_total: 0,
-        score_grade: "F",
-        score_passed_threshold: false,
-        component_failures: ["prose_generation_aborted"],
-        failure_reason: errorMessage.slice(0, 240),
-        rewrite_pass_count: 0,
-        repair_pass_count: 0,
-        per_pass_accounting: [],
-        metrics_snapshot: "aborted_zero_chapters",
-        batch_size: 1,
-        batches_with_retries: (error as any).retriedBatches ?? 0,
-        total_batches: 0,
-        batch_failure_events: 0,
-        batch_failure_history: [],
-        batch_failure_samples: [],
-      };
-      scoringLogger.logPhaseDiagnostic(
-        "agent9_prose",
-        "Prose Generation",
-        "post_generation_summary",
-        zeroedPostGenSummary,
-        runId,
-        projectId || ""
-      );
-      scoreAggregator.upsertDiagnostic(
-        "agent9_prose_post_generation_summary",
-        "agent9_prose",
-        "Prose Generation",
-        "post_generation_summary",
-        zeroedPostGenSummary
-      );
-    }
-
-    if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
-      try {
-        const partialReport = scoreAggregator.generateReport({
-          story_id: runId,
-          started_at: new Date(startTime),
-          completed_at: new Date(),
-          user_id: projectId,
-        });
-        applyAbortedRunMetadata(partialReport, errorMessage);
-        await reportRepository.save(partialReport);
-        scoringLogger.logReportGenerated(partialReport, runId, projectId);
-      } catch {
-        // best-effort — don't mask the original error
-      }
-    }
+    await recordAbortedRun(enableScoring, scoreAggregator, scoringLogger, proseScoringSnapshot, agentDurations, templateLinterAbortDetected, errorMessage, agentCosts, inputs, error, runId, projectId, reportRepository, startTime);
 
     runLogger.logComplete("failed", Date.now() - startTime, warnings, errors);
     const failureError = new Error(`Mystery generation failed: ${errorMessage}`);
