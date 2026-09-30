@@ -3,6 +3,7 @@
  * feedback payload and its targeted/preserved clue ids, the backstop and parity-bridge clues, and applying
  * Agent 5's contracts to regenerated clues. Moved from agent6-run.ts (code review A6-01 / CR-25).
  */
+import { appendToClueTimeline, openClueSynthesis } from "../../clue-contracts/synthesis.js";
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import { isDetectiveArchetype, isVictimArchetype, roleTextsOf } from "@cml/cml";
@@ -395,9 +396,7 @@ export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext,
   deterministicContracts.warnings.forEach((warning) =>
     ctx.warnings.push(`Agent 6 (${contextLabel}) ${warning}`),
   );
-  const coverageSnapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
-  ctx.coverageResult = coverageSnapshot.coverageResult;
-  ctx.allCoverageIssues = coverageSnapshot.allCoverageIssues;
+  refreshCoverageOnContext(ctx);
 
   const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
   if (parityBridgeId) {
@@ -419,9 +418,7 @@ export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext,
       ctx.warnings.push(`Agent 6 (${contextLabel}, parity bridge) ${warning}`),
     );
 
-    const updatedCoverageSnapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
-    ctx.coverageResult = updatedCoverageSnapshot.coverageResult;
-    ctx.allCoverageIssues = updatedCoverageSnapshot.allCoverageIssues;
+    refreshCoverageOnContext(ctx);
   }
 };
 
@@ -651,6 +648,17 @@ export const runDeterministicStructuralAudit = (
   };
 };
 
+/**
+ * Recompute the coverage snapshot over the context's current clues and store it on the context. A6-04:
+ * four copies of these three lines (two here, the structural retry, the end of runAgent6).
+ */
+export const refreshCoverageOnContext = (ctx: OrchestratorContext): void => {
+  if (!ctx.cml || !ctx.clues) return;
+  const snapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
+  ctx.coverageResult = snapshot.coverageResult;
+  ctx.allCoverageIssues = snapshot.allCoverageIssues;
+};
+
 export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null => {
   const caseBlock = (cml as any)?.CASE ?? cml ?? {};
   const discrimDesign = String(caseBlock?.discriminating_test?.design ?? "").trim();
@@ -696,11 +704,6 @@ export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null
   }
 
   const selectBridgeSource = (): { sourceInCML: string; supportsInferenceStep: number; evidenceType: string } => {
-    const joinedSource = `${discrimDesign} ${discrimKnowledge}`.toLowerCase();
-    const joinedTokens = joinedSource
-      .replace(/[^a-z0-9\s]/g, " ")
-      .split(/\s+/)
-      .filter((token) => token.length >= 5);
 
     for (let i = 0; i < inferenceSteps.length; i += 1) {
       const step = inferenceSteps[i] ?? {};
@@ -708,7 +711,7 @@ export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null
       const observation = String(step?.observation ?? "").trim();
       const correctionText = correction.toLowerCase();
       const observationText = observation.toLowerCase();
-      const correctionMatches = correctionText.length > 0 && joinedTokens.some((token) => correctionText.includes(token));
+      const correctionMatches = correctionText.length > 0 && sourceTokens.some((token) => correctionText.includes(token));
       if (correctionMatches) {
         return {
           sourceInCML: `CASE.inference_path.steps[${i}].correction`,
@@ -716,7 +719,7 @@ export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null
           evidenceType: "contradiction",
         };
       }
-      const observationMatches = observationText.length > 0 && joinedTokens.some((token) => observationText.includes(token));
+      const observationMatches = observationText.length > 0 && sourceTokens.some((token) => observationText.includes(token));
       if (observationMatches) {
         return {
           sourceInCML: `CASE.inference_path.steps[${i}].observation`,
@@ -776,9 +779,7 @@ export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null
     supportsInferenceStep: bridgeSource.supportsInferenceStep,
   });
 
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = [...(timeline.early ?? []), candidateId];
-  (clues as any).clueTimeline = timeline;
+  appendToClueTimeline(clues, candidateId, "early");
 
   return candidateId;
 };
@@ -791,27 +792,8 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
   const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (inferenceSteps.length === 0 || clueList.length === 0) return [];
 
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
-  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
-  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
-  (clues as any).clueTimeline = timeline;
-
   const repairs: string[] = [];
-  const existingIds = new Set(
-    clueList.map((clue) => String(clue?.id ?? "").trim()).filter((id) => id.length > 0),
-  );
-
-  const nextId = (prefix: string): string => {
-    let candidate = prefix;
-    let suffix = 2;
-    while (existingIds.has(candidate)) {
-      candidate = `${prefix}_${suffix}`;
-      suffix += 1;
-    }
-    existingIds.add(candidate);
-    return candidate;
-  };
+  const { timeline, nextId } = openClueSynthesis(clues, clueList);
 
   const template = clueList.find((clue) => clue?.criticality === "essential") ?? clueList[0];
   if (!template) return repairs;
@@ -835,6 +817,12 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
   for (const clue of clueList) indexClueForStep(clue);
   const isContradiction = (clue: any): boolean =>
     String(clue?.evidenceType ?? "").toLowerCase() === "contradiction";
+  /** Push a minted backstop clue, index it for its step, and file it under its placement. */
+  const pushBackstopClue = (clue: any): void => {
+    clueList.push(clue);
+    indexClueForStep(clue); // A_53 P10: keep the per-step index in sync incrementally
+    (clue.placement === "early" ? timeline.early : timeline.mid).push(clue.id);
+  };
 
   for (let i = 0; i < inferenceSteps.length; i += 1) {
     const stepNumber = i + 1;
@@ -883,14 +871,7 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
         evidenceType,
         supportsInferenceStep: stepNumber,
       };
-      clueList.push(essentialClue);
-      indexClueForStep(essentialClue); // A_53 P10: keep the per-step index in sync incrementally
-
-      if (placement === "early") {
-        timeline.early.push(clueId);
-      } else {
-        timeline.mid.push(clueId);
-      }
+      pushBackstopClue(essentialClue);
 
       repairs.push(`added ${clueId} as ${placement} essential clue for inference step ${stepNumber}`);
       hasEarlyMidEssentialForStep = true;
@@ -925,14 +906,7 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
       evidenceType: "contradiction",
       supportsInferenceStep: stepNumber,
     };
-    clueList.push(contradictionClue);
-    indexClueForStep(contradictionClue); // A_53 P10: keep the per-step index in sync incrementally
-
-    if (placement === "early") {
-      timeline.early.push(contradictionId);
-    } else {
-      timeline.mid.push(contradictionId);
-    }
+    pushBackstopClue(contradictionClue);
 
     repairs.push(`added ${contradictionId} as ${placement} essential contradiction clue for inference step ${stepNumber}`);
   }

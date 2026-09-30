@@ -6,6 +6,7 @@
  * worker agent importing another. Both runners now import this module; agent5-run.ts re-exports what it
  * exported, so existing importers keep their path.
  */
+import { appendToClueTimeline, openClueSynthesis } from "./synthesis.js";
 import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "./evidence-candidates.js";
 import { provesTheAct } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
@@ -997,25 +998,7 @@ export function synthesizeMissingCulpritDiscriminatingClues(
   const template = clues.clues.find((clue: any) => clue?.criticality === "essential") ?? clues.clues[0];
   if (!template) return [];
 
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
-  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
-  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
-  (clues as any).clueTimeline = timeline;
-
-  const existingIds = new Set(
-    clues.clues.map((clue: any) => String(clue?.id ?? "").trim()).filter(Boolean),
-  );
-  const nextId = (prefix: string): string => {
-    let id = prefix;
-    let suffix = 2;
-    while (existingIds.has(id)) {
-      id = `${prefix}_${suffix}`;
-      suffix += 1;
-    }
-    existingIds.add(id);
-    return id;
-  };
+  const { timeline, nextId } = openClueSynthesis(clues, clues.clues);
 
   const repairs: string[] = [];
   culpritNames.forEach((culprit, idx) => {
@@ -1114,11 +1097,7 @@ export function synthesizeMissingDiscriminatingEvidenceClues(
     } as any);
     existingIds.add(missingId);
 
-    const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-    if (synthesizedPlacement === "early") timeline.early = [...(timeline.early ?? []), missingId];
-    else if (synthesizedPlacement === "late") timeline.late = [...(timeline.late ?? []), missingId];
-    else timeline.mid = [...(timeline.mid ?? []), missingId];
-    (clues as any).clueTimeline = timeline;
+    appendToClueTimeline(clues, missingId, synthesizedPlacement);
 
     repairs.push(`${missingId} <= cloned from ${String(template?.id ?? "(unknown-id)")}`);
   }
@@ -1141,28 +1120,7 @@ function synthesizeStrictStepCoverageBackstopClues(
   const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (steps.length === 0 || clueList.length === 0) return [];
 
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
-  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
-  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
-  (clues as any).clueTimeline = timeline;
-
-  const existingIds = new Set(
-    clueList
-      .map((clue) => String(clue?.id ?? "").trim())
-      .filter((id) => id.length > 0),
-  );
-
-  const nextId = (prefix: string): string => {
-    let candidate = prefix;
-    let suffix = 2;
-    while (existingIds.has(candidate)) {
-      candidate = `${prefix}_${suffix}`;
-      suffix += 1;
-    }
-    existingIds.add(candidate);
-    return candidate;
-  };
+  const { timeline, nextId } = openClueSynthesis(clues, clueList);
 
   const ensureSentence = (text: string, fallback: string): string => {
     const normalized = replaceDigitTimesWithEraWords(String(text ?? "").replace(/\s+/g, " ").trim());

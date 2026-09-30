@@ -12,9 +12,6 @@ import {
   type OrchestratorContext,
 } from "../shared.js";
 import {
-  recomputeCoverageSnapshotForAgent6,
-} from "../../clue-contracts/contracts.js";
-import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,
 } from "../agent6-escalation-policy.js";
@@ -28,6 +25,7 @@ import {
   ensureCriticalFairPlayBackstopClues,
   ensureParityBridgeClue,
   runDeterministicStructuralAudit,
+  refreshCoverageOnContext,
 } from "./retry-contract.js";
 
 const toStringArray = (value: unknown): string[] =>
@@ -102,11 +100,7 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
       );
     }
 
-    if (ctx.cml && ctx.clues) {
-      const coverageSnapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
-      ctx.coverageResult = coverageSnapshot.coverageResult;
-      ctx.allCoverageIssues = coverageSnapshot.allCoverageIssues;
-    }
+    refreshCoverageOnContext(ctx);
     const failureClass = classifyFairPlayFailure(ctx.coverageResult!, state.fairPlayAudit, ctx.cml!);
     state.agent6FailureClass = failureClass;
     const shouldEscalateCmlRevision = shouldEscalateStructuralCmlRevision({

@@ -2,6 +2,7 @@
  * Agent 5 phases: the deterministic clue checks, discriminating-evidence remediation, and the final coverage
  * repair and hard gate. Moved from agent5-run.ts (code review A5-01 / CR-25), which re-exports what it exported.
  */
+import { appendToClueTimeline } from "../../clue-contracts/synthesis.js";
 import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import { SELECTION_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../../clue-contracts/evidence-candidates.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
@@ -290,11 +291,7 @@ export function synthesizeInferenceStepCoverageClues(
     } as any);
     existingIds.add(id);
 
-    const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-    if (placement === "early") timeline.early = [...(timeline.early ?? []), id];
-    else if (placement === "late") timeline.late = [...(timeline.late ?? []), id];
-    else timeline.mid = [...(timeline.mid ?? []), id];
-    (clues as any).clueTimeline = timeline;
+    appendToClueTimeline(clues, id, placement);
 
     repairs.push(`${id} => covers inference step ${stepNum}`);
   }

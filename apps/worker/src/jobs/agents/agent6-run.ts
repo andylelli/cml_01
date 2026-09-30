@@ -24,9 +24,6 @@ import {
   preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import {
-  recomputeCoverageSnapshotForAgent6,
-} from "../clue-contracts/contracts.js";
-import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,
 } from "./agent6-escalation-policy.js";
@@ -40,6 +37,7 @@ import {
   deriveRequiredCluePhrases,
   ensureCriticalFairPlayBackstopClues,
   ensureParityBridgeClue,
+  refreshCoverageOnContext,
 } from "./agent6/retry-contract.js";
 import {
   applyPreAuditFixes,
@@ -893,11 +891,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     run.clearWarningsFromSet(run.transientDiagnosticWarnings);
   }
 
-  if (ctx.cml && ctx.clues) {
-    const finalCoverageSnapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
-    ctx.coverageResult = finalCoverageSnapshot.coverageResult;
-    ctx.allCoverageIssues = finalCoverageSnapshot.allCoverageIssues;
-  }
+  refreshCoverageOnContext(ctx);
 
   ctx.agent6FirstPassPassed = state.firstFairPlayStatus === "pass";
   ctx.agent6RetryInvoked = state.agent6RetryInvoked;

@@ -3,6 +3,7 @@
  * solution, with their deterministic backstops. Moved from agent5-run.ts (code review A5-01 / CR-25), which
  * re-exports what it exported.
  */
+import { openClueSynthesis } from "../../clue-contracts/synthesis.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
@@ -224,28 +225,7 @@ function synthesizeSuspectCoverageBackstopClues(
   const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (clueList.length === 0) return [];
 
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
-  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
-  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
-  (clues as any).clueTimeline = timeline;
-
-  const existingIds = new Set(
-    clueList
-      .map((clue) => String(clue?.id ?? "").trim())
-      .filter((id) => id.length > 0),
-  );
-
-  const nextId = (prefix: string): string => {
-    let candidate = prefix;
-    let suffix = 2;
-    while (existingIds.has(candidate)) {
-      candidate = `${prefix}_${suffix}`;
-      suffix += 1;
-    }
-    existingIds.add(candidate);
-    return candidate;
-  };
+  const { timeline, nextId } = openClueSynthesis(clues, clueList);
 
   const template = clueList.find((clue) => String(clue?.criticality ?? "").toLowerCase() === "essential") ?? clueList[0];
   if (!template) return [];
