@@ -11,9 +11,9 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "5aa5313f77f1d116",
   },
   "a_study_in_scarlet": {
-    "generate": "06c4c43a0eaca1dd",
+    "generate": "58d808f54ec7f464",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -121,9 +121,9 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "e777f23f4a5d10bc",
   },
   "a_study_in_scarlet": {
-    "generate": "dd30006a93b4a58c",
+    "generate": "827398ef6d0e2743",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -242,9 +242,9 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "43c15ce58e03740e",
   },
   "a_study_in_scarlet": {
-    "generate": "27afdf6069b8d0d5",
+    "generate": "6cfefb83670a4d81",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -301,9 +301,9 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "436b080176e43bcb",
   },
   "a_study_in_scarlet": {
-    "generate": "e252beed83efa1ce",
+    "generate": "f6382566fd1af534",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -356,9 +356,9 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "a0ddda3a9d4796ea",
   },
   "a_study_in_scarlet": {
-    "generate": "6c4155b8dcb172da",
+    "generate": "54eb3deb9d6f57ac",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -472,9 +472,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "5aa5313f77f1d116",
   },
   "a_study_in_scarlet": {
-    "generate": "27afdf6069b8d0d5",
+    "generate": "6cfefb83670a4d81",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -695,7 +695,7 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
-    "revise": "c106b980930a51b6",
+    "revise": "3087774999c48e01",
   },
   "poison_shadows": {
     "generate": "78e02568855b2dbe",
@@ -714,9 +714,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "de8320bd417039e7",
   },
   "raspberry_jam": {
-    "generate": "127c77fecf8a6ebc",
+    "generate": "53e774b8fd7f236c",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Alvord Hendricks, Willy Hanlon]); normalization assigned "Sanford Embury" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Alvord Hendricks, Willy Hanlon]); normalization assigned "Aunt Abby Ames" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -747,9 +747,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "aa491e619b5e6ded",
   },
   "tangled_trails": {
-    "generate": "c74462fec3cce443",
+    "generate": "ad7e73aee355ea5a",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Shibo Horikawa (Shibo)]); normalization assigned "James Cunningham, Sr." from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Shibo Horikawa (Shibo)]); normalization assigned "Wild Rose (Rose McLean)" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "gunshot"",
     ],
     "revise": "6cb0c373a43e3c9d",
@@ -906,9 +906,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2d0ae50ac0db2dca",
   },
   "the_come_back": {
-    "generate": "8da6c5424ec6b660",
+    "generate": "9c32fda15547600a",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[McClellan Thorpe, Madame Parlato]); normalization assigned "Peter Crane" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[McClellan Thorpe, Madame Parlato]); normalization assigned "Benjamin Crane" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
@@ -951,27 +951,27 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "a7de8b4c75abfec0",
   },
   "the_crystal_claw": {
-    "generate": "f2d3dbfb1d1d4820",
+    "generate": "466cae87d61e53e3",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Hartley Humphreys]); normalization assigned "Rex Yelverton" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Hartley Humphreys]); normalization assigned "Dr. Feng Tsu'tong" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "d8b605db455f0bd0",
   },
   "the_curse_of_the_reckaviles": {
-    "generate": "c58271fe5ad054ef",
+    "generate": "1dc9b435608a96c2",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Giles (Mr. Wheatland)]); normalization assigned "Fletcher" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Giles (Mr. Wheatland)]); normalization assigned "Ena Sefton" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked room murder with staged alibi and mechanical deception" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "d5de8317fdd42074",
   },
   "the_d_arblay_mystery": {
-    "generate": "69de157f50b6de9c",
+    "generate": "0f3701d121a5a1bb",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Mr. Simon Bendelow (alias Morris)]); normalization assigned "Stephen Gray" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Mr. Simon Bendelow (alias Morris)]); normalization assigned "Marion D’Arblay" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "fraudulent death and identity substitution by wax mask" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
@@ -1032,9 +1032,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d6c4270ed67b23e8",
   },
   "the_eye_of_osiris": {
-    "generate": "824d115be82556e0",
+    "generate": "65a941f05c9f2f9f",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Arthur Jellicoe]); normalization assigned "John Thorndyke" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Arthur Jellicoe]); normalization assigned "Paul Berkeley" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "body substitution with an Egyptian mummy" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
@@ -1051,9 +1051,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "01553b0ad74a5cab",
   },
   "the_fellowship_of_the_frog": {
-    "generate": "211819925d836b70",
+    "generate": "c76df75b36136757",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Joshua Broad (Saul Morris), Philo Johnson]); normalization assigned "Ray Bennett" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Joshua Broad (Saul Morris), Philo Johnson]); normalization assigned "John Bennett" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "criminal mastermind's secret society and framing" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1130,9 +1130,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "89e61b195fa90e75",
   },
   "the_greene_murder_case": {
-    "generate": "1bab739e8f1c6128",
+    "generate": "5519d46473298f89",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Ada Greene]); normalization assigned "Philo Vance" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Ada Greene]); normalization assigned "John F.-X. Markham" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked-room style family mass murder with staged alibis and false clues" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1201,9 +1201,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "38c630d58a73f746",
   },
   "the_leavenworth_case": {
-    "generate": "0c9f4fcac73b3abc",
+    "generate": "816339cad44cbee4",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Mary Leavenworth, James Trueman Harwell]); normalization assigned "Everett Raymond" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Mary Leavenworth, James Trueman Harwell]); normalization assigned "Eleanore Leavenworth" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "secret marriage and inheritance motive" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1221,27 +1221,27 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "b5ddb144b362dc37",
   },
   "the_loudwater_mystery": {
-    "generate": "9ae536673caa766d",
+    "generate": "adf17eebdbc1a78f",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Herbert Manley]); normalization assigned "Lord Loudwater" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Herbert Manley]); normalization assigned "Lady Loudwater (Olivia)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "forged letter to secure allowance and murder to prevent exposure" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "dde36fb23aea19a3",
   },
   "the_magic_casket": {
-    "generate": "2342f9b898804324",
+    "generate": "3485331a6d448718",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Uyenishi, Mr. Payne (alias Shenstone)]); normalization assigned "Dr. Thorndyke" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Uyenishi, Mr. Payne (alias Shenstone)]); normalization assigned "Mr. Jervis" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "hidden message and staged evidence" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "70d9a10e55b255a1",
   },
   "the_man_in_the_dark": {
-    "generate": "127a45d8aa69298d",
+    "generate": "a4c6f309aa330fda",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Sir Stephen Wye]); normalization assigned "Alexander David Kinloch" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Sir Stephen Wye]); normalization assigned "Dr. Peter Dunn" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "murder concealed by removal of blind witness" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1267,9 +1267,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "04cea7d751cd4e2f",
   },
   "the_markenmore_mystery": {
-    "generate": "22590c0cd0d2597f",
+    "generate": "1da3e7ea62c652b1",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Mr. Carter]); normalization assigned "Guy Markenmore" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Mr. Carter]); normalization assigned "Mrs. Braxfield (formerly Mrs. Wrenne)" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "murder for trade secret and money" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
@@ -1285,9 +1285,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "3c7fa49074aaa0c7",
   },
   "the_memoirs_of_sherlock_holmes": {
-    "generate": "0018e0acd67d94f7",
+    "generate": "e61702203f00d337",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Silas Brown]); normalization assigned "John Straker" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Silas Brown]); normalization assigned "Fitzroy Simpson" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "complex multi-location murder and disappearance with deception and impersonation" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1321,9 +1321,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "75d29d3221b4410a",
   },
   "the_mystery_girl": {
-    "generate": "819eb465825b8b51",
+    "generate": "288ea2a0e0291da0",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Nogi]); normalization assigned "John Waring" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Nogi]); normalization assigned "Maurice Trask" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "locked room mystery with disappearing weapon" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1494,9 +1494,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2561843b00d31c14",
   },
   "the_stowmarket_mystery": {
-    "generate": "cacd1e06e44550cd",
+    "generate": "4a43dc90f8ecca13",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Mr. Ooma]); normalization assigned "David Hume-Frazer" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Mr. Ooma]); normalization assigned "Robert Hume-Frazer" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "family feud and inheritance blackmail" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
@@ -1546,9 +1546,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0985d612c473a2fb",
   },
   "the_thirteenth_letter": {
-    "generate": "1fd4f255b58100ef",
+    "generate": "f6d2127d3b4ccafb",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Doctor Roberts]); normalization assigned "Paul Abbott" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Doctor Roberts]); normalization assigned "Alan Mason" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "stabbing"",
       "[17-hitting-90 P3.1] death_method names a wound and no place on the body that it kills: "stabbing"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1598,9 +1598,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "37f1d0ce3a3eec57",
   },
   "the_wisdom_of_father_brown": {
-    "generate": "4444230a3472e1c5",
+    "generate": "b44df42d166e2a84",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Isidore Bruno]); normalization assigned "Father Brown" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Isidore Bruno]); normalization assigned "Dr Orion Hood" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "disguised or misdirected murder with false appearances" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -1632,9 +1632,9 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "771f4d21b46fd174",
   },
   "three_sevens": {
-    "generate": "c4d593b5365dd2e5",
+    "generate": "d4cfc21ae0ed102e",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Count Wolf (Edwardo Cortinnys y Ottero)]); normalization assigned "Daniel Craig (Thomas Masters, Three Sevens)" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Count Wolf (Edwardo Cortinnys y Ottero)]); normalization assigned "Joan Gracie" from the cast. The case did not decide its own answer.",
       "Agent 3 authored no death_method and crime_class "prison break and recapture" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",

@@ -33,6 +33,20 @@ export const CRIME_CATEGORIES = ["murder", "theft", "disappearance", "fraud"] as
 /** The schema's cast `role` enum. */
 export const CAST_ROLES = ["detective", "victim", "culprit", "suspect", "witness", "bystander"] as const;
 
+/**
+ * Owner decision 5 §4 (A34-D05) — who may never be the culprit, on both paths: a member whose explicit
+ * `role` is detective or victim, or whose `role_archetype` names one. The union is the safe side; which of
+ * the two fields wins when they disagree is owner decision 2, shipped separately behind its shadow counter.
+ */
+const DETECTIVE_ARCHETYPE_TOKENS = ["detective", "investigator", "inspector"];
+export const cannotBeCulprit = (member: unknown): boolean => {
+  const m = ensureObject(member);
+  const role = String(m.role ?? "").trim().toLowerCase();
+  if (role === "detective" || role === "victim") return true;
+  const archetype = String(m.role_archetype ?? "").toLowerCase();
+  return archetype.includes("victim") || DETECTIVE_ARCHETYPE_TOKENS.some((token) => archetype.includes(token));
+};
+
 // ── sections both profiles share, byte-identical when they were two closures ─────────────────
 
 /** constraint_space's four sub-objects, each list field an array. */
@@ -273,14 +287,10 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
 function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: NormalizedCastMember[], roleIncludes: (role: unknown, tokens: string[]) => boolean, normalizationNotes: string[]) {
   const culpability = ensureObject(caseBlock.culpability);
   caseBlock.culpability = culpability;
-  const detectiveNameSet = new Set(
+  // Owner decision 5 §4: one exclusion rule for both profiles (cannotBeCulprit reads the explicit role too).
+  const excludedNameSet = new Set(
     normalizedCast
-      .filter((member) => roleIncludes(member.role_archetype, ["detective", "investigator", "inspector"]))
-      .map((member) => String(member.name ?? "").trim().toLowerCase())
-  );
-  const victimNameSet = new Set(
-    normalizedCast
-      .filter((member) => roleIncludes(member.role_archetype, ["victim"]))
+      .filter((member) => cannotBeCulprit(member))
       .map((member) => String(member.name ?? "").trim().toLowerCase())
   );
 
@@ -290,7 +300,7 @@ function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: Nor
 
   const validCulprits = rawCulprits.filter((name) => {
     const lowered = name.toLowerCase();
-    if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
+    if (excludedNameSet.has(lowered)) return false;
     const castEntry = normalizedCast.find((member) => String(member.name ?? "").trim().toLowerCase() === lowered);
     if (!castEntry) return false;
     return castEntry.culprit_eligibility === "eligible";
@@ -322,7 +332,7 @@ function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: Nor
   const isCandidate = (member: any, allowAccused: boolean): boolean => {
     const lowered = String(member?.name ?? "").trim().toLowerCase();
     if (!lowered) return false;
-    if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
+    if (excludedNameSet.has(lowered)) return false;
     if (!allowAccused && accusedKey && lowered === accusedKey) return false;
     return member.culprit_eligibility === "eligible" || member.culprit_eligibility === "locked";
   };
@@ -335,7 +345,10 @@ function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: Nor
     ? [validCulprits[0]]
     : fallbackCulprit
       ? [String(fallbackCulprit.name)]
-      : [normalizedCast[0]?.name ?? "Unknown"].filter(Boolean);
+      // Owner decision 5 §4 (A34-D05): the last resort was cast[0] — which could be the detective or the
+      // victim (MEASURED: Holmes, on the characterisation's capitalised-enums damage). Now any member who may
+      // be the culprit, ignoring eligibility; failing that none, and validation sends the case to Agent 4.
+      : [normalizedCast.find((m) => String(m.name ?? "").trim() && !cannotBeCulprit(m))?.name].filter(Boolean) as string[];
 
   if (validCulprits.length === 0) {
     // A run must never be readable as "the model chose this culprit" when this code did.
@@ -858,7 +871,18 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
   caseBlock.culpability = culpability;
   const culpritCount = typeof culpability.culprit_count === "number" ? culpability.culprit_count : 1;
   culpability.culprit_count = culpritCount === 2 ? 2 : 1;
-  culpability.culprits = ensureArray(culpability.culprits);
+  // Owner decision 5 §4 (A34-D05): the reviser may not name the detective or the victim either. Such a
+  // culprit is dropped, not replaced — an empty list fails validation and goes back through the retry,
+  // where a guess here would hide that Agent 4 did not decide.
+  const castByName = new Map(
+    ensureArray(caseBlock.cast).map((member) => [String(ensureObject(member).name ?? "").trim().toLowerCase(), member] as const),
+  );
+  culpability.culprits = ensureArray(culpability.culprits).filter((name) => {
+    const member = castByName.get(String(name ?? "").trim().toLowerCase());
+    if (member === undefined || !cannotBeCulprit(member)) return true;
+    console.warn(`[agent4-revision] culprit "${String(name)}" is the detective or the victim — dropped (owner decision 5 §4).`);
+    return false;
+  });
 
   const surface = ensureObject(caseBlock.surface_model);
   caseBlock.surface_model = surface;
