@@ -7,6 +7,7 @@
  * Uses logger from llm-client (like Agents 3 & 4).
  */
 
+import { SOURCE_PATH_PROMPT_ROOTS, enumerateSourcePaths } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
@@ -477,65 +478,11 @@ function deriveEffectiveDensity(
   return { effectiveDensity: "dense", overflow: true };
 }
 
+// A_67 FIX-2 (BUG-2): the mandatory cause-of-death "key tell" requirement (1c) prescribes
+// sourceInCML "CASE.death_method", so this list includes it (the worker's validator still does not —
+// A5-02 step 2, the owner's). CR-16: one enumerator and one table, in @cml/cml.
 function buildValidSourcePaths(caseData: any): string[] {
-  const paths: string[] = [];
-
-  const steps = Array.isArray(caseData?.inference_path?.steps) ? caseData.inference_path.steps : [];
-  for (let i = 0; i < steps.length; i++) {
-    paths.push(`CASE.inference_path.steps[${i}].observation`);
-    paths.push(`CASE.inference_path.steps[${i}].correction`);
-    const reqEvidence = Array.isArray(steps[i]?.required_evidence) ? steps[i].required_evidence : [];
-    for (let j = 0; j < reqEvidence.length; j++) {
-      paths.push(`CASE.inference_path.steps[${i}].required_evidence[${j}]`);
-    }
-  }
-
-  const pushIndexed = (base: string, arr: unknown[] | undefined): void => {
-    if (!Array.isArray(arr)) return;
-    for (let i = 0; i < arr.length; i++) paths.push(`${base}[${i}]`);
-  };
-
-  pushIndexed("CASE.constraint_space.time.anchors", caseData?.constraint_space?.time?.anchors);
-  pushIndexed("CASE.constraint_space.time.contradictions", caseData?.constraint_space?.time?.contradictions);
-  pushIndexed("CASE.constraint_space.access.actors", caseData?.constraint_space?.access?.actors);
-  pushIndexed("CASE.constraint_space.access.objects", caseData?.constraint_space?.access?.objects);
-  pushIndexed("CASE.constraint_space.access.permissions", caseData?.constraint_space?.access?.permissions);
-  pushIndexed("CASE.constraint_space.physical.laws", caseData?.constraint_space?.physical?.laws);
-  pushIndexed("CASE.constraint_space.physical.traces", caseData?.constraint_space?.physical?.traces);
-
-  const cast = Array.isArray(caseData?.cast) ? caseData.cast : [];
-  for (let i = 0; i < cast.length; i++) {
-    paths.push(`CASE.cast[${i}].alibi_window`);
-    paths.push(`CASE.cast[${i}].access_plausibility`);
-    const sensitivity = Array.isArray(cast[i]?.evidence_sensitivity) ? cast[i].evidence_sensitivity : [];
-    for (let j = 0; j < sensitivity.length; j++) {
-      paths.push(`CASE.cast[${i}].evidence_sensitivity[${j}]`);
-    }
-  }
-
-  const testEvidence = Array.isArray(caseData?.discriminating_test?.evidence_clues)
-    ? caseData.discriminating_test.evidence_clues
-    : [];
-  for (let i = 0; i < testEvidence.length; i++) {
-    paths.push(`CASE.discriminating_test.evidence_clues[${i}]`);
-  }
-
-  const clueSceneMap = Array.isArray(caseData?.prose_requirements?.clue_to_scene_mapping)
-    ? caseData.prose_requirements.clue_to_scene_mapping
-    : [];
-  for (let i = 0; i < clueSceneMap.length; i++) {
-    paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
-  }
-
-  // A_67 FIX-2 (BUG-2): the mandatory cause-of-death "key tell" requirement (1c) prescribes
-  // sourceInCML "CASE.death_method", but that leaf was never whitelisted — so the SOURCE LEGALITY
-  // CONTRACT forbade the very path the requirement demands, letting the LLM drop or re-source the
-  // method clue. Whitelist it (a strict superset; present on every Agent3-authored CASE via fallback).
-  if (typeof caseData?.death_method === "string" && caseData.death_method.trim()) {
-    paths.push("CASE.death_method");
-  }
-
-  return paths;
+  return enumerateSourcePaths(caseData, { deathMethod: true });
 }
 
 /**
@@ -828,22 +775,7 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
 
 ## Source Path Legality (Critical)
 Allowed source roots include:
-- CASE.inference_path.steps[N].observation
-- CASE.inference_path.steps[N].correction
-- CASE.inference_path.steps[N].required_evidence[M]
-- CASE.constraint_space.time.anchors[M]
-- CASE.constraint_space.time.contradictions[M]
-- CASE.constraint_space.access.actors[M]
-- CASE.constraint_space.access.objects[M]
-- CASE.constraint_space.access.permissions[M]
-- CASE.constraint_space.physical.laws[M]
-- CASE.constraint_space.physical.traces[M]
-- CASE.cast[N].alibi_window
-- CASE.cast[N].access_plausibility
-- CASE.cast[N].evidence_sensitivity[M]
-- CASE.discriminating_test.evidence_clues[M]
-- CASE.prose_requirements.clue_to_scene_mapping[M].clue_id
-- CASE.death_method
+${SOURCE_PATH_PROMPT_ROOTS.map((template) => `- ${template}`).join("\n")}
 Forbidden examples:
 - CASE.constraint_space.access.footprints[0]
 - CASE.character_behavior.*

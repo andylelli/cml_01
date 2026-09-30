@@ -2,6 +2,7 @@
  * Agent 5 phases: the first extraction, the repair after the first guardrail pass, and the inference-coverage
  * retry. Moved from agent5-run.ts (code review A5-01 / CR-25), which re-exports what it exported.
  */
+import { SOURCE_PATH_RETRY_TEMPLATES } from "@cml/cml";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import {
   type OrchestratorContext,
@@ -90,16 +91,7 @@ export async function repairAfterFirstGuardrailPass(ctx: OrchestratorContext, ru
     sourcePathSnapshot.invalidPaths.forEach((path) => ctx.warnings.push(`  - [critical] source path legality: invalid sourceInCML path=${path}`)
     );
 
-    const legalSourceTemplates = [
-      "CASE.inference_path.steps[N].observation",
-      "CASE.inference_path.steps[N].correction",
-      "CASE.inference_path.steps[N].required_evidence[M]",
-      "CASE.constraint_space.time.anchors[M]",
-      "CASE.constraint_space.time.contradictions[M]",
-      "CASE.cast[N].alibi_window",
-      "CASE.cast[N].access_plausibility",
-      "CASE.constraint_space.physical.traces[M]",
-    ];
+    const legalSourceTemplates = SOURCE_PATH_RETRY_TEMPLATES; // CR-16 (A5-02): from the one source-path table
 
     if (run.llmRetriesEnabled) {
       const retryCluesStart = Date.now();

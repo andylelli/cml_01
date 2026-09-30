@@ -22,6 +22,8 @@ export const packageName = "@cml/cml";
 export { validateCml };
 export { isVictimArchetype, isDetectiveArchetype, roleTextsOf } from "./roles.js";
 export { surname, namesMatch, nameAppearsAsWord } from "./identity.js";
+export { SOURCE_PATH_FAMILIES, WORKER_LEGAL_SOURCE_PATTERNS, SOURCE_PATH_PROMPT_ROOTS, SOURCE_PATH_RETRY_TEMPLATES, enumerateSourcePaths, sourcePathPattern } from "./source-paths.js";
+export type { SourcePathFamily } from "./source-paths.js";
 // X51 (REVIEW_11 §8.1) — case-scoped locked facts: the weapon and each suspect's alibi location.
 export { buildCaseScopedLockedFacts, extractWeaponFromDeathMethod, extractAlibiLocation } from "./case-locked-facts.js";
 export type { CaseScopedLockedFact } from "./case-locked-facts.js";

@@ -4,6 +4,7 @@
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { WORKER_LEGAL_SOURCE_PATTERNS, enumerateSourcePaths } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
 } from "./shared.js";
@@ -13,23 +14,8 @@ type SourcePathValidationResult = {
   issues: ClueGuardrailIssue[];
 };
 
-export const ALLOWED_SOURCE_PATTERNS: RegExp[] = [
-  /^CASE\.inference_path\.steps\[(\d+)\]\.observation$/,
-  /^CASE\.inference_path\.steps\[(\d+)\]\.correction$/,
-  /^CASE\.inference_path\.steps\[(\d+)\]\.required_evidence\[(\d+)\]$/,
-  /^CASE\.constraint_space\.time\.anchors\[(\d+)\]$/,
-  /^CASE\.constraint_space\.time\.contradictions\[(\d+)\]$/,
-  /^CASE\.constraint_space\.access\.actors\[(\d+)\]$/,
-  /^CASE\.constraint_space\.access\.objects\[(\d+)\]$/,
-  /^CASE\.constraint_space\.access\.permissions\[(\d+)\]$/,
-  /^CASE\.constraint_space\.physical\.laws\[(\d+)\]$/,
-  /^CASE\.constraint_space\.physical\.traces\[(\d+)\]$/,
-  /^CASE\.cast\[(\d+)\]\.alibi_window$/,
-  /^CASE\.cast\[(\d+)\]\.access_plausibility$/,
-  /^CASE\.cast\[(\d+)\]\.evidence_sensitivity\[(\d+)\]$/,
-  /^CASE\.discriminating_test\.evidence_clues\[(\d+)\]$/,
-  /^CASE\.prose_requirements\.clue_to_scene_mapping\[(\d+)\]\.clue_id$/,
-];
+// CR-16 (A5-02): derived from the one source-path table in @cml/cml (worker-legal families).
+export const ALLOWED_SOURCE_PATTERNS: RegExp[] = WORKER_LEGAL_SOURCE_PATTERNS;
 
 export const getCaseBlock = (cml: CaseData): any => ((cml as any)?.CASE ?? cml);
 
@@ -80,17 +66,6 @@ export const checkSourcePathValidity = (cml: CaseData, clues: ClueDistributionRe
   return { invalidPaths: Array.from(invalidPaths), issues };
 };
 
-const pushIndexedSourcePaths = (
-  acc: string[],
-  base: string,
-  arr: unknown[] | undefined,
-): void => {
-  if (!Array.isArray(arr)) return;
-  for (let i = 0; i < arr.length; i += 1) {
-    acc.push(`${base}[${i}]`);
-  }
-};
-
 // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): the strict source-path whitelist is a pure
 // derivation of the immutable CML but is rebuilt 5-10x per Agent-5 invocation (every retry attempt
 // and every gate re-check). Memoize per CML object so repeated callers reuse the first result. The
@@ -98,54 +73,9 @@ const pushIndexedSourcePaths = (
 // stale entries are GC'd with the case object.
 export const strictSourcePathWhitelistCache = new WeakMap<object, string[]>();
 
-const computeStrictSourcePathWhitelist = (cml: CaseData): string[] => {
-  const caseBlock = getCaseBlock(cml);
-  const paths: string[] = [];
-
-  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
-  for (let i = 0; i < steps.length; i += 1) {
-    paths.push(`CASE.inference_path.steps[${i}].observation`);
-    paths.push(`CASE.inference_path.steps[${i}].correction`);
-    const reqEvidence = Array.isArray(steps[i]?.required_evidence) ? steps[i].required_evidence : [];
-    for (let j = 0; j < reqEvidence.length; j += 1) {
-      paths.push(`CASE.inference_path.steps[${i}].required_evidence[${j}]`);
-    }
-  }
-
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.time.anchors", caseBlock?.constraint_space?.time?.anchors);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.time.contradictions", caseBlock?.constraint_space?.time?.contradictions);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.actors", caseBlock?.constraint_space?.access?.actors);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.objects", caseBlock?.constraint_space?.access?.objects);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.permissions", caseBlock?.constraint_space?.access?.permissions);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.physical.laws", caseBlock?.constraint_space?.physical?.laws);
-  pushIndexedSourcePaths(paths, "CASE.constraint_space.physical.traces", caseBlock?.constraint_space?.physical?.traces);
-
-  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  for (let i = 0; i < cast.length; i += 1) {
-    paths.push(`CASE.cast[${i}].alibi_window`);
-    paths.push(`CASE.cast[${i}].access_plausibility`);
-    const sensitivity = Array.isArray(cast[i]?.evidence_sensitivity) ? cast[i].evidence_sensitivity : [];
-    for (let j = 0; j < sensitivity.length; j += 1) {
-      paths.push(`CASE.cast[${i}].evidence_sensitivity[${j}]`);
-    }
-  }
-
-  const testEvidence = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
-    ? caseBlock.discriminating_test.evidence_clues
-    : [];
-  for (let i = 0; i < testEvidence.length; i += 1) {
-    paths.push(`CASE.discriminating_test.evidence_clues[${i}]`);
-  }
-
-  const clueSceneMap = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
-    ? caseBlock.prose_requirements.clue_to_scene_mapping
-    : [];
-  for (let i = 0; i < clueSceneMap.length; i += 1) {
-    paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
-  }
-
-  return [...new Set(paths)].filter((path) => validateSourcePath(cml, path));
-};
+const computeStrictSourcePathWhitelist = (cml: CaseData): string[] =>
+  // CR-16 (A5-02): the shared enumerator, without CASE.death_method (the worker does not accept it).
+  [...new Set(enumerateSourcePaths(getCaseBlock(cml), { deathMethod: false }))].filter((path) => validateSourcePath(cml, path));
 
 export const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
   // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.
