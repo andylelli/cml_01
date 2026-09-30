@@ -6,7 +6,6 @@
   },
   "files": {
     "apps/api/src/server.ts": 1968,
-    "apps/worker/src/jobs/agents/agent6-run.ts": 2153,
     "apps/worker/src/jobs/agents/agent9-run.ts": 7237,
     "packages/prompts-llm/src/agent3-cml.ts": 1832,
     "packages/prompts-llm/src/agent9-prose/clue-validation.ts": 1740,
@@ -18,7 +17,7 @@
   },
   "functions": {
     "apps/api/src/server.ts::createServer": 1339,
-    "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 1180,
+    "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 553,
     "apps/worker/src/jobs/agents/agent9-run.ts::runAgent9": 4676,
     "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 1155,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
