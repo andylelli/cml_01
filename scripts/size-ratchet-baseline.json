@@ -19,8 +19,6 @@
   },
   "functions": {
     "apps/api/src/server.ts::createServer": 1339,
-    "apps/worker/src/jobs/agents/agent3-run.ts::runAgent3": 551,
-    "apps/worker/src/jobs/agents/agent3b-run.ts::runAgent3b": 472,
     "apps/worker/src/jobs/agents/agent5-run.ts::runAgent5": 1134,
     "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 1180,
     "apps/worker/src/jobs/agents/agent9-run.ts::runAgent9": 4676,
