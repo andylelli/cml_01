@@ -1,15 +1,14 @@
 {
   "project": "proj_d0ee7b26-7e02-43f2-98a6-2c4993d9d59e",
-  "stage": "clues",
+  "stage": "prose",
   "overrides": {
-    "PROSE_ENGINE": "v2",
-    "AGENT65_OMIT_RUN_TELEMETRY": "true"
+    "PROSE_ENGINE": "v2"
   },
   "digest": "fdf3c31a9065c272",
-  "result": "MATCH — 51 calls, 54 recorded attempts, all served (strict)",
+  "result": "MATCH — 43 calls, 46 recorded attempts, all served (strict)",
   "syntheticFailures": [],
-  "recordedFrom": "run_7b1ec2ef-c7b2-4897-9c13-9cec3ba13443",
-  "rebasedAt": "2026-09-30T19:59:28.292Z",
+  "recordedFrom": "resume-1790796774319",
+  "rebasedAt": "2026-09-30T20:00:08.697Z",
   "env": {
     "AGENT2_MOTIVE_KIND_ROTATION": "true",
     "AGENT2_SHARED_HISTORY_EVENT": "true",
@@ -156,7 +155,6 @@
     "PROSE_V2_SEGMENT_CHAPTERS": "1",
     "RUBRIC_JUDGE_MODEL": "gpt-4.1-mini",
     "RUBRIC_SCORING_MODE": "shadow",
-    "VALIDATION_DOCUMENTARY_MONTHS": "true",
-    "AGENT65_OMIT_RUN_TELEMETRY": "true"
+    "VALIDATION_DOCUMENTARY_MONTHS": "true"
   }
 }

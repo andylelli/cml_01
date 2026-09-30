@@ -2,17 +2,14 @@
   "project": "proj_d0ee7b26-7e02-43f2-98a6-2c4993d9d59e",
   "stage": "setting",
   "overrides": {
-    "PROSE_ENGINE": "v1",
+    "PROSE_ENGINE": "v2",
     "AGENT65_OMIT_RUN_TELEMETRY": "true"
   },
-  "digest": "23e066747bc53699",
-  "result": "MATCH — 90 calls, 120 recorded attempts, all served (strict)",
-  "syntheticFailures": [
-    "Agent9-Regen-Ch7-scaffold_not_prose",
-    "Agent9-Regen-Ch7-scaffold_not_prose"
-  ],
+  "digest": "fdf3c31a9065c272",
+  "result": "MATCH — 58 calls, 61 recorded attempts, all served (strict)",
+  "syntheticFailures": [],
   "recordedFrom": "run_7b1ec2ef-c7b2-4897-9c13-9cec3ba13443",
-  "rebasedAt": "2026-09-29T20:17:20.254Z",
+  "rebasedAt": "2026-09-30T19:58:49.717Z",
   "env": {
     "AGENT2_MOTIVE_KIND_ROTATION": "true",
     "AGENT2_SHARED_HISTORY_EVENT": "true",
@@ -155,7 +152,7 @@
     "NOVELTY_SIMILARITY_THRESHOLD": "1.0",
     "NOVELTY_SKELETON_JUDGE": "shadow",
     "PROSE_ANTI_COPY_GATE": "true",
-    "PROSE_ENGINE": "v1",
+    "PROSE_ENGINE": "v2",
     "PROSE_V2_SEGMENT_CHAPTERS": "1",
     "RUBRIC_JUDGE_MODEL": "gpt-4.1-mini",
     "RUBRIC_SCORING_MODE": "shadow",
