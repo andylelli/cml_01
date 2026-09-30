@@ -13,7 +13,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
-import { parseLlmJson, sanitizeYaml } from "./shared/llm-json.js";
+import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
 
 export interface RevisionInputs {
   originalPrompt: PromptComponents;  // Original Agent 3 prompt for context
@@ -725,7 +725,7 @@ export async function reviseCml(
 }
 
 /**
- * A34-07 — one Agent 4 reply to a CML: the JSON ladder (unguarded, ORC-Q03), then the YAML fallback. Moved out
+ * A34-07 — one Agent 4 reply to a CML: the guarded JSON ladder, then the YAML fallback. Moved out
  * of the revision loop, which retries when neither parses.
  */
 async function parseRevisionReply(response: Awaited<ReturnType<AzureOpenAIClient["chat"]>>, logger: ReturnType<AzureOpenAIClient["getLogger"]>, runId: string, projectId: string, attempt: number, startTime: number) {
@@ -733,10 +733,11 @@ async function parseRevisionReply(response: Awaited<ReturnType<AzureOpenAIClient
   let jsonParseError: Error | undefined;
   let yamlParseError: Error | undefined;
 
-  // CR-20: the one parse ladder, span strict then repaired. Unguarded, as it always was: a truncated
-  // full-CML re-emission is repaired, not refused (A34-D07; guarding it is ORC-Q03, the owner's call).
+  // CR-20: the one parse ladder, span strict then repaired. Guarded since owner decision 3 (ORC-Q03,
+  // A34-D07): unguarded, jsonrepair turned a well-formed YAML reply into an array, so the YAML fallback below
+  // never ran and a valid revision degraded; and a truncated full-CML re-emission was closed, not refused.
   const tryParseJson = (raw: string): Record<string, unknown> | undefined => {
-    const parsed = parseLlmJson<Record<string, unknown>>(raw, { guard: false, extract: "strict+repair" });
+    const parsed = parseLlmJson<Record<string, unknown>>(raw, { guard: true, extract: "strict+repair" });
     if (parsed.parseError) jsonParseError = parsed.parseError;
     return parsed.data;
   };
@@ -745,8 +746,8 @@ async function parseRevisionReply(response: Awaited<ReturnType<AzureOpenAIClient
 
   if (!cml) {
     try {
-      const sanitized = sanitizeYaml(response.content);
-      const parsed = yaml.load(sanitized) as Record<string, unknown> | undefined;
+      const reply = loadYamlReply(response.content, (text) => yaml.load(text));
+      const parsed = reply.value as Record<string, unknown> | undefined;
       if (parsed && typeof parsed === "object") {
         cml = parsed;
         await logger.logResponse({
@@ -759,7 +760,7 @@ async function parseRevisionReply(response: Awaited<ReturnType<AzureOpenAIClient
           validationStatus: "pass",
           retryAttempt: attempt,
           latencyMs: Date.now() - startTime,
-          metadata: { note: "YAML sanitized after JSON parse failure" },
+          metadata: { note: reply.sanitized ? "YAML sanitized after JSON parse failure" : "YAML reply parsed as written" },
         });
       }
     } catch (error) {

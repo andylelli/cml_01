@@ -85,6 +85,25 @@ export function parseLlmJson<T = unknown>(raw: string, options: LlmJsonOptions):
  * quoted value and comments out a line that is neither a key nor a list item. A34-06: Agents 3 and 4 each
  * declared it inside their attempt loop, byte-identical apart from whitespace.
  */
+/**
+ * A YAML reply: parsed as written first, and through `sanitizeYaml` only when that does not give a mapping.
+ *
+ * `sanitizeYaml` comments out every line without a colon. That rescues stray prose around a mapping, but it
+ * corrupts a wrapped string: a folded (`>-`) continuation line keeps the "# " as literal text, and a plain
+ * scalar's continuation is cut off. MEASURED (found applying owner decision 3, 2026-09-30): a library case
+ * round-tripped through `yaml.dump` came back with 15+ fields reading "# …". Both CML agents always sanitised
+ * first. `load` is the site's own YAML parser (Agent 3 and Agent 4 use different libraries, A34-06).
+ */
+export function loadYamlReply(raw: string, load: (text: string) => unknown): { value: unknown; sanitized: boolean } {
+  try {
+    const value = load(raw);
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) return { value, sanitized: false };
+  } catch {
+    /* not YAML as written — try the sanitised text */
+  }
+  return { value: load(sanitizeYaml(raw)), sanitized: true };
+}
+
 export const sanitizeYaml = (raw: string): string =>
   raw
     .split("\n")

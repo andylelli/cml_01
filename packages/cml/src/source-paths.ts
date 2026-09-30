@@ -3,10 +3,12 @@
  *
  * Five bodies described the same set: the worker's regex whitelist, the worker's strict-whitelist
  * enumerator, prompts-llm's enumerator (a clone plus `CASE.death_method`), the Agent 5 prompt's "Allowed
- * source roots" list, and the worker's retry templates. They are now derived from this table. Step 1 (R1)
- * keeps today's verdicts through `workerLegal`: the prompt still lists `CASE.death_method` and the worker
- * still rejects it. Whether it is legal is step 2 (A5-02, the owner's) — accepting it is what A_67 FIX-2
- * intended.
+ * source roots" list, and the worker's retry templates. They are now derived from this table.
+ *
+ * Owner decision 4 (2026-09-30, A5-Q01 / A5-D03): `CASE.death_method` is legal. The Agent 5 prompt has
+ * demanded the cause-of-death key tell there since A_67 FIX-2, while the worker rejected the path and
+ * rewrote the clue to `steps[0].observation` (MEASURED in logs/canary-95041.log). Validator, strict
+ * whitelist and prompt now agree.
  *
  * Each regex is DERIVED from its template (`[N]`/`[M]` → an index), so a family is written once.
  */
@@ -14,7 +16,7 @@
 export interface SourcePathFamily {
   /** The path with `[N]`/`[M]` for indices, as the prompt prints it. */
   template: string;
-  /** Accepted by the worker's validator today. */
+  /** Accepted by the worker's validator. */
   workerLegal: boolean;
   /** Position in the worker's retry-feedback template list, when it is one of them. */
   retryRank?: number;
@@ -36,7 +38,7 @@ export const SOURCE_PATH_FAMILIES: readonly SourcePathFamily[] = [
   { template: "CASE.cast[N].evidence_sensitivity[M]", workerLegal: true },
   { template: "CASE.discriminating_test.evidence_clues[M]", workerLegal: true },
   { template: "CASE.prose_requirements.clue_to_scene_mapping[M].clue_id", workerLegal: true },
-  { template: "CASE.death_method", workerLegal: false },
+  { template: "CASE.death_method", workerLegal: true },
 ];
 
 /** `CASE.x[N].y` → /^CASE\.x\[(\d+)\]\.y$/ */
@@ -58,10 +60,10 @@ export const SOURCE_PATH_RETRY_TEMPLATES: string[] = SOURCE_PATH_FAMILIES
 /**
  * Every concrete path a case offers, in the order both enumerators always produced (per inference step:
  * observation, correction, its evidence; then the constraint lists; per cast member; the test's evidence; the
- * clue-to-scene mapping) — that order reaches the Agent 5 prompt. `deathMethod` adds `CASE.death_method`
- * when the case has one (prompts-llm's list; the worker's strict whitelist leaves it out).
+ * clue-to-scene mapping, and `CASE.death_method` when the case has one) — that order reaches the Agent 5
+ * prompt and the worker's strict whitelist alike.
  */
-export function enumerateSourcePaths(caseBlock: any, options: { deathMethod: boolean }): string[] {
+export function enumerateSourcePaths(caseBlock: any): string[] {
   const paths: string[] = [];
   const pushIndexed = (base: string, arr: unknown): void => {
     if (!Array.isArray(arr)) return;
@@ -93,7 +95,7 @@ export function enumerateSourcePaths(caseBlock: any, options: { deathMethod: boo
   for (let i = 0; i < clueSceneMap.length; i += 1) {
     paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
   }
-  if (options.deathMethod && typeof caseBlock?.death_method === "string" && caseBlock.death_method.trim()) {
+  if (typeof caseBlock?.death_method === "string" && caseBlock.death_method.trim()) {
     paths.push("CASE.death_method");
   }
   return paths;

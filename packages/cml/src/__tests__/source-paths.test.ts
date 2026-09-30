@@ -101,8 +101,9 @@ const cases = existsSync(ROOT)
   : [];
 
 describe("source-path table (A5-02)", () => {
-  it("derives the worker's 15 regexes exactly", () => {
-    expect(WORKER_LEGAL_SOURCE_PATTERNS.map((r) => r.source)).toEqual(OLD_PATTERNS.map((r) => r.source));
+  it("derives the worker's 15 old regexes exactly, plus CASE.death_method (owner decision 4)", () => {
+    expect(WORKER_LEGAL_SOURCE_PATTERNS.map((r) => r.source)).toEqual([...OLD_PATTERNS.map((r) => r.source), "^CASE\\.death_method$"]);
+    expect(WORKER_LEGAL_SOURCE_PATTERNS.some((re) => re.test("CASE.death_method"))).toBe(true);
     expect(sourcePathPattern("CASE.death_method").source).toBe("^CASE\\.death_method$");
   });
 
@@ -115,14 +116,13 @@ describe("source-path table (A5-02)", () => {
     expect(cases.length).toBeGreaterThanOrEqual(100);
     for (const c of cases) {
       const old = oldBuildValidSourcePaths(c);
-      expect(enumerateSourcePaths(c, { deathMethod: true })).toEqual(old);
-      expect(enumerateSourcePaths(c, { deathMethod: false })).toEqual(old.filter((p) => p !== "CASE.death_method"));
+      expect(enumerateSourcePaths(c)).toEqual(old);
     }
   });
 
   it("every worker-legal path it enumerates matches a worker pattern (validator ⊆ enumerator's families)", () => {
     for (const c of cases.slice(0, 20)) {
-      for (const p of enumerateSourcePaths(c, { deathMethod: false })) {
+      for (const p of enumerateSourcePaths(c)) {
         expect(WORKER_LEGAL_SOURCE_PATTERNS.some((re) => re.test(p)), p).toBe(true);
       }
     }

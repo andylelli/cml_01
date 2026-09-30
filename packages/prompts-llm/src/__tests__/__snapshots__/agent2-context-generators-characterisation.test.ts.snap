@@ -10,21 +10,21 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2b — not JSON 
     },
     {
       "agent": "Agent2b-CharacterProfiles",
-      "messages": "bf20c3bb14a3c760",
+      "messages": "b40563fe1278a992",
       "retryAttempt": 2,
     },
     {
       "agent": "Agent2b-CharacterProfiles",
-      "messages": "bf20c3bb14a3c760",
+      "messages": "b40563fe1278a992",
       "retryAttempt": 3,
     },
   ],
   "logs": [
-    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: Invalid character profiles output: missing profiles",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
-    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 2/3: Invalid character profiles output: missing profiles",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
-    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 3/3: Invalid character profiles output: missing profiles",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
   ],
   "threw": "[Agent 2b (Character Profiles)] Validation retry exhausted without any generated result",
@@ -195,7 +195,7 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2b — truncated
     },
     {
       "agent": "Agent2b-CharacterProfiles",
-      "messages": "317e9218b7ff771b",
+      "messages": "b40563fe1278a992",
       "retryAttempt": 2,
     },
     {
@@ -216,9 +216,8 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2b — truncated
     "profiles",
   ],
   "logs": [
-    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 1/3: 3 error(s)",
-    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
-    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required,profiles[0].paragraphs is required",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
     "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 2/3: 2 error(s)",
     "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
     "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
@@ -244,21 +243,21 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2c — not JSON 
     },
     {
       "agent": "Agent2c-LocationProfiles",
-      "messages": "45c2144d8b7fec25",
+      "messages": "ab77195774b532c0",
       "retryAttempt": 2,
     },
     {
       "agent": "Agent2c-LocationProfiles",
-      "messages": "45c2144d8b7fec25",
+      "messages": "ab77195774b532c0",
       "retryAttempt": 3,
     },
   ],
   "logs": [
-    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: Invalid location profiles output: missing primary location",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
-    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 2/3: Invalid location profiles output: missing primary location",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
-    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 3/3: Invalid location profiles output: missing primary location",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
   ],
   "threw": "[Agent 2c (Location Profiles)] Validation retry exhausted without any generated result",
@@ -483,7 +482,7 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2c — truncated
     },
     {
       "agent": "Agent2c-LocationProfiles",
-      "messages": "78afe6953bcb06ea",
+      "messages": "ab77195774b532c0",
       "retryAttempt": 2,
     },
     {
@@ -501,7 +500,7 @@ exports[`context generators characterisation (CR-20 / A1X-03) > 2c — truncated
     "primary",
   ],
   "logs": [
-    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: Invalid location profiles output: atmosphere object is incomplete — missing: paragraphs. Required shape: { era: string, weather: string, timeFlow: string, mood: string, eraMarkers: string[], sensoryPalette: { dominant: string, secondary: string[] }, paragraphs: string[] }.",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
     "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
     "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 2/3: 26 error(s)",
     "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",

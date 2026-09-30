@@ -479,10 +479,10 @@ function deriveEffectiveDensity(
 }
 
 // A_67 FIX-2 (BUG-2): the mandatory cause-of-death "key tell" requirement (1c) prescribes
-// sourceInCML "CASE.death_method", so this list includes it (the worker's validator still does not —
-// A5-02 step 2, the owner's). CR-16: one enumerator and one table, in @cml/cml.
+// sourceInCML "CASE.death_method", so this list includes it — and since owner decision 4 (2026-09-30) the
+// worker's validator accepts it too. CR-16: one enumerator and one table, in @cml/cml.
 function buildValidSourcePaths(caseData: any): string[] {
-  return enumerateSourcePaths(caseData, { deathMethod: true });
+  return enumerateSourcePaths(caseData);
 }
 
 /**

@@ -25,7 +25,7 @@ export interface JsonArtifactSpec<T> {
   model: { temperature: number; max_tokens: number };
   runId?: string;
   projectId?: string;
-  /** The truncation guard (parseLlmJson). OFF at 2b and 2c, as it always was (ORC-Q03). */
+  /** The truncation guard (parseLlmJson). ON at every generator since owner decision 3 (ORC-Q03). */
   guard: boolean;
   buildMessages: (previousErrors?: string[]) => ChatMessages;
   /** Throws a retryable error when the parsed value lacks what the generator needs. */

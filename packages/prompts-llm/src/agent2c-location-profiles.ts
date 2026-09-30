@@ -360,7 +360,7 @@ export async function generateLocationProfiles(
     model: config.model,
     runId: inputs.runId,
     projectId: inputs.projectId,
-    guard: false, // as it always was (ORC-Q03)
+    guard: true, // owner decision 3 (ORC-Q03)
     buildMessages: (previousErrors) => buildLocationProfilesPrompt(inputs, previousErrors).messages,
     structuralCheck: (profiles) => {
       // Basic structure validation

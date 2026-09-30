@@ -74,8 +74,8 @@ export const checkSourcePathValidity = (cml: CaseData, clues: ClueDistributionRe
 export const strictSourcePathWhitelistCache = new WeakMap<object, string[]>();
 
 const computeStrictSourcePathWhitelist = (cml: CaseData): string[] =>
-  // CR-16 (A5-02): the shared enumerator, without CASE.death_method (the worker does not accept it).
-  [...new Set(enumerateSourcePaths(getCaseBlock(cml), { deathMethod: false }))].filter((path) => validateSourcePath(cml, path));
+  // CR-16 (A5-02): the shared enumerator — the same list the Agent 5 prompt offers (owner decision 4).
+  [...new Set(enumerateSourcePaths(getCaseBlock(cml)))].filter((path) => validateSourcePath(cml, path));
 
 export const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
   // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.

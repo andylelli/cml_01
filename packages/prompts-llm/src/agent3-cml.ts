@@ -16,7 +16,7 @@ import {
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
-import { parseLlmJson, sanitizeYaml } from "./shared/llm-json.js";
+import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
@@ -1231,8 +1231,8 @@ async function parseCmlReply(response: Awaited<ReturnType<AzureOpenAIClient["cha
 
   if (!cml) {
     try {
-      const sanitized = sanitizeYaml(response.content);
-      cml = parseYAML(sanitized);
+      const reply = loadYamlReply(response.content, (text) => parseYAML(text));
+      cml = reply.value;
 
       await logger.logResponse({
         runId: inputs.runId,
@@ -1244,7 +1244,7 @@ async function parseCmlReply(response: Awaited<ReturnType<AzureOpenAIClient["cha
         validationStatus: "pass",
         retryAttempt: attempt,
         latencyMs: Date.now() - startTime,
-        metadata: { note: "YAML sanitized after parse failure" },
+        metadata: { note: reply.sanitized ? "YAML sanitized after parse failure" : "YAML reply parsed as written" },
       });
     } catch (error) {
       yamlParseError = error as Error;

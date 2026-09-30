@@ -379,8 +379,10 @@ async function repairMissingParagraphs(
   });
 
   let parsed: { paragraphs?: string[] };
-  // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
-  const parsedJson = parseLlmJson<{ paragraphs?: string[] }>(response.content, { guard: false });
+  // CR-20: the one parse ladder. Guarded since owner decision 3 (ORC-Q03): a truncated reply is refused,
+  // not closed by jsonrepair into a profile with phantom paragraphs; the caller logs and moves on.
+  const parsedJson = parseLlmJson<{ paragraphs?: string[] }>(response.content, { guard: true });
+  if (parsedJson.truncated) throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
   if (parsedJson.data === undefined) throw parsedJson.repairError;
   parsed = parsedJson.data;
 
@@ -412,7 +414,7 @@ export async function generateCharacterProfiles(
     model: config.model,
     runId: inputs.runId,
     projectId: inputs.projectId,
-    guard: false, // as it always was (ORC-Q03)
+    guard: true, // owner decision 3 (ORC-Q03)
     buildMessages: (previousErrors) => buildProfilesPrompt(inputs, previousErrors).messages,
     structuralCheck: (profiles) => {
       if (!Array.isArray(profiles.profiles) || profiles.profiles.length === 0) {

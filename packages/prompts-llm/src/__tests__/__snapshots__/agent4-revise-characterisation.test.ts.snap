@@ -4,17 +4,15 @@ exports[`reviseCml characterisation (A34-07) > a YAML reply 1`] = `
 {
   "calls": [
     "fc96621f12550bbf",
-    "06c7a1dbc6e1e024",
-    "d02e9a442535bcb4",
   ],
   "result": {
-    "attempt": 3,
-    "cml": "3b8699e9e2f7c45e",
-    "degraded": true,
-    "errors": 1,
-    "revisions": 4,
-    "unresolved": 1,
-    "valid": false,
+    "attempt": 1,
+    "cml": "5aa5313f77f1d116",
+    "degraded": false,
+    "errors": 0,
+    "revisions": 1,
+    "unresolved": 0,
+    "valid": true,
   },
 }
 `;
