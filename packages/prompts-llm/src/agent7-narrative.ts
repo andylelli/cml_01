@@ -180,6 +180,33 @@ export interface NarrativeOutline {
   truncationWarning?: string;
 }
 
+/**
+ * A7-11 — what formatNarrative had to coerce in the model's reply, one count per site. The worker adds
+ * them to the run's Agent 7 coercion counters (the `[R4]` line and report diagnostic); before, only the
+ * worker's two helpers were counted, and `mechanism_stage` clearing was a console line nothing kept.
+ */
+export interface OutlineCoercionCounts {
+  /** jsonrepair produced the outline. */
+  parseRepaired: number;
+  /** The outline came from the outermost `{…}` span of a prose-wrapped reply. */
+  parseExtracted: number;
+  /** totalScenes / estimatedTotalWords were missing and computed from the scenes. */
+  totalsSynthesized: number;
+  /** The reply's totalScenes disagreed with the act traversal and was overridden. */
+  totalScenesCorrected: number;
+  /** Scenes whose mechanism_stage was deleted because the stages ran backwards. */
+  mechanismStagesCleared: number;
+}
+
+const OUTLINE_COERCIONS = Symbol.for("cml.agent7.outlineCoercions");
+
+/**
+ * The counts formatNarrative recorded on this outline, or undefined when it coerced nothing. They ride on
+ * a symbol key, so JSON, spread and structuredClone never carry them into a prompt or an artifact.
+ */
+export const readOutlineCoercions = (outline: unknown): OutlineCoercionCounts | undefined =>
+  outline && typeof outline === "object" ? (outline as Record<symbol, OutlineCoercionCounts | undefined>)[OUTLINE_COERCIONS] : undefined;
+
 // ============================================================================
 // Prompt Builder
 // ============================================================================
@@ -995,6 +1022,13 @@ export async function formatNarrative(
   const parsedJson = parseLlmJson<Omit<NarrativeOutline, "cost" | "durationMs">>(response.content, { guard: false, extract: "strict" });
   if (parsedJson.data === undefined) throw new Error(`Failed to parse narrative outline JSON: ${parsedJson.parseError}`);
   let outlineData = parsedJson.data;
+  const coercions: OutlineCoercionCounts = {
+    parseRepaired: parsedJson.repaired ? 1 : 0,
+    parseExtracted: parsedJson.extracted ? 1 : 0,
+    totalsSynthesized: 0,
+    totalScenesCorrected: 0,
+    mechanismStagesCleared: 0,
+  };
 
   // Validate required fields
   if (!outlineData.acts || !Array.isArray(outlineData.acts) || outlineData.acts.length === 0) {
@@ -1002,6 +1036,7 @@ export async function formatNarrative(
   }
 
   if (!outlineData.totalScenes || !outlineData.estimatedTotalWords) {
+    coercions.totalsSynthesized = 1;
     const acts = outlineData.acts ?? [];
     const allScenes = acts.flatMap((act: any) => (Array.isArray(act.scenes) ? act.scenes : []));
     const computedTotalScenes = allScenes.length;
@@ -1023,6 +1058,7 @@ export async function formatNarrative(
   const allActScenes = (outlineData.acts ?? []).flatMap((act: any) =>
     Array.isArray(act.scenes) ? act.scenes : []
   );
+  if (outlineData.totalScenes !== allActScenes.length) coercions.totalScenesCorrected = 1;
   outlineData = {
     ...outlineData,
     totalScenes: allActScenes.length,
@@ -1043,6 +1079,7 @@ export async function formatNarrative(
         );
         // Non-fatal: log warning and clear the invalid stages rather than aborting
         for (const s of allActScenes as any[]) {
+          if ("mechanism_stage" in s) coercions.mechanismStagesCleared += 1;
           delete s.mechanism_stage;
         }
         break;
@@ -1050,7 +1087,7 @@ export async function formatNarrative(
     }
   }
 
-  return {
+  const outline: NarrativeOutline = {
     ...outlineData,
     cost,
     durationMs,
@@ -1058,4 +1095,9 @@ export async function formatNarrative(
     // Absent on a clean reply, so the field's presence IS the signal.
     ...(truncationWarning ? { truncationWarning } : {}),
   };
+  // A7-11: non-enumerable, on a symbol — no serialisation, spread or clone carries it downstream.
+  if (Object.values(coercions).some((n) => n > 0)) {
+    Object.defineProperty(outline, OUTLINE_COERCIONS, { value: coercions, enumerable: false });
+  }
+  return outline;
 }

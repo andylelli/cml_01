@@ -351,7 +351,8 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
         if (ctx.cml && ctx.clues) {
           const postRevisionBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
           if (postRevisionBridgeId) {
-            run.emitAgent6Warning(`Agent 6 post-revision parity bridge: injected ${postRevisionBridgeId}.`, "transient-diagnostic");
+            // A6-15: a deterministic floor firing, so it stays in the report when the audit passes (ADR-0003).
+            run.emitAgent6Warning(`Agent 6 post-revision parity bridge: injected ${postRevisionBridgeId}.`, "persistent-risk");
           }
           ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
           preAuditStructuralResult = runDeterministicStructuralAudit(ctx.cml, ctx.clues);

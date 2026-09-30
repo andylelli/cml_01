@@ -189,6 +189,31 @@ export type ProseScoringSnapshot = {
 // OrchestratorContext — fat parameter bag shared by all runAgentN() functions
 // ============================================================================
 
+/**
+ * Agent 7's coercion counters (REVIEW_05 R4; A7-11 added the per-site counts). Declared here once;
+ * agent7/normalize.ts accumulates and emits them.
+ */
+export interface Agent7CoercionCounters {
+  /** Which arm produced these counts — the comparison is meaningless without it. */
+  structuredOutput: boolean;
+  /** Beats mapped from a synonym onto the canonical Golden-Age arc. */
+  beatsCoerced: number;
+  /** Beats dropped as unrecognised. */
+  beatsDropped: number;
+  /** Scene fields recovered from a wrongly-nested `setting` object. */
+  fieldsHoisted: number;
+  /** A7-11 — formatNarrative's own coercions (OutlineCoercionCounts), summed over every outline it returned. */
+  parseRepaired: number;
+  parseExtracted: number;
+  totalsSynthesized: number;
+  totalScenesCorrected: number;
+  mechanismStagesCleared: number;
+  /** A7-11 — scene clue ids dropped because the clue distribution has no such clue (was silent). */
+  clueIdsDropped: number;
+  /** Times any coercion changed anything at all. */
+  firings: number;
+}
+
 export interface OrchestratorContext {
   // ── Infrastructure ──────────────────────────────────────────────────────
   client: AzureOpenAIClient;
@@ -242,13 +267,7 @@ export interface OrchestratorContext {
    * under which structured-output arm. Written by `recordAgent7Coercion`; read by S7 as the only
    * admissible evidence that a coercion site has stopped firing and can be deleted.
    */
-  agent7Coercion?: {
-    structuredOutput: boolean;
-    beatsCoerced: number;
-    beatsDropped: number;
-    fieldsHoisted: number;
-    firings: number;
-  };
+  agent7Coercion?: Agent7CoercionCounters;
   /**
    * X4 (architecture/REVIEW_05.md §10.6) — how often a deterministic prose injector wrote a sentence
    * that violates a rule the MODEL is held to. Written by `recordAgent9Injection` in `agent9-run.ts`.

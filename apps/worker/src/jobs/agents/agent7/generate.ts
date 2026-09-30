@@ -18,6 +18,7 @@ import {
   coerceNarrativeSceneBeats,
   hoistMisplacedSceneFields,
   recordAgent7Coercion,
+  recordOutlineCoercions,
 } from "./normalize.js";
 
 export async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOutline) {
@@ -87,6 +88,7 @@ export async function generateInitialOutline(ctx: OrchestratorContext, run: Agen
     phaseName: "Narrative Outline",
     generate: async (retryFeedback?: string) => {
       const narrativeResult = await formatNarrative(ctx.client, narrativeInputs(ctx, run, retryFeedback ? [retryFeedback] : []));
+      recordOutlineCoercions(ctx, narrativeResult); // A7-11
       return { result: narrativeResult, cost: narrativeResult.cost };
     },
     score: async (narrativeResult) => scoreNarrativePhase(narrativeResult, ctx.cml!, ctx.cast!.cast, ctx.inputs.targetLength, ctx.warnings),
@@ -112,6 +114,7 @@ export async function ensureSchemaValid(ctx: OrchestratorContext, run: Agent7Run
 
     const narrativeSchemaRetryStart = Date.now();
     const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, schemaRepairGuardrails));
+    recordOutlineCoercions(ctx, retriedNarrative); // A7-11
 
     ctx.agentCosts["agent7_narrative"] =
       retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)

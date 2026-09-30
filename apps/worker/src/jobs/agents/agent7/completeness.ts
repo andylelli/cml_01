@@ -18,6 +18,7 @@ import {
 import {
   hoistMisplacedSceneFields,
   recordAgent7Coercion,
+  recordOutlineCoercions,
 } from "./normalize.js";
 import {
   Agent7Run,
@@ -87,6 +88,7 @@ export async function enforcePreCommitCompleteness(ctx: OrchestratorContext, run
         ...preCommitIssues.map((issue) => `Pre-commit issue: ${issue}`),
         ...buildNarrativeSceneCountGuardrails(sceneCountLock, "pre-commit completeness remediation"),
       ]));
+      recordOutlineCoercions(ctx, remediatedNarrative); // A7-11
 
       ctx.agentCosts["agent7_narrative"] =
         remediatedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)

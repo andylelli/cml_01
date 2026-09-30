@@ -3,7 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, stripClearanceText, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled } from "@cml/prompts-llm";
+import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, stripClearanceText, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, readOutlineCoercions } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import { distributeChapterWordBudget } from "@cml/story-validation";
 import {
@@ -64,26 +64,24 @@ const BEAT_SYNONYMS: Record<string, string> = {
  * S7 ("retire coercion sites proven dead") consumes these counters. The bar it should be held to:
  * zero firings across several real runs on the flag-ON arm, per helper, before any site is deleted.
  */
-export interface Agent7CoercionCounters {
-  /** Which arm produced these counts — the comparison is meaningless without it. */
-  structuredOutput: boolean;
-  /** Beats mapped from a synonym onto the canonical Golden-Age arc. */
-  beatsCoerced: number;
-  /** Beats dropped as unrecognised. */
-  beatsDropped: number;
-  /** Scene fields recovered from a wrongly-nested `setting` object. */
-  fieldsHoisted: number;
-  /** Times any coercion helper changed anything at all. */
-  firings: number;
-}
+import type { Agent7CoercionCounters } from "../context.js";
+export type { Agent7CoercionCounters };
+
+const COUNT_KEYS = [
+  "beatsCoerced", "beatsDropped", "fieldsHoisted",
+  "parseRepaired", "parseExtracted", "totalsSynthesized", "totalScenesCorrected", "mechanismStagesCleared",
+  "clueIdsDropped",
+] as const;
+type CountKey = (typeof COUNT_KEYS)[number];
 
 const emptyCoercionCounters = (): Agent7CoercionCounters => ({
   structuredOutput: isAgent7StructuredOutputEnabled(),
-  beatsCoerced: 0,
-  beatsDropped: 0,
-  fieldsHoisted: 0,
+  ...(Object.fromEntries(COUNT_KEYS.map((k) => [k, 0])) as Record<CountKey, number>),
   firings: 0,
 });
+
+/** `[R4]` line keys: the three original names first and unchanged, then A7-11's. */
+const snake = (k: string): string => k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 
 /**
  * Accumulate one helper's result onto the run. Stored on `ctx`, never in module state — a module
@@ -91,14 +89,30 @@ const emptyCoercionCounters = (): Agent7CoercionCounters => ({
  */
 export function recordAgent7Coercion(
   ctx: OrchestratorContext,
-  delta: { beatsCoerced?: number; beatsDropped?: number; fieldsHoisted?: number },
+  delta: Partial<Record<CountKey, number>>,
 ): void {
   const counters = (ctx.agent7Coercion ??= emptyCoercionCounters());
-  counters.beatsCoerced += delta.beatsCoerced ?? 0;
-  counters.beatsDropped += delta.beatsDropped ?? 0;
-  counters.fieldsHoisted += delta.fieldsHoisted ?? 0;
-  if ((delta.beatsCoerced ?? 0) + (delta.beatsDropped ?? 0) + (delta.fieldsHoisted ?? 0) > 0) {
-    counters.firings += 1;
+  let changed = 0;
+  for (const key of COUNT_KEYS) {
+    counters[key] += delta[key] ?? 0;
+    changed += delta[key] ?? 0;
+  }
+  if (changed > 0) counters.firings += 1;
+}
+
+/**
+ * A7-11 — formatNarrative's own coercions on one returned outline, onto the run's counters. Called once
+ * per outline, at every call site that keeps one. The `mechanism_stage` clearing was a console line only;
+ * it is now a warning too.
+ */
+export function recordOutlineCoercions(ctx: OrchestratorContext, outline: unknown): void {
+  const counts = readOutlineCoercions(outline);
+  if (!counts) return;
+  recordAgent7Coercion(ctx, counts);
+  if (counts.mechanismStagesCleared > 0) {
+    ctx.warnings.push(
+      `[Agent 7] mechanism_stage ran backwards; cleared on ${counts.mechanismStagesCleared} scene(s) (the reveal order was out of sequence).`,
+    );
   }
 }
 
@@ -116,9 +130,8 @@ export function emitAgent7CoercionTelemetry(ctx: OrchestratorContext): void {
   ctx.agent7Coercion = counters;
 
   ctx.warnings.push(
-    `[R4] agent7 coercion telemetry: structured_output=${counters.structuredOutput} ` +
-      `firings=${counters.firings} beats_coerced=${counters.beatsCoerced} ` +
-      `beats_dropped=${counters.beatsDropped} fields_hoisted=${counters.fieldsHoisted}`,
+    `[R4] agent7 coercion telemetry: structured_output=${counters.structuredOutput} firings=${counters.firings} ` +
+      COUNT_KEYS.map((k) => `${snake(k)}=${counters[k]}`).join(" "),
   );
 
   try {

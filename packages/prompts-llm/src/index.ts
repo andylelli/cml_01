@@ -29,7 +29,7 @@ export type {
 export { buildCluePrompt, extractClues, deriveClueObservable, checkPointsToDistinctness } from "./agent5-clues.js";
 export { auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { computeActSceneCounts } from "./agent7-act-counts.js";
-export { formatNarrative, GOLDEN_AGE_BEATS } from "./agent7-narrative.js";
+export { formatNarrative, GOLDEN_AGE_BEATS, readOutlineCoercions } from "./agent7-narrative.js";
 // R4 — the structured-output flag reader, exported so the worker's coercion telemetry can stamp
 // which arm produced its counters. A count without its arm is not evidence of anything.
 export {
@@ -233,7 +233,7 @@ export type { ClueExtractionInputs, Clue, RedHerring, ClueDistributionResult } f
 export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult, BlindReaderResult, StructuralAuditResult, StructuralGap } from "./agent6-fairplay.js";
 
 // Agent 7 types
-export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";
+export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline, OutlineCoercionCounts } from "./agent7-narrative.js";
 export type { CharacterProfilesInputs, CharacterProfilesResult, CharacterProfileOutput } from "./agent2b-character-profiles.js";
 export type { LocationProfilesInputs, LocationProfilesResult, PrimaryLocationProfile, KeyLocation, AtmosphereProfile, SensoryVariant } from "./agent2c-location-profiles.js";
 export type { TemporalContextInputs, TemporalContextResult, SeasonalContext, FashionContext, CurrentAffairs, CulturalContext } from "./agent2d-temporal-context.js";

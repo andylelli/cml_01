@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { recordAgent7Coercion, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
@@ -31,12 +32,25 @@ type DeterministicClueAssignmentStats = {
   essentialAssignments: number;
   gapFillAssignments: number;
   thresholdFillAssignments: number;
+  /** A7-11: scene clue ids dropped because the clue distribution has no such clue. */
+  droppedClueIds: string[];
 };
 
 export function computeDeterministicGapFillCap(totalScenes: number): number {
   const normalizedScenes = Number.isFinite(totalScenes) ? Math.max(0, Math.floor(totalScenes)) : 0;
   const scaledCap = Math.ceil(normalizedScenes * 0.25);
   return Math.max(3, Math.min(8, scaledCap));
+}
+
+/** A7-11: the pre-assignment dropped unknown scene clue ids silently; count them and say which. */
+function recordDroppedClueIds(ctx: OrchestratorContext, stats: DeterministicClueAssignmentStats): void {
+  recordAgent7Coercion(ctx, { clueIdsDropped: stats.droppedClueIds.length });
+  if (stats.droppedClueIds.length > 0) {
+    ctx.warnings.push(
+      `[Agent 7] dropped ${stats.droppedClueIds.length} scene clue id(s) the clue distribution does not contain: ` +
+        [...new Set(stats.droppedClueIds)].slice(0, 8).join(", "),
+    );
+  }
 }
 
 export function applyDeterministicCluePreAssignment(
@@ -75,9 +89,13 @@ export function applyDeterministicCluePreAssignment(
         current.filter((id: unknown): id is string => typeof id === "string" && validClueSet.has(id))
       )
     );
+    const unknown = current.filter((id: unknown) => typeof id === "string" && id.length > 0 && !validClueSet.has(id));
+    droppedClueIds.push(...unknown);
     ref.scene.cluesRevealed = normalized;
     normalized.forEach((id) => usage.set(id, (usage.get(id) ?? 0) + 1));
   };
+  // A7-11: a scene clue id the clue distribution does not contain was dropped silently.
+  const droppedClueIds: string[] = [];
   refs.forEach(normalizeSceneClues);
 
   const countClueScenes = () =>
@@ -244,7 +262,7 @@ export function applyDeterministicCluePreAssignment(
     thresholdFillAssignments++;
   }
 
-  return { totalScenes, minRequired, before, after: coveredCount, mappingAssignments, essentialAssignments, gapFillAssignments, thresholdFillAssignments };
+  return { totalScenes, minRequired, before, after: coveredCount, mappingAssignments, essentialAssignments, gapFillAssignments, thresholdFillAssignments, droppedClueIds };
 }
 
 export function buildCluePacingGuardrails(expectedScenes: number, minRatio: number): string[] {
@@ -279,6 +297,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
           run.minClueSceneRatio,
           maxDeterministicGapFill
         );
+        recordDroppedClueIds(ctx, deterministicOnly); // A7-11
         if (deterministicOnly.after >= deterministicOnly.minRequired) {
           ctx.warnings.push(
             `Outline pacing gate recovered deterministically without retry: ${deterministicOnly.after}/${deterministicOnly.totalScenes} scenes.`
@@ -305,6 +324,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
             `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes. You MUST populate cluesRevealed with at least one clue ID in at least ${minClueScenes} scenes and distribute clues across all three acts.`,
             ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
           ]));
+          recordOutlineCoercions(ctx, pacingRetried); // A7-11
           ctx.agentCosts["agent7_narrative"] =
             pacingRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
           ctx.agentDurations["agent7_narrative"] =
@@ -345,6 +365,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
                 `CRITICAL PACING FAILURE (second retry): your outline placed clues in only ${retriedClueCount} of ${retriedOutlineScenes.length} scenes; the minimum is ${retriedMinClueScenes}. EVERY act must contain clue-bearing scenes. Set cluesRevealed to at least one clue ID in AT LEAST ${retriedMinClueScenes} scenes — when unsure, prefer MORE clue-bearing scenes, not fewer.`,
                 ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
               ]));
+              recordOutlineCoercions(ctx, secondRetry); // A7-11
               ctx.agentCosts["agent7_narrative"] =
                 secondRetry.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
               ctx.agentDurations["agent7_narrative"] =
@@ -370,6 +391,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
                   run.minClueSceneRatio,
                   secondCap
                 );
+                recordDroppedClueIds(ctx, fill); // A7-11
                 if (fill.after >= fill.minRequired) {
                   narrative = secondRetry;
                   secondRetryResolved = true;
@@ -395,6 +417,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
                 run.minClueSceneRatio,
                 maxDeterministicGapFill
               );
+              recordDroppedClueIds(ctx, deterministicOnRetry); // A7-11
               if (deterministicOnRetry.after >= deterministicOnRetry.minRequired) {
                 narrative = pacingRetried;
                 ctx.warnings.push(

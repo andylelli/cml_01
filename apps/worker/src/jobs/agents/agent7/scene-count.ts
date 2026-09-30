@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { computeActSceneCounts } from "@cml/prompts-llm";
 import { formatNarrative } from "@cml/prompts-llm";
@@ -235,6 +236,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
           `Count your scenes carefully before returning. ` +
           `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
         ]));
+        recordOutlineCoercions(ctx, sceneCountRetried); // A7-11
         ctx.agentCosts["agent7_narrative"] =
           sceneCountRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
         ctx.agentDurations["agent7_narrative"] =

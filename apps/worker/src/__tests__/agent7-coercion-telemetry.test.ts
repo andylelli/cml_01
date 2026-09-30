@@ -125,3 +125,32 @@ describe("the helpers the counters measure", () => {
     expect(hoistMisplacedSceneFields(narrative).hoisted).toBeGreaterThan(0);
   });
 });
+
+/**
+ * A7-11 — formatNarrative's own coercions and the silent clue-id drop join the counters. The `[R4]` line
+ * keeps its original keys first and unchanged, then adds one per new site; the silent sites warn.
+ */
+describe("A7-11 per-site counters", () => {
+  const withCounts = (counts: Record<string, number>) => {
+    const outline = {};
+    Object.defineProperty(outline, Symbol.for("cml.agent7.outlineCoercions"), { value: counts, enumerable: false });
+    return outline;
+  };
+
+  it("records an outline's coercions, and warns when mechanism stages were cleared", async () => {
+    const { recordOutlineCoercions } = await import("../jobs/agents/agent7/normalize.js");
+    const ctx = ctxWithWarnings();
+    recordOutlineCoercions(ctx, withCounts({ parseRepaired: 0, parseExtracted: 1, totalsSynthesized: 1, totalScenesCorrected: 1, mechanismStagesCleared: 2 }));
+    recordOutlineCoercions(ctx, {}); // an outline that coerced nothing
+    expect(ctx.agent7Coercion).toMatchObject({ parseExtracted: 1, totalsSynthesized: 1, totalScenesCorrected: 1, mechanismStagesCleared: 2, firings: 1 });
+    expect(ctx.warnings.some((w) => /mechanism_stage ran backwards; cleared on 2 scene/.test(w))).toBe(true);
+  });
+
+  it("the [R4] line keeps its original keys first, then one per new site", () => {
+    const ctx = ctxWithWarnings();
+    recordAgent7Coercion(ctx, { clueIdsDropped: 3 });
+    emitAgent7CoercionTelemetry(ctx);
+    const line = ctx.warnings.find((w) => w.includes("[R4] agent7 coercion telemetry"))!;
+    expect(line).toMatch(/structured_output=\w+ firings=1 beats_coerced=0 beats_dropped=0 fields_hoisted=0 parse_repaired=0 parse_extracted=0 totals_synthesized=0 total_scenes_corrected=0 mechanism_stages_cleared=0 clue_ids_dropped=3$/);
+  });
+});

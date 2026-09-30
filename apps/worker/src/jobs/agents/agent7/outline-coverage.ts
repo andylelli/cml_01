@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
@@ -178,6 +179,7 @@ export async function enforceOutlineQuality(ctx: OrchestratorContext, run: Agent
 
       const narrativeRetryStart = Date.now();
       const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [...outlineGuardrails, ...countGuardrails]));
+      recordOutlineCoercions(ctx, retriedNarrative); // A7-11
 
       ctx.agentCosts["agent7_narrative"] =
         retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
