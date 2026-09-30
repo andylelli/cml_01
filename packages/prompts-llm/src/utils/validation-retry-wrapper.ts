@@ -83,7 +83,10 @@ export async function withValidationRetry<T>(
     }
 
     lastResult = result;
-    totalCost += cost;
+    // Every generateFn (2b, 2c, 2d, 2e, 3b) reports its label's RUNNING total on this client (cost-tracker
+    // byAgent), not the cost of this attempt, so summing attempts counted a validation retry's first call
+    // twice. Keep the latest — the rule executeAgentWithRetry got in CR-06 (ORC-D03), missed here.
+    totalCost = cost;
     
     // Validate result
     const validation = validationFn(result);
