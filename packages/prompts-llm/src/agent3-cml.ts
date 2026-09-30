@@ -1612,6 +1612,7 @@ export async function generateCML(
   let lastValidation: any = { valid: false, errors: ["No attempts made"] };
 
   for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
+    normalizationNotes.length = 0; // A34-07: notes describe the attempt that produces the result, not discarded ones
     try {
       // Generate CML
       const retryContextMessage =
