@@ -1,0 +1,141 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-6b91b4b1.json 1`] = `
+{
+  "eliminationMissing": [
+    "Inspector Gerald Havers",
+  ],
+  "eliminationPresent": [
+    "Lady Beatrice Langley",
+    "Margaret Langley",
+    "Edward Barnes",
+    "Agnes Crowley",
+    "Thomas Radcliffe",
+  ],
+  "evidenceCluesMissing": [],
+  "evidenceCluesPresent": [
+    "clue_12",
+    "clue_9",
+    "clue_4",
+  ],
+  "gaps": [
+    {
+      "description": "No discriminating_test evidence clue has pointsTo text naming the culprit (charles langley). At least one evidence clue must explicitly link unique access or physical proof to the culprit.",
+      "kind": "culprit_exclusivity_missing",
+    },
+  ],
+  "passed": true,
+  "stepsCovered": [
+    1,
+    2,
+    3,
+    4,
+  ],
+  "stepsUncovered": [],
+}
+`;
+
+exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-56049d93.json 1`] = `
+{
+  "eliminationMissing": [
+    "Inspector Helen Marwood",
+  ],
+  "eliminationPresent": [
+    "Lady Beatrice Winthrope",
+    "Margaret Hensley",
+    "Edward Winthrope",
+    "Clara Simmons",
+    "James Fletcher",
+  ],
+  "evidenceCluesMissing": [],
+  "evidenceCluesPresent": [
+    "clue_12",
+    "clue_mechanism_visibility_core",
+    "clue_1",
+  ],
+  "gaps": [
+    {
+      "description": "No discriminating_test evidence clue has pointsTo text naming the culprit (charles montague). At least one evidence clue must explicitly link unique access or physical proof to the culprit.",
+      "kind": "culprit_exclusivity_missing",
+    },
+  ],
+  "passed": true,
+  "stepsCovered": [
+    1,
+    2,
+    3,
+    4,
+  ],
+  "stepsUncovered": [],
+}
+`;
+
+exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-a5c017a1.json 1`] = `
+{
+  "eliminationMissing": [
+    "Inspector Evelyn Harcourt",
+  ],
+  "eliminationPresent": [
+    "Lady Beatrice Marwood",
+    "Annabelle Marwood",
+    "Harold Grimshaw",
+    "Margaret Cox",
+    "Simon Hastings",
+  ],
+  "evidenceCluesMissing": [],
+  "evidenceCluesPresent": [
+    "clue_odd_clock_note",
+    "clue_pendulum_scratch",
+    "clue_minute_hand_misalignment",
+    "clue_fenwick_tool_possession",
+    "clue_wound_timing",
+    "clue_examination_controlled_measurement",
+    "clue_core_contradiction_chain",
+    "clue_culprit_direct_charles_fenwick",
+  ],
+  "gaps": [],
+  "passed": true,
+  "stepsCovered": [
+    1,
+    2,
+    3,
+    4,
+  ],
+  "stepsUncovered": [],
+}
+`;
+
+exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-eb1251aa.json 1`] = `
+{
+  "eliminationMissing": [
+    "Inspector Harold Wren",
+    "Lady Beatrice Ellsworth",
+  ],
+  "eliminationPresent": [
+    "Margaret Huxley",
+    "Simon Clarkson",
+    "Eleanor Fairchild",
+    "Thomas Granger",
+  ],
+  "evidenceCluesMissing": [],
+  "evidenceCluesPresent": [
+    "clue_thermometer_reading",
+    "clue_stopped_watch",
+    "clue_sundial_warping",
+    "clue_witness_timing_conflict",
+    "clue_charles_alibi_conflict",
+    "clue_comparing_watch_and_sundial",
+    "clue_shadow_time_contradiction",
+    "clue_witness_statements",
+  ],
+  "gaps": [],
+  "passed": true,
+  "stepsCovered": [
+    1,
+    2,
+    3,
+    4,
+  ],
+  "stepsUncovered": [],
+}
+`;

@@ -6,6 +6,7 @@
  * logic here for isolated testing.
  */
 import { describe, expect, it } from "vitest";
+import { classifyFairPlayFailure } from "../jobs/agents/agent6-escalation-policy.js";
 
 // ==========================================================================
 // Minimal type stubs matching the orchestrator's internal types
@@ -410,36 +411,8 @@ describe("WP4E: checkSuspectElimination", () => {
 });
 
 describe("WP6A: classifyFairPlayFailure", () => {
-  const classifyFairPlayFailure = (
-    coverageResult: InferenceCoverageResult | null | undefined,
-    _fairPlayAudit: any,
-    cml: any
-  ) => {
-    const caseBlock = cml?.CASE ?? cml;
-    const steps = caseBlock?.inference_path?.steps ?? [];
-
-    const abstractSteps = steps.filter((s: any) => {
-      const obs = (s.observation || "").trim();
-      const hasEvidence = Array.isArray(s.required_evidence) && s.required_evidence.length > 0;
-      return obs.length < 30 || !hasEvidence;
-    });
-
-    if (abstractSteps.length >= Math.ceil(steps.length * 0.5)) {
-      return "inference_path_abstract";
-    }
-
-    const cs = caseBlock?.constraint_space ?? {};
-    const totalConstraints = [
-      ...(cs.time?.contradictions ?? []),
-      ...(cs.time?.anchors ?? []),
-      ...(cs.access?.actors ?? []),
-      ...(cs.physical?.traces ?? []),
-    ].length;
-
-    if (totalConstraints < 4) return "constraint_space_insufficient";
-    if (coverageResult?.hasCriticalGaps) return "clue_coverage";
-    return "clue_only";
-  };
+  // A6-13: this block used to test a LOCAL re-implementation defined here, not the production function
+  // (which also reads the audit's critical rules). It now imports agent6-escalation-policy.ts.
 
   it("classifies abstract inference paths correctly", () => {
     const cml = makeCml({
