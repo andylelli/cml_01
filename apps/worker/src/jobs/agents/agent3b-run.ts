@@ -10,6 +10,7 @@
  * to apps/worker/logs/.
  */
 
+import { runBoundedGate } from "./quality-gate.js";
 import { scoreHardLogicPhase } from "./phase-scoring.js";
 // A_74 §8 DE8 — the curated device corpus, retrieved deterministically. See device-library-block.ts.
 import { buildDeviceLibraryBlock } from "../device-library-block.js";
@@ -138,48 +139,27 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
         (ctx.agentDurations["agent3b_hard_logic_devices"] || 0) + durationMs;
     };
 
-    let bestDevices = ctx.hardLogicDevices!;
-    let bestJudge = await judgeMechanismPlausibility(ctx.client, bestDevices.devices[0], judgeCtx);
-    if (bestJudge.ran) accrueJudgeCost(bestJudge.cost, bestJudge.durationMs);
-
-    let attempt = 0;
-    while (
-      plausibilityMode === "enforce" &&
-      bestJudge.ran &&
-      !plausibilityGatePass(bestJudge.score) &&
-      attempt < boundedRetries
-    ) {
-      attempt += 1;
-      const feedback = buildPlausibilityJudgeFeedback(bestJudge);
-      ctx.warnings.push(
-        `[agent3b-plausibility][enforce] score ${bestJudge.score} < ${AGENT3B_PLAUSIBILITY_FLOOR} ` +
-          `(attempt ${attempt}/${boundedRetries}); regenerating with plausibility feedback.`,
-      );
-      const regenStart = Date.now();
-      // True marginal cost via byAgent delta — the generator's returned .cost is a cumulative total.
-      const genLabel = "Agent3b-HardLogicDeviceGenerator";
-      const genCostBefore = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
-      let regenerated: Awaited<ReturnType<typeof generateHardLogicDevices>>;
-      try {
-        regenerated = await generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock, feedback));
-      } catch (err) {
-        // A gate must never kill a run: a regeneration failure keeps the best-so-far.
-        ctx.warnings.push(`[agent3b-plausibility][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);
-        break;
-      }
-      const genCostAfter = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
-      accrueJudgeCost(Math.max(0, genCostAfter - genCostBefore), Date.now() - regenStart);
-
+    const judge = async (devices: NonNullable<typeof ctx.hardLogicDevices>) => {
+      const verdict = await judgeMechanismPlausibility(ctx.client, devices.devices[0], judgeCtx);
+      if (verdict.ran) accrueJudgeCost(verdict.cost, verdict.durationMs);
+      return verdict;
+    };
+    const { best: bestDevices, verdict: bestJudge, attempts: attempt } = await runBoundedGate(ctx, {
+      label: "agent3b-plausibility",
+      enforce: plausibilityMode === "enforce",
+      maxRetries: boundedRetries,
+      initial: ctx.hardLogicDevices!,
+      evaluate: judge,
+      needsRetry: (j) => j.ran && !plausibilityGatePass(j.score),
+      feedback: (_best, j) => buildPlausibilityJudgeFeedback(j),
+      retryWarning: (j, n, max) =>
+        `[agent3b-plausibility][enforce] score ${j.score} < ${AGENT3B_PLAUSIBILITY_FLOOR} ` +
+        `(attempt ${n}/${max}); regenerating with plausibility feedback.`,
+      regenerate: (feedback) => generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock, feedback)),
+      costLabel: "Agent3b-HardLogicDeviceGenerator",
+      costKey: "agent3b_hard_logic_devices",
       // Re-validate the regenerated candidate before considering it (Phase-1: re-validate mutations).
-      const regenValidation = validateArtifact("hard_logic_devices", regenerated);
-      if (!regenValidation.valid) {
-        ctx.warnings.push(
-          "[agent3b-plausibility][enforce] regenerated candidate failed schema validation; keeping previous best.",
-        );
-        continue;
-      }
-      const regenJudge = await judgeMechanismPlausibility(ctx.client, regenerated.devices[0], judgeCtx);
-      if (regenJudge.ran) accrueJudgeCost(regenJudge.cost, regenJudge.durationMs);
+      validate: (candidate) => validateArtifact("hard_logic_devices", candidate).valid,
       // A_50 §9.3: accept-best-by-score, but NEVER trade a theme-coherent primary for an off-theme
       // one — a more "plausible" tide device that abandons the locked clock theme makes the case
       // incoherent (the probe's regen did exactly this). Recovering theme-coherence the current best
@@ -187,23 +167,22 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       // A_53 P11 (plausibility-regen-reuses-stale-theme-families): judge theme-coherence against the
       // single canonical family list, not the generator's `matchedThemePrimary` (computed from a
       // different family list) — that mismatch is why this guard silently never engaged.
-      const bestThemeOk = primaryRealizesTheme(bestDevices);
-      const regenThemeOk = primaryRealizesTheme(regenerated);
-      const acceptRegen =
-        regenJudge.ran &&
-        (regenThemeOk || !bestThemeOk) &&
-        ((regenThemeOk && !bestThemeOk) || regenJudge.score > bestJudge.score);
-      if (acceptRegen) {
-        bestDevices = regenerated;
-        bestJudge = regenJudge;
-      } else if (regenJudge.ran && regenJudge.score > bestJudge.score && bestThemeOk && !regenThemeOk) {
-        ctx.warnings.push(
-          `[agent3b-plausibility][enforce] rejected a higher-plausibility regen (score ${regenJudge.score} > ` +
-            `${bestJudge.score}) because it abandoned the locked theme family; keeping theme-coherent primary.`,
-        );
-      }
-    }
-
+      isBetter: (regen, cur) => {
+        const bestThemeOk = primaryRealizesTheme(cur.value);
+        const regenThemeOk = primaryRealizesTheme(regen.value);
+        const accept =
+          regen.verdict.ran &&
+          (regenThemeOk || !bestThemeOk) &&
+          ((regenThemeOk && !bestThemeOk) || regen.verdict.score > cur.verdict.score);
+        if (!accept && regen.verdict.ran && regen.verdict.score > cur.verdict.score && bestThemeOk && !regenThemeOk) {
+          ctx.warnings.push(
+            `[agent3b-plausibility][enforce] rejected a higher-plausibility regen (score ${regen.verdict.score} > ` +
+              `${cur.verdict.score}) because it abandoned the locked theme family; keeping theme-coherent primary.`,
+          );
+        }
+        return accept;
+      },
+    });
     ctx.hardLogicDevices = bestDevices;
     const gateState =
       plausibilityMode === "enforce"

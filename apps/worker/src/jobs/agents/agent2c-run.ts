@@ -6,6 +6,7 @@
  * and writes ctx.locationProfiles.
  */
 
+import { runBoundedGate } from "./quality-gate.js";
 import { readModeFlag } from "./mode-flag.js";
 import { scoreLocationsPhase } from "./phase-scoring.js";
 import {
@@ -268,50 +269,26 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
         ? Math.min(2, Math.max(0, Math.trunc(Number(process.env.AGENT2C_SCENE_GATE_MAX_RETRIES ?? 1)) || 0))
         : 0;
 
-    let bestProfiles = ctx.locationProfiles;
-    let bestIssues = countIssues(bestProfiles);
-    let attempt = 0;
-    while (sceneGateMode === "enforce" && bestIssues > 0 && attempt < boundedRetries) {
-      attempt += 1;
-      const feedback = buildSceneGateFeedback(
-        checkLocationDistinctness(bestProfiles, distinctnessOpts),
-        checkCrimeSceneProfiled(bestProfiles),
-      );
-      ctx.warnings.push(
-        `[agent2c-scene-gate][enforce] ${bestIssues} issue(s) (attempt ${attempt}/${boundedRetries}); regenerating with distinctness/crime-scene feedback.`,
-      );
-      const regenStart = Date.now();
-      // True marginal cost via byAgent delta — the generator's returned .cost is a cumulative total.
-      const costLabel = "Agent2c-LocationProfiles";
-      const costBefore = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
-      let regenerated: Awaited<ReturnType<typeof generateLocationProfiles>>;
-      try {
-        regenerated = await generateLocationProfiles(ctx.client, locationInputs(feedback));
-      } catch (err) {
-        // A gate must never kill a run: a regeneration failure keeps the best-so-far.
-        ctx.warnings.push(`[agent2c-scene-gate][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);
-        break;
-      }
-      const costAfter = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
-      ctx.agentCosts["agent2c_location_profiles"] =
-        (ctx.agentCosts["agent2c_location_profiles"] || 0) + Math.max(0, costAfter - costBefore);
-      ctx.agentDurations["agent2c_location_profiles"] =
-        (ctx.agentDurations["agent2c_location_profiles"] || 0) + (Date.now() - regenStart);
-
-      const candidate = enforceLocationSensoryFallbacks(compileSensoryAtoms(regenerated), ctx.warnings);
-      const candidateValidation = validateArtifact("location_profiles", candidate);
-      if (!candidateValidation.valid) {
-        ctx.warnings.push(
-          "[agent2c-scene-gate][enforce] regenerated candidate failed schema validation; keeping previous best.",
-        );
-        continue;
-      }
-      const candidateIssues = countIssues(candidate);
-      if (candidateIssues < bestIssues) {
-        bestProfiles = candidate;
-        bestIssues = candidateIssues;
-      }
-    }
+    const { best: bestProfiles, verdict: bestIssues, attempts: attempt } = await runBoundedGate(ctx, {
+      label: "agent2c-scene-gate",
+      enforce: sceneGateMode === "enforce",
+      maxRetries: boundedRetries,
+      initial: ctx.locationProfiles,
+      evaluate: countIssues,
+      needsRetry: (issues) => issues > 0,
+      feedback: (best) => buildSceneGateFeedback(
+        checkLocationDistinctness(best, distinctnessOpts),
+        checkCrimeSceneProfiled(best),
+      ),
+      retryWarning: (issues, n, max) =>
+        `[agent2c-scene-gate][enforce] ${issues} issue(s) (attempt ${n}/${max}); regenerating with distinctness/crime-scene feedback.`,
+      regenerate: (feedback) => generateLocationProfiles(ctx.client, locationInputs(feedback)),
+      costLabel: "Agent2c-LocationProfiles",
+      costKey: "agent2c_location_profiles",
+      prepare: (raw) => enforceLocationSensoryFallbacks(compileSensoryAtoms(raw), ctx.warnings),
+      validate: (candidate) => validateArtifact("location_profiles", candidate).valid,
+      isBetter: (cand, cur) => cand.verdict < cur.verdict,
+    });
     ctx.locationProfiles = bestProfiles;
 
     // Surface the final findings (shadow always; enforce after exhaustion).

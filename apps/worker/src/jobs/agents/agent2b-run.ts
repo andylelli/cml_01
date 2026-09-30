@@ -7,6 +7,7 @@
  */
 
 import { readModeFlag } from "./mode-flag.js";
+import { runBoundedGate } from "./quality-gate.js";
 import { scoreCharacterProfilesPhase } from "./phase-scoring.js";
 import { resolveBandForRun,
   generateCharacterProfiles,
@@ -69,27 +70,26 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
     const maxRetries = enforce ? Math.min(3, Math.max(0, Math.trunc(Number(process.env.AGENT2B_VOICE_MAX_RETRIES ?? 1)) || 0)) : 0;
     const label = enforce ? "enforce" : "shadow";
     try {
-      let check = checkVoiceCapsules(ctx.characterProfiles.profiles.map((profile) => extractVoiceCapsule(profile)));
-      let attempt = 0;
-      while (enforce && !voiceGatePass(check.metrics) && attempt < maxRetries) {
-        attempt += 1;
-        const feedback = buildVoiceGateFeedback(check);
-        ctx.warnings.push(
-          `[agent2b-voice-check][enforce] gate failed (attempt ${attempt}/${maxRetries}); regenerating with voice feedback.`
-        );
-        const regenStart = Date.now();
-        const regenerated = await generateCharacterProfiles(ctx.client, profileInputs(feedback));
-        ctx.agentCosts["agent2b_profiles"] = regenerated.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-        ctx.agentDurations["agent2b_profiles"] =
-          (ctx.agentDurations["agent2b_profiles"] ?? 0) + (Date.now() - regenStart);
-        const regenCheck = checkVoiceCapsules(regenerated.profiles.map((profile) => extractVoiceCapsule(profile)));
+      const voiceCheck = (profiles: typeof ctx.characterProfiles) =>
+        checkVoiceCapsules(profiles.profiles.map((profile) => extractVoiceCapsule(profile)));
+      const { best, verdict: check, attempts: attempt } = await runBoundedGate(ctx, {
+        label: "agent2b-voice-check",
+        enforce,
+        maxRetries,
+        initial: ctx.characterProfiles,
+        evaluate: voiceCheck,
+        needsRetry: (c) => !voiceGatePass(c.metrics),
+        feedback: (_best, c) => buildVoiceGateFeedback(c),
+        retryWarning: (_c, n, max) => `[agent2b-voice-check][enforce] gate failed (attempt ${n}/${max}); regenerating with voice feedback.`,
+        regenerate: (feedback) => generateCharacterProfiles(ctx.client, profileInputs(feedback)),
+        costLabel: "Agent2b-CharacterProfiles",
+        costKey: "agent2b_profiles",
         // Accept-after-exhaustion: keep the regenerated cast only if it passes the gate or strictly
         // improves register distinctness; otherwise retain the best-so-far profiles.
-        if (voiceGatePass(regenCheck.metrics) || regenCheck.metrics.uniqueRegisters > check.metrics.uniqueRegisters) {
-          ctx.characterProfiles = regenerated;
-          check = regenCheck;
-        }
-      }
+        isBetter: (cand, cur) =>
+          voiceGatePass(cand.verdict.metrics) || cand.verdict.metrics.uniqueRegisters > cur.verdict.metrics.uniqueRegisters,
+      });
+      ctx.characterProfiles = best;
       const gateState = enforce ? (voiceGatePass(check.metrics) ? "pass" : `accept-after-${attempt}`) : "shadow";
       ctx.warnings.push(
         `[agent2b-voice-check][${label}] gate=${gateState} ok=${check.ok} count=${check.metrics.count} ` +
