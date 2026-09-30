@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 29 | 32 | 0 | 61 |
-| open | 161 | 107 | 72 | 340 |
+| closed | 33 | 32 | 0 | 65 |
+| open | 157 | 107 | 72 | 336 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -41,7 +41,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
 | CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
 | CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
-| CR-25 | 9 | 0 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
+| CR-25 | 9 | 4 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
 | CR-26 | 7 | 0 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
 | CR-27 | 14 | 0 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 0 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
@@ -327,7 +327,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A5-01 | P1 | R1 | CR-25 | todo |  | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… |  |
+| A5-01 | P1 | R1 | CR-25 | done | ad612520 | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… | runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/ |
 | A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo |  | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) |  |
 | A5-03 | P1 | R1 / R2 | CR-16 | todo |  | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies |  |
 | A5-04 | P1 | R1 | CR-13 | todo |  | Normalise LLM JSON at the parse boundary + typed case view (removes most any) |  |
@@ -338,7 +338,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-09 | P2 | R1 | CR-27 | todo |  | buildCluePrompt (610 LOC, cc 102) → section builders + retry-feedback normaliser |  |
 | A5-10 | P2 | R2 | CR-28 | todo |  | Prompt asks for output nobody reads; proactive feedback has zero effect |  |
 | A5-11 | P2 | R2 | CR-29 | todo |  | Retries regenerate everything, statelessly, without locked facts or strict contract |  |
-| A5-12 | P2 | R1 | CR-25 | todo |  | WeakMap memos keyed on a CML that is mutated in place |  |
+| A5-12 | P2 | R1 | CR-25 | todo |  | WeakMap memos keyed on a CML that is mutated in place | OWNER (with A5-D06): deriving the strict contract once after all CML mutation removes the caches, and changes clue output on remap runs |
 | A5-13 | P2 | R0 | CR-08 | done | 5662ca4c 094de134 | Dead and vestigial code (compiler-proven and verified by grep) | WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16) |
 | A5-14 | P2 | R0/R1 | CR-31 | todo |  | Vocabulary and tokenizer zoo (escape ×2, elimination regex ×3, step-from-path ×4, clue-id regex ×6) |  |
 | A5-15 | P2 | R2 | CR-16 | todo |  | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations |  |
@@ -349,7 +349,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-D03 |  |  | CR-16 | todo |  | CASE.death_method prompt-legal, worker-illegal — HIGH, MEASURED (A5-02). |  |
 | A5-D04 |  |  | CR-29 | todo |  | Retries drop lockedFacts and strictContract — HIGH, INFERRED (A5-11). This includes the default-ON |  |
 | A5-D05 |  |  | CR-07 | todo |  | The floor discards P8's suspect backstops, and P8 is not re-run — MEDIUM-HIGH, INFERRED (:3817 then :3868). |  |
-| A5-D06 |  |  | CR-25 | todo |  | Stale memo after remap — MEDIUM, INFERRED. After remapMissing… rewrites evidence_clues (:4255), the |  |
+| A5-D06 |  |  | CR-25 | todo |  | Stale memo after remap — MEDIUM, INFERRED. After remapMissing… rewrites evidence_clues (:4255), the | OWNER: a 2-line fix (invalidate strictPromptFeedbackCache/strictSourcePathWhitelistCache after remapMissingDiscriminatingEvidenceIdsToExistingClues, as three other sites do) stops a fabricated clue on remap runs — it changes clues, so prompts downstream; needs a flag or the owner's yes |
 | A5-D07 |  |  | CR-17 | todo |  | Gate and prompt read different locked facts — MEDIUM. The prompt uses ctx.lockedFactRegistry (primary |  |
 | A5-D08 |  |  | CR-15 | todo |  | Agent 6 dead branches — HIGH, MEASURED via git (A5-06). |  |
 | A5-D09 |  |  | CR-16 | todo |  | Coverage snapshots diverge — LOW-MEDIUM. buildCoverageSnapshot (:3610) omits checkMechanismVisibility; |  |
@@ -366,19 +366,19 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A6-01 | P1 | R0→R1 | CR-25 | todo |  | runAgent6 → coordinator plus 7 phase modules over explicit state (30 shared bindings, 9 mutable) |  |
+| A6-01 | P1 | R0→R1 | CR-25 | done | 71c3fdab | runAgent6 → coordinator plus 7 phase modules over explicit state (30 shared bindings, 9 mutable) | runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue) |
 | A6-02 | P1 | R2 | CR-29 | todo |  | Fair-play retry feedback is failure-agnostic: 0 of 12 violation-derived lines reach Agent 5 |  |
 | A6-03 | P1 | R2 | CR-29 | todo |  | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable |  |
 | A6-04 | P1 | R1 | CR-16 | todo |  | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently |  |
 | A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
-| A6-06 | P2 | R0/R1 | CR-25 | todo |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) |  |
+| A6-06 | P2 | R0/R1 | CR-25 | deferred |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) | blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass |
 | A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects |  |
 | A6-08 | P2 | R1/R2 | CR-31 | todo |  | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names |  |
 | A6-09 | P2 | R0/R1 | CR-16 | todo |  | Clue-synthesis helpers duplicated with Agent 5; the agent6→agent5 import edge should become a clue-contracts module |  |
 | A6-10 | P2 | R1 | CR-13 | todo |  | CML prompt-header projection: 6 bodies across 4 files; FA-1/2/5 fixes landed only in Agent 6 |  |
 | A6-11 | P2 | R0 | CR-27 | todo |  | buildDeveloperContext (301 LOC, cc 63): split derivation from rendering; triplicated clue formatter |  |
-| A6-12 | P2 | R1 | CR-25 | todo |  | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates |  |
-| A6-13 | P2 | R0 | CR-25 | todo |  | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested |  |
+| A6-12 | P2 | R1 | CR-25 | deferred |  | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates | world-builder validate refactor + deleting ~55 lines of unreachable gates: R1, needs the property tests A6-12 names first; next Agent 6.5 pass |
+| A6-13 | P2 | R0 | CR-25 | done | cee74c9d | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested | WP6A tests the production function; structural audit golden + known negative |
 | A6-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 094de134 3d63527f | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) | Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign) |
 | A6-15 | P2 | R2 (report-only) | CR-33 | todo |  | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) |  |
 | A6-16 | P3 | R2 | CR-34 | todo |  | LLM calls a deterministic check could avoid; independent calls made in sequence |  |
@@ -389,7 +389,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-D02 |  |  | CR-07 | todo |  | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… |  |
 | A6-D03 |  |  | CR-12 | todo |  | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… |  |
 | A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. |  |
-| A6-D05 |  |  | CR-25 | todo |  | Stale state after a CML revision (retries arm). P7's verdict and P10's inputs (:1720–1723) describe the pre-revision CML and clues. Medium confidence. |  |
+| A6-D05 |  |  | CR-25 | deferred |  | Stale state after a CML revision (retries arm). P7's verdict and P10's inputs (:1720–1723) describe the pre-revision CML and clues. Medium confidence. | stale verdict after a CML revision (retries arm, off by default) — behaviour; with CR-29 |
 | A6-D06 |  |  | CR-16 | todo |  | The post-revision floor discards its repairs (:2308): no telemetry (ADR-0010). High confidence. |  |
 | A6-D07 |  |  | CR-12 | todo |  | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. |  |
 | A6-D08 |  |  | CR-07 | todo |  | The backstop can emit a "contradiction" clue with the same text as its observation clue when a step has no correction (:1057–1111). Low severity. |  |
@@ -517,7 +517,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| ORC-01 | P1 | R1 | CR-25 | todo |  | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules |  |
+| ORC-01 | P1 | R1 | CR-25 | done | a5f9adb0 | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules | generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move |
 | ORC-02 | P1 | R1 | CR-21 | todo |  | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry |  |
 | ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total) |
 | ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |

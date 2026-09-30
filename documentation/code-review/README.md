@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 10 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 11 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -72,7 +72,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-22 | todo | 4 | **`RunConfig`**: 82 env flags resolved once at run start, written into the report | ORC-05, A9G-08, A9P-14, A7-08 | R1 | M |
 | CR-23 | todo | 4 | One regen runner and one chapter-rewrite engine (wrapper ×10, skeleton ×13, engines ×5) | A9W-06, A9R-01, A9R-05, A9R-06, A7-02 | R1 | L |
 | CR-24 | done | 5 | Decompose `runAgent7` (8 shared bindings — the cheapest, do first) and `runAgent3/3b` — by the TS language service's extract-function plus AST closure moves: agent7-run.ts 3,100 → 272 lines (12 modules), agent3-run.ts 1,086 → 475 (+ agent3/, agent8-run.ts), agent3b-run.ts 1,031 → 314 (+ agent3b/); one act split (`c5423dfd`, `d292ff22`, `109d271b`) | A7-01, A34-04, A34-12 | R0→R1 | M |
-| CR-25 | todo | 5 | Decompose `runAgent5`, `runAgent6`, `generateMystery` over explicit state | A5-01, A6-01, ORC-01 | R1 | L |
+| CR-25 | done | 5 | Decompose `runAgent5`, `runAgent6`, `generateMystery` over explicit state — run/state objects (checker-typed), TS extract-function, AST closure moves: agent5-run 1,961 → 478, agent6-run 2,515 → 935, mystery-orchestrator 1,732 → 755 (jobs/pipeline/); A6-13 tests. Follow-ups: A5-D06 fabrication fix (👤, changes clues), A6-06/A6-12 (`ad612520`, `71c3fdab`, `a5f9adb0`) | A5-01, A6-01, ORC-01 | R1 | L |
 | CR-26 | todo (waits: v1 kept, bug fixes only) | 5 | Decompose `generateProse` (74 outer variables) and `runAgent9` (78) — after CR-03 | A9G-01, A9W-01, A9G-05 | R1 | L |
 | CR-27 | todo | 5 | Prompt builders and linter as tables: block interface, obligation block, `lintBatchProse` rule table, declarative scorers | A9P-02, A9P-05, A9P-06, A9V-02, SCO-03 | R1 | L |
 | CR-28 | 👤 | 6 | Token budget: cap STORY TO DATE; fix the stale block caps; stop sending facts 2–10× | A9P-03, A9P-04, A9P-07, A9P-08, A9G-16 | R2 | M |

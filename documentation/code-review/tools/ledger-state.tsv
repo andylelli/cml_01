@@ -166,7 +166,7 @@ A9R-Q02	CR-31	todo
 A9R-Q03	CR-12	todo		
 A9R-Q04	CR-30	todo		
 A9R-Q05	CR-31	todo		
-A5-01	CR-25	todo		
+A5-01	CR-25	done	ad612520	runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/
 A5-02	CR-16	todo		
 A5-03	CR-16	todo		
 A5-04	CR-13	todo		
@@ -177,7 +177,7 @@ A5-08	CR-16	todo
 A5-09	CR-27	todo		
 A5-10	CR-28	todo		
 A5-11	CR-29	todo		
-A5-12	CR-25	todo		
+A5-12	CR-25	todo		OWNER (with A5-D06): deriving the strict contract once after all CML mutation removes the caches, and changes clue output on remap runs
 A5-13	CR-08	done	5662ca4c 094de134	WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16)
 A5-14	CR-31	todo		
 A5-15	CR-16	todo		
@@ -188,7 +188,7 @@ A5-D02	CR-06	done	dff49644
 A5-D03	CR-16	todo		
 A5-D04	CR-29	todo		
 A5-D05	CR-07	todo		
-A5-D06	CR-25	todo		
+A5-D06	CR-25	todo		OWNER: a 2-line fix (invalidate strictPromptFeedbackCache/strictSourcePathWhitelistCache after remapMissingDiscriminatingEvidenceIdsToExistingClues, as three other sites do) stops a fabricated clue on remap runs — it changes clues, so prompts downstream; needs a flag or the owner's yes
 A5-D07	CR-17	todo		
 A5-D08	CR-15	todo		
 A5-D09	CR-16	todo		
@@ -200,19 +200,19 @@ A5-Q04	CR-16	todo
 A5-Q05	CR-16	todo		
 A5-Q06	CR-30	todo		
 A5-Q07	CR-16	todo		
-A6-01	CR-25	todo		
+A6-01	CR-25	done	71c3fdab	runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue)
 A6-02	CR-29	todo		
 A6-03	CR-29	todo		
 A6-04	CR-16	todo		
 A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
-A6-06	CR-25	todo		
+A6-06	CR-25	deferred		blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass
 A6-07	CR-12	todo		
 A6-08	CR-31	todo		
 A6-09	CR-16	todo		
 A6-10	CR-13	todo		
 A6-11	CR-27	todo		
-A6-12	CR-25	todo		
-A6-13	CR-25	todo		
+A6-12	CR-25	deferred		world-builder validate refactor + deleting ~55 lines of unreachable gates: R1, needs the property tests A6-12 names first; next Agent 6.5 pass
+A6-13	CR-25	done	cee74c9d	WP6A tests the production function; structural audit golden + known negative
 A6-14	CR-08	done	3295ad4e 094de134 3d63527f	Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign)
 A6-15	CR-33	todo		
 A6-16	CR-34	todo		
@@ -223,7 +223,7 @@ A6-D01	CR-19	todo		OWNER: charging the first retry of each cost source can newly
 A6-D02	CR-07	todo		
 A6-D03	CR-12	todo		
 A6-D04	CR-12	todo		
-A6-D05	CR-25	todo		
+A6-D05	CR-25	deferred		stale verdict after a CML revision (retries arm, off by default) — behaviour; with CR-29
 A6-D06	CR-16	todo		
 A6-D07	CR-12	todo		
 A6-D08	CR-07	todo		
@@ -331,7 +331,7 @@ A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that 
 A1X-Q05	CR-30	todo		
 A1X-Q06	CR-30	todo		
 A1X-Q07	CR-29	todo		
-ORC-01	CR-25	todo		
+ORC-01	CR-25	done	a5f9adb0	generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move
 ORC-02	CR-21	todo		
 ORC-03	CR-19	todo		waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total)
 ORC-04	CR-20	todo		
