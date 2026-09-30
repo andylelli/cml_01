@@ -80,7 +80,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-30 | 👤 | 6 | Retire or restore: vanity scorers (−3,400), unreachable retry path (−1,050), patch engine (−560), unwired modules (−400) | SCO-01, A9G-03, A34-05, A9P-15 | R2 | S each |
 | CR-31 | todo | 3 | **One body per detector**: floor templates vs the recognisers that should find them; clearance, disclosure, death-method, opening and leak predicates; the vocabulary/regex copies | A9R-02, A9V-03/06/07/08/09/10, A9W-07/09/11, A6-19, ORC-13 | R1→R2 | L |
 | CR-32 | 👤 | 1 | Model routing: an explicit design model silences per-agent overrides; the clue regen runs on the prose tier; Agents 1, 4 and 6 routing | ORC-14, A9R-10, A9G-D02, A1X-D06, A34-D13 | R2 | S |
-| CR-33 | todo | 4 | Per-run telemetry: one run-scoped store instead of module singletons; every floor, repair and fallback counted into the report; concurrent runs | ORC-12, A9R-07, A6-15, A7-11 | R1 | M |
+| CR-33 | wip (v1 stores wait; concurrency policy 👤 ORC-Q06) | 4 | Per-run telemetry: one run-scoped store instead of module singletons; every floor, repair and fallback counted into the report; concurrent runs — done outside v1: shutdown flush keyed by run, retry CMLs report their notes, Agent 7 coercions counted per site on a side channel no prompt sees, Agent 6 bridge firing kept in the report, three misleading telemetry lines (`ba1b5496`, `6f233c91`). The module stores left are all in agent9-prose (v1) | ORC-12, A9R-07, A6-15, A7-11 | R1 | M |
 | CR-34 | 👤 | 6 | Avoidable LLM calls: deterministic checks that could replace a call, re-validation that re-pays semantic fallbacks, independent calls made in sequence | A6-16, A9W-17 | R2 | M |
 
 ---

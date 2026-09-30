@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 48 | 37 | 0 | 85 |
-| open | 142 | 102 | 72 | 316 |
+| closed | 50 | 40 | 0 | 90 |
+| open | 140 | 99 | 72 | 311 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -49,7 +49,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-30 | 21 | 0 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 0 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
 | CR-32 | 10 | 2 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
-| CR-33 | 13 | 0 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
+| CR-33 | 13 | 5 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
 | CR-34 | 3 | 0 | A9W-17 A6-16 A6-Q03 |
 
 ## Decision sheet — open owner questions by CR
@@ -159,7 +159,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9W-D03 |  |  | CR-07 | todo |  | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… |  |
 | A9W-D04 |  |  | CR-17 | todo |  | Beat history and atom stamps never reach fresh-run prompts (A9W-02). High on data flow; prose impact UNVERIFIABLE. |  |
 | A9W-D05 |  |  | CR-07 | todo |  | Worker regens carry no culprit/mechanism embargo (A9W-03). High on code path; impact UNVERIFIABLE. |  |
-| A9W-D06 |  |  | CR-33 | todo |  | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… |  |
+| A9W-D06 |  |  | CR-33 | todo |  | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… | waits: v1 (agent9-run.ts throw paths) |
 | A9W-D07 |  |  | CR-07 | todo |  | Full-story diagnostic apply rewrites chapters after the release gate without re-validation (:7541-7557), against the parity invariant stated at :6605… |  |
 | A9W-D08 |  |  | CR-07 | todo |  | Schema-repair retry (:5558) regenerates from chapter 1 with the end-of-story narrativeState (advanced by the first pass's onBatchComplete) and drops… |  |
 | A9W-D09 |  |  | CR-07 | todo |  | Mojibake table: rows :35-36 of prose-text.ts match "â€" + ASCII " (bytes checked); the en-dash row is unreachable since the first commit, and CP1252… |  |
@@ -299,7 +299,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9R-04 | P1 | R0 → R2 | CR-12 | todo |  | "Suspect cleared" has 5 bodies and 2 evidence vocabularies; the suspect-elimination pass and floor disagree (A_64 F1's unfixed sibling) |  |
 | A9R-05 | P2 | R1 | CR-23 | todo |  | regen-integration.ts is six modules; the pass skeleton is repeated 13× |  |
 | A9R-06 | P2 | R1 | CR-23 | todo |  | Five independent "LLM rewrites a chapter" engines; truncation handled at one site, for one provider |  |
-| A9R-07 | P2 | R1 | CR-33 | todo |  | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes |  |
+| A9R-07 | P2 | R1 | CR-33 | todo |  | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes | waits: v1 (agent9-prose repair stores) |
 | A9R-08 | P2 | R2 | CR-29 | todo |  | Regen retries resend a byte-identical prompt; insertion passes have no structural channel |  |
 | A9R-09 | P2 | R2 | CR-12 | todo |  | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies |  |
 | A9R-10 | P2 | R2 | CR-32 | todo |  | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier |  |
@@ -315,8 +315,8 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9R-D06 |  |  | CR-32 | dup |  | Clue regen on the prose tier despite AGENT9_MODEL_REGEN (A9R-10). High. | = A9R-10 |
 | A9R-D07 |  |  | CR-12 | dup |  | X50 ?? role bug in 4 suspect-set copies and the fallback investigator (A9R-09). Medium (depends on Agent 3 archetype strings). | = A9R-09 |
 | A9R-D08 |  |  | CR-07 | todo |  | Clue-paste lead skips A_68 title-casing (deterministic-repair.ts:346). Low–medium. |  |
-| A9R-D09 |  |  | CR-33 | todo |  | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. |  |
-| A9R-D10 |  |  | CR-33 | todo |  | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. |  |
+| A9R-D09 |  |  | CR-33 | todo |  | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. | waits: v1 |
+| A9R-D10 |  |  | CR-33 | todo |  | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. | waits: v1 |
 | A9R-Q01 |  |  | CR-29 | todo |  | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acce… |  |
 | A9R-Q02 |  |  | CR-31 | todo |  | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that… |  |
 | A9R-Q03 |  |  | CR-12 | todo |  | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observat… |  |
@@ -380,7 +380,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-12 | P2 | R1 | CR-25 | deferred |  | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates | world-builder validate refactor + deleting ~55 lines of unreachable gates: R1, needs the property tests A6-12 names first; next Agent 6.5 pass |
 | A6-13 | P2 | R0 | CR-25 | done | cee74c9d | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested | WP6A tests the production function; structural audit golden + known negative |
 | A6-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 094de134 3d63527f | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) | Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign) |
-| A6-15 | P2 | R2 (report-only) | CR-33 | todo |  | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) |  |
+| A6-15 | P2 | R2 (report-only) | CR-33 | done | 6f233c91 | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) | the post-revision parity-bridge injection is persistent-risk (the backstop already was) |
 | A6-16 | P3 | R2 | CR-34 | todo |  | LLM calls a deterministic check could avoid; independent calls made in sequence |  |
 | A6-17 | P3 | R2 | CR-28 | todo |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it |  |
 | A6-18 | P3 | R0/R1 | CR-13 | todo |  | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade |  |
@@ -413,7 +413,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-08 | P2 | R0/R1/R2 | CR-22 | done | 50b73fa7 | Flags: runtime getters are correct; 4 parse idioms; contractRecoveryEnabled forks the function 4× for a dormant mode; retriesEnabled dead | agent7/flags.ts on envOn/envNotOff (vocabulary unchanged); retriesEnabled already gone. OWNER: whether contract-recovery-off is still wanted (R2) |
 | A7-09 | P2 | R0 / R2 | CR-27 | todo |  | buildUserRequest (333 LOC, 6 params) → section builders; prose-requirements block and clue-pacing rule sent twice in 125/125 prompts |  |
 | A7-10 | P2 | R1/R2 | CR-20 | todo |  | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape | DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6) |
-| A7-11 | P1 | R1 (telemetry) | CR-33 | todo |  | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent |  |
+| A7-11 | P1 | R1 (telemetry) | CR-33 | done | 6f233c91 | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent | formatNarrative's 5 coercion sites + the silent clue-id drop counted per site, at all 7 call sites, on a non-enumerable side channel; two silent sites warn; [R4] original keys unchanged. Not counted yet: the remaining sites the item lists in the v1 prose path and the Pillar-4/coverage patches (each already warns) |
 | A7-12 | P3 | R0 | CR-24 | deferred |  | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items | small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change |
 | A7-13 | P3 | R2 | CR-17 | todo |  | Arc position computed 3 ways (A7 vs two in A9); 97/358 prose prompts carry two different emotional registers |  |
 | A7-14 | P3 | R0 | CR-13 | todo |  | Agent 7.5: minor type leaks only; leave structurally as is |  |
@@ -456,7 +456,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D03 |  |  | CR-07 | todo |  | Positional gender lookup: if the model reorders the cast and omits gender, genders swap |  |
 | A34-D04 |  |  | CR-07 | todo |  | Cast truncated or padded to castNames length; extra model characters dropped positionally |  |
 | A34-D05 |  |  | CR-12 | todo |  | Last-resort culprit fallback can name the detective or victim |  |
-| A34-D06 |  |  | CR-33 | todo |  | normalizationNotes from discarded attempts leak; retries' notes never reach warnings |  |
+| A34-D06 |  |  | CR-33 | done | ba1b5496 | normalizationNotes from discarded attempts leak; retries' notes never reach warnings | notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496) |
 | A34-D07 |  |  | CR-20 | todo |  | Agent 4 parser has no truncation guard on a full-CML re-emission | OWNER (ORC-Q03): Agent 4 is now parseLlmJson(raw, { guard: false, extract: "strict+repair" }) — guarding it is one word |
 | A34-D08 |  |  | CR-29 | dup |  | Plausibility/scoring feedback pollutes the theme lock | = A34-09 |
 | A34-D09 |  |  | CR-18 | todo |  | Agent 6 installs a degraded or invalid revision (X60 reopened) |  |
@@ -503,7 +503,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D09 |  |  | CR-20 | done | 21992344 | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 | auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run |
 | A1X-D10 |  |  | CR-29 | todo |  | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt |  |
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
-| A1X-D12 |  |  | CR-33 | todo |  | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… |  |
+| A1X-D12 |  |  | CR-33 | done | ba1b5496 | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… | 2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected |
 | A1X-D13 |  |  | CR-04 | done | fc6f52c7 | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) | declared; deps:check guards it (7 violations found, 0 left) |
 | A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
@@ -528,7 +528,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |
 | ORC-10 | P2 | R0 | CR-11 | done | 92aba0fe | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports | 111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn) |
 | ORC-11 | P2 | R2 | CR-07 | todo |  | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers |  |
-| ORC-12 | P2 | R1 | CR-33 | todo |  | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry |  |
+| ORC-12 | P2 | R1 | CR-33 | todo | ba1b5496 | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry | process-guards flush keyed by run (ba1b5496). Waits (v1): the repair counters (deterministic-repair.ts, repair-efficacy.ts) are module stores in agent9-prose. OWNER: refuse concurrent runs at the API (ORC-Q06) |
 | ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
 | ORC-14 | P2 | R2 | CR-32 | todo |  | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites |  |
 | ORC-15 | P3 | R0 | CR-13 | todo |  | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts |  |
@@ -541,7 +541,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-D06 |  |  | CR-07 | dup |  | Agent 2's schema-repair re-call drops the caller's castGenders lock | = A1X-D04 |
 | ORC-D07 |  |  | CR-06 | done | faeb6755 | ENABLE_SCORING=1 and ENABLE_PROSE_BLIND_READER=1 read as off; AGENT2_CAST_CHECK=no (and 2b/2c/2e) reads as on |  |
 | ORC-D08 |  |  | CR-32 | dup |  | Explicit design model silences AGENT3/5/6/7_MODEL and RUBRIC_SCORER_MODEL | = ORC-14 |
-| ORC-D09 |  |  | CR-33 | todo |  | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing |  |
+| ORC-D09 |  |  | CR-33 | done | ba1b5496 | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing | concurrent runs keep their own shutdown flush; shutdown flushes every run (allSettled). The timed-out run that keeps executing is ORC-Q06 (owner) |
 | ORC-D10 |  |  | CR-06 | done | faeb6755 | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
 | ORC-D11 |  |  | CR-07 | todo |  | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique |  |
 | ORC-D12 |  |  | CR-19 | dup |  | Agent 6 perCallCostDelta takes its baseline *after* the first retry call, so the first retry is never charged to the $ retry budget | = A6-D01 |

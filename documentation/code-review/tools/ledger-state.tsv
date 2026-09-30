@@ -23,7 +23,7 @@ A9W-D02	CR-07	todo
 A9W-D03	CR-07	todo		
 A9W-D04	CR-17	todo		
 A9W-D05	CR-07	todo		
-A9W-D06	CR-33	todo		
+A9W-D06	CR-33	todo		waits: v1 (agent9-run.ts throw paths)
 A9W-D07	CR-07	todo		
 A9W-D08	CR-07	todo		
 A9W-D09	CR-07	todo		
@@ -143,7 +143,7 @@ A9R-03	CR-29	todo
 A9R-04	CR-12	todo		
 A9R-05	CR-23	todo		
 A9R-06	CR-23	todo		
-A9R-07	CR-33	todo		
+A9R-07	CR-33	todo		waits: v1 (agent9-prose repair stores)
 A9R-08	CR-29	todo		
 A9R-09	CR-12	todo		
 A9R-10	CR-32	todo		
@@ -159,8 +159,8 @@ A9R-D05	CR-29	todo
 A9R-D06	CR-32	dup		= A9R-10
 A9R-D07	CR-12	dup		= A9R-09
 A9R-D08	CR-07	todo		
-A9R-D09	CR-33	todo		
-A9R-D10	CR-33	todo		
+A9R-D09	CR-33	todo		waits: v1
+A9R-D10	CR-33	todo		waits: v1
 A9R-Q01	CR-29	todo		
 A9R-Q02	CR-31	todo		
 A9R-Q03	CR-12	todo		
@@ -214,7 +214,7 @@ A6-11	CR-27	todo
 A6-12	CR-25	deferred		world-builder validate refactor + deleting ~55 lines of unreachable gates: R1, needs the property tests A6-12 names first; next Agent 6.5 pass
 A6-13	CR-25	done	cee74c9d	WP6A tests the production function; structural audit golden + known negative
 A6-14	CR-08	done	3295ad4e 094de134 3d63527f	Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign)
-A6-15	CR-33	todo		
+A6-15	CR-33	done	6f233c91	the post-revision parity-bridge injection is persistent-risk (the backstop already was)
 A6-16	CR-34	todo		
 A6-17	CR-28	todo		
 A6-18	CR-13	todo		
@@ -242,7 +242,7 @@ A7-07	CR-18	todo
 A7-08	CR-22	done	50b73fa7	agent7/flags.ts on envOn/envNotOff (vocabulary unchanged); retriesEnabled already gone. OWNER: whether contract-recovery-off is still wanted (R2)
 A7-09	CR-27	todo		
 A7-10	CR-20	todo		DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6)
-A7-11	CR-33	todo		
+A7-11	CR-33	done	6f233c91	formatNarrative's 5 coercion sites + the silent clue-id drop counted per site, at all 7 call sites, on a non-enumerable side channel; two silent sites warn; [R4] original keys unchanged. Not counted yet: the remaining sites the item lists in the v1 prose path and the Pillar-4/coverage patches (each already warns)
 A7-12	CR-24	deferred		small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change
 A7-13	CR-17	todo		
 A7-14	CR-13	todo		
@@ -280,7 +280,7 @@ A34-D02	CR-17	todo
 A34-D03	CR-07	todo		
 A34-D04	CR-07	todo		
 A34-D05	CR-12	todo		
-A34-D06	CR-33	todo		
+A34-D06	CR-33	done	ba1b5496	notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496)
 A34-D07	CR-20	todo		OWNER (ORC-Q03): Agent 4 is now `parseLlmJson(raw, { guard: false, extract: "strict+repair" })` — guarding it is one word
 A34-D08	CR-29	dup		= A34-09
 A34-D09	CR-18	todo		
@@ -322,7 +322,7 @@ A1X-D08	CR-19	done	dff49644 73b7e54c	designCast reads its label from the tracker
 A1X-D09	CR-20	done	21992344	auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run
 A1X-D10	CR-29	todo		
 A1X-D11	CR-07	todo		
-A1X-D12	CR-33	todo		
+A1X-D12	CR-33	done	ba1b5496	2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected
 A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
 A1X-Q01	CR-12	todo		
 A1X-Q02	CR-18	todo		
@@ -342,7 +342,7 @@ ORC-08	CR-17	todo
 ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
 ORC-10	CR-11	done	92aba0fe	111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn)
 ORC-11	CR-07	todo		
-ORC-12	CR-33	todo		
+ORC-12	CR-33	todo	ba1b5496	process-guards flush keyed by run (ba1b5496). Waits (v1): the repair counters (deterministic-repair.ts, repair-efficacy.ts) are module stores in agent9-prose. OWNER: refuse concurrent runs at the API (ORC-Q06)
 ORC-13	CR-31	todo		
 ORC-14	CR-32	todo		
 ORC-15	CR-13	todo		
@@ -355,7 +355,7 @@ ORC-D05	CR-17	todo
 ORC-D06	CR-07	dup		= A1X-D04
 ORC-D07	CR-06	done	faeb6755	
 ORC-D08	CR-32	dup		= ORC-14
-ORC-D09	CR-33	todo		
+ORC-D09	CR-33	done	ba1b5496	concurrent runs keep their own shutdown flush; shutdown flushes every run (allSettled). The timed-out run that keeps executing is ORC-Q06 (owner)
 ORC-D10	CR-06	done	faeb6755	
 ORC-D11	CR-07	todo		
 ORC-D12	CR-19	dup		= A6-D01
