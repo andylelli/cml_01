@@ -4,6 +4,7 @@
  * first attempt and by both retries (collision, novelty). Moved from agent3-run.ts (code review A34-04 /
  * CR-24), which re-exports what it exported.
  */
+import { envOn } from "../../env-flags.js";
 import { generateCML } from "@cml/prompts-llm";
 import {
   checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
@@ -173,7 +174,7 @@ export function applyCmlRepairAndRevalidate(
       );
     }
   }
-  const spanFloorOn = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "");
+  const spanFloorOn = envOn("AGENT3_ALIBI_SPAN_FLOOR");
   const spans = spanFloorOn
     ? deriveAlibiSpans(cmlResult.cml as any)
     : { derived: 0, unreadable: [] as string[] };

@@ -167,8 +167,11 @@ const collectCodeFlags = () => {
         ? text.replace(/console\.\w+\(\s*["'][A-Z0-9_]+["']/g, "")
         : "";
       const literal = scannable.matchAll(/["']([A-Z][A-Z0-9_]{3,})["']/g);
+      // 3. CR-22: the worker's flag helpers, `envOn("X")` / `envNotOff("X")` (apps/worker/src/jobs/env-flags.ts),
+      //    which read process.env[name] for the name they are given.
+      const helper = text.matchAll(/\benv(?:On|NotOff)\(\s*["'`]([A-Z][A-Z0-9_]+)["'`]/g);
 
-      for (const match of [...direct, ...literal]) {
+      for (const match of [...direct, ...literal, ...helper]) {
         const name = match[1] || match[2];
         if (!name || !new RegExp(`^(?:${FLAG_PATTERN.source})$`).test(name)) continue;
         if (!found.has(name)) found.set(name, new Set());

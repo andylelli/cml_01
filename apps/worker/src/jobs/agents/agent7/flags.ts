@@ -1,3 +1,4 @@
+import { envNotOff, envOn } from "../../env-flags.js";
 /**
  * Agent 7 behaviour flags — getters read at call time (ADR-0004).
  * 
@@ -27,7 +28,7 @@
 /** Shadow-only: log the deterministic scene grid next to the live outline. Default ON (logs only,
  * acts on nothing); set `AGENT7_SCHEDULER_SHADOW=0` to silence. */
 export const isAgent7SchedulerShadowEnabled = (): boolean =>
-  !/^(0|false|no|off)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
+  envNotOff("AGENT7_SCHEDULER_SHADOW");
 
 /** P1.3: promote the deterministic scheduler from shadow-only to authoritative. When ON: (1) the
  * per-scene word budget is derived from the story-length pacing curve (leaner setup, fuller climax)
@@ -36,7 +37,7 @@ export const isAgent7SchedulerShadowEnabled = (): boolean =>
  * once instead of being re-revealed across adjacent chapters (T1.2 — the dominant pacing smear).
  * Default OFF; never enable in the same run as another retry-gated lever. */
 export const isAgent7SchedulerAuthoritative = (): boolean =>
-  /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
+  envOn("AGENT7_SCHEDULER_AUTHORITATIVE");
 
 /** A_53 P8 (scheduler-authority-dark-no-safe-enable-path): split the scheduler-authority lever into
  * its two independent halves so the non-destructive one is safely enableable on its own. This flag
@@ -45,7 +46,7 @@ export const isAgent7SchedulerAuthoritative = (): boolean =>
  * delete an LLM-assigned clue. Default OFF; `AGENT7_SCHEDULER_AUTHORITATIVE` alone now ships only the
  * safe pacing-shaped word budgets. */
 export const isAgent7ClueJobAuthorityEnabled = (): boolean =>
-  /^(1|true|yes|on)$/i.test(process.env.AGENT7_CLUE_JOB_AUTHORITY ?? "");
+  envOn("AGENT7_CLUE_JOB_AUTHORITY");
 
 /** A_52 item 4 (mechanism-early-leak): the mechanism-reveal gate is a safe, targeted prompt hint —
  * withhold the full HOW-it-was-done explanation until the discriminating-test scene — that on its own
@@ -54,12 +55,12 @@ export const isAgent7ClueJobAuthorityEnabled = (): boolean =>
  * and the honest rubric correctly capped plot_structure/pacing ≤6 for the early leak. Decoupled here:
  * default ON, reversible via AGENT7_MECHANISM_GATE=0. */
 export const isAgent7MechanismGateEnabled = (): boolean =>
-  !/^(0|false|no|off)$/i.test(process.env.AGENT7_MECHANISM_GATE ?? "");
+  envNotOff("AGENT7_MECHANISM_GATE");
 
 /** A_61 RC3.5 — guarantee the body-discovery scene references a cause-of-death "key tell" clue. Default
  * OFF (structural lever; N≥4 before default-on), read at runtime. Additive-only: appends one clue id to
  * the discovery scene's cluesRevealed, so it cannot violate the clue-pacing/coverage gates. */
-export const isDiscoveryTellEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT7_DISCOVERY_TELL ?? "");
+export const isDiscoveryTellEnabled = () => envOn("AGENT7_DISCOVERY_TELL");
 
 /**
  * A_61 RC3.5 — the discovery-scene mirror of ensureDiscriminatingTestEvidencePresent. Additively
@@ -70,20 +71,20 @@ export const isDiscoveryTellEnabled = () => /^(1|true|yes|on)$/i.test(process.en
  */
 /** A_64 §3.3 C1 — flag for the plant-before-reveal outline stamp. Runtime getter, never a module
  *  const (the flags-freeze-before-dotenv trap). Default OFF; the A_64 probe flips it. */
-export const isPlantBeforeRevealEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT7_PLANT_BEFORE_REVEAL ?? "");
+export const isPlantBeforeRevealEnabled = () => envOn("AGENT7_PLANT_BEFORE_REVEAL");
 
 /** DIAGNOSIS-BATCH #5 — runtime getter, never a module const (ADR-0004). Default OFF: this REPAIRS
  *  (drops a directive), and the codebase's own discipline is to measure a repair's firing rate before
  *  it changes what ships by default. See `applyIdentityRuleCollisionRepair`'s docblock for why. */
 export const isIdentityRuleCollisionGuardEnabled = () =>
-  /^(1|true|yes|on)$/i.test(process.env.AGENT7_IDENTITY_RULE_COLLISION_GUARD ?? "");
+  envOn("AGENT7_IDENTITY_RULE_COLLISION_GUARD");
 
 /** DIAGNOSIS-BATCH #2 — runtime getter, never a module const (ADR-0004). Separate flag from
  *  `AGENT7_PLANT_BEFORE_REVEAL`, which is already default-ON: this is a genuinely new obligation
  *  type (motive, not clue evidence) and needs its own measurement window, not to inherit the clue
  *  lever's already-settled default. Default OFF. */
 export const isMotivePlantBeforeRevealEnabled = () =>
-  /^(1|true|yes|on)$/i.test(process.env.AGENT7_MOTIVE_PLANT_BEFORE_REVEAL ?? "");
+  envOn("AGENT7_MOTIVE_PLANT_BEFORE_REVEAL");
 
 /**
  * Deterministically HOIST scene fields the model nested under `setting` up to the scene top-level, and

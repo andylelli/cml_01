@@ -3,6 +3,7 @@
  * derivations, device arithmetic reconciliation, implied intervals, case temporal coherence, and the
  * locked-facts artifact. Moved from agent3b-run.ts (code review A34-12 / CR-24), which re-exports what it exported.
  */
+import { envOn } from "../../env-flags.js";
 import { isChronologyEnabled as isA90ChronologyEnabled, solveLockedChronology, summariseChronology } from "@cml/cml";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
@@ -410,7 +411,7 @@ export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
        * Gated on the same flag as the spine check, so with the flag off this file behaves exactly as
        * it always has.
        */
-      if (/^(1|true|yes|on)$/i.test(process.env.AGENT3B_DECLARED_DERIVATIONS ?? "")) {
+      if (envOn("AGENT3B_DECLARED_DERIVATIONS")) {
         const unreadable = [
           a === null ? `${sources[0]!.fact.id}="${sources[0]!.fact.value}"` : null,
           b === null ? `${sources[1]!.fact.id}="${sources[1]!.fact.value}"` : null,
@@ -665,7 +666,7 @@ export async function buildLockedFactRegistryPhase(ctx: OrchestratorContext, set
      *
      * Flag-gated `AGENT3B_ARITHMETIC_REGEN`, default OFF, read at call time.
      */
-    const arithmeticRegenEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT3B_ARITHMETIC_REGEN ?? "");
+    const arithmeticRegenEnabled = envOn("AGENT3B_ARITHMETIC_REGEN");
     if (arithmeticRegenEnabled && arithmeticViolations.length > 0) {
       const beforeDevices = ctx.hardLogicDevices;
       const beforeRegistry = ctx.lockedFactRegistry;

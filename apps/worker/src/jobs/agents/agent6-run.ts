@@ -7,6 +7,7 @@
  * Writes ctx.fairPlayAudit and ctx.hasCriticalFairPlayFailure.
  */
 
+import { envOn } from "../env-flags.js";
 import {
   auditFairPlay,
   extractClues,
@@ -200,7 +201,7 @@ const derivePreTestSceneTarget = (
 
 /** A_61 RC3.4 — force every discriminating-test evidence clue into a pre-test scene, even if it is
  * absent from clues.clues (the Agent-5 soft-repair gap). Default OFF; N≥4 before default-on. */
-const isDtEvidenceCompletenessEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT6_DT_EVIDENCE_COMPLETENESS ?? "");
+const isDtEvidenceCompletenessEnabled = () => envOn("AGENT6_DT_EVIDENCE_COMPLETENESS");
 const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any): string[] => {
   const caseBlock = (cml as any)?.CASE ?? cml ?? {};
   const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];

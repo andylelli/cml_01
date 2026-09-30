@@ -2,6 +2,7 @@
  * Agent 6 phase: the primary blind-reader read (and its refusal retry). Moved from agent6-run.ts
  * (code review A6-01 / CR-25).
  */
+import { envOn } from "../../env-flags.js";
 import {
   blindReaderSimulation,
 } from "@cml/prompts-llm";
@@ -13,7 +14,7 @@ import {
 
 /** X33 continued — one analysis-framed retry when the content filter refuses the blind read. */
 const isBlindReaderRefusalRetryEnabled = () =>
-  /^(1|true|yes|on)$/i.test(process.env.AGENT6_BLIND_READER_REFUSAL_RETRY ?? "");
+  envOn("AGENT6_BLIND_READER_REFUSAL_RETRY");
 
 export async function runPrimaryBlindReadPhase(ctx: OrchestratorContext, blindReadEligible: boolean, primaryBlindRead: BlindReaderResult | null, runPrimaryBlindRead: () => Promise<BlindReaderResult>, falseAssumptionStatement: any, castNamesForBlind: any) {
   if (blindReadEligible) {

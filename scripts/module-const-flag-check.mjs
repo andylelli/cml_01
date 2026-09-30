@@ -45,6 +45,12 @@ const CODE_FILE = /\.(ts|mts|mjs|js)$/;
  * expects to move, so the pattern matches the same families the flag register tracks.
  */
 const FLAG_NAME = /\bprocess\.env\.((?:AGENT|RUBRIC|NOVELTY|CANARY|STORY|GEOMETRY|CLUE|PROSE)[A-Z0-9_]*|[A-Z0-9_]*_(?:ENABLED?|MODE|FLAG|SHADOW|AUTHORITATIVE|GATE|BLOCKING)\b)/;
+/**
+ * CR-22: the worker's flag helpers (apps/worker/src/jobs/env-flags.ts) read process.env for the name they
+ * are given, so a module-scope `const x = envOn("SOME_FLAG")` freezes exactly as a bare read does. Any
+ * name counts here: the helpers exist only for flags.
+ */
+const HELPER_READ = /\benv(?:On|NotOff)\(\s*["'`]([A-Z0-9_]+)["'`]/;
 
 const files = [];
 const walk = (dir) => {
@@ -73,7 +79,7 @@ const findings = [];
 
 for (const file of files) {
   const text = readFileSync(file, "utf8");
-  if (!text.includes("process.env")) continue;
+  if (!text.includes("process.env") && !HELPER_READ.test(text)) continue;
   const lines = text.split(/\r?\n/);
 
   /**
@@ -97,7 +103,7 @@ for (const file of files) {
     // Module scope only: `const`/`let` at column 0. An indented read is inside a function or block,
     // which is the shape ADR-0004 asks for.
     if (!/^(?:export\s+)?(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*(?::[^=]*)?=/.test(line)) return;
-    if (!FLAG_NAME.test(line)) return;
+    if (!FLAG_NAME.test(line) && !HELPER_READ.test(line)) return;
     // An arrow function or `function` on the same line IS a getter — `export const isX = () => ...`.
     if (/=>|\bfunction\b/.test(line)) return;
     if (dotenvLine >= 0 && dotenvLine < i) return;
@@ -105,7 +111,7 @@ for (const file of files) {
     findings.push({
       file: relative(ROOT, file).replace(/\\/g, "/"),
       line: i + 1,
-      flag: FLAG_NAME.exec(line)?.[1] ?? "?",
+      flag: FLAG_NAME.exec(line)?.[1] ?? HELPER_READ.exec(line)?.[1] ?? "?",
       text: line.trim().slice(0, 110),
     });
   });
