@@ -3,7 +3,7 @@
 exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "6eb541d784b9a906",
+    "generate": "ff5c19fd4bf31aa7",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -11,16 +11,16 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "5aa5313f77f1d116",
   },
   "a_study_in_scarlet": {
-    "generate": "4059d4d2c281d83e",
+    "generate": "06c4c43a0eaca1dd",
     "notes": [
-      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Dr. John Watson" from the cast. The case did not decide its own answer.",
+      "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "95ad260e95079041",
   },
   "aaron_rodd_diviner": {
-    "generate": "e6fad0be2c7064f7",
+    "generate": "0c60397c607f354b",
     "notes": [
       "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -29,7 +29,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "e61743d9d934242a",
   },
   "an_african_millionaire": {
-    "generate": "4047d01a00cce3d4",
+    "generate": "ab63680602b82703",
     "notes": [
       "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
       "[A_102 means-link] UNKNOWN: the case records no death_method",
@@ -38,14 +38,14 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "fe6ab2bd158db0e5",
   },
   "annihilation": {
-    "generate": "f7bdf687234ee9f6",
+    "generate": "75d87efcd279d0d1",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "c874f240cac0f435",
   },
   "as_a_thief_in_the_night": {
-    "generate": "8e4f5c12e3b72dba",
+    "generate": "b6ea45cb2bd3c2ec",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",

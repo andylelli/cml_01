@@ -26,6 +26,10 @@ export const normalizeEnum = <T extends string>(value: unknown, allowed: readonl
   const match = allowed.find((item) => item.toLowerCase() === normalized);
   return match ?? fallback;
 };
+/** The schema's false_assumption.type enum — the five axes. */
+export const AXES = ["temporal", "spatial", "identity", "behavioral", "authority"] as const;
+/** The schema's crime_class.category enum. */
+export const CRIME_CATEGORIES = ["murder", "theft", "disappearance", "fraud"] as const;
 /** The schema's cast `role` enum. */
 export const CAST_ROLES = ["detective", "victim", "culprit", "suspect", "witness", "bystander"] as const;
 
@@ -186,7 +190,8 @@ function normalizeMeta(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
 
   const crimeClass = ensureObject(meta.crime_class);
   meta.crime_class = crimeClass;
-  crimeClass.category = ensureString(crimeClass.category, "murder");
+  // Owner decision 5 §3: case-insensitive against the schema enum, as the revise profile reads it.
+  crimeClass.category = normalizeEnum(crimeClass.category, CRIME_CATEGORIES, "murder");
   // Owner decision 5 §1 (2026-09-30, A34-01): neutral, as the revise profile has been since A_53 P1 — a
   // missing field must not assert a plot (the Agent 3 prompt itself bans poisoned tea).
   crimeClass.subtype = ensureString(crimeClass.subtype, "unspecified");
@@ -201,14 +206,10 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
   const names = inputs.castNames?.length ? inputs.castNames : castArray.map((c) => (c as any)?.name).filter(Boolean);
   const normalizedCast = (names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean)).map((name, index) => {
     const existing = ensureObject(castArray[index]);
-    const eligibility = ensureString(existing.culprit_eligibility, "eligible");
-    const normalizedEligibility = ["eligible", "ineligible", "locked"].includes(eligibility)
-      ? eligibility
-      : "eligible";
-    const culpability = ensureString(existing.culpability, "unknown");
-    const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
-      ? culpability
-      : "unknown";
+    // Owner decision 5 §3: case-insensitive, as the revise profile reads them — "Guilty" used to become
+    // "unknown" here and "guilty" there.
+    const normalizedEligibility = normalizeEnum(existing.culprit_eligibility, ["eligible", "ineligible", "locked"] as const, "eligible");
+    const normalizedCulpability = normalizeEnum(existing.culpability, ["guilty", "innocent", "unknown"] as const, "unknown");
     const known = {
       name: ensureString(existing.name, name || `Suspect ${index + 1}`),
       age_range: ensureString(existing.age_range, "adult"),
@@ -412,7 +413,8 @@ function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<
   const falseAssumption = ensureObject(caseBlock.false_assumption);
   caseBlock.false_assumption = falseAssumption;
   falseAssumption.statement = ensureString(falseAssumption.statement, "Unknown assumption");
-  falseAssumption.type = ensureString(falseAssumption.type, inputs.primaryAxis);
+  // Owner decision 5 §3: an axis, case-insensitively; anything else falls back to the run's axis.
+  falseAssumption.type = normalizeEnum(falseAssumption.type, AXES, normalizeEnum(inputs.primaryAxis, AXES, "temporal"));
   falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Unknown");
   falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Unknown");
   return falseAssumption;
@@ -800,7 +802,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
 
   const crimeClass = ensureObject(meta.crime_class);
   meta.crime_class = crimeClass;
-  crimeClass.category = normalizeEnum(crimeClass.category, ["murder", "theft", "disappearance", "fraud"], "murder");
+  crimeClass.category = normalizeEnum(crimeClass.category, CRIME_CATEGORIES, "murder");
   // A_53 P1 (holistic): neutral placeholder, never a concrete method ("poisoning") that would
   // inject a specific plot into an unrelated case if the LLM omitted the subtype.
   crimeClass.subtype = ensureString(crimeClass.subtype, "unspecified");
@@ -879,7 +881,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
   const falseAssumption = ensureObject(caseBlock.false_assumption);
   caseBlock.false_assumption = falseAssumption;
   falseAssumption.statement = ensureString(falseAssumption.statement, "Unknown assumption");
-  falseAssumption.type = normalizeEnum(falseAssumption.type, ["temporal", "spatial", "identity", "behavioral", "authority"], "temporal");
+  falseAssumption.type = normalizeEnum(falseAssumption.type, AXES, "temporal");
   falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Unknown");
   falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Unknown");
 
