@@ -3,6 +3,7 @@
  * structural abort, and the pre-prose CML gate (evidence back-fill, discriminating test, critical coverage).
  * Moved from generateMystery (code review ORC-01 / CR-25); mystery-orchestrator.ts re-exports what it exported.
  */
+import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../clue-contracts/evidence-candidates.js";
 import type { CaseData } from "@cml/cml";
 import type {
   ClueDistributionResult,
@@ -261,27 +262,11 @@ export function runCmlPreProseGate(ctx: OrchestratorContext) {
     // survive the filter, poisoning the final array with stale skeleton IDs.
     const distributedClueIds = new Set(ctx.clues!.clues.map((c) => String(c.id)));
     const canonicalExistingEvidence = currentEvidence.filter((id: string) => distributedClueIds.has(id));
-    const designText = String(discrimTestNode.design ?? "").toLowerCase();
-    const knowledgeText = String(discrimTestNode.knowledge_revealed ?? "").toLowerCase();
-    const testContextTokens = new Set(
-      `${designText} ${knowledgeText}`
-        .replace(/[^a-z0-9\s]/g, " ")
-        .split(/\s+/)
-        .filter((w) => w.length >= 5)
-    );
+    const testContextTokens = discriminatingTestTokens(discrimTestNode); // CR-16 (A5-03)
 
     const scoredEssential = ctx.clues!.clues
       .filter((c) => c.criticality === "essential")
-      .map((c) => {
-        const text = `${String(c.description ?? "")} ${String(c.pointsTo ?? "")}`.toLowerCase();
-        let score = 0;
-        for (const token of testContextTokens) {
-          if (text.includes(token)) score += 1;
-        }
-        if (c.placement === "early" || c.placement === "mid") score += 2;
-        if (c.evidenceType === "observation" || c.evidenceType === "contradiction") score += 1;
-        return { id: String(c.id), score };
-      })
+      .map((c) => ({ id: String(c.id), score: scoreEvidenceCandidate(c, testContextTokens, BACKFILL_WEIGHTS) }))
       .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id));
 
     const maxBackfillIds = Math.max(1, evidenceBackfillThreshold);

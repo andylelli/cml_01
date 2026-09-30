@@ -6,6 +6,7 @@
  * worker agent importing another. Both runners now import this module; agent5-run.ts re-exports what it
  * exported, so existing importers keep their path.
  */
+import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../clue-contracts/evidence-candidates.js";
 import { provesTheAct } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -1079,24 +1080,12 @@ export function synthesizeMissingDiscriminatingEvidenceClues(
   if (missingEvidenceIds.length === 0) return [];
 
   const caseBlock = getCaseBlock(cml);
-  const discrimText = `${String(caseBlock?.discriminating_test?.design ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ");
-  const discrimTokens = new Set(discrimText.split(/\s+/).filter((t) => t.length >= 5));
+  const discrimTokens = discriminatingTestTokens(caseBlock?.discriminating_test); // CR-16 (A5-03)
 
   const existingIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
   const candidates = clues.clues
     .filter((c: any) => c?.criticality === "essential")
-    .map((c: any) => {
-      const text = `${String(c?.description ?? "")} ${String(c?.pointsTo ?? "")}`.toLowerCase();
-      let score = 0;
-      for (const token of discrimTokens) {
-        if (text.includes(token)) score += 1;
-      }
-      if (c?.placement === "early" || c?.placement === "mid") score += 2;
-      if (c?.evidenceType === "observation" || c?.evidenceType === "contradiction") score += 1;
-      return { clue: c, score };
-    })
+    .map((c: any) => ({ clue: c, score: scoreEvidenceCandidate(c, discrimTokens, BACKFILL_WEIGHTS) }))
     .sort((a, b) => b.score - a.score);
 
   if (candidates.length === 0) return [];

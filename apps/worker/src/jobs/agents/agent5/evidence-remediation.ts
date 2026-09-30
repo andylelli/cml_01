@@ -2,6 +2,7 @@
  * Agent 5 phases: the deterministic clue checks, discriminating-evidence remediation, and the final coverage
  * repair and hard gate. Moved from agent5-run.ts (code review A5-01 / CR-25), which re-exports what it exported.
  */
+import { SELECTION_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../../clue-contracts/evidence-candidates.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
@@ -307,21 +308,11 @@ export function selectDiscriminatingEvidenceCandidateIds(
   maxIds: number,
 ): string[] {
   const caseBlock = getCaseBlock(cml);
-  const discrimText = `${String(caseBlock?.discriminating_test?.design ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ");
-  const discrimTokens = new Set(discrimText.split(/\s+/).filter((t) => t.length >= 5));
+  const discrimTokens = discriminatingTestTokens(caseBlock?.discriminating_test); // CR-16 (A5-03)
 
   const scored = clues.clues
     .map((c: any) => {
-      const text = `${String(c?.description ?? "")} ${String(c?.pointsTo ?? "")}`.toLowerCase();
-      let score = 0;
-      for (const token of discrimTokens) {
-        if (text.includes(token)) score += 1;
-      }
-      if (c?.criticality === "essential") score += 2;
-      if (c?.placement === "early" || c?.placement === "mid") score += 1;
-      if (c?.evidenceType === "observation" || c?.evidenceType === "contradiction") score += 1;
+      const score = scoreEvidenceCandidate(c, discrimTokens, SELECTION_WEIGHTS); // CR-16 (A5-03)
       return {
         id: String(c?.id ?? "").trim(),
         score,
