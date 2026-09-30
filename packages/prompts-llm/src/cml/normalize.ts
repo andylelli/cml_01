@@ -146,7 +146,7 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
 
   const { validCulprits, rawCulprits, normalizedCulprits, culpability } = resolveCulprits(caseBlock, normalizedCast, roleIncludes, normalizationNotes);
 
-  const falseAssumption = normalizeModels(caseBlock, crimeClass, inputs);
+  const falseAssumption = normalizeModels(caseBlock, crimeClass, inputs, normalizationNotes);
 
   normalizeGenreStructures(caseBlock, falseAssumption);
 
@@ -179,7 +179,9 @@ function normalizeMeta(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
   const crimeClass = ensureObject(meta.crime_class);
   meta.crime_class = crimeClass;
   crimeClass.category = ensureString(crimeClass.category, "murder");
-  crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
+  // Owner decision 5 §1 (2026-09-30, A34-01): neutral, as the revise profile has been since A_53 P1 — a
+  // missing field must not assert a plot (the Agent 3 prompt itself bans poisoned tea).
+  crimeClass.subtype = ensureString(crimeClass.subtype, "unspecified");
   return crimeClass;
 }
 
@@ -206,7 +208,7 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
       relationships: ensureArray(existing.relationships),
       public_persona: ensureString(existing.public_persona, "reserved"),
       private_secret: ensureString(existing.private_secret, "keeps a secret"),
-      motive_seed: ensureString(existing.motive_seed, "inheritance"),
+      motive_seed: ensureString(existing.motive_seed, "a personal stake in the outcome"), // owner decision 5 §1
       motive_strength: ensureString(existing.motive_strength, "moderate"),
       alibi_window: ensureString(existing.alibi_window, "evening"),
       access_plausibility: ensureString(existing.access_plausibility, "medium"),
@@ -342,12 +344,14 @@ function resolveCulprits(caseBlock: Record<string, unknown>, normalizedCast: Nor
   return { validCulprits, rawCulprits, normalizedCulprits, culpability };
 }
 
-function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<string, unknown>, inputs: CMLPromptInputs) {
+function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<string, unknown>, inputs: CMLPromptInputs, normalizationNotes: string[]) {
+  // Owner decision 5 §1 (2026-09-30, A34-01): neutral, as the revise profile has been since A_53 P1 — a
+  // missing field must not assert a plot (the Agent 3 prompt itself bans poisoned tea).
   const surface = ensureObject(caseBlock.surface_model);
   caseBlock.surface_model = surface;
   const surfaceNarrative = ensureObject(surface.narrative);
   surface.narrative = surfaceNarrative;
-  surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "A mystery unfolds.");
+  surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "Unknown");
   surface.accepted_facts = ensureArray(surface.accepted_facts);
   surface.inferred_conclusions = ensureArray(surface.inferred_conclusions);
 
@@ -355,7 +359,7 @@ function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<
   caseBlock.hidden_model = hidden;
   const hiddenMechanism = ensureObject(hidden.mechanism);
   hidden.mechanism = hiddenMechanism;
-  hiddenMechanism.description = ensureString(hiddenMechanism.description, "Poisoned tea.");
+  hiddenMechanism.description = ensureString(hiddenMechanism.description, "Unknown");
   hiddenMechanism.delivery_path = ensureArray(hiddenMechanism.delivery_path);
   // A_71 — false-time direction fields. Default to "" (not a placeholder time): an absent time must
   // read as "this concealment does not fake a time", which checkTimelineDeception treats as
@@ -364,27 +368,36 @@ function normalizeModels(caseBlock: Record<string, unknown>, crimeClass: Record<
   hiddenMechanism.apparent_time_of_death = ensureString(hiddenMechanism.apparent_time_of_death, "");
   const hiddenOutcome = ensureObject(hidden.outcome);
   hidden.outcome = hiddenOutcome;
-  hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");
+  hiddenOutcome.result = ensureString(hiddenOutcome.result, "Unknown");
 
   // L1 (ANALYSIS_48 T1.1): guarantee a PHYSICAL manner of death so the prose resolveDeathMethod chain
   // and the rubric weak-murder-method grader always have a token to enforce. Prefer the model's
-  // authored value; else derive from the crime classification; else a neutral physical default. Kept
-  // separate from hidden_model.mechanism (the concealment trick) — the reveal must name the killing.
+  // authored value; else derive from the crime classification. Kept separate from hidden_model.mechanism
+  // (the concealment trick) — the reveal must name the killing. Owner decision 5 §1: when neither gives a
+  // manner of death the field stays unset and the note says so; it used to become "poisoning", a plot the
+  // case never chose. (death_method is not a schema field; the revise profile never set it.)
   const authoredDeathMethod = ensureString(caseBlock.death_method, "").trim();
-  caseBlock.death_method =
+  const deathMethod =
     authoredDeathMethod ||
     deriveDeathMethodFromCrimeClass(
       ensureString(crimeClass.subtype, ""),
       ensureString(crimeClass.category, "")
-    ) ||
-    "poisoning";
+    );
+  if (deathMethod) {
+    caseBlock.death_method = deathMethod;
+  } else {
+    delete caseBlock.death_method;
+    normalizationNotes.push(
+      `Agent 3 authored no death_method and crime_class "${ensureString(crimeClass.subtype, "")}" names no manner of death; left unset.`,
+    );
+  }
 
   const falseAssumption = ensureObject(caseBlock.false_assumption);
   caseBlock.false_assumption = falseAssumption;
-  falseAssumption.statement = ensureString(falseAssumption.statement, "Death was natural.");
+  falseAssumption.statement = ensureString(falseAssumption.statement, "Unknown assumption");
   falseAssumption.type = ensureString(falseAssumption.type, inputs.primaryAxis);
-  falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
-  falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
+  falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Unknown");
+  falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Unknown");
   return falseAssumption;
 }
 
@@ -508,10 +521,13 @@ function normalizeInferencePath(caseBlock: Record<string, unknown>, normalizatio
     // steps is repaired downstream by repairInferenceRequiredEvidence.
     const steps: any[] = Array.isArray(inferencePath.steps) ? [...inferencePath.steps] : [];
     const anchors = constraintAnchorEntries({ constraintTime, constraintAccess, constraintPhysical, constraintSocial });
-    const mechanismHint = ensureString(
+    const mechanismHintRaw = ensureString(
       ensureObject(ensureObject(caseBlock.hidden_model).mechanism).description,
       ""
     ).trim();
+    // Owner decision 5 §1: the mechanism default is now the neutral "Unknown" — excluded here as the revise
+    // profile excludes it, so a padded step never reads "the established mechanism (Unknown)".
+    const mechanismHint = mechanismHintRaw.toLowerCase() === "unknown" ? "" : mechanismHintRaw;
     while (steps.length < 3) {
       const i = steps.length;
       const anchor = anchors[i % Math.max(anchors.length, 1)];

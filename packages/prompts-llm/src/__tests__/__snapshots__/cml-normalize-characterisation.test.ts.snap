@@ -20,17 +20,19 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
     "revise": "95ad260e95079041",
   },
   "aaron_rodd_diviner": {
-    "generate": "51a229ca992b289b",
+    "generate": "187486bff9d54eac",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e61743d9d934242a",
   },
   "an_african_millionaire": {
-    "generate": "d498e71abcd7a42f",
+    "generate": "9d632c161fa2f6b5",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "fe6ab2bd158db0e5",
@@ -56,7 +58,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: capitalised enums 1`
 exports[`CML normaliser characterisation (CR-14) > damaged: cast fields blanked 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "4da05a250837c5fa",
+    "generate": "2e10c4cab0cb4595",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -64,7 +66,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: cast fields blanked 
     "revise": "3e9a3767ef8c98dc",
   },
   "a_study_in_scarlet": {
-    "generate": "d57c348322154012",
+    "generate": "fb1ca90e5131968b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Sherlock Holmes" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -73,30 +75,32 @@ exports[`CML normaliser characterisation (CR-14) > damaged: cast fields blanked 
     "revise": "2aa2ca619d26e18e",
   },
   "aaron_rodd_diviner": {
-    "generate": "f881158a2bedff13",
+    "generate": "9d4100f98849b6a5",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "7768e8697b7a894e",
   },
   "an_african_millionaire": {
-    "generate": "bb976ada2e1b3bc3",
+    "generate": "ee223f1936175f7b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "58a83361540820d7",
   },
   "annihilation": {
-    "generate": "e639772ef37094b1",
+    "generate": "c964cff0381d74b3",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
     ],
     "revise": "275d89781451917d",
   },
   "as_a_thief_in_the_night": {
-    "generate": "9b056880ca8c06a1",
+    "generate": "00ddcd93b470d06d",
     "notes": [
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
@@ -126,17 +130,19 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
     "revise": "e808cb98d1415049",
   },
   "aaron_rodd_diviner": {
-    "generate": "a116dbbbb370ea2f",
+    "generate": "1b40fddb319ab63b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "df0c10eadb681e5d",
   },
   "an_african_millionaire": {
-    "generate": "19af2fa5dc46ef20",
+    "generate": "b5306d525ae9027c",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "0aca9c14fa36380a",
@@ -162,55 +168,61 @@ exports[`CML normaliser characterisation (CR-14) > damaged: extra schema fields 
 exports[`CML normaliser characterisation (CR-14) > damaged: near-empty 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "cb047bed577aa503",
+    "generate": "b163bdbcbee9c2c4",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e616a01f233aa9ac",
   },
   "a_study_in_scarlet": {
-    "generate": "d06344a0cb7cd8e2",
+    "generate": "88c376f52b45f45f",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e5ac4755a50868d2",
   },
   "aaron_rodd_diviner": {
-    "generate": "dda26ae53b3d9213",
+    "generate": "5264f05164495526",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "66c8dc243647fd27",
   },
   "an_african_millionaire": {
-    "generate": "5a8c566866831876",
+    "generate": "838c999732eb833d",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "9ac922118437a135",
   },
   "annihilation": {
-    "generate": "d87a27359ece9c70",
+    "generate": "07c7d1b3fceffd6c",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "d0a1fa43adf25bc0",
   },
   "as_a_thief_in_the_night": {
-    "generate": "82056a8624a0dce1",
+    "generate": "1b621e0a1ce926ce",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "d77c2f7fb044917d",
@@ -239,19 +251,21 @@ exports[`CML normaliser characterisation (CR-14) > damaged: no culprit 1`] = `
     "revise": "272389b251eb8694",
   },
   "aaron_rodd_diviner": {
-    "generate": "a116dbbbb370ea2f",
+    "generate": "1b40fddb319ab63b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Harvey Grimm (Ed. Levy)" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "fcd37d507061e840",
   },
   "an_african_millionaire": {
-    "generate": "19af2fa5dc46ef20",
+    "generate": "b5306d525ae9027c",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Cuthbert Clay (Paul Finglemore)" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "101b4280d8cf82e0",
@@ -296,17 +310,19 @@ exports[`CML normaliser characterisation (CR-14) > damaged: one inference step 1
     "revise": "bdaff2960344d5f6",
   },
   "aaron_rodd_diviner": {
-    "generate": "219ab24682722dc9",
+    "generate": "3859039448ce96a7",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "f704ecea1bf468bd",
   },
   "an_african_millionaire": {
-    "generate": "b4cf38eccdd94c83",
+    "generate": "003893742344410d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e1b62b53e9e909e8",
@@ -349,17 +365,19 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
     "revise": "4d5ffffbaf847164",
   },
   "aaron_rodd_diviner": {
-    "generate": "0f12e834c6a6e40d",
+    "generate": "b99ea00b42147a07",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "3bee6fa2610dbfb9",
   },
   "an_african_millionaire": {
-    "generate": "692e1a2235c424e3",
+    "generate": "fd02217b2334e4c9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "78f6c5280e8907d7",
@@ -386,7 +404,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: sections missing 1`]
 exports[`CML normaliser characterisation (CR-14) > damaged: wrong types 1`] = `
 {
   "a_jury_of_her_peers": {
-    "generate": "5e86d07ca678aa21",
+    "generate": "0c9f14ebc5a93bbf",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Minnie Foster Wright]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
@@ -395,7 +413,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: wrong types 1`] = `
     "revise": "0ff7456b347774b0",
   },
   "a_study_in_scarlet": {
-    "generate": "f7bcb35ea42a504b",
+    "generate": "b432ef61f405fa1a",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Jefferson Hope]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -404,25 +422,27 @@ exports[`CML normaliser characterisation (CR-14) > damaged: wrong types 1`] = `
     "revise": "2c148ded6ca160d0",
   },
   "aaron_rodd_diviner": {
-    "generate": "ab8c1529bc3cdbb7",
+    "generate": "89c7338600c54f0e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Harvey Grimm (Ed. Levy)]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "9fe9ea7ca50ba7f3",
   },
   "an_african_millionaire": {
-    "generate": "4eb1a4d2d52eeaf0",
+    "generate": "9beaf5e1a0cace89",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Cuthbert Clay (Paul Finglemore), Cesarine]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "536cf0b069da4270",
   },
   "annihilation": {
-    "generate": "9bff8cea982962be",
+    "generate": "e6e12c0d0bf0ede1",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Henry Orbit]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -430,7 +450,7 @@ exports[`CML normaliser characterisation (CR-14) > damaged: wrong types 1`] = `
     "revise": "342f6302bb3b09c6",
   },
   "as_a_thief_in_the_night": {
-    "generate": "30b1913d34a8f63b",
+    "generate": "5a6ccdc2ef110531",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Barbara Monkhouse]); normalization assigned "Eleanor Voss" from the cast. The case did not decide its own answer.",
       "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
@@ -461,17 +481,19 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "95ad260e95079041",
   },
   "aaron_rodd_diviner": {
-    "generate": "a116dbbbb370ea2f",
+    "generate": "1b40fddb319ab63b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised jewel smuggling and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e61743d9d934242a",
   },
   "an_african_millionaire": {
-    "generate": "19af2fa5dc46ef20",
+    "generate": "b5306d525ae9027c",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "polymorphic identity deception and financial swindle" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "fe6ab2bd158db0e5",
@@ -492,111 +514,125 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "c5c60ce5b5d32f73",
   },
   "ashes_to_ashes": {
-    "generate": "ec76c9f002fa66e2",
+    "generate": "35086258444c9240",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder disguised as accident with staged evidence" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "3bea7c4edac4a64e",
   },
   "bull_dog_drummond": {
-    "generate": "759d6833e1b93e81",
+    "generate": "a1fdbd4ff743be06",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "mastermind syndicalist revolution plot" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "52ffe2167327eb3e",
   },
   "dark_power": {
-    "generate": "f563b05342f980f8",
+    "generate": "57222347cbb09485",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "imposture and concealment of death" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "830dc1b28f90a2a3",
   },
   "dead_men_s_money": {
-    "generate": "3643788d8260d3a9",
+    "generate": "8b0c04994c85155d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "impostor murder and concealment" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "80ae6f9ea882499e",
   },
   "diana_of_kara_kara": {
-    "generate": "bd1487bf21d48762",
+    "generate": "833bc25be1b3f643",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Guiseppi Dempsi (Double Dan), Heloise van Oynne (Sally Chowster)]); normalization assigned "Diana Ford" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "impersonation and safe robbery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "adabe805958711e3",
   },
   "dorcas_dene_detective": {
-    "generate": "19d14ebfa5cc44d9",
+    "generate": "e2bbcd078168457a",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "hidden inheritance fraud and staged murder" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "07035cb9c5ca2ba7",
   },
   "dorcas_dene_detective_78210": {
-    "generate": "5a4918d93eab2e88",
+    "generate": "3b03c7cb310a0a0f",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "kidnapping by anarchists" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "4b7e3c342c43a965",
   },
   "footprints": {
-    "generate": "38a9b3a64ba4fd42",
+    "generate": "11e40fb12e0072be",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "planned assisted death disguised as murder" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "aa0750ec0123cd61",
   },
   "gunman_s_bluff": {
-    "generate": "5b40cdd03e81748e",
+    "generate": "dd95d0baebd01af9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "forged check and blackmail scheme" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "01c0dd6405701306",
   },
   "in_the_mayor_s_parlour": {
-    "generate": "cfd17874187ce40b",
+    "generate": "6f2de78701f786c9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "secret passage murder with political conspiracy" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "3b9bcce610dccf92",
   },
   "in_the_onyx_lobby": {
-    "generate": "a15420e938247c29",
+    "generate": "3fc3205a760fb83e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[George Vail, Doctor Weldon]); normalization assigned "Richard Bates" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "dying message misinterpretation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "729ec541b70464dc",
   },
   "jack_o_judgment": {
-    "generate": "4300610cf4328bb8",
+    "generate": "8d3426b8f5cb2459",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "blackmail and property fraud with covert surveillance" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "1519711d3887225a",
   },
   "jacob_s_ladder": {
-    "generate": "fccca705b668aaff",
+    "generate": "4e86b03f2babe4ad",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "financial swindle involving false property sale and stock market manipulation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "068577201283028a",
   },
   "lady_molly_of_scotland_yard": {
-    "generate": "af74b4280721dbc6",
+    "generate": "70194f182af7d9ed",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised identity and forged will fraud" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "ebac0a0106fc7ef5",
@@ -609,17 +645,19 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "7cd541fe7c532079",
   },
   "martin_hewitt_investigator": {
-    "generate": "0031349c086024fe",
+    "generate": "249ae279122040b0",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "jewelry theft by trained animal accomplice" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "680d719e3c9b10c0",
   },
   "max_carrados": {
-    "generate": "fd8de7b9de203e1d",
+    "generate": "136a5846f7f88b72",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "safe deposit burglary by key duplication and insider observation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e56bb675c268d238",
@@ -632,9 +670,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "e538f9f97f3696fe",
   },
   "mystery_ranch": {
-    "generate": "4fcc67b3cc2eb7a9",
+    "generate": "59ae72d7bc9f0bfb",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "identity substitution and staged murder to mislead suspicion" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "43b3bb4ffa297609",
@@ -650,9 +689,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "cb20f3f7623881ec",
   },
   "nobody_s_man": {
-    "generate": "66acb8e26f634530",
+    "generate": "97330bd9cc5696f9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "theft and political blackmail" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "c106b980930a51b6",
@@ -666,9 +706,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "f6db96e5ceb7e213",
   },
   "ramshackle_house": {
-    "generate": "358b1abafaab0e00",
+    "generate": "d62364e48c392dca",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "contracted gangster murder to frame innocent man" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "de8320bd417039e7",
   },
@@ -682,9 +723,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "555393590b418244",
   },
   "ravensdene_court": {
-    "generate": "f18639606fcb0f50",
+    "generate": "b11427d5b0a2d2cd",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder for possession of stolen monastic treasure" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "0e84a009a15c4f3a",
   },
@@ -697,9 +739,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "783a48ded3307436",
   },
   "stolen_idols": {
-    "generate": "1bd488124bb74566",
+    "generate": "ac22c15728186824",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder disguised as burglary to conceal suicide" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "aa491e619b5e6ded",
   },
@@ -712,85 +755,96 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "6cb0c373a43e3c9d",
   },
   "terror_keep": {
-    "generate": "0dddd79ffdb6186a",
+    "generate": "b3a5cf17d3ef2c4a",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "gold convoy gas incapacitation and cave escape" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "545e49bf31f04fd1",
   },
   "that_affair_next_door": {
-    "generate": "5674214342858783",
+    "generate": "6e59f0b39fd251cf",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Olive Randolph (Ruth Oliver), Randolph Stone (John Randolph)]); normalization assigned "Franklin Van Burnam" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguise and identity swap" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "7dd49263fbb3b266",
   },
   "the_amateur_cracksman": {
-    "generate": "6177210e378dd434",
+    "generate": "eeffe594d46d43d1",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "self-defense killing during a burglary" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "02902da28046ce6a",
   },
   "the_angel_of_terror": {
-    "generate": "e4001fd184530661",
+    "generate": "5b6c1b24dc764a83",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "conspiracy and staged death" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "2ac38525b995c08c",
   },
   "the_avenger": {
-    "generate": "07cf0f9dde7d573b",
+    "generate": "aeebe30f8583d2f9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "execution by guillotine in hidden cave" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "e28a72a4d4e07ca0",
   },
   "the_bellamy_trial": {
-    "generate": "223db55282bc4090",
+    "generate": "150361c0a45145d0",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder concealed as robbery with forged alibi" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "7e6074e22b9c0626",
   },
   "the_big_bow_mystery": {
-    "generate": "269f902a525c0ff0",
+    "generate": "f282eacc78999605",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked room throat-cutting" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "f0814cbc5c69df98",
   },
   "the_bishop_murder_case": {
-    "generate": "7d3678baecd6331a",
+    "generate": "46ca2e309855ef7a",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "mathematically themed multiple murders with nursery rhyme motifs" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "f3721379fd1e3437",
   },
   "the_black_abbot": {
-    "generate": "4a92135f0fced808",
+    "generate": "4db561ecede69df2",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "imprisonment and murder in hidden vault" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "0b53e49faae6d2d1",
   },
   "the_case_book_of_sherlock_holmes": {
-    "generate": "6fbf843021192caa",
+    "generate": "716582e019167799",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "ingenious concealment and framing" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "31e9531889b517d6",
   },
   "the_case_of_oscar_brodski": {
-    "generate": "4a27d6bc613a4540",
+    "generate": "fc99e1183ac4e59d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "killing indoors, then staged on a railway line as an accident by decapitation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "ace2847150bace9e",
@@ -810,9 +864,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "9156d738b9656fb5",
   },
   "the_chestermarke_instinct": {
-    "generate": "a1b893fa4b01860b",
+    "generate": "52f1bf702170c51d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "secret imprisonment and coercion to sign securities" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "b0c580dedde2af0e",
@@ -825,16 +880,18 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "a7c9f3809f775906",
   },
   "the_clue": {
-    "generate": "a7c6551f8753a28b",
+    "generate": "71e045bdbb23fd43",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked house murder via cellar ash-chute" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "2252a6800bfdf107",
   },
   "the_clue_of_the_new_pin": {
-    "generate": "ea2b4f53e7aefd26",
+    "generate": "f0e1a112f5ec83d0",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked vault murder with key returned on table by thread and pin trick" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "74a66fe72bd5e8bd",
@@ -858,33 +915,37 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "17851f56a22e79b2",
   },
   "the_corbin_necklace": {
-    "generate": "bfa62ba4f06b485a",
+    "generate": "51a3fc295e9ed91e",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "imitation necklace substitution and staged theft" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "f11d63a01bd0f2ca",
   },
   "the_crime_code": {
-    "generate": "22c07943c9713e7b",
+    "generate": "d10db39779d02905",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "criminal gang revenge and deception" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "c0153c7c2de36071",
   },
   "the_crimson_circle": {
-    "generate": "7538c8b7fd15a67b",
+    "generate": "f598ef40787c186b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "criminal mastermind using infiltration and deception" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "3fcd48358718dedd",
   },
   "the_crow_s_inn_tragedy": {
-    "generate": "f17a749b109fb69f",
+    "generate": "38219d802b62b6db",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Aubrey Todmarsh]); normalization assigned "Rev. James Collyer" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguise and impersonation to commit murder and theft" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "a7de8b4c75abfec0",
@@ -899,99 +960,111 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "d8b605db455f0bd0",
   },
   "the_curse_of_the_reckaviles": {
-    "generate": "aa46f84538a2ced6",
+    "generate": "151f93323dcbb7be",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Giles (Mr. Wheatland)]); normalization assigned "Fletcher" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked room murder with staged alibi and mechanical deception" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "d5de8317fdd42074",
   },
   "the_d_arblay_mystery": {
-    "generate": "601ce5874003be1e",
+    "generate": "f211fe81b717c71a",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Simon Bendelow (alias Morris)]); normalization assigned "Stephen Gray" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "fraudulent death and identity substitution by wax mask" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "d46245756e377e48",
   },
   "the_dangerfield_talisman": {
-    "generate": "7a43beb8acbb34d0",
+    "generate": "20f6a189e4514959",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mrs. Caistor Scorton]); normalization assigned "Rollo Dangerfield" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "replica substitution and secret safe concealment" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "fceb4a5e7ba52353",
   },
   "the_dangerous_game": {
-    "generate": "eaeb05b8140b31ee",
+    "generate": "49a2325623e47462",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "espionage and betrayal by double agents" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "8f5456257e7986cc",
   },
   "the_dark_eyes_of_london": {
-    "generate": "5776af08e4caba05",
+    "generate": "ca8c43b6345de977",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "insurance fraud with staged death and murder" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "3385838235398715",
   },
   "the_desert_moon_mystery": {
-    "generate": "20e97987dbc464a0",
+    "generate": "3e35e628ea3bcb89",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "identity impersonation and staged alibi" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "6cbaa1ad63b6a4c7",
   },
   "the_devil_s_paw": {
-    "generate": "02c09b08fbdda742",
+    "generate": "6f0c91f7cd5083ba",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "political deception and espionage manipulation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "7830069858cffb7b",
   },
   "the_draycott_murder_mystery": {
-    "generate": "02806e5ed9fe43a8",
+    "generate": "2edfeee71be083cc",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "blackmail murder disguised as a frame-up" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "d6c4270ed67b23e8",
   },
   "the_eye_of_osiris": {
-    "generate": "6d9b6a87ced2f229",
+    "generate": "8762882a2c71109b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Arthur Jellicoe]); normalization assigned "John Thorndyke" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "body substitution with an Egyptian mummy" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "c08a039c465282cd",
   },
   "the_eyes_of_max_carrados": {
-    "generate": "3f44da528df46a6a",
+    "generate": "0e36a5f97df7719c",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr Chatton]); normalization assigned "Mr Powis" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "the Virginiola book theft and recovery scheme" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "01553b0ad74a5cab",
   },
   "the_fellowship_of_the_frog": {
-    "generate": "c7cd61137f619a6e",
+    "generate": "8d9926d8e6969243",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Joshua Broad (Saul Morris), Philo Johnson]); normalization assigned "Ray Bennett" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "criminal mastermind's secret society and framing" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "efa2597b88f42725",
   },
   "the_fenchurch_street_mystery": {
-    "generate": "77afce84f2382dcd",
+    "generate": "c13d2ca770a210f1",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "throat-cutting followed by theft of the victim's identity and prosecution in the victim's name" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "1a4e22e8dcbd5f18",
@@ -1005,17 +1078,19 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0de9668ca1c0b304",
   },
   "the_four_stragglers": {
-    "generate": "64ba09ab0b59e610",
+    "generate": "34773658fe943b44",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "masked assailant and hidden treasure intrigue" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "21a0e5ed8e2dbd23",
   },
   "the_girl_from_hollywood": {
-    "generate": "f2134135021647b3",
+    "generate": "a6b17926a6e2dd7c",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "framing by narcotics gang and mistaken identity" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "8ae27e6e7b398649",
   },
@@ -1028,50 +1103,56 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "af0b1e2a2d097f30",
   },
   "the_golden_face": {
-    "generate": "07aa6b0aa4bea33a",
+    "generate": "efe7f4e8be1e2ff9",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "mastermind's cat's-paw jewel theft and framing" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "77251284b7a00355",
   },
   "the_golden_slipper_and_other_problems_for_violet_strange": {
-    "generate": "5ff2f7a22f28e921",
+    "generate": "105ede418b5a3406",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "mistaken identity and misdirected accusation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "9cd324a4100ec537",
   },
   "the_gray_mask": {
-    "generate": "81eeb1cc9b5b838f",
+    "generate": "dc3978fdbb1643b1",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised murder and conspiracy with false supernatural elements" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "89e61b195fa90e75",
   },
   "the_greene_murder_case": {
-    "generate": "cfec842d35467bc2",
+    "generate": "6754786acde09e54",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Ada Greene]); normalization assigned "Philo Vance" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked-room style family mass murder with staged alibis and false clues" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "944ecb4eade2a52f",
   },
   "the_haunted_house": {
-    "generate": "b94f808f644a96de",
+    "generate": "a272b359a2eed167",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "property acquisition by psychological manipulation and deception" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "272319fd994106db",
   },
   "the_hound_of_the_baskervilles": {
-    "generate": "d74f20773a7e8b20",
+    "generate": "200907db04bdd41c",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder by induced fright using a trained hound" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "fb652691e7fc505b",
@@ -1102,133 +1183,149 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "64314b2ea54ab861",
   },
   "the_la_chance_mine_mystery": {
-    "generate": "543c1df5d98d383b",
+    "generate": "776edca8a70dbf47",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "mine superintendent's secret takeover and murder" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "90ade1bea22214a3",
   },
   "the_lazy_detective": {
-    "generate": "5b0c32dd23cbf746",
+    "generate": "d105c2ae3050125b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "organized burglary with blackmail and forgery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "38c630d58a73f746",
   },
   "the_leavenworth_case": {
-    "generate": "cd18984fd9b87858",
+    "generate": "ceeb92b394b15560",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mary Leavenworth, James Trueman Harwell]); normalization assigned "Everett Raymond" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "secret marriage and inheritance motive" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "29e1d44d9d0db7af",
   },
   "the_lodger": {
-    "generate": "6cc2920760917497",
+    "generate": "9f71008f90393de5",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Sleuth]); normalization assigned "Ellen Bunting" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "serial killings by a religiously motivated madman" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "b5ddb144b362dc37",
   },
   "the_loudwater_mystery": {
-    "generate": "17dfce3e3bc614b0",
+    "generate": "66eadd5eb932cc7b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Herbert Manley]); normalization assigned "Lord Loudwater" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "forged letter to secure allowance and murder to prevent exposure" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "dde36fb23aea19a3",
   },
   "the_magic_casket": {
-    "generate": "1e0407d579bf46c5",
+    "generate": "90c3f139d85de4f4",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Uyenishi, Mr. Payne (alias Shenstone)]); normalization assigned "Dr. Thorndyke" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "hidden message and staged evidence" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "70d9a10e55b255a1",
   },
   "the_man_in_the_dark": {
-    "generate": "025ff69bd7fefe7e",
+    "generate": "9d36d8e270882102",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Sir Stephen Wye]); normalization assigned "Alexander David Kinloch" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder concealed by removal of blind witness" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "c8f941c8bfc3f0fa",
   },
   "the_man_who_knew_too_much": {
-    "generate": "968051198af91bb9",
+    "generate": "9ff59631fe86dcfb",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Sir Henry Harland Fisher]); normalization assigned "Lord James Herries" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised political assassination and espionage" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "722604240c6d686e",
   },
   "the_mardi_gras_mystery": {
-    "generate": "ce7df32cfff6d195",
+    "generate": "27635160f9f5a549",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised banditry and framing" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "04cea7d751cd4e2f",
   },
   "the_markenmore_mystery": {
-    "generate": "a4660616b8c8a2e9",
+    "generate": "075a14da2e613a8d",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Carter]); normalization assigned "Guy Markenmore" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder for trade secret and money" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "d3f820cd78c07f0b",
   },
   "the_melody_of_death": {
-    "generate": "c8f10f017a7f4232",
+    "generate": "2041d04212f558ba",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "safe agency burglary and recovery" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "3c7fa49074aaa0c7",
   },
   "the_memoirs_of_sherlock_holmes": {
-    "generate": "4bb90f2f69678a35",
+    "generate": "386384b3ecf2c1cb",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Silas Brown]); normalization assigned "John Straker" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "complex multi-location murder and disappearance with deception and impersonation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "f91865d9f15ad6c1",
   },
   "the_meredith_mystery": {
-    "generate": "e2c505cd528b2ddc",
+    "generate": "8fe4e8bb9c686de8",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder by concealed weapon and staged scene" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "442354599113d491",
   },
   "the_middle_of_things": {
-    "generate": "419ab92f3305c044",
+    "generate": "9521e88bad8fe294",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Dr. Cortelyon (Dr. Martincole), Mrs. Killenhall (Mrs. Killerby)]); normalization assigned "Langton Hyde (Edward Cave, Nugent Starr)" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder for possession of secret papers" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "bd213f8f9209b1a2",
   },
   "the_middle_temple_murder": {
-    "generate": "dd6368d4028dd4c9",
+    "generate": "e9b6771cc92a8319",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder disguised as robbery with identity concealment" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "75d29d3221b4410a",
   },
   "the_mystery_girl": {
-    "generate": "202de79f903a94e9",
+    "generate": "fabbb13494d1c76b",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Nogi]); normalization assigned "John Waring" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked room mystery with disappearing weapon" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "f54e940323ba2f09",
@@ -1241,57 +1338,64 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "090b679847900739",
   },
   "the_mystery_of_a_hansom_cab": {
-    "generate": "bd89c3765bb79d96",
+    "generate": "8ef97a8bef1f4dfc",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder by chloroform in hansom cab" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "831bc37eb7a9009c",
   },
   "the_mystery_of_angelina_frood": {
-    "generate": "240cb8ce6d18d86e",
+    "generate": "cb29a8170706ba42",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "false death by skeleton substitution" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "649aa88b4fd83fe8",
   },
   "the_mystery_of_the_yellow_room": {
-    "generate": "d3e0a2db5c15d943",
+    "generate": "5681a7f44fce9aaa",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Frédéric Larsan (Ballmeyer)]); normalization assigned "Monsieur Robert Darzac" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "locked-room attack with staged escape" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "e9da6564d9a6d3ad",
   },
   "the_owl_taxi": {
-    "generate": "f18026abe299fe97",
+    "generate": "eec7797bcbf47bac",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "political assassination and impersonation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "3f46dd31c8383321",
   },
   "the_paradise_mystery": {
-    "generate": "323f0276004b73f1",
+    "generate": "5d0c36f5391df24b",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "hidden revenge and secret inheritance" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "ee458d35a59d1f13",
   },
   "the_problem_of_cell_13": {
-    "generate": "a37c08a7e46970b8",
+    "generate": "0b879649f4caf8ab",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "complex deception and misdirection involving impersonation and false evidence" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "6f533ec094e6927d",
   },
   "the_profiteers": {
-    "generate": "b0175872ce4a5c09",
+    "generate": "635133d37662e492",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "hostage blackmail to force commodity price manipulation" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "7ac373bacbc86ea6",
@@ -1305,33 +1409,37 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0047e901e9655600",
   },
   "the_red_thumb_mark": {
-    "generate": "664f62c9edb0a127",
+    "generate": "121c26f5ed2841fe",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "forged fingerprint to frame nephew" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "9ad44c59ee84ad3f",
   },
   "the_scarab_murder_case": {
-    "generate": "f34e5f43448c5f61",
+    "generate": "60779d5b73cfc17d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "planted evidence to implicate a rival" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "ef1641171a1da430",
   },
   "the_secret_of_father_brown": {
-    "generate": "8cc280161b5f0948",
+    "generate": "ccb8559bdefbca54",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[John Bankes]); normalization assigned "Osric Orm" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguise and misdirection to conceal identity and motive" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "892949ed4ebce141",
   },
   "the_shadow_of_the_wolf": {
-    "generate": "4409d614b272045e",
+    "generate": "37d4cd2946f7659d",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder concealed by forged letters and false sightings" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "f4990072ec001fa9",
@@ -1352,18 +1460,20 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "13b7828f50fc3120",
   },
   "the_sleuth_of_st_james_s_square": {
-    "generate": "aeb6206058808401",
+    "generate": "2d3cd437df9e0398",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Percy Thompson]); normalization assigned "Mr. Anthony Gosford" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "forged will and staged murder to cover inheritance fraud" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "ef81bc588ee734c7",
   },
   "the_splendid_outcast": {
-    "generate": "fd6c54066e9fc5ed",
+    "generate": "424440ba91ae98c3",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguise and substitution with lay figure decoy" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "9c1120ed5f5fa4e4",
   },
@@ -1384,25 +1494,28 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "2561843b00d31c14",
   },
   "the_stowmarket_mystery": {
-    "generate": "0e31ec4965ebce39",
+    "generate": "454e5e706741b73f",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Mr. Ooma]); normalization assigned "David Hume-Frazer" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "family feud and inheritance blackmail" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "75de93cdb2ac9ac1",
   },
   "the_strange_countess": {
-    "generate": "5dd735282ff0fc9d",
+    "generate": "2221972c29167db1",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "orchestrated wrongful imprisonment and attempted murder to secure inheritance" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "7a891f9182aed0ec",
   },
   "the_strange_schemes_of_randolph_mason": {
-    "generate": "52a662fb5d564ddb",
+    "generate": "533bfdc066d22c90",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "corpus delicti evasion by body disappearance" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "1a13f4e79048fb90",
@@ -1416,17 +1529,19 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "0b16eca153d60b1e",
   },
   "the_talleyrand_maxim": {
-    "generate": "fed789aa310344ff",
+    "generate": "50beeb223f16e913",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder to conceal blackmail over a forged will" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "43361ad2f70cae8d",
   },
   "the_templeton_case": {
-    "generate": "e67518df763e2762",
+    "generate": "560f8ab9fb726651",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "blackmail murder with staged evidence" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "0985d612c473a2fb",
   },
@@ -1441,9 +1556,10 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "8256e12670bb9ae6",
   },
   "the_three_just_men": {
-    "generate": "6c02cfedaa12b406",
+    "generate": "a95e4cf3aea342d1",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "frozen snake venom darts concealed in cigarette holders" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "0f1c4eb6bee04894",
@@ -1456,41 +1572,46 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "9b77e7642ecf0a38",
   },
   "the_unseen_ear": {
-    "generate": "2773b7afce9fd231",
+    "generate": "5265fd77987afbec",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[John Hale, Jim Turner (Maud)]); normalization assigned "Joe Richards" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguise and deception to conceal identity and motive" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "f5bdc42a87cf2f3e",
   },
   "the_valley_of_fear": {
-    "generate": "0c2570bb7b87d60f",
+    "generate": "cfbe0bc65a20a35e",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Boss McGinty]); normalization assigned "Ivy Douglas" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "false identity and staged death" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "59a033c2da8014ce",
   },
   "the_vanishing_of_betty_varian": {
-    "generate": "ada1aa6d3e0a42c1",
+    "generate": "26bac19c10c220a5",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "secret passage abduction and murder" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "37f1d0ce3a3eec57",
   },
   "the_wisdom_of_father_brown": {
-    "generate": "e96a2c5494fb65e8",
+    "generate": "c6e4a8096080506f",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Isidore Bruno]); normalization assigned "Father Brown" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised or misdirected murder with false appearances" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "17ff623ede25969b",
   },
   "the_wolves_and_the_lamb": {
-    "generate": "1a83d9cbc97376ac",
+    "generate": "6d0aee5afb0d79cf",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "diamond necklace substitution and financial fraud" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "3576614b7fd43fe5",
   },
@@ -1503,34 +1624,38 @@ exports[`CML normaliser characterisation (CR-14) > every authored case, both pro
     "revise": "35462ae2793cdfe0",
   },
   "this_house_to_let_51307": {
-    "generate": "227e8043f1ee71a8",
+    "generate": "502321fa852c0494",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "murder disguised as suicide with forged identity" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
     ],
     "revise": "771f4d21b46fd174",
   },
   "three_sevens": {
-    "generate": "8b935dae001e6f7e",
+    "generate": "82925e7c24de2668",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Count Wolf (Edwardo Cortinnys y Ottero)]); normalization assigned "Daniel Craig (Thomas Masters, Three Sevens)" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "prison break and recapture" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "cf5fd9efc03f1463",
   },
   "tragedy_at_ravensthorpe": {
-    "generate": "0e07667bae785ace",
+    "generate": "50f20f636b513a13",
     "notes": [
       "Agent 3 returned no usable culprit (culprits=[Thomas Marden, J. B. Foss (Thomas Pailton, alias Cocoa Tom)]); normalization assigned "Cecil Chacewater" from the cast. The case did not decide its own answer.",
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "complex theft and murder with staged burglary and secret passage escape" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "02a2771b2152d719",
   },
   "unravelled_knots": {
-    "generate": "045606c6bae6c29d",
+    "generate": "834bdb6e47596be6",
     "notes": [
-      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "poisoning"",
+      "Agent 3 authored no death_method and crime_class "disguised murder with staged evidence" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
       "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
     ],
     "revise": "433db3829ec6e501",
