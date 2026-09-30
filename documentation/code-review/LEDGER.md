@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 39 | 34 | 0 | 73 |
-| open | 151 | 105 | 72 | 328 |
+| closed | 43 | 34 | 0 | 77 |
+| open | 147 | 105 | 72 | 324 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -37,7 +37,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
-| CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
+| CR-21 | 5 | 4 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
 | CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
 | CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
@@ -443,7 +443,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
 | A34-06 | P2 | R1 (+R2) | CR-20 | todo |  | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs |  |
-| A34-07 | P2 | R1 | CR-21 | todo |  | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton |  |
+| A34-07 | P2 | R1 | CR-21 | todo | fe4372dd | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes-leak bug FIXED (fe4372dd, test reproduces it). The loop restructure waits on CR-20 (callLlmJson) and CR-14 (one normaliser), as the item says |
 | A34-08 | P2 | R0 (+R2) | CR-07 | todo |  | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" |  |
 | A34-09 | P2 | R1 (+R2) | CR-29 | todo |  | Theme families derived 3×; retry feedback pollutes the theme lock (measured) |  |
 | A34-10 | P2 | R0/R1 | CR-16 | todo |  | Placement: planting check mirrored in rubric-score; case-soundness clones |  |
@@ -478,11 +478,11 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo |  | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 |  |
-| A1X-02 | P1 | R1 | CR-21 | todo |  | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) |  |
+| A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
 | A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | todo |  | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) |  |
 | A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | todo |  | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies |  |
-| A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | todo |  | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls |  |
-| A1X-06 | P2 | R1 | CR-21 | todo |  | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting |  |
+| A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | done | f57dae47 | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls | CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss) |
+| A1X-06 | P2 | R1 | CR-21 | done | cbe9e58a | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting | runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests |
 | A1X-07 | P2 | R1 (R2 F5b) | CR-31 | todo |  | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire |  |
 | A1X-08 | P2 | R1 (R2 pin) | CR-17 | todo |  | Second month→season "single source of truth" in 2d; mandated date not enforced |  |
 | A1X-09 | P2 | R1 | CR-19 | todo |  | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 | = ORC-03 for Agents 1/2/8; waits with it |
@@ -518,7 +518,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | ORC-01 | P1 | R1 | CR-25 | done | a5f9adb0 | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules | generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move |
-| ORC-02 | P1 | R1 | CR-21 | todo |  | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry |  |
+| ORC-02 | P1 | R1 | CR-21 | done | aeb90610 | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry | runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit characterGenders: undefined for the owner |
 | ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total) |
 | ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |

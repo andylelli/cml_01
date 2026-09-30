@@ -267,7 +267,7 @@ A34-03	CR-17	todo
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	todo		
 A34-06	CR-20	todo		
-A34-07	CR-21	todo		
+A34-07	CR-21	todo	fe4372dd	notes-leak bug FIXED (fe4372dd, test reproduces it). The loop restructure waits on CR-20 (callLlmJson) and CR-14 (one normaliser), as the item says
 A34-08	CR-07	todo		
 A34-09	CR-29	todo		
 A34-10	CR-16	todo		
@@ -297,11 +297,11 @@ A34-Q03	CR-30	todo
 A34-Q04	CR-16	todo		
 A34-Q05	CR-32	todo		
 A1X-01	CR-12	todo		
-A1X-02	CR-21	todo		
+A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
 A1X-03	CR-20	todo		
 A1X-04	CR-12	todo		
-A1X-05	CR-21	todo		
-A1X-06	CR-21	todo		
+A1X-05	CR-21	done	f57dae47	CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss)
+A1X-06	CR-21	done	cbe9e58a	runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests
 A1X-07	CR-31	todo		
 A1X-08	CR-17	todo		
 A1X-09	CR-19	todo		= ORC-03 for Agents 1/2/8; waits with it
@@ -332,7 +332,7 @@ A1X-Q05	CR-30	todo
 A1X-Q06	CR-30	todo		
 A1X-Q07	CR-29	todo		
 ORC-01	CR-25	done	a5f9adb0	generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move
-ORC-02	CR-21	todo		
+ORC-02	CR-21	done	aeb90610	runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit `characterGenders: undefined` for the owner
 ORC-03	CR-19	todo		waits on A6-D01: per-call cost on ChatResponse (client.ts computes it and drops it; replay.ts too) makes Agent 6's budget charge first retries, i.e. decides A6-D01. The reported per-agent costs are already correct since dff49644 (assign the running total)
 ORC-04	CR-20	todo		
 ORC-05	CR-22	todo		
