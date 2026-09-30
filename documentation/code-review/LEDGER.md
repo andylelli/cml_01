@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 50 | 40 | 0 | 90 |
-| open | 140 | 99 | 72 | 311 |
+| closed | 51 | 40 | 0 | 91 |
+| open | 139 | 99 | 72 | 310 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -30,7 +30,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-11 | 3 | 1 | A9G-15 A9G-Q03 ORC-10 |
 | CR-12 | 17 | 1 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
-| CR-14 | 3 | 0 | A34-01 A34-D16 A34-Q01 |
+| CR-14 | 3 | 1 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
@@ -68,7 +68,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
 | CR-12 | A9R-Q03 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observation)? |  |
 | CR-12 | A9W-Q04 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
-| CR-14 | A34-Q01 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
+| CR-14 | A34-Q01 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | OWNER. The two profiles now sit side by side in cml/normalize.ts; each divergent row is one section of one profile, and the characterisation snapshot shows what a convergence moves |
 | CR-15 | A9G-Q06 | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? |  |
 | CR-15 | A9V-Q01 | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. |  |
 | CR-16 | A34-Q04 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |
@@ -437,7 +437,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A34-01 | P1 | R1 then R2 | CR-14 | todo |  | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge |  |
+| A34-01 | P1 | R1 then R2 | CR-14 | done | ac0c76d4 | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge | step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner) |
 | A34-02 | P1 | R2 | CR-12 | todo |  | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives |  |
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
@@ -466,8 +466,8 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D13 |  |  | CR-32 | todo |  | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" |  |
 | A34-D14 |  |  | CR-06 | done | ec237e5a | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
 | A34-D15 |  |  | CR-19 | done | 50e05468 | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost | patch path adds the Agent4-Patch label |
-| A34-D16 |  |  | CR-14 | todo |  | A3 normaliser drops the schema's canonical role/moral_complexity on every run |  |
-| A34-Q01 |  |  | CR-14 | todo |  | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
+| A34-D16 |  |  | CR-14 | todo |  | A3 normaliser drops the schema's canonical role/moral_complexity on every run | OWNER (A34-Q01 step 2): the generate profile's cast list is a fixed field list, so role/moral_complexity are dropped every run; preserving them changes the CML every downstream prompt reads. Pinned by the characterisation's 'extra schema fields' damage |
+| A34-Q01 |  |  | CR-14 | todo |  | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | OWNER. The two profiles now sit side by side in cml/normalize.ts; each divergent row is one section of one profile, and the characterisation snapshot shows what a convergence moves |
 | A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
 | A34-Q03 |  |  | CR-30 | todo |  | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
 | A34-Q04 |  |  | CR-16 | todo |  | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |

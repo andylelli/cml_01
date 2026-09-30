@@ -261,7 +261,7 @@ A7-Q02	CR-33	todo
 A7-Q03	CR-30	todo		
 A7-Q04	CR-16	todo		
 A7-Q05	CR-07	todo		
-A34-01	CR-14	todo		
+A34-01	CR-14	done	ac0c76d4	step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner)
 A34-02	CR-12	todo		
 A34-03	CR-17	todo		
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
@@ -290,8 +290,8 @@ A34-D12	CR-29	todo
 A34-D13	CR-32	todo		
 A34-D14	CR-06	done	ec237e5a	
 A34-D15	CR-19	done	50e05468	patch path adds the Agent4-Patch label
-A34-D16	CR-14	todo		
-A34-Q01	CR-14	todo		
+A34-D16	CR-14	todo		OWNER (A34-Q01 step 2): the generate profile's cast list is a fixed field list, so role/moral_complexity are dropped every run; preserving them changes the CML every downstream prompt reads. Pinned by the characterisation's 'extra schema fields' damage
+A34-Q01	CR-14	todo		OWNER. The two profiles now sit side by side in cml/normalize.ts; each divergent row is one section of one profile, and the characterisation snapshot shows what a convergence moves
 A34-Q02	CR-17	todo		
 A34-Q03	CR-30	todo		
 A34-Q04	CR-16	todo		

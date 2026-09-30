@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 14 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 15 / 34** · Last updated 2026-09-30 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -61,7 +61,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-11 | done | 2 | Replace the root barrel with subpath exports (215 of 362 names never imported through it) — re-measured: 451 names, 269 never; the 111 unused values removed, types kept (declaration emit needs them); `exports` map with `./agent9-prose` (`92aba0fe`). S6 itself stays 👤 A9G-Q03 | ORC-10 | R0 | S |
 | CR-12 | todo | 3 | **One identity module**: victim / suspect / detective / culprit predicates (9 + 5 + 8 bodies today) | A9W-04, A1X-01, A34-02, A9R-04, A6-07 | R1→R2 | M |
 | CR-13 | todo | 3 | **One typed case view** (`CaseData = any` today) and one `CaseBrief` for prompt summaries | A5-04, A7-03, A6-10, A6-18, A9P-13, A9W-05 | R1 | L |
-| CR-14 | todo | 3 | **One CML normaliser** (two today, 185 identical lines, 23/25 fields diverge) | A34-01 | R1→R2 | L |
+| CR-14 | done (R1; convergence 👤 A34-Q01) | 3 | **One CML normaliser** (two today, 185 identical lines, 23/25 fields diverge) — both moved to `cml/normalize.ts` as two profiles, characterised over 137 library cases + 8 damage kinds, shared sections once, generate profile in 8 named sections (`1c215de9`, `9c8eeda6`, `ac0c76d4`) | A34-01 | R1→R2 | L |
 | CR-15 | todo | 3 | **One failure vocabulary**: typed issue codes instead of message strings re-classified by 11+ regexes | A9V-01, A9G-04, A5-06 | R1→R2 | L |
 | CR-16 | todo | 3 | **One clue contract**: source paths, evidence namespace, matcher (gate vs scorer), synthesis | A5-02, A5-03, A5-08, A6-09, A9V-04, SCO-06 | R1→R2 | L |
 | CR-17 | todo | 3 | One body each for season, arc position, locked facts, Story Bible facts | A9V-05, ORC-08, A7-13, A9G-09, A34-03, A9P-01, A9W-02/03 | R1→R2 | L |
