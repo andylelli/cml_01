@@ -85,7 +85,8 @@ interface CompletenessDiagnostics {
  * Completeness: Word count targets, all clues visible
  * Consistency: Character names match, setting fidelity, fair play
  */
-const normalizeClueIdForMatch = (value: string): string =>
+/** SCO-07: the one clue-id match key; the worker's prose adapter imports it. */
+export const normalizeClueIdForMatch = (value: string): string =>
   String(value ?? "")
     .toLowerCase()
     .trim()

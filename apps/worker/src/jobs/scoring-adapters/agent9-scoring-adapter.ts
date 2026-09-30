@@ -1,3 +1,4 @@
+import { normalizeClueIdForMatch } from "@cml/story-validation"; // SCO-07: was a copy of the scorer's
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import {
   detectControlPlaneLeakage,
@@ -91,12 +92,6 @@ type ClueSemanticSignature = {
   id: string;
   requiredTokens: string[];
 };
-
-const normalizeClueIdForMatch = (value: string): string =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "");
 
 const dedupeClueIdsByNormalized = (clueIds: string[]): string[] => {
   const seen = new Set<string>();

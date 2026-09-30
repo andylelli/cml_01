@@ -130,3 +130,4 @@ export type { CastMember, CastDesignOutput } from './phase-scorers/agent2-cast-s
 export type { CharacterProfile, CharacterProfilesOutput } from './phase-scorers/agent2b-character-profiles-scorer.js';
 export type { LocationProfile, LocationProfilesOutput } from './phase-scorers/agent2c-location-profiles-scorer.js';
 export type { HardLogicDevice, HardLogicOutput } from './phase-scorers/agent4-hard-logic-scorer.js';
+export { normalizeClueIdForMatch } from './phase-scorers/agent9-prose-scorer.js';
