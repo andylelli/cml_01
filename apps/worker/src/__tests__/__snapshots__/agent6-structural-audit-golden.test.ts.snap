@@ -2,11 +2,8 @@
 
 exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-6b91b4b1.json 1`] = `
 {
-  "eliminationMissing": [
-    "Inspector Gerald Havers",
-  ],
+  "eliminationMissing": [],
   "eliminationPresent": [
-    "Lady Beatrice Langley",
     "Margaret Langley",
     "Edward Barnes",
     "Agnes Crowley",
@@ -37,11 +34,8 @@ exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-
 
 exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-56049d93.json 1`] = `
 {
-  "eliminationMissing": [
-    "Inspector Helen Marwood",
-  ],
+  "eliminationMissing": [],
   "eliminationPresent": [
-    "Lady Beatrice Winthrope",
     "Margaret Hensley",
     "Edward Winthrope",
     "Clara Simmons",
@@ -72,11 +66,8 @@ exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-
 
 exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-a5c017a1.json 1`] = `
 {
-  "eliminationMissing": [
-    "Inspector Evelyn Harcourt",
-  ],
+  "eliminationMissing": [],
   "eliminationPresent": [
-    "Lady Beatrice Marwood",
     "Annabelle Marwood",
     "Harold Grimshaw",
     "Margaret Cox",
@@ -107,10 +98,7 @@ exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-
 
 exports[`runDeterministicStructuralAudit on the golden bundles (A6-13) > bundle-eb1251aa.json 1`] = `
 {
-  "eliminationMissing": [
-    "Inspector Harold Wren",
-    "Lady Beatrice Ellsworth",
-  ],
+  "eliminationMissing": [],
   "eliminationPresent": [
     "Margaret Huxley",
     "Simon Clarkson",

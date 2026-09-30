@@ -5,6 +5,7 @@
  */
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { isDetectiveArchetype, isVictimArchetype, roleTextsOf } from "@cml/cml";
 import {
   type OrchestratorContext,
   applyClueGuardrails,
@@ -563,7 +564,11 @@ export const runDeterministicStructuralAudit = (
       : [],
   );
   const castList = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  // A6-D03: the detective and the victim are not suspects to clear. They were counted, so the detective sat in
+  // eliminationMissing on every golden bundle. The same predicates Agent 9's computeEliminationSuspects uses,
+  // so the audit and the elimination injector agree on WHO must be cleared (report-only: the gap is advisory).
   const nonCulprits = castList
+    .filter((c: any) => !roleTextsOf(c).some(isDetectiveArchetype) && !roleTextsOf(c).some(isVictimArchetype))
     .map((c: any) => String(c?.name ?? "").trim())
     .filter((name: string) => name.length > 0 && !culprits.has(name.toLowerCase()));
 
