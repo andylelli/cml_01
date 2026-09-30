@@ -8,8 +8,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { CastDesign } from "./agent2-cast.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -155,15 +154,14 @@ export async function generateBackgroundContext(
       });
 
       let parsed: BackgroundContextArtifact;
-      try {
-        parsed = JSON.parse(response.content) as BackgroundContextArtifact;
-      } catch {
+      // CR-20: the one parse ladder, guarded.
+      const parsedJson = parseLlmJson<BackgroundContextArtifact>(response.content, { guard: true });
+      if (parsedJson.truncated) {
         // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
-        if (looksTruncatedJson(response.content)) {
-          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
-        }
-        parsed = JSON.parse(jsonrepair(response.content)) as BackgroundContextArtifact;
+        throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
       }
+      if (parsedJson.data === undefined) throw parsedJson.repairError;
+      parsed = parsedJson.data;
 
       if (!parsed || parsed.status !== "ok") {
         throw new Error("Invalid background context output: missing status=ok");

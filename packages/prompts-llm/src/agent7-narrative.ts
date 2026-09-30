@@ -32,7 +32,7 @@ import {
   NARRATIVE_OUTLINE_SCHEMA_NAME,
   isAgent7StructuredOutputEnabled,
 } from "./agent7-narrative-schema.js";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson } from "./shared/llm-json.js";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { CaseData } from "@cml/cml";
@@ -990,29 +990,11 @@ export async function formatNarrative(
   const cost = costTracker.getSummary().byAgent["Agent7-NarrativeFormatter"] || 0;
 
   // Parse the narrative outline
-  let outlineData: Omit<NarrativeOutline, "cost" | "durationMs">;
-  try {
-    outlineData = JSON.parse(response.content);
-  } catch (error) {
-    try {
-      const repaired = jsonrepair(response.content);
-      outlineData = JSON.parse(repaired);
-    } catch {
-      const trimmed = response.content.trim();
-      const start = trimmed.indexOf("{");
-      const end = trimmed.lastIndexOf("}");
-      if (start !== -1 && end > start) {
-        const candidate = trimmed.slice(start, end + 1);
-        try {
-          outlineData = JSON.parse(candidate);
-        } catch (candidateError) {
-          throw new Error(`Failed to parse narrative outline JSON: ${candidateError}`);
-        }
-      } else {
-        throw new Error(`Failed to parse narrative outline JSON: ${error}`);
-      }
-    }
-  }
+  // CR-20: the one parse ladder — then the outermost {…} span, strict only. Unguarded: a truncated
+  // outline is refused on finishReason before this point.
+  const parsedJson = parseLlmJson<Omit<NarrativeOutline, "cost" | "durationMs">>(response.content, { guard: false, extract: "strict" });
+  if (parsedJson.data === undefined) throw new Error(`Failed to parse narrative outline JSON: ${parsedJson.parseError}`);
+  let outlineData = parsedJson.data;
 
   // Validate required fields
   if (!outlineData.acts || !Array.isArray(outlineData.acts) || outlineData.acts.length === 0) {

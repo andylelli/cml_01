@@ -8,7 +8,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { CastDesign } from "./agent2-cast.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
@@ -379,11 +379,10 @@ async function repairMissingParagraphs(
   });
 
   let parsed: { paragraphs?: string[] };
-  try {
-    parsed = JSON.parse(response.content);
-  } catch {
-    parsed = JSON.parse(jsonrepair(response.content));
-  }
+  // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
+  const parsedJson = parseLlmJson<{ paragraphs?: string[] }>(response.content, { guard: false });
+  if (parsedJson.data === undefined) throw parsedJson.repairError;
+  parsed = parsedJson.data;
 
   if (!Array.isArray(parsed.paragraphs) || parsed.paragraphs.length === 0) {
     throw new Error(
@@ -437,12 +436,10 @@ export async function generateCharacterProfiles(
       });
 
       let profiles: Omit<CharacterProfilesResult, "cost" | "durationMs">;
-      try {
-        profiles = JSON.parse(response.content);
-      } catch (error) {
-        const repaired = jsonrepair(response.content);
-        profiles = JSON.parse(repaired);
-      }
+      // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
+      const parsedJson = parseLlmJson<Omit<CharacterProfilesResult, "cost" | "durationMs">>(response.content, { guard: false });
+      if (parsedJson.data === undefined) throw parsedJson.repairError;
+      profiles = parsedJson.data;
 
       if (!Array.isArray(profiles.profiles) || profiles.profiles.length === 0) {
         throw new Error("Invalid character profiles output: missing profiles");

@@ -19,8 +19,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { ClueDistributionResult } from "./types/clue-distribution.js";
 import type { PromptComponents } from "./types.js";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { parseLlmJson } from "./shared/llm-json.js";
 
 // ============================================================================
 // Types
@@ -89,44 +88,15 @@ export interface FairPlayAuditResult {
 }
 
 function parseJsonWithRepair<T>(raw: string, contextLabel: string): T {
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    // Fall through to repair/extraction attempts.
-  }
-
+  // CR-20: the one parse ladder — guarded, then the outermost {…} span, strict then repaired.
+  const parsed = parseLlmJson<T>(raw, { guard: true, extract: "strict+repair" });
   // A_65b Ph8 — truncation guard: a completion-limit truncated payload must be REFUSED, not
   // jsonrepair-closed into a phantom structure (the a3c2973f class). Routes to the existing
   // parse-failure path.
-  if (looksTruncatedJson(raw)) {
+  if (parsed.truncated) {
     throw new Error(`LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk)`);
   }
-
-  try {
-    const repaired = jsonrepair(raw);
-    return JSON.parse(repaired) as T;
-  } catch {
-    // Fall through to bounded extraction attempts.
-  }
-
-  const trimmed = raw.trim();
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start !== -1 && end > start) {
-    const candidate = trimmed.slice(start, end + 1);
-    try {
-      return JSON.parse(candidate) as T;
-    } catch {
-      // Fall through to repaired candidate.
-    }
-
-    try {
-      const repairedCandidate = jsonrepair(candidate);
-      return JSON.parse(repairedCandidate) as T;
-    } catch {
-      // Fall through to terminal error.
-    }
-  }
+  if (parsed.data !== undefined) return parsed.data;
 
   const preview = raw.slice(0, 280).replace(/\s+/g, " ");
   throw new Error(`Failed to parse ${contextLabel} JSON after repair attempts. Preview: ${preview}`);

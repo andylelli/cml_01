@@ -16,8 +16,7 @@ import {
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { parseLlmJson, sanitizeYaml } from "./shared/llm-json.js";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
@@ -1648,81 +1647,21 @@ export async function generateCML(
       let cml: any;
       let jsonParseError: Error | undefined;
       let yamlParseError: Error | undefined;
-      const sanitizeYaml = (raw: string) =>
-        raw
-          .split("\n")
-          .map((line) => {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith("#")) return line;
-
-            const doubleQuoteMatch = line.match(/^([\s\S]*?:\s*"(?:[^"\\]|\\.)*")\s+(.+)$/);
-            if (doubleQuoteMatch && !doubleQuoteMatch[2].trimStart().startsWith("#")) {
-              return doubleQuoteMatch[1];
-            }
-
-            const singleQuoteMatch = line.match(/^([\s\S]*?:\s*'(?:[^'\\]|\\.)*')\s+(.+)$/);
-            if (singleQuoteMatch && !singleQuoteMatch[2].trimStart().startsWith("#")) {
-              return singleQuoteMatch[1];
-            }
-
-            if (!trimmed.includes(":")) {
-              const isListItem = trimmed.startsWith("-") || trimmed.startsWith("[") || trimmed.startsWith("{");
-              if (!isListItem) {
-                const indentMatch = line.match(/^(\s*)/);
-                const indent = indentMatch ? indentMatch[1] : "";
-                return `${indent}# ${trimmed}`;
-              }
-            }
-
-            return line;
-          })
-          .join("\n");
-
+      // CR-20: the one parse ladder — guarded, then the outermost {…} span, strict then repaired.
       const tryParseJson = (raw: string): any => {
-        try {
-          return JSON.parse(raw);
-        } catch (error) {
-          jsonParseError = error as Error;
-        }
-
-        // A_65b Ph8 — truncation guard on THE CML BOUNDARY: jsonrepair closes a completion-limit
-        // truncated payload into a valid-looking case with silently missing tail sections (the
-        // phantom-clue class, a3c2973f, at the highest-stakes boundary). A truncated payload is
-        // REFUSED, routing to the existing parse-failure retry path instead of ingesting a phantom.
-        if (looksTruncatedJson(raw)) {
+        const parsed = parseLlmJson(raw, { guard: true, extract: "strict+repair" });
+        if (parsed.truncated) {
+          // A_65b Ph8 — truncation guard on THE CML BOUNDARY: jsonrepair closes a completion-limit
+          // truncated payload into a valid-looking case with silently missing tail sections (the
+          // phantom-clue class, a3c2973f, at the highest-stakes boundary). A truncated payload is
+          // REFUSED, routing to the existing parse-failure retry path instead of ingesting a phantom.
           jsonParseError = new Error(
             "CML payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk); treat as parse failure",
           );
-          return undefined;
+        } else if (parsed.parseError) {
+          jsonParseError = parsed.parseError;
         }
-
-        try {
-          const repaired = jsonrepair(raw);
-          return JSON.parse(repaired);
-        } catch {
-          // ignore repair failure
-        }
-
-        const trimmed = raw.trim();
-        const start = trimmed.indexOf("{");
-        const end = trimmed.lastIndexOf("}");
-        if (start !== -1 && end > start) {
-          const candidate = trimmed.slice(start, end + 1);
-          try {
-            return JSON.parse(candidate);
-          } catch (error) {
-            jsonParseError = error as Error;
-          }
-
-          try {
-            const repaired = jsonrepair(candidate);
-            return JSON.parse(repaired);
-          } catch {
-            // ignore repair failure
-          }
-        }
-
-        return undefined;
+        return parsed.data;
       };
 
       const modelName = response.model || "unknown";

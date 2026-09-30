@@ -9,8 +9,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 import { simpleHash, generateSpecificDate } from "./shared/temporal-anchor.js";
@@ -358,16 +357,14 @@ export async function generateTemporalContext(
       });
 
       let context: Omit<TemporalContextResult, "cost" | "durationMs">;
-      try {
-        context = JSON.parse(response.content);
-      } catch (error) {
+      // CR-20: the one parse ladder, guarded.
+      const parsedJson = parseLlmJson<Omit<TemporalContextResult, "cost" | "durationMs">>(response.content, { guard: true });
+      if (parsedJson.truncated) {
         // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
-        if (looksTruncatedJson(response.content)) {
-          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
-        }
-        const repaired = jsonrepair(response.content);
-        context = JSON.parse(repaired);
+        throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
       }
+      if (parsedJson.data === undefined) throw parsedJson.repairError;
+      context = parsedJson.data;
 
       // Basic structure validation
       if (!context.specificDate || !context.specificDate.year || !context.specificDate.month) {

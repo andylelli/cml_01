@@ -12,7 +12,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson, sanitizeYaml } from "./shared/llm-json.js";
 import { groundDiscriminatingKnowledgeRevealed } from "./shared/grounding.js";
 
 export interface RevisionInputs {
@@ -995,70 +995,12 @@ export async function reviseCml(
       let jsonParseError: Error | undefined;
       let yamlParseError: Error | undefined;
 
-      const sanitizeYaml = (raw: string) =>
-        raw
-          .split("\n")
-          .map((line) => {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith("#")) return line;
-
-            const doubleQuoteMatch = line.match(/^([\s\S]*?:\s*"(?:[^"\\]|\\.)*")\s+(.+)$/);
-            if (doubleQuoteMatch && !doubleQuoteMatch[2].trimStart().startsWith("#")) {
-              return doubleQuoteMatch[1];
-            }
-
-            const singleQuoteMatch = line.match(/^([\s\S]*?:\s*'(?:[^'\\]|\\.)*')\s+(.+)$/);
-            if (singleQuoteMatch && !singleQuoteMatch[2].trimStart().startsWith("#")) {
-              return singleQuoteMatch[1];
-            }
-
-            if (!trimmed.includes(":")) {
-              const isListItem = trimmed.startsWith("-") || trimmed.startsWith("[") || trimmed.startsWith("{");
-              if (!isListItem) {
-                const indentMatch = line.match(/^(\s*)/);
-                const indent = indentMatch ? indentMatch[1] : "";
-                return `${indent}# ${trimmed}`;
-              }
-            }
-
-            return line;
-          })
-          .join("\n");
-
+      // CR-20: the one parse ladder, span strict then repaired. Unguarded, as it always was: a truncated
+      // full-CML re-emission is repaired, not refused (A34-D07; guarding it is ORC-Q03, the owner's call).
       const tryParseJson = (raw: string): Record<string, unknown> | undefined => {
-        try {
-          return JSON.parse(raw) as Record<string, unknown>;
-        } catch (error) {
-          jsonParseError = error as Error;
-        }
-
-        try {
-          const repaired = jsonrepair(raw);
-          return JSON.parse(repaired) as Record<string, unknown>;
-        } catch {
-          // ignore repair failure
-        }
-
-        const trimmed = raw.trim();
-        const start = trimmed.indexOf("{");
-        const end = trimmed.lastIndexOf("}");
-        if (start !== -1 && end > start) {
-          const candidate = trimmed.slice(start, end + 1);
-          try {
-            return JSON.parse(candidate) as Record<string, unknown>;
-          } catch (error) {
-            jsonParseError = error as Error;
-          }
-
-          try {
-            const repaired = jsonrepair(candidate);
-            return JSON.parse(repaired) as Record<string, unknown>;
-          } catch {
-            // ignore repair failure
-          }
-        }
-
-        return undefined;
+        const parsed = parseLlmJson<Record<string, unknown>>(raw, { guard: false, extract: "strict+repair" });
+        if (parsed.parseError) jsonParseError = parsed.parseError;
+        return parsed.data;
       };
 
       cml = tryParseJson(response.content);

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { looksTruncatedJson, guardedJsonrepairParse } from "../shared/json-boundary.js";
+import { looksTruncatedJson } from "../shared/json-boundary.js";
+import { parseLlmJson } from "../shared/llm-json.js";
+
+const guardedJsonrepairParse = (raw: string) => {
+  const r = parseLlmJson(raw, { guard: true });
+  return { data: r.data, repaired: r.repaired, truncated: r.truncated };
+};
 
 // A_65b Ph8 — the JSON-boundary kit. The contract: a merely-sloppy payload still ends with its
 // closing brace and may be repaired; a completion-limit TRUNCATED payload does not, and must be
@@ -21,7 +27,7 @@ describe("looksTruncatedJson", () => {
   });
 });
 
-describe("guardedJsonrepairParse", () => {
+describe("parseLlmJson with the guard (was guardedJsonrepairParse, CR-20)", () => {
   it("strict-parses clean JSON without repair", () => {
     const r = guardedJsonrepairParse('{"a": 1}');
     expect(r).toEqual({ data: { a: 1 }, repaired: false, truncated: false });

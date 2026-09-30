@@ -9,7 +9,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { NarrativeOutline } from "./agent7-narrative.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -385,12 +385,10 @@ export async function generateLocationProfiles(
       });
 
       let profiles: Omit<LocationProfilesResult, "cost" | "durationMs">;
-      try {
-        profiles = JSON.parse(response.content);
-      } catch (error) {
-        const repaired = jsonrepair(response.content);
-        profiles = JSON.parse(repaired);
-      }
+      // CR-20: the one parse ladder. Unguarded, as it always was (guarding it is ORC-Q03, the owner's call).
+      const parsedJson = parseLlmJson<Omit<LocationProfilesResult, "cost" | "durationMs">>(response.content, { guard: false });
+      if (parsedJson.data === undefined) throw parsedJson.repairError;
+      profiles = parsedJson.data;
 
       // Basic structure validation
       if (!profiles.primary || !Array.isArray(profiles.primary.paragraphs) || profiles.primary.paragraphs.length === 0) {

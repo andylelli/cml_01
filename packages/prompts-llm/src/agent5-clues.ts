@@ -9,7 +9,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson } from "./shared/llm-json.js";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { PromptComponents } from "./types.js";
 import type { Clue, ClueDistributionResult } from "./types/clue-distribution.js";
@@ -1165,14 +1165,11 @@ Hard retry contract:
 export const parseClueJsonContent = (
   content: string,
 ): { clueData: any; repaired: boolean; truncated: boolean } => {
-  let clueData: any;
-  let repaired = false;
-  try {
-    clueData = JSON.parse(content);
-  } catch {
-    clueData = JSON.parse(jsonrepair(content));
-    repaired = true;
-  }
+  // CR-20: the one parse ladder, unguarded — this boundary FLAGS a truncated repair and retries.
+  const parsed = parseLlmJson<any>(content, { guard: false });
+  if (parsed.data === undefined) throw parsed.repairError;
+  const clueData = parsed.data;
+  const repaired = parsed.repaired;
   const truncated = repaired && !content.trim().endsWith("}");
   return { clueData, repaired, truncated };
 };
