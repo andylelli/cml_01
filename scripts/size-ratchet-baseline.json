@@ -21,7 +21,6 @@
     "apps/worker/src/jobs/agents/agent9-run.ts::runAgent9": 4676,
     "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 517,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
-    "packages/prompts-llm/src/agent2-cast.ts::designCast": 426,
     "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 632,
     "packages/prompts-llm/src/agent3-cml.ts::generateCML": 1098,
     "packages/prompts-llm/src/agent3-cml.ts::generateCML>normalizeCml": 596,

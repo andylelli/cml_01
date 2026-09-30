@@ -523,6 +523,395 @@ Output JSON only.`;
 // Main Agent Function
 // ============================================================================
 
+/**
+ * CR-21 (A1X-05) — designCast's per-attempt checks, in order. Each either passes (possibly repairing the
+ * cast on the final attempt), asks for the next attempt ("retry"), or throws. They were one 400-line
+ * attempt body (cc 54, depth 7); moved verbatim, `continue` → `return "retry"` (agent2-cast-characterisation
+ * .test.ts pins every retry path, flag off and on, with a digest of each prompt).
+ */
+interface CastAttempt {
+  attempt: number;
+  maxAttempts: number;
+  /** AGENT2_CONSTRAINED_CAST: feedback retries and loud failure instead of placeholder padding. */
+  constrained: boolean;
+  /** Structured feedback accumulated for the next attempt's prompt. */
+  dynamicGuardrails: string[];
+  expectedCount: number;
+  requiredUniqueArchetypes: number;
+  config: ReturnType<typeof getGenerationParams>["agent2_cast"]["params"];
+}
+type CastStepResult = "retry" | void;
+
+const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
+const VALID_MOTIVE = new Set(["weak", "moderate", "strong", "compelling"]);
+const VALID_GENDER = new Set(["male", "female"]);
+/**
+ * A_73 §40 — binary, matching both the period these novels are set in and the detectors that
+ * check them. A value outside the set normalises to `undefined` rather than to a third gender:
+ * the caller then fills it from the gender-lock map or flags it, and a character never reaches
+ * prose carrying pronouns that no validator in the pipeline can check.
+ */
+const normalizeGender = (value: unknown): "male" | "female" | undefined => {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (!raw) return undefined;
+  if (VALID_GENDER.has(raw)) return raw as "male" | "female";
+  if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
+  if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
+  return undefined;
+};
+const normalizeRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
+    return raw;
+  }
+  if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
+  if (/low|mild|minor|slight/.test(raw)) return "low";
+  if (/moderate|medium|mixed/.test(raw)) return "moderate";
+  if (/high|severe|intense|strong/.test(raw)) return "high";
+  return "moderate";
+};
+
+function countStep(cast: CastDesign, at: CastAttempt): CastStepResult {
+  const { attempt, maxAttempts: resolvedMaxAttempts, constrained: noPlaceholderPadding, dynamicGuardrails, expectedCount } = at;
+  // 4. Validate and normalize structure
+  const normalizedCharacters = Array.isArray(cast.characters) ? [...cast.characters] : [];
+
+  // Count handling. Before the final attempt: retry (with structured feedback when the
+  // constrained path is on). Placeholder characters score zero on depth metrics, so we want
+  // real LLM content for every slot.
+  const countMismatch = normalizedCharacters.length !== expectedCount;
+  if (countMismatch && attempt < resolvedMaxAttempts) {
+    console.warn(
+      `Attempt ${attempt}: expected ${expectedCount} characters, got ${normalizedCharacters.length}. Retrying.`,
+    );
+    if (noPlaceholderPadding) {
+      dynamicGuardrails.push(
+        `Return EXACTLY ${expectedCount} characters in the "characters" array — your previous attempt returned ${normalizedCharacters.length}. Do not pad, repeat, or omit characters.`,
+      );
+    }
+    return "retry";
+  }
+
+  if (countMismatch && noPlaceholderPadding) {
+    // Stop the bleeding: a count miss after every attempt is a real generation failure, not
+    // something to paper over with `Placeholder N` characters that flow into prose.
+    throw new Error(
+      `Cast count mismatch after ${resolvedMaxAttempts} attempts: expected ${expectedCount}, got ${normalizedCharacters.length} ` +
+        `(AGENT2_CONSTRAINED_CAST enabled — placeholder padding disabled).`,
+    );
+  }
+
+  if (countMismatch) {
+    console.warn(
+      `Attempt ${attempt}: Final attempt — expected ${expectedCount} characters, got ${normalizedCharacters.length}. Padding with placeholders.`,
+    );
+  }
+  while (normalizedCharacters.length < expectedCount) {
+    const index = normalizedCharacters.length + 1;
+    normalizedCharacters.push({
+      name: `Placeholder ${index}`,
+      ageRange: "adult",
+      occupation: "resident",
+      roleArchetype: "suspect",
+      publicPersona: "reserved",
+      privateSecret: "keeps a secret",
+      motiveSeed: "inheritance",
+      motiveStrength: "moderate",
+      alibiWindow: "evening",
+      accessPlausibility: "possible",
+      stakes: "reputation",
+      characterArcPotential: "discovers hidden resolve",
+    });
+  }
+  if (normalizedCharacters.length > expectedCount) {
+    normalizedCharacters.length = expectedCount;
+  }
+  cast.characters = normalizedCharacters;
+}
+
+function coerceEnumsStep(cast: CastDesign, _at: CastAttempt): CastStepResult {
+  // Coerce out-of-enum fields before required-field checks.
+  // The LLM occasionally returns near-misses; map them to the nearest valid value
+  // rather than consuming a retry on a cosmetic mismatch.
+  cast.characters = cast.characters.map((char: any) => {
+    let nextChar = char;
+
+    if (char.accessPlausibility) {
+      const accessRaw = String(char.accessPlausibility).trim();
+      const accessLower = accessRaw.toLowerCase();
+      if (!VALID_ACCESS.has(accessLower)) {
+        let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
+        if (/certain|definite|guarant|easy|high|sure/.test(accessLower))          coerced = "easy";
+        else if (/like|probable|often|common|frequent/.test(accessLower))          coerced = "possible";
+        else if (/unlike|improbab|rare|seldom|difficult|hard/.test(accessLower))  coerced = "unlikely";
+        else if (/impossible|never|no.access|barred/.test(accessLower))           coerced = "impossible";
+        console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
+        nextChar = { ...nextChar, accessPlausibility: coerced };
+      } else if (accessRaw !== accessLower) {
+        nextChar = { ...nextChar, accessPlausibility: accessLower };
+      }
+    }
+
+    if (char.motiveStrength) {
+      const motiveRaw = String(char.motiveStrength).trim();
+      const motiveLower = motiveRaw.toLowerCase();
+      if (!VALID_MOTIVE.has(motiveLower)) {
+        let coerced: "weak" | "moderate" | "strong" | "compelling" = "moderate";
+        if (/compell|overwhelm|extreme|decisive|certain/.test(motiveLower))         coerced = "compelling";
+        else if (/strong|high|powerful|major|serious/.test(motiveLower))            coerced = "strong";
+        else if (/moderate|medium|mixed|balanced/.test(motiveLower))                coerced = "moderate";
+        else if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(motiveLower)) coerced = "weak";
+        console.warn(`[Agent 2] normalised motiveStrength "${char.motiveStrength}" → "${coerced}"`);
+        nextChar = { ...nextChar, motiveStrength: coerced };
+      } else if (motiveRaw !== motiveLower) {
+        nextChar = { ...nextChar, motiveStrength: motiveLower };
+      }
+    }
+
+    const normalizedGender = normalizeGender(char.gender);
+    if (normalizedGender !== char.gender) {
+      if (normalizedGender) {
+        console.warn(`[Agent 2] normalised gender "${char.gender}" → "${normalizedGender}"`);
+      }
+      nextChar = { ...nextChar, gender: normalizedGender };
+    }
+
+    if (nextChar !== char) {
+      return nextChar;
+    }
+
+    return char;
+  });
+}
+
+function requiredFieldsStep(cast: CastDesign, at: CastAttempt): CastStepResult {
+  const { attempt, maxAttempts: resolvedMaxAttempts, constrained: noPlaceholderPadding, dynamicGuardrails } = at;
+  // Validate all characters have required fields
+  const requiredFields = [
+    "name",
+    "ageRange",
+    "occupation",
+    "roleArchetype",
+    "publicPersona",
+    "privateSecret",
+    "motiveSeed",
+    "motiveStrength",
+    "alibiWindow",
+    "accessPlausibility",
+    "stakes",
+    "characterArcPotential",
+  ];
+
+  const missingFields = cast.characters
+    .map((char: any, idx: number) => {
+      const missing = requiredFields.filter((field) => !char[field]);
+      return missing.length > 0
+        ? `Character ${idx + 1} (${char.name || "unknown"}): ${missing.join(", ")}`
+        : null;
+    })
+    .filter(Boolean);
+
+  if (missingFields.length > 0) {
+    if (attempt < resolvedMaxAttempts) {
+      if (noPlaceholderPadding) {
+        dynamicGuardrails.push(
+          `Every character must include ALL required fields. Previous gaps: ${missingFields.slice(0, 6).join("; ")}.`,
+        );
+      }
+      return "retry"; // Retry on missing fields
+    }
+    if (noPlaceholderPadding) {
+      // Stop the bleeding: don't default-fill missing fields with canned values / placeholder
+      // names; fail loudly so the gap is fixed rather than shipped.
+      throw new Error(
+        `Cast characters missing required fields after ${resolvedMaxAttempts} attempts: ` +
+          `${missingFields.join("; ")} (AGENT2_CONSTRAINED_CAST enabled — default-fill disabled).`,
+      );
+    }
+    // Fill missing fields with defaults to avoid hard failure
+    cast.characters = cast.characters.map((char: any, idx: number) => ({
+      name: char.name || `Placeholder ${idx + 1}`,
+      ageRange: char.ageRange || "adult",
+      occupation: char.occupation || "resident",
+      roleArchetype: char.roleArchetype || "suspect",
+      publicPersona: char.publicPersona || "reserved",
+      privateSecret: char.privateSecret || "keeps a secret",
+      motiveSeed: char.motiveSeed || "inheritance",
+      motiveStrength: char.motiveStrength || "moderate",
+      alibiWindow: char.alibiWindow || "evening",
+      accessPlausibility: char.accessPlausibility || "possible",
+      stakes: char.stakes || "reputation",
+      characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
+      gender: normalizeGender(char.gender),
+      relationships: Array.isArray(char.relationships) ? char.relationships : [],
+    }));
+  }
+}
+
+function crimeDynamicsKeysStep(cast: CastDesign, _at: CastAttempt): CastStepResult {
+  // Normalise crimeDynamics field-names (snake_case → camelCase) before checks so that
+  // a formatting-only mismatch doesn't consume a retry or mis-count possibleCulprits.
+  if (cast.crimeDynamics) {
+    const cd = cast.crimeDynamics as unknown as Record<string, unknown>;
+    if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
+    if (!cd.redHerrings && cd.red_herrings)                   { cd.redHerrings = cd.red_herrings; }
+    if (!cd.victimCandidates && cd.victim_candidates)         { cd.victimCandidates = cd.victim_candidates; }
+    if (!cd.detectiveCandidates && cd.detective_candidates)   { cd.detectiveCandidates = cd.detective_candidates; }
+  }
+}
+
+function culpritCountStep(cast: CastDesign, at: CastAttempt): CastStepResult {
+  const { attempt, maxAttempts: resolvedMaxAttempts, expectedCount, config } = at;
+  // Validate possibleCulprits: need at least min(3, count-1) names
+  const requiredCulprits = Math.min(config.quality.culpability.max_possible_culprits, expectedCount - 1);
+  const possibleCulprits = Array.isArray(cast.crimeDynamics?.possibleCulprits)
+    ? cast.crimeDynamics.possibleCulprits
+    : [];
+  if (possibleCulprits.length < requiredCulprits) {
+    if (attempt < resolvedMaxAttempts) {
+      console.warn(
+        `Attempt ${attempt}: Only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. Retrying.`,
+      );
+      return "retry";
+    }
+    // A_53 P11 (culprit-count-not-enforced-final): on the FINAL attempt the minimum was
+    // previously retried but never enforced, so an under-filled suspect pool could ship.
+    // Deterministically top up from the cast's OWN names — never the detective, never the
+    // victim (both are barred from possibleCulprits). Holistic: derived entirely from the
+    // artifact's role tags / candidate lists, no injected content.
+    const detectiveNames = new Set(
+      [
+        ...cast.characters.filter((c: any) => c?.role === "detective").map((c: any) => c?.name),
+        ...(Array.isArray(cast.crimeDynamics?.detectiveCandidates) ? cast.crimeDynamics.detectiveCandidates : []),
+      ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
+    );
+    const victimNames = new Set(
+      [
+        ...cast.characters.filter((c: any) => c?.role === "victim").map((c: any) => c?.name),
+        ...(Array.isArray(cast.crimeDynamics?.victimCandidates) ? cast.crimeDynamics.victimCandidates : []),
+      ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
+    );
+    const existing = new Set(possibleCulprits.map((n: string) => n));
+    // Prefer explicit suspects, then any other non-detective/non-victim character.
+    const eligible = cast.characters
+      .map((c: any) => (typeof c?.name === "string" ? c.name : ""))
+      .filter((name: string) => name.trim().length > 0)
+      .filter((name: string) => !detectiveNames.has(name) && !victimNames.has(name) && !existing.has(name));
+    const suspectsFirst = [
+      ...cast.characters
+        .filter((c: any) => c?.role === "suspect" && typeof c?.name === "string" && eligible.includes(c.name))
+        .map((c: any) => c.name),
+      ...eligible,
+    ];
+    const toppedUp = [...possibleCulprits];
+    for (const name of suspectsFirst) {
+      if (toppedUp.length >= requiredCulprits) break;
+      if (!toppedUp.includes(name)) toppedUp.push(name);
+    }
+    console.warn(
+      `Attempt ${attempt}: Final attempt — only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. ` +
+        `Topped up to ${toppedUp.length} from the cast's own non-detective/non-victim names.`,
+    );
+    if (cast.crimeDynamics) {
+      cast.crimeDynamics.possibleCulprits = toppedUp;
+    } else {
+      cast.crimeDynamics = {
+        possibleCulprits: toppedUp,
+        redHerrings: [],
+        victimCandidates: [],
+        detectiveCandidates: [],
+      };
+    }
+  }
+}
+
+function archetypeDiversityStep(cast: CastDesign, at: CastAttempt): CastStepResult {
+  const { attempt, maxAttempts: resolvedMaxAttempts, constrained: noPlaceholderPadding, dynamicGuardrails, expectedCount, requiredUniqueArchetypes, config } = at;
+  // Validate role-archetype diversity: require >=70% unique labels.
+  // Before the final attempt: retry and let the LLM produce better diversity naturally.
+  // On the final attempt only: apply the deterministic diversification fallback, then throw
+  // if even that cannot recover the required uniqueness.
+  const uniqueArchetypesBefore = new Set(
+    cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
+  );
+  if (uniqueArchetypesBefore.size < requiredUniqueArchetypes) {
+    if (attempt < resolvedMaxAttempts) {
+      console.warn(
+        `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
+      );
+      if (noPlaceholderPadding) {
+        // Constrained path: feed the model the *specific* duplicates to re-cast (from the
+        // deterministic checker) instead of resending the prompt blind.
+        const diag = checkCast(cast, {
+          expectedCount,
+          minArchetypeUniqueRatio: config.quality.role_archetype.min_unique_ratio,
+        });
+        for (const issue of diag.issues) {
+          if (issue.code === "duplicate_archetype" || issue.code === "low_archetype_diversity") {
+            dynamicGuardrails.push(issue.feedback);
+          }
+        }
+      }
+      return "retry";
+    }
+
+    if (noPlaceholderPadding) {
+      // Constrained path: do NOT relabel duplicates with canned archetypes (the old
+      // `diversifyRoleArchetypes` rubber-stamp). A low-diversity cast is a warn-level quality
+      // miss, not a run-killer — accept it and let the scoring loop reflect it.
+      console.warn(
+        `Attempt ${attempt}: Final attempt — ${uniqueArchetypesBefore.size}/${requiredUniqueArchetypes} unique archetypes. ` +
+          `Accepting without deterministic relabel (AGENT2_CONSTRAINED_CAST enabled).`,
+      );
+    } else {
+      // Legacy: apply deterministic fallback as last resort, then throw if even that fails.
+      console.warn(
+        `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
+      );
+      cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
+
+      const uniqueAfterFallback = new Set(
+        cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
+      );
+      if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
+        // A_53 P2 (repair-not-abort): a low-diversity cast is a warn-level quality miss, not a
+        // run-killer. Mirror the constrained path — accept the best-effort deterministic
+        // diversification rather than throwing away the whole run on the final attempt.
+        console.warn(
+          `Attempt ${attempt}: Final attempt — ${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique ` +
+            `archetypes after deterministic diversification. Accepting best-effort cast (no abort).`,
+        );
+      }
+    }
+  }
+}
+
+function finalNormalisationStep(cast: CastDesign, _at: CastAttempt): CastStepResult {
+  // Normalise enum-style relationship and gender declarations before returning.
+  // A_71: coerce the web to its declared shape FIRST — the model returns a bare array, so the
+  // old `Array.isArray(cast.relationships.pairs)` guard skipped this block on every real run.
+  cast.relationships = normalizeRelationshipWeb(cast.relationships);
+  cast.relationships.pairs = cast.relationships.pairs.map((pair: any) => ({
+    ...pair,
+    tension: normalizeRelationshipTension(pair?.tension),
+  }));
+
+  cast.characters = cast.characters.map((char: any) => ({
+    ...char,
+    gender: normalizeGender(char.gender),
+  }));
+}
+
+const CAST_STEPS: ReadonlyArray<(cast: CastDesign, at: CastAttempt) => CastStepResult> = [
+  countStep,
+  coerceEnumsStep,
+  requiredFieldsStep,
+  crimeDynamicsKeysStep,
+  culpritCountStep,
+  archetypeDiversityStep,
+  finalNormalisationStep,
+];
+
 export async function designCast(
   client: AzureOpenAIClient,
   inputs: CastInputs,
@@ -589,346 +978,16 @@ export async function designCast(
         }
       }
 
-      // 4. Validate and normalize structure
-      const normalizedCharacters = Array.isArray(cast.characters) ? [...cast.characters] : [];
-
-      // Count handling. Before the final attempt: retry (with structured feedback when the
-      // constrained path is on). Placeholder characters score zero on depth metrics, so we want
-      // real LLM content for every slot.
-      const countMismatch = normalizedCharacters.length !== expectedCount;
-      if (countMismatch && attempt < resolvedMaxAttempts) {
-        console.warn(
-          `Attempt ${attempt}: expected ${expectedCount} characters, got ${normalizedCharacters.length}. Retrying.`,
-        );
-        if (noPlaceholderPadding) {
-          dynamicGuardrails.push(
-            `Return EXACTLY ${expectedCount} characters in the "characters" array — your previous attempt returned ${normalizedCharacters.length}. Do not pad, repeat, or omit characters.`,
-          );
-        }
-        continue;
-      }
-
-      if (countMismatch && noPlaceholderPadding) {
-        // Stop the bleeding: a count miss after every attempt is a real generation failure, not
-        // something to paper over with `Placeholder N` characters that flow into prose.
-        throw new Error(
-          `Cast count mismatch after ${resolvedMaxAttempts} attempts: expected ${expectedCount}, got ${normalizedCharacters.length} ` +
-            `(AGENT2_CONSTRAINED_CAST enabled — placeholder padding disabled).`,
-        );
-      }
-
-      if (countMismatch) {
-        console.warn(
-          `Attempt ${attempt}: Final attempt — expected ${expectedCount} characters, got ${normalizedCharacters.length}. Padding with placeholders.`,
-        );
-      }
-      while (normalizedCharacters.length < expectedCount) {
-        const index = normalizedCharacters.length + 1;
-        normalizedCharacters.push({
-          name: `Placeholder ${index}`,
-          ageRange: "adult",
-          occupation: "resident",
-          roleArchetype: "suspect",
-          publicPersona: "reserved",
-          privateSecret: "keeps a secret",
-          motiveSeed: "inheritance",
-          motiveStrength: "moderate",
-          alibiWindow: "evening",
-          accessPlausibility: "possible",
-          stakes: "reputation",
-          characterArcPotential: "discovers hidden resolve",
-        });
-      }
-      if (normalizedCharacters.length > expectedCount) {
-        normalizedCharacters.length = expectedCount;
-      }
-      cast.characters = normalizedCharacters;
-
-      // Coerce out-of-enum fields before required-field checks.
-      // The LLM occasionally returns near-misses; map them to the nearest valid value
-      // rather than consuming a retry on a cosmetic mismatch.
-      const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
-      const VALID_MOTIVE = new Set(["weak", "moderate", "strong", "compelling"]);
-      const VALID_GENDER = new Set(["male", "female"]);
-      /**
-       * A_73 §40 — binary, matching both the period these novels are set in and the detectors that
-       * check them. A value outside the set normalises to `undefined` rather than to a third gender:
-       * the caller then fills it from the gender-lock map or flags it, and a character never reaches
-       * prose carrying pronouns that no validator in the pipeline can check.
-       */
-      const normalizeGender = (value: unknown): "male" | "female" | undefined => {
-        const raw = String(value ?? "").trim().toLowerCase();
-        if (!raw) return undefined;
-        if (VALID_GENDER.has(raw)) return raw as "male" | "female";
-        if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
-        if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
-        return undefined;
+      const at: CastAttempt = {
+        attempt,
+        maxAttempts: resolvedMaxAttempts,
+        constrained: noPlaceholderPadding,
+        dynamicGuardrails,
+        expectedCount,
+        requiredUniqueArchetypes,
+        config,
       };
-      const normalizeRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
-        const raw = String(value ?? "").trim().toLowerCase();
-        if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
-          return raw;
-        }
-        if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
-        if (/low|mild|minor|slight/.test(raw)) return "low";
-        if (/moderate|medium|mixed/.test(raw)) return "moderate";
-        if (/high|severe|intense|strong/.test(raw)) return "high";
-        return "moderate";
-      };
-      cast.characters = cast.characters.map((char: any) => {
-        let nextChar = char;
-
-        if (char.accessPlausibility) {
-          const accessRaw = String(char.accessPlausibility).trim();
-          const accessLower = accessRaw.toLowerCase();
-          if (!VALID_ACCESS.has(accessLower)) {
-            let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
-            if (/certain|definite|guarant|easy|high|sure/.test(accessLower))          coerced = "easy";
-            else if (/like|probable|often|common|frequent/.test(accessLower))          coerced = "possible";
-            else if (/unlike|improbab|rare|seldom|difficult|hard/.test(accessLower))  coerced = "unlikely";
-            else if (/impossible|never|no.access|barred/.test(accessLower))           coerced = "impossible";
-            console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
-            nextChar = { ...nextChar, accessPlausibility: coerced };
-          } else if (accessRaw !== accessLower) {
-            nextChar = { ...nextChar, accessPlausibility: accessLower };
-          }
-        }
-
-        if (char.motiveStrength) {
-          const motiveRaw = String(char.motiveStrength).trim();
-          const motiveLower = motiveRaw.toLowerCase();
-          if (!VALID_MOTIVE.has(motiveLower)) {
-            let coerced: "weak" | "moderate" | "strong" | "compelling" = "moderate";
-            if (/compell|overwhelm|extreme|decisive|certain/.test(motiveLower))         coerced = "compelling";
-            else if (/strong|high|powerful|major|serious/.test(motiveLower))            coerced = "strong";
-            else if (/moderate|medium|mixed|balanced/.test(motiveLower))                coerced = "moderate";
-            else if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(motiveLower)) coerced = "weak";
-            console.warn(`[Agent 2] normalised motiveStrength "${char.motiveStrength}" → "${coerced}"`);
-            nextChar = { ...nextChar, motiveStrength: coerced };
-          } else if (motiveRaw !== motiveLower) {
-            nextChar = { ...nextChar, motiveStrength: motiveLower };
-          }
-        }
-
-        const normalizedGender = normalizeGender(char.gender);
-        if (normalizedGender !== char.gender) {
-          if (normalizedGender) {
-            console.warn(`[Agent 2] normalised gender "${char.gender}" → "${normalizedGender}"`);
-          }
-          nextChar = { ...nextChar, gender: normalizedGender };
-        }
-
-        if (nextChar !== char) {
-          return nextChar;
-        }
-
-        return char;
-      });
-
-      // Validate all characters have required fields
-      const requiredFields = [
-        "name",
-        "ageRange",
-        "occupation",
-        "roleArchetype",
-        "publicPersona",
-        "privateSecret",
-        "motiveSeed",
-        "motiveStrength",
-        "alibiWindow",
-        "accessPlausibility",
-        "stakes",
-        "characterArcPotential",
-      ];
-
-      const missingFields = cast.characters
-        .map((char: any, idx: number) => {
-          const missing = requiredFields.filter((field) => !char[field]);
-          return missing.length > 0
-            ? `Character ${idx + 1} (${char.name || "unknown"}): ${missing.join(", ")}`
-            : null;
-        })
-        .filter(Boolean);
-
-      if (missingFields.length > 0) {
-        if (attempt < resolvedMaxAttempts) {
-          if (noPlaceholderPadding) {
-            dynamicGuardrails.push(
-              `Every character must include ALL required fields. Previous gaps: ${missingFields.slice(0, 6).join("; ")}.`,
-            );
-          }
-          continue; // Retry on missing fields
-        }
-        if (noPlaceholderPadding) {
-          // Stop the bleeding: don't default-fill missing fields with canned values / placeholder
-          // names; fail loudly so the gap is fixed rather than shipped.
-          throw new Error(
-            `Cast characters missing required fields after ${resolvedMaxAttempts} attempts: ` +
-              `${missingFields.join("; ")} (AGENT2_CONSTRAINED_CAST enabled — default-fill disabled).`,
-          );
-        }
-        // Fill missing fields with defaults to avoid hard failure
-        cast.characters = cast.characters.map((char: any, idx: number) => ({
-          name: char.name || `Placeholder ${idx + 1}`,
-          ageRange: char.ageRange || "adult",
-          occupation: char.occupation || "resident",
-          roleArchetype: char.roleArchetype || "suspect",
-          publicPersona: char.publicPersona || "reserved",
-          privateSecret: char.privateSecret || "keeps a secret",
-          motiveSeed: char.motiveSeed || "inheritance",
-          motiveStrength: char.motiveStrength || "moderate",
-          alibiWindow: char.alibiWindow || "evening",
-          accessPlausibility: char.accessPlausibility || "possible",
-          stakes: char.stakes || "reputation",
-          characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
-          gender: normalizeGender(char.gender),
-          relationships: Array.isArray(char.relationships) ? char.relationships : [],
-        }));
-      }
-
-      // Normalise crimeDynamics field-names (snake_case → camelCase) before checks so that
-      // a formatting-only mismatch doesn't consume a retry or mis-count possibleCulprits.
-      if (cast.crimeDynamics) {
-        const cd = cast.crimeDynamics as unknown as Record<string, unknown>;
-        if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
-        if (!cd.redHerrings && cd.red_herrings)                   { cd.redHerrings = cd.red_herrings; }
-        if (!cd.victimCandidates && cd.victim_candidates)         { cd.victimCandidates = cd.victim_candidates; }
-        if (!cd.detectiveCandidates && cd.detective_candidates)   { cd.detectiveCandidates = cd.detective_candidates; }
-      }
-
-      // Validate possibleCulprits: need at least min(3, count-1) names
-      const requiredCulprits = Math.min(config.quality.culpability.max_possible_culprits, expectedCount - 1);
-      const possibleCulprits = Array.isArray(cast.crimeDynamics?.possibleCulprits)
-        ? cast.crimeDynamics.possibleCulprits
-        : [];
-      if (possibleCulprits.length < requiredCulprits) {
-        if (attempt < resolvedMaxAttempts) {
-          console.warn(
-            `Attempt ${attempt}: Only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. Retrying.`,
-          );
-          continue;
-        }
-        // A_53 P11 (culprit-count-not-enforced-final): on the FINAL attempt the minimum was
-        // previously retried but never enforced, so an under-filled suspect pool could ship.
-        // Deterministically top up from the cast's OWN names — never the detective, never the
-        // victim (both are barred from possibleCulprits). Holistic: derived entirely from the
-        // artifact's role tags / candidate lists, no injected content.
-        const detectiveNames = new Set(
-          [
-            ...cast.characters.filter((c: any) => c?.role === "detective").map((c: any) => c?.name),
-            ...(Array.isArray(cast.crimeDynamics?.detectiveCandidates) ? cast.crimeDynamics.detectiveCandidates : []),
-          ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
-        );
-        const victimNames = new Set(
-          [
-            ...cast.characters.filter((c: any) => c?.role === "victim").map((c: any) => c?.name),
-            ...(Array.isArray(cast.crimeDynamics?.victimCandidates) ? cast.crimeDynamics.victimCandidates : []),
-          ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
-        );
-        const existing = new Set(possibleCulprits.map((n: string) => n));
-        // Prefer explicit suspects, then any other non-detective/non-victim character.
-        const eligible = cast.characters
-          .map((c: any) => (typeof c?.name === "string" ? c.name : ""))
-          .filter((name: string) => name.trim().length > 0)
-          .filter((name: string) => !detectiveNames.has(name) && !victimNames.has(name) && !existing.has(name));
-        const suspectsFirst = [
-          ...cast.characters
-            .filter((c: any) => c?.role === "suspect" && typeof c?.name === "string" && eligible.includes(c.name))
-            .map((c: any) => c.name),
-          ...eligible,
-        ];
-        const toppedUp = [...possibleCulprits];
-        for (const name of suspectsFirst) {
-          if (toppedUp.length >= requiredCulprits) break;
-          if (!toppedUp.includes(name)) toppedUp.push(name);
-        }
-        console.warn(
-          `Attempt ${attempt}: Final attempt — only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. ` +
-            `Topped up to ${toppedUp.length} from the cast's own non-detective/non-victim names.`,
-        );
-        if (cast.crimeDynamics) {
-          cast.crimeDynamics.possibleCulprits = toppedUp;
-        } else {
-          cast.crimeDynamics = {
-            possibleCulprits: toppedUp,
-            redHerrings: [],
-            victimCandidates: [],
-            detectiveCandidates: [],
-          };
-        }
-      }
-
-      // Validate role-archetype diversity: require >=70% unique labels.
-      // Before the final attempt: retry and let the LLM produce better diversity naturally.
-      // On the final attempt only: apply the deterministic diversification fallback, then throw
-      // if even that cannot recover the required uniqueness.
-      const uniqueArchetypesBefore = new Set(
-        cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
-      );
-      if (uniqueArchetypesBefore.size < requiredUniqueArchetypes) {
-        if (attempt < resolvedMaxAttempts) {
-          console.warn(
-            `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
-          );
-          if (noPlaceholderPadding) {
-            // Constrained path: feed the model the *specific* duplicates to re-cast (from the
-            // deterministic checker) instead of resending the prompt blind.
-            const diag = checkCast(cast, {
-              expectedCount,
-              minArchetypeUniqueRatio: config.quality.role_archetype.min_unique_ratio,
-            });
-            for (const issue of diag.issues) {
-              if (issue.code === "duplicate_archetype" || issue.code === "low_archetype_diversity") {
-                dynamicGuardrails.push(issue.feedback);
-              }
-            }
-          }
-          continue;
-        }
-
-        if (noPlaceholderPadding) {
-          // Constrained path: do NOT relabel duplicates with canned archetypes (the old
-          // `diversifyRoleArchetypes` rubber-stamp). A low-diversity cast is a warn-level quality
-          // miss, not a run-killer — accept it and let the scoring loop reflect it.
-          console.warn(
-            `Attempt ${attempt}: Final attempt — ${uniqueArchetypesBefore.size}/${requiredUniqueArchetypes} unique archetypes. ` +
-              `Accepting without deterministic relabel (AGENT2_CONSTRAINED_CAST enabled).`,
-          );
-        } else {
-          // Legacy: apply deterministic fallback as last resort, then throw if even that fails.
-          console.warn(
-            `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
-          );
-          cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
-
-          const uniqueAfterFallback = new Set(
-            cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
-          );
-          if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
-            // A_53 P2 (repair-not-abort): a low-diversity cast is a warn-level quality miss, not a
-            // run-killer. Mirror the constrained path — accept the best-effort deterministic
-            // diversification rather than throwing away the whole run on the final attempt.
-            console.warn(
-              `Attempt ${attempt}: Final attempt — ${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique ` +
-                `archetypes after deterministic diversification. Accepting best-effort cast (no abort).`,
-            );
-          }
-        }
-      }
-
-      // Normalise enum-style relationship and gender declarations before returning.
-      // A_71: coerce the web to its declared shape FIRST — the model returns a bare array, so the
-      // old `Array.isArray(cast.relationships.pairs)` guard skipped this block on every real run.
-      cast.relationships = normalizeRelationshipWeb(cast.relationships);
-      cast.relationships.pairs = cast.relationships.pairs.map((pair: any) => ({
-        ...pair,
-        tension: normalizeRelationshipTension(pair?.tension),
-      }));
-
-      cast.characters = cast.characters.map((char: any) => ({
-        ...char,
-        gender: normalizeGender(char.gender),
-      }));
+      if (CAST_STEPS.some((step) => step(cast, at) === "retry")) continue;
 
       // Success!
       const latencyMs = Date.now() - startTime;
