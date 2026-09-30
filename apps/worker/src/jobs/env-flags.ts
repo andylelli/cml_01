@@ -16,3 +16,12 @@ export const envOn = (name: string): boolean => /^(1|true|yes|on)$/i.test(proces
 
 /** A default-ON flag: off only for `0`, `false`, `no`, `off` (any case). */
 export const envNotOff = (name: string): boolean => !/^(0|false|no|off)$/i.test(process.env[name] ?? "");
+
+/** Moved from agent9/flags.ts when the v1 engine was deleted (owner decision 1); its only other reader. */
+export const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean => {
+  if (value === undefined || value === null || value.trim() === "") return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "y", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
+  return fallback;
+};

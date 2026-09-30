@@ -28,5 +28,3 @@ export { adaptHardLogicForScoring } from "./agent3b-scoring-adapter.js";
 export type { ScorerChapter, ScorerNarrativeOutlineOutput } from "./agent7-scoring-adapter.js";
 export { adaptNarrativeForScoring } from "./agent7-scoring-adapter.js";
 
-export type { ChapterProse, ProseOutput } from "./agent9-scoring-adapter.js";
-export { collectClueEvidenceFromProse, adaptProseForScoring } from "./agent9-scoring-adapter.js";

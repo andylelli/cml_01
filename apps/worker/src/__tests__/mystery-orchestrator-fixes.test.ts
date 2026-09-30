@@ -6,7 +6,6 @@ import {
   applyDeterministicCluePreAssignment,
   rebalanceNarrativeSceneCountsDeterministically,
 } from "../jobs/agents/agent7-run.js";
-import { applyDeterministicProsePostProcessing, isSuspectEliminationCoverageError } from "../jobs/agents/agent9-run.js";
 
 describe("mystery orchestrator fix coverage", () => {
   it("deterministic clue pre-assignment reaches minimum coverage", () => {
@@ -146,29 +145,6 @@ describe("mystery orchestrator fix coverage", () => {
     expect(snapshot.perAct[1]).toBe(8);
     expect(snapshot.perAct[2]).toBe(14);
     expect(snapshot.perAct[3]).toBe(8);
-  });
-
-  it("prose post-processing rewrites scaffold leakage and dedups repeated long paragraphs", () => {
-    const scaffold = "At the old hall, the smell of oil and wet stone mixed with wind and weather, creating an atmosphere ripe for revelation.";
-    const repeated = "This is an intentionally long repeated paragraph used for deterministic dedup testing. ".repeat(4);
-
-    const prose = {
-      chapters: [
-        { title: "Ch1", paragraphs: [scaffold, repeated] },
-        { title: "Ch2", paragraphs: [repeated] },
-      ],
-    } as any;
-
-    const locationProfiles = [{ name: "The Hall", place: "Harrow", country: "England" }] as any;
-    const processed = applyDeterministicProsePostProcessing(prose, locationProfiles);
-
-    expect(processed.chapters[0].paragraphs.some((p: string) => /atmosphere\s+ripe\s+for\s+revelation/i.test(p))).toBe(false);
-    expect(processed.chapters[1].paragraphs[0]).not.toBe(repeated);
-  });
-
-  it("suspect elimination classifier recognizes alias error keys", () => {
-    const err = { type: "suspect_elimination_coverage_incomplete", message: "coverage missing" };
-    expect(isSuspectEliminationCoverageError(err)).toBe(true);
   });
 
   it("downgrades standalone Logical Deducibility critical flag when deterministic coverage has no structural corroboration", () => {

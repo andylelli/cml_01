@@ -63,10 +63,6 @@ import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
 import { resolveRole, roleLabel, type ResolvedRole, type RoleTelemetry } from "./roles.js";
 
-/** The master switch. Read at call time (ADR-0004); anything but `v2` leaves v1 untouched. */
-export const isProseEngineV2 = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  String(env.PROSE_ENGINE ?? "").trim().toLowerCase() === "v2";
-
 /**
  * How many continuation calls one draft may use.
  *

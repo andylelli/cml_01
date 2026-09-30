@@ -14,7 +14,7 @@
  *   → Agent9 (Prose + Release Gate)
  */
 
-import { parseBooleanEnv } from "./agents/agent9/flags.js";
+import { parseBooleanEnv } from "./env-flags.js";
 import { artifactPersister } from "./artifact-persistence.js";
 import { recordRunEnvironment } from "./run-config.js";
 import { join } from "path";
