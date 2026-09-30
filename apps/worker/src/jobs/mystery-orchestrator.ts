@@ -323,7 +323,7 @@ export async function generateMystery(
    * exception, or a Ctrl-C, the guards call exactly the writer A_71 §1.1 made honest, instead of the
    * process vanishing with the run's only record unwritten.
    */
-  registerShutdownFlush(savePartialReport);
+  registerShutdownFlush(runId, savePartialReport);
 
   /**
    * A_70 §4 — stamp terminal "this run never finished" markers onto the surviving partial snapshot.
@@ -725,7 +725,7 @@ export async function generateMystery(
   } finally {
     // A_73 Part IV §1 — the run is over, one way or another. A stale flush would let a LATER crash
     // rewrite a finished run's report with a snapshot of the run before it.
-    clearShutdownFlush();
+    clearShutdownFlush(runId);
   }
 }
 

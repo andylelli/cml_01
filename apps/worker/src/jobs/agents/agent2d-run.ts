@@ -36,7 +36,7 @@ export async function runAgent2d(ctx: OrchestratorContext): Promise<void> {
   // A_53 P6 (agent2d-validation-warns-not-errors): deterministically re-pin the load-bearing temporal
   // fields (seasonal.month + seasonal.season) to the mandated month before they feed the Agent 9
   // season lock — the month is mandated and the season follows from it, so they must never drift even
-  // if the LLM ignored the prompt. Schema errors are recorded as errors (not just warnings).
+  // if the LLM ignored the prompt. (A residual schema miss is a warning — see below; A1X-D12.)
   const tc = ctx.temporalContext as any;
   const mandatedMonth = String(tc?.specificDate?.month ?? "").trim();
   if (tc?.seasonal && mandatedMonth) {

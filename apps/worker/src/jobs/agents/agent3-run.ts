@@ -20,6 +20,7 @@ import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9Ll
 import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
 import {
   applyCmlRepairAndRevalidate,
+  reportNormalizationNotes,
   buildCmlGenerationRequest,
   checkVictimCulpritCollision,
 } from "./agent3/cml-acceptance.js";
@@ -171,13 +172,7 @@ async function generateAcceptedCml(ctx: OrchestratorContext) {
     ctx.warnings.push(`Agent 3 time-model split: ${finding}.`);
   }
 
-  // What normalization had to INVENT because the model did not supply it. The culprit is the one
-  // that matters: on run 20260802-1654 the model returned `culprits: []`, normalization filled it
-  // positionally with the falsely-accused suspect, and the run shipped, scored 80, and had the
-  // resulting defect attributed to the prose. A fabricated answer must never read like a decided one.
-  for (const note of cmlResult.normalizationNotes ?? []) {
-    ctx.warnings.push(`Agent 3 normalization: ${note}`);
-  }
+  reportNormalizationNotes(ctx, cmlResult); // what normalization invented (see the function)
 
   if (!cmlResult.validation.valid) {
     if (cmlResult.degraded) {
@@ -283,6 +278,7 @@ async function retryOnVictimCulpritCollision(ctx: OrchestratorContext, contractR
       ctx,
       "collision-repair retry"
     );
+    reportNormalizationNotes(ctx, retryResult, "collision-repair retry"); // A34-D06
     // A_53 P3 (collision-retry-cost-double-count): retryResult.cost is the CUMULATIVE byAgent total,
     // so accumulating double-counts the first generation — assign, like the novelty-retry path below.
     ctx.agentCosts["agent3_cml"] = retryResult.cost;

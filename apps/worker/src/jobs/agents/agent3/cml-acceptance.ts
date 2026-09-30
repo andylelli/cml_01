@@ -131,6 +131,22 @@ export function deriveAlibiSpans(cml: any): { derived: number; unreadable: strin
   return { derived, unreadable };
 }
 
+/**
+ * What normalization had to INVENT because the model did not supply it, onto the run warnings. The culprit
+ * is the one that matters: on run 20260802-1654 the model returned `culprits: []`, normalization filled it
+ * positionally with the falsely-accused suspect, and the run shipped, scored 80, and had the resulting defect
+ * attributed to the prose. A fabricated answer must never read like a decided one.
+ *
+ * A34-D06: only the FIRST generation's notes were reported. When a collision or novelty retry replaced that
+ * CML, the shipped case's own notes were dropped and the report described the discarded one. `phase` names
+ * the retry; the first generation keeps its line exactly.
+ */
+export function reportNormalizationNotes(ctx: OrchestratorContext, cmlResult: { normalizationNotes?: string[] }, phase?: string): void {
+  for (const note of cmlResult.normalizationNotes ?? []) {
+    ctx.warnings.push(phase ? `Agent 3 normalization (${phase}): ${note}` : `Agent 3 normalization: ${note}`);
+  }
+}
+
 export function applyCmlRepairAndRevalidate(
   cmlResult: Awaited<ReturnType<typeof generateCML>>,
   ctx: OrchestratorContext,

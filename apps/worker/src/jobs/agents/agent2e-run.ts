@@ -100,7 +100,10 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
       const total = deterministicFields.length;
 
       ctx.warnings.push(
-        `[agent2e-derive][shadow] deterministic fields matched: ${matched}/${total}; only backdropSummary differs`
+        // A1X-D12: this said "only backdropSummary differs" whatever the count; it names the mismatches now.
+        `[agent2e-derive][shadow] deterministic fields matched: ${matched}/${total}` +
+          (mismatches.length ? `; mismatched: ${mismatches.join(", ")}` : "") +
+          "; backdropSummary (creative) is not compared"
       );
       for (const field of mismatches) {
         ctx.warnings.push(

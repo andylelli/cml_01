@@ -15,6 +15,7 @@ import { priorRunFingerprints, cellRepeatDepth } from "../prior-run-fingerprints
 import { resolveWorkspaceRoot } from "../novelty-ledger.js";
 import {
   applyCmlRepairAndRevalidate,
+  reportNormalizationNotes,
   buildCmlGenerationRequest,
   checkVictimCulpritCollision,
 } from "./agent3/cml-acceptance.js";
@@ -137,7 +138,8 @@ export async function runNoveltyPhase(ctx: OrchestratorContext, retriesEnabled: 
         projectId: ctx.projectId || "",
       });
       ctx.agentCosts["agent8_novelty"] = result.cost;
-      ctx.agentDurations["agent8_novelty"] = Date.now() - noveltyStart;
+      // A1X-D12: a re-audit after the novelty retry ADDS its time; it overwrote the first audit's.
+      ctx.agentDurations["agent8_novelty"] = (ctx.agentDurations["agent8_novelty"] ?? 0) + (Date.now() - noveltyStart);
       return result;
     };
 
@@ -177,6 +179,7 @@ export async function runNoveltyPhase(ctx: OrchestratorContext, retriesEnabled: 
       );
 
       cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "novelty retry CML generation");
+      reportNormalizationNotes(ctx, cmlResult, "novelty retry"); // A34-D06
 
       ctx.agentCosts["agent3_cml"] = cmlResult.cost;
       ctx.agentDurations["agent3_cml"] += Date.now() - cmlRetryStart;
