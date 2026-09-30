@@ -136,7 +136,7 @@ A9V-Q02	CR-16	todo
 A9V-Q03	CR-17	todo		
 A9V-Q04	CR-31	todo		
 A9V-Q05	CR-30	todo		
-A9V-Q06	CR-20	todo		
+A9V-Q06	CR-20	todo		v1 prose parser: moot once v1 is deleted (owner decision 1)
 A9R-01	CR-23	todo		
 A9R-02	CR-31	todo		
 A9R-03	CR-29	todo		
@@ -185,7 +185,7 @@ A5-16	CR-28	todo
 A5-17		withdrawn		CPU is not a lever (README §3)
 A5-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
 A5-D02	CR-06	done	dff49644	
-A5-D03	CR-16	todo		OWNER = A5-Q01 (is CASE.death_method a legal source?); the table (ec47208f) makes it one field
+A5-D03	CR-16	done	79e6d803	The worker no longer rewrites the key-tell clue off CASE.death_method (MEASURED before: logs/canary-95041.log)
 A5-D04	CR-29	todo		
 A5-D05	CR-07	todo		
 A5-D06	CR-25	todo		OWNER: a 2-line fix (invalidate strictPromptFeedbackCache/strictSourcePathWhitelistCache after remapMissingDiscriminatingEvidenceIdsToExistingClues, as three other sites do) stops a fabricated clue on remap runs — it changes clues, so prompts downstream; needs a flag or the owner's yes
@@ -193,7 +193,7 @@ A5-D07	CR-17	todo
 A5-D08	CR-15	todo		
 A5-D09	CR-16	done	12131e7c	One body: buildCoverageSnapshot(cml, clues, { mechanismVisibility }) in clue-contracts/contracts.ts; Agent 5 passes false, Agent 6 true. MEASURED: Agent 5's copy feeds the coverage-retry PROMPT (agent5/extraction.ts violations list), so including checkMechanismVisibility there is R2 (a prompt change); the release gates read Agent 6's full snapshot, written last by runAgent6 — absorbed per WF-002
 A5-D10	CR-20	done	21992344	category/placement/criticality lower-cased at parse; suspect-coverage eligibility lower-cased
-A5-Q01	CR-16	todo		
+A5-Q01	CR-16	done	79e6d803	DECIDED (owner decision 4): CASE.death_method is legal; workerLegal true, the enumerator always offers it; prompt, validator and strict whitelist name the same set
 A5-Q02	CR-07	todo		
 A5-Q03	CR-28	todo		
 A5-Q04	CR-16	todo		
@@ -279,9 +279,9 @@ A34-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VER
 A34-D02	CR-17	todo		
 A34-D03	CR-07	todo		
 A34-D04	CR-07	todo		
-A34-D05	CR-12	todo		OWNER (A34-Q01): the last-resort culprit fallback (normalizedCast[0]) can name the detective or victim; fixing it changes the CML on that path
+A34-D05	CR-12	done	51664c31	cannotBeCulprit (role or archetype) on both paths; Agent 3's last resort never the detective/victim, Agent 4 drops such a culprit (owner decision 5 §4). MEASURED: the old last resort named Holmes, Thorndyke x2, Philo Vance, Father Brown, John Straker on the harness's casts
 A34-D06	CR-33	done	ba1b5496	notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496)
-A34-D07	CR-20	todo		OWNER (ORC-Q03): Agent 4 is now `parseLlmJson(raw, { guard: false, extract: "strict+repair" })` — guarding it is one word
+A34-D07	CR-20	done	79e6d803	Agent 4's parse ladder guarded (owner decision 3); a truncated full-CML re-emission is refused, a YAML reply reaches the (now lossless) YAML fallback
 A34-D08	CR-29	dup		= A34-09
 A34-D09	CR-18	todo		
 A34-D10	CR-07	todo		
@@ -290,8 +290,8 @@ A34-D12	CR-29	todo
 A34-D13	CR-32	todo		
 A34-D14	CR-06	done	ec237e5a	
 A34-D15	CR-19	done	50e05468	patch path adds the Agent4-Patch label
-A34-D16	CR-14	todo		OWNER (A34-Q01 step 2): the generate profile's cast list is a fixed field list, so role/moral_complexity are dropped every run; preserving them changes the CML every downstream prompt reads. Pinned by the characterisation's 'extra schema fields' damage
-A34-Q01	CR-14	todo		OWNER. The two profiles now sit side by side in cml/normalize.ts; each divergent row is one section of one profile, and the characterisation snapshot shows what a convergence moves
+A34-D16	CR-14	done	c7506ca7	Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2)
+A34-Q01	CR-14	done	51664c31	DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH
 A34-Q02	CR-17	todo		
 A34-Q03	CR-30	todo		
 A34-Q04	CR-16	todo		
@@ -362,7 +362,7 @@ ORC-D12	CR-19	dup		= A6-D01
 ORC-D13	CR-06	done	ec237e5a	
 ORC-Q01	CR-07	todo		
 ORC-Q02	CR-03	todo		
-ORC-Q03	CR-20	todo		OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; the guard reads only the tail character, so a payload cut just after an inner `}` passes it; and at Agent 4 a well-formed YAML reply of a valid CML DEGRADES — jsonrepair's array means the YAML fallback never runs (agent4-revise-characterisation 'a YAML reply')
+ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest
 ORC-Q04	CR-17	todo		
 ORC-Q05	CR-22	todo		
 ORC-Q06	CR-33	todo		
