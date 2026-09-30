@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { narrativeInputs } from "./generate.js";
 import { computeActSceneCounts } from "@cml/prompts-llm";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
@@ -226,26 +227,14 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
         ctx.reportProgress("narrative", `Scene count fix: need ${expectedScenes} scenes, got ${actualSceneCount}`, 80);
 
         const sceneCountRetryStart = Date.now();
-        const sceneCountRetried = await formatNarrative(ctx.client, {
-          caseData: ctx.cml!,
-          clues: ctx.clues!,
-          targetLength: ctx.inputs.targetLength,
-          narrativeStyle: ctx.inputs.narrativeStyle,
-          detectiveType: ctx.inputs.detectiveType,
-          qualityGuardrails: [
-            `SCENE COUNT VIOLATION: Your previous outline had ${actualSceneCount} scenes. ` +
-            `The target is EXACTLY ${expectedScenes} scenes — no more, no fewer. ` +
-            `You MUST generate EXACTLY: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
-            `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
-            `Count your scenes carefully before returning. ` +
-            `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
-            ...run.pacingGuardrails,
-          ],
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          ...run.lockedFactsSpread,
-          ...run.completenessSpread,
-        });
+        const sceneCountRetried = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
+          `SCENE COUNT VIOLATION: Your previous outline had ${actualSceneCount} scenes. ` +
+          `The target is EXACTLY ${expectedScenes} scenes — no more, no fewer. ` +
+          `You MUST generate EXACTLY: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
+          `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
+          `Count your scenes carefully before returning. ` +
+          `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
+        ]));
         ctx.agentCosts["agent7_narrative"] =
           sceneCountRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
         ctx.agentDurations["agent7_narrative"] =

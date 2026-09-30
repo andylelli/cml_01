@@ -158,25 +158,28 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
 export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("location-profiles", "Generating location profiles...", 89);
 
+  // CR-21 (ORC-02): the one generateLocationProfiles input — the scored attempt and the scene-gate regen.
+  const locationInputs = (feedback?: string): Parameters<typeof generateLocationProfiles>[1] => ({
+    settingRefinement: ctx.setting!.setting,
+    caseData: ctx.cml!,
+    // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
+    // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
+    // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
+    // generateLocationProfiles declares the field optional and degrades cleanly (it derives
+    // scene locations only when acts are present). This used to carry a `!` assertion, which
+    // was a no-op at runtime but told every reader the value was available. It is not.
+    narrative: ctx.narrative,
+    tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
+    targetWordCount: 1000,
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
   ctx.locationProfiles = compileSensoryAtoms(await runStage(ctx, {
     agentId: "agent2c_location_profiles",
     phaseName: "Location Profiles",
     generate: async (retryFeedback?: string) => {
-      const locResult = await generateLocationProfiles(ctx.client, {
-        settingRefinement: ctx.setting!.setting,
-        caseData: ctx.cml!,
-        // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
-        // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
-        // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
-        // generateLocationProfiles declares the field optional and degrades cleanly (it derives
-        // scene locations only when acts are present). This used to carry a `!` assertion, which
-        // was a no-op at runtime but told every reader the value was available. It is not.
-        narrative: ctx.narrative,
-        tone: appendRetryFeedback(ctx.inputs.tone || "Classic", retryFeedback),
-        targetWordCount: 1000,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
+      const locResult = await generateLocationProfiles(ctx.client, locationInputs(retryFeedback));
       return { result: locResult, cost: locResult.cost };
     },
     score: async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),
@@ -283,15 +286,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       const costBefore = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
       let regenerated: Awaited<ReturnType<typeof generateLocationProfiles>>;
       try {
-        regenerated = await generateLocationProfiles(ctx.client, {
-          settingRefinement: ctx.setting!.setting,
-          caseData: ctx.cml!,
-          narrative: ctx.narrative,
-          tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
+        regenerated = await generateLocationProfiles(ctx.client, locationInputs(feedback));
       } catch (err) {
         // A gate must never kill a run: a regeneration failure keeps the best-so-far.
         ctx.warnings.push(`[agent2c-scene-gate][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);

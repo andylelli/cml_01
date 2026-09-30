@@ -746,23 +746,26 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   const effectiveCastNames = ctx.inputs.castNames ?? generateCastNames(ctx.runId, totalCastSize, nameContext);
 
+  // CR-21 (ORC-02): the one designCast input — the scored attempt and the schema-repair re-roll.
+  const castInputs = (retryFeedback?: string): Parameters<typeof designCast>[1] => ({
+    characterNames: effectiveCastNames,
+    characterGenders: ctx.inputs.castGenders,
+    castSize: totalCastSize,
+    setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+    crimeType: "Murder",
+    tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+    socialContext: setting.setting.era.socialNorms.join(", "),
+    detectiveType: ctx.inputs.detectiveType,
+    storyAngle: ctx.inputs.storyAngle,
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
   ctx.cast = await runStage(ctx, {
     agentId: "agent2_cast",
     phaseName: "Cast Design",
     generate: async (retryFeedback?: string) => {
-      const castResult = await designCast(ctx.client, {
-        characterNames: effectiveCastNames,
-        characterGenders: ctx.inputs.castGenders,
-        castSize: totalCastSize,
-        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-        crimeType: "Murder",
-        tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-        socialContext: setting.setting.era.socialNorms.join(", "),
-        detectiveType: ctx.inputs.detectiveType,
-        storyAngle: ctx.inputs.storyAngle,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
+      const castResult = await designCast(ctx.client, castInputs(retryFeedback));
       return { result: castResult, cost: castResult.cost };
     },
     score: async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),
@@ -832,17 +835,11 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
       ];
       const castSchemaRetryStart = Date.now();
       const retriedCast = await designCast(ctx.client, {
-        characterNames: effectiveCastNames,
-        castSize: totalCastSize,
-        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-        crimeType: "Murder",
-        tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-        socialContext: setting.setting.era.socialNorms.join(", "),
-        detectiveType: ctx.inputs.detectiveType,
-        storyAngle: ctx.inputs.storyAngle,
+        ...castInputs(),
+        // ORC-02 drift, kept (owner): the re-roll has never passed the user's genders. Passing them changes
+        // this prompt; A1X-04 proposes applying castGenders deterministically instead.
+        characterGenders: undefined,
         qualityGuardrails: schemaRepairGuardrails,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
       });
       ctx.agentCosts["agent2_cast"] = retriedCast.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent2_cast"] = (ctx.agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);

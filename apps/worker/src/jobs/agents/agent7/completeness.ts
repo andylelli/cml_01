@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import {
@@ -81,23 +82,11 @@ export async function enforcePreCommitCompleteness(ctx: OrchestratorContext, run
       ctx.reportProgress("narrative", "Bundled remediation: fixing outline completeness gaps", 86);
 
       const remediationStart = Date.now();
-      const remediatedNarrative = await formatNarrative(ctx.client, {
-        caseData: ctx.cml!,
-        clues: ctx.clues!,
-        targetLength: ctx.inputs.targetLength,
-        narrativeStyle: ctx.inputs.narrativeStyle,
-        detectiveType: ctx.inputs.detectiveType,
-        qualityGuardrails: [
-          "BUNDLED PRE-COMMIT CONTRACT: fix all listed outline completeness issues in this single response.",
-          ...preCommitIssues.map((issue) => `Pre-commit issue: ${issue}`),
-          ...buildNarrativeSceneCountGuardrails(sceneCountLock, "pre-commit completeness remediation"),
-          ...run.pacingGuardrails,
-        ],
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-        ...run.lockedFactsSpread,
-        ...run.completenessSpread,
-      });
+      const remediatedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
+        "BUNDLED PRE-COMMIT CONTRACT: fix all listed outline completeness issues in this single response.",
+        ...preCommitIssues.map((issue) => `Pre-commit issue: ${issue}`),
+        ...buildNarrativeSceneCountGuardrails(sceneCountLock, "pre-commit completeness remediation"),
+      ]));
 
       ctx.agentCosts["agent7_narrative"] =
         remediatedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)

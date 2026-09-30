@@ -19,19 +19,22 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 
+  // CR-21 (ORC-02): the one refineSetting input — the first attempt and the schema-repair re-roll.
+  const settingInputs = (retryFeedback?: string): Parameters<typeof refineSetting>[1] => ({
+    decade: ctx.inputs.eraPreference || "1930s",
+    location: ctx.locationSpec.location,
+    institution: ctx.locationSpec.institution,
+    storyAngle: ctx.inputs.storyAngle,
+    tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
   ctx.setting = await runStage(ctx, {
     agentId: "agent1_setting",
     phaseName: "Setting Refinement",
     generate: async (retryFeedback?: string) => {
-      const settingResult = await refineSetting(ctx.client, {
-        decade: ctx.inputs.eraPreference || "1930s",
-        location: ctx.locationSpec.location,
-        institution: ctx.locationSpec.institution,
-        storyAngle: ctx.inputs.storyAngle,
-        tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
+      const settingResult = await refineSetting(ctx.client, settingInputs(retryFeedback));
       return { result: settingResult, cost: settingResult.cost };
     },
     score: async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
@@ -121,15 +124,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     }
     ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation with schema repair guardrails");
     const settingSchemaRetryStart = Date.now();
-    const retriedSetting = await refineSetting(ctx.client, {
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-      decade: ctx.inputs.eraPreference || "1930s",
-      location: ctx.locationSpec.location,
-      institution: ctx.locationSpec.institution,
-      storyAngle: ctx.inputs.storyAngle,
-      tone: ctx.inputs.tone,
-    }, 2);
+    const retriedSetting = await refineSetting(ctx.client, settingInputs(), 2);
     ctx.agentCosts["agent1_setting"] = retriedSetting.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent1_setting"] = (ctx.agentDurations["agent1_setting"] || 0) + (Date.now() - settingSchemaRetryStart);
     let retryValidation = validateArtifact("setting_refinement", retriedSetting.setting);

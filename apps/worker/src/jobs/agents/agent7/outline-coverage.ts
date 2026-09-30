@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -176,18 +177,7 @@ export async function enforceOutlineQuality(ctx: OrchestratorContext, run: Agent
       ctx.reportProgress("narrative", "Regenerating outline to address coverage gaps", 80);
 
       const narrativeRetryStart = Date.now();
-      const retriedNarrative = await formatNarrative(ctx.client, {
-        caseData: ctx.cml!,
-        clues: ctx.clues!,
-        targetLength: ctx.inputs.targetLength,
-        narrativeStyle: ctx.inputs.narrativeStyle,
-        detectiveType: ctx.inputs.detectiveType,
-        qualityGuardrails: [...outlineGuardrails, ...countGuardrails, ...run.pacingGuardrails],
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-        ...run.lockedFactsSpread,
-        ...run.completenessSpread,
-      });
+      const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [...outlineGuardrails, ...countGuardrails]));
 
       ctx.agentCosts["agent7_narrative"] =
         retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)

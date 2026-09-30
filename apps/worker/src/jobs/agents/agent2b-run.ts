@@ -25,19 +25,22 @@ import {
 export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("profiles", "Generating character profiles...", 88);
 
+  // CR-21 (ORC-02): the one generateCharacterProfiles input — the scored attempt and the voice-gate regen.
+  const profileInputs = (feedback?: string): Parameters<typeof generateCharacterProfiles>[1] => ({
+    caseData: ctx.cml!,
+    cast: ctx.cast!.cast,
+    tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", feedback),
+    humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
+    targetWordCount: 1000,
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
   ctx.characterProfiles = await runStage(ctx, {
     agentId: "agent2b_profiles",
     phaseName: "Character Profiles",
     generate: async (retryFeedback?: string) => {
-      const profilesResult = await generateCharacterProfiles(ctx.client, {
-        caseData: ctx.cml!,
-        cast: ctx.cast!.cast,
-        tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", retryFeedback),
-        humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
-        targetWordCount: 1000,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
+      const profilesResult = await generateCharacterProfiles(ctx.client, profileInputs(retryFeedback));
       return { result: profilesResult, cost: profilesResult.cost };
     },
     score: async (profilesResult) => scoreCharacterProfilesPhase(profilesResult.profiles, ctx.cast!.cast, ctx.cml!),
@@ -75,15 +78,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           `[agent2b-voice-check][enforce] gate failed (attempt ${attempt}/${maxRetries}); regenerating with voice feedback.`
         );
         const regenStart = Date.now();
-        const regenerated = await generateCharacterProfiles(ctx.client, {
-          caseData: ctx.cml!,
-          cast: ctx.cast!.cast,
-          tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", feedback),
-          humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
+        const regenerated = await generateCharacterProfiles(ctx.client, profileInputs(feedback));
         ctx.agentCosts["agent2b_profiles"] = regenerated.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
         ctx.agentDurations["agent2b_profiles"] =
           (ctx.agentDurations["agent2b_profiles"] ?? 0) + (Date.now() - regenStart);

@@ -161,21 +161,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       const genCostBefore = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
       let regenerated: Awaited<ReturnType<typeof generateHardLogicDevices>>;
       try {
-        regenerated = await generateHardLogicDevices(ctx.client, {
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          decade: setting.setting.era.decade,
-          location: setting.setting.location.description,
-          institution: setting.setting.location.type,
-          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", feedback),
-          theme: appendRetryFeedback(ctx.inputs.theme || "", feedback),
-          primaryAxis: ctx.primaryAxis,
-          mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
-          hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
-          difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
-          noveltyConstraints: ctx.noveltyConstraints,
-          deviceLibraryBlock,
-        });
+        regenerated = await generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock, feedback));
       } catch (err) {
         // A gate must never kill a run: a regeneration failure keeps the best-so-far.
         ctx.warnings.push(`[agent3b-plausibility][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);
@@ -255,26 +241,35 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("hard_logic_devices", `Generated ${ctx.hardLogicDevices!.devices.length} novel hard-logic devices`, 31);
 }
 
+/**
+ * CR-21 (ORC-02): the one generateHardLogicDevices input — the scored attempt and the plausibility regen.
+ * The two copies differed only in `theme`: `ctx.inputs.theme || ""` here, bare in the scored attempt,
+ * where a retry with an undefined theme would have thrown in appendRetryFeedback. theme is a string
+ * on every path that reaches Agent 3b (the API composes it; resume defaults it), so the prompt is unchanged.
+ */
+function deviceInputs(ctx: OrchestratorContext, setting: SettingRefinementResult, deviceLibraryBlock: string, feedback?: string): Parameters<typeof generateHardLogicDevices>[1] {
+  return {
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+    decade: setting.setting.era.decade,
+    location: setting.setting.location.description,
+    institution: setting.setting.location.type,
+    tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", feedback),
+    theme: appendRetryFeedback(ctx.inputs.theme || "", feedback),
+    primaryAxis: ctx.primaryAxis,
+    mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
+    hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
+    difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
+    noveltyConstraints: ctx.noveltyConstraints,
+    deviceLibraryBlock,
+  };
+}
 async function generateDevices(ctx: OrchestratorContext, setting: SettingRefinementResult, deviceLibraryBlock: string, cast: CastDesignResult, backgroundContext: BackgroundContextArtifact) {
   ctx.hardLogicDevices = await runStage(ctx, {
     agentId: "agent3b_hard_logic_devices",
     phaseName: "Hard Logic Devices",
     generate: async (retryFeedback?: string) => {
-      const hlResult = await generateHardLogicDevices(ctx.client, {
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-        decade: setting.setting.era.decade,
-        location: setting.setting.location.description,
-        institution: setting.setting.location.type,
-        tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-        theme: appendRetryFeedback(ctx.inputs.theme, retryFeedback),
-        primaryAxis: ctx.primaryAxis,
-        mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
-        hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
-        difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
-        noveltyConstraints: ctx.noveltyConstraints,
-        deviceLibraryBlock,
-      });
+      const hlResult = await generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock, retryFeedback));
       return { result: hlResult, cost: hlResult.cost };
     },
     score: async (hlResult) => scoreHardLogicPhase(hlResult.devices, setting.setting, cast.cast, backgroundContext, ctx.warnings),

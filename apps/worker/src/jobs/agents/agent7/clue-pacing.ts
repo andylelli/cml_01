@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -300,22 +301,10 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
           );
 
           const pacingRetryStart = Date.now();
-          const pacingRetried = await formatNarrative(ctx.client, {
-            caseData: ctx.cml!,
-            clues: ctx.clues!,
-            targetLength: ctx.inputs.targetLength,
-            narrativeStyle: ctx.inputs.narrativeStyle,
-            detectiveType: ctx.inputs.detectiveType,
-            qualityGuardrails: [
-              `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes. You MUST populate cluesRevealed with at least one clue ID in at least ${minClueScenes} scenes and distribute clues across all three acts.`,
-              ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
-              ...run.pacingGuardrails,
-            ],
-            runId: ctx.runId,
-            projectId: ctx.projectId || "",
-            ...run.lockedFactsSpread,
-            ...run.completenessSpread,
-          });
+          const pacingRetried = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
+            `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes. You MUST populate cluesRevealed with at least one clue ID in at least ${minClueScenes} scenes and distribute clues across all three acts.`,
+            ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
+          ]));
           ctx.agentCosts["agent7_narrative"] =
             pacingRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
           ctx.agentDurations["agent7_narrative"] =
@@ -352,22 +341,10 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
                 86
               );
               const secondStart = Date.now();
-              const secondRetry = await formatNarrative(ctx.client, {
-                caseData: ctx.cml!,
-                clues: ctx.clues!,
-                targetLength: ctx.inputs.targetLength,
-                narrativeStyle: ctx.inputs.narrativeStyle,
-                detectiveType: ctx.inputs.detectiveType,
-                qualityGuardrails: [
-                  `CRITICAL PACING FAILURE (second retry): your outline placed clues in only ${retriedClueCount} of ${retriedOutlineScenes.length} scenes; the minimum is ${retriedMinClueScenes}. EVERY act must contain clue-bearing scenes. Set cluesRevealed to at least one clue ID in AT LEAST ${retriedMinClueScenes} scenes — when unsure, prefer MORE clue-bearing scenes, not fewer.`,
-                  ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
-                  ...run.pacingGuardrails,
-                ],
-                runId: ctx.runId,
-                projectId: ctx.projectId || "",
-                ...run.lockedFactsSpread,
-                ...run.completenessSpread,
-              });
+              const secondRetry = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
+                `CRITICAL PACING FAILURE (second retry): your outline placed clues in only ${retriedClueCount} of ${retriedOutlineScenes.length} scenes; the minimum is ${retriedMinClueScenes}. EVERY act must contain clue-bearing scenes. Set cluesRevealed to at least one clue ID in AT LEAST ${retriedMinClueScenes} scenes — when unsure, prefer MORE clue-bearing scenes, not fewer.`,
+                ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
+              ]));
               ctx.agentCosts["agent7_narrative"] =
                 secondRetry.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
               ctx.agentDurations["agent7_narrative"] =

@@ -61,23 +61,32 @@ export interface Agent7Run {
   completenessSpread: { enableOutlineCompleteness?: true; characterBundle?: any };
 }
 
+/**
+ * CR-21 (ORC-02): the one formatNarrative input. It was written out at seven call sites (first
+ * attempt, schema repair, outline coverage, completeness, scene count, two clue-pacing retries) that
+ * differed only in their own guardrails, which always precede the run's pacing guardrails.
+ */
+export function narrativeInputs(ctx: OrchestratorContext, run: Agent7Run, guardrails: string[]): Parameters<typeof formatNarrative>[1] {
+  return {
+    caseData: ctx.cml!,
+    clues: ctx.clues!,
+    targetLength: ctx.inputs.targetLength,
+    narrativeStyle: ctx.inputs.narrativeStyle,
+    detectiveType: ctx.inputs.detectiveType,
+    qualityGuardrails: [...guardrails, ...run.pacingGuardrails],
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+    ...run.lockedFactsSpread,
+    ...run.completenessSpread,
+  };
+}
+
 export async function generateInitialOutline(ctx: OrchestratorContext, run: Agent7Run): Promise<NarrativeOutline> {
   const narrative = await runStage(ctx, {
     agentId: "agent7_narrative",
     phaseName: "Narrative Outline",
     generate: async (retryFeedback?: string) => {
-      const narrativeResult = await formatNarrative(ctx.client, {
-        caseData: ctx.cml!,
-        clues: ctx.clues!,
-        targetLength: ctx.inputs.targetLength,
-        narrativeStyle: ctx.inputs.narrativeStyle,
-        detectiveType: ctx.inputs.detectiveType,
-        qualityGuardrails: retryFeedback ? [retryFeedback, ...run.pacingGuardrails] : run.pacingGuardrails,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-        ...run.lockedFactsSpread,
-        ...run.completenessSpread,
-      });
+      const narrativeResult = await formatNarrative(ctx.client, narrativeInputs(ctx, run, retryFeedback ? [retryFeedback] : []));
       return { result: narrativeResult, cost: narrativeResult.cost };
     },
     score: async (narrativeResult) => scoreNarrativePhase(narrativeResult, ctx.cml!, ctx.cast!.cast, ctx.inputs.targetLength, ctx.warnings),
@@ -102,18 +111,7 @@ export async function ensureSchemaValid(ctx: OrchestratorContext, run: Agent7Run
     ];
 
     const narrativeSchemaRetryStart = Date.now();
-    const retriedNarrative = await formatNarrative(ctx.client, {
-      caseData: ctx.cml!,
-      clues: ctx.clues!,
-      targetLength: ctx.inputs.targetLength,
-      narrativeStyle: ctx.inputs.narrativeStyle,
-      detectiveType: ctx.inputs.detectiveType,
-      qualityGuardrails: [...schemaRepairGuardrails, ...run.pacingGuardrails],
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-      ...run.lockedFactsSpread,
-      ...run.completenessSpread,
-    });
+    const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, schemaRepairGuardrails));
 
     ctx.agentCosts["agent7_narrative"] =
       retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
