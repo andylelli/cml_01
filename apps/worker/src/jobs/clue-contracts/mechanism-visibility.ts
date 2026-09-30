@@ -6,13 +6,13 @@ import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
-} from "./shared.js";
+} from "../agents/shared.js";
 import {
   normalizeTokens,
-} from "./agent5-clue-time.js";
+} from "./clue-time.js";
 import {
   getCaseBlock,
-} from "./agent5-source-paths.js";
+} from "./source-paths.js";
 
 const MECHANISM_VISIBILITY_STOP_WORDS = new Set([
   "about", "after", "again", "already", "before", "being", "could",

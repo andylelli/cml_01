@@ -7,7 +7,7 @@ import type { CaseData } from "@cml/cml";
 import { WORKER_LEGAL_SOURCE_PATTERNS, enumerateSourcePaths } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
-} from "./shared.js";
+} from "../agents/shared.js";
 
 type SourcePathValidationResult = {
   invalidPaths: string[];

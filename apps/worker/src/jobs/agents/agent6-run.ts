@@ -25,7 +25,7 @@ import {
 } from "./shared.js";
 import {
   recomputeCoverageSnapshotForAgent6,
-} from "./agent5-contracts.js";
+} from "../clue-contracts/contracts.js";
 import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,

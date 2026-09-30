@@ -7,13 +7,13 @@ import type { CaseData } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
   type InferenceCoverageResult,
-} from "./shared.js";
+} from "../agents/shared.js";
 import {
   getCaseBlock,
-} from "./agent5-source-paths.js";
+} from "./source-paths.js";
 import {
   findRedHerringTrueSolutionOverlap,
-} from "./agent5-red-herrings.js";
+} from "./red-herrings.js";
 
 export const CANONICAL_CLUE_ID_RE = /^clue_[a-z0-9_-]+$/i;
 

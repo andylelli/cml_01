@@ -20,7 +20,7 @@ import {
   replaceDigitTimesWithEraWords,
   toClueIdSlug,
   validateSourcePath,
-} from "../agent5-contracts.js";
+} from "../../clue-contracts/contracts.js";
 import {
   Agent5Run,
   Agent5State,

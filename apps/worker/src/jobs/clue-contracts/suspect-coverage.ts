@@ -6,11 +6,11 @@ import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
-} from "./shared.js";
+} from "../agents/shared.js";
 import {
   nameAppearsInText,
   normalizeTokens,
-} from "./agent5-clue-time.js";
+} from "./clue-time.js";
 
 type SuspectCoverageRecord = {
   suspect: string;

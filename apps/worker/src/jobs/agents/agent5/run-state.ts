@@ -11,7 +11,7 @@ import {
   getCaseBlock,
   isOverlapCandidateToken,
   normalizeTokens,
-} from "../agent5-contracts.js";
+} from "../../clue-contracts/contracts.js";
 
 export const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
   const caseBlock = getCaseBlock(cml);

@@ -2,14 +2,13 @@
  * Agent 5 phases: the deterministic clue checks, discriminating-evidence remediation, and the final coverage
  * repair and hard gate. Moved from agent5-run.ts (code review A5-01 / CR-25), which re-exports what it exported.
  */
+import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import { SELECTION_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../../clue-contracts/evidence-candidates.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type OrchestratorContext,
-  type ClueGuardrailIssue,
   applyClueGuardrails,
-  type InferenceCoverageResult,
 } from "../shared.js";
 import {
   CANONICAL_CLUE_ID_RE,
@@ -32,7 +31,7 @@ import {
   strictPromptFeedbackCache,
   strictSourcePathWhitelistCache,
   synthesizeMissingCulpritDiscriminatingClues,
-} from "../agent5-contracts.js";
+} from "../../clue-contracts/contracts.js";
 import {
   Agent5Run,
   Agent5State,
@@ -423,7 +422,7 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   return hardLogicLockedFacts;
 }
 
-export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult, finalCoverage: { coverageResult: InferenceCoverageResult; falseAssumptionIssues: ClueGuardrailIssue[]; discrimTestIssues: ClueGuardrailIssue[]; suspectIssues: ClueGuardrailIssue[]; allCoverageIssues: ClueGuardrailIssue[]; }, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => { coverageResult: InferenceCoverageResult; falseAssumptionIssues: ClueGuardrailIssue[]; discrimTestIssues: ClueGuardrailIssue[]; suspectIssues: ClueGuardrailIssue[]; allCoverageIssues: ClueGuardrailIssue[]; }) {
+export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult, finalCoverage: CoverageSnapshot, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => CoverageSnapshot) {
   const existingEvidenceIds = getCanonicalEvidenceClueIds(ctx.cml!);
   if (existingEvidenceIds.length === 0) {
     const seededEvidenceIds = selectDiscriminatingEvidenceCandidateIds(ctx.cml!, clues, 3);
@@ -545,7 +544,7 @@ export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, 
   return { clues, finalCoverage };
 }
 
-export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: Agent5Run, clues: ClueDistributionResult, finalCoverage: { coverageResult: InferenceCoverageResult; falseAssumptionIssues: ClueGuardrailIssue[]; discrimTestIssues: ClueGuardrailIssue[]; suspectIssues: ClueGuardrailIssue[]; allCoverageIssues: ClueGuardrailIssue[]; }, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => { coverageResult: InferenceCoverageResult; falseAssumptionIssues: ClueGuardrailIssue[]; discrimTestIssues: ClueGuardrailIssue[]; suspectIssues: ClueGuardrailIssue[]; allCoverageIssues: ClueGuardrailIssue[]; }, hardLogicLockedFacts: any) {
+export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: Agent5Run, clues: ClueDistributionResult, finalCoverage: CoverageSnapshot, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => CoverageSnapshot, hardLogicLockedFacts: any) {
   finalCoverage = buildCoverageSnapshot(clues);
   if (finalCoverage.coverageResult.uncoveredSteps.length > 0) {
     const coverageRepairs = synthesizeInferenceStepCoverageClues(

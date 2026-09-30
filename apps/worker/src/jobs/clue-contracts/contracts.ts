@@ -6,14 +6,14 @@
  * worker agent importing another. Both runners now import this module; agent5-run.ts re-exports what it
  * exported, so existing importers keep their path.
  */
-import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "../clue-contracts/evidence-candidates.js";
+import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "./evidence-candidates.js";
 import { provesTheAct } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
   type InferenceCoverageResult,
-} from "./shared.js";
+} from "../agents/shared.js";
 import {
   checkEraTimeStyleInClues,
   findLockedFactClueTimeConflicts,
@@ -22,7 +22,7 @@ import {
   repairLockedFactClueTimeTranspositions,
   replaceDigitTimesWithEraWords,
   sanitizeEraTimeStyleInClues,
-} from "./agent5-clue-time.js";
+} from "./clue-time.js";
 import {
   ALLOWED_SOURCE_PATTERNS,
   buildStrictSourcePathWhitelist,
@@ -31,16 +31,16 @@ import {
   getCaseBlock,
   repairInvalidSourcePaths,
   validateSourcePath,
-} from "./agent5-source-paths.js";
+} from "./source-paths.js";
 import {
   analyzeSuspectCoverage,
   checkSuspectElimination,
-} from "./agent5-suspect-coverage.js";
+} from "./suspect-coverage.js";
 import {
   checkMechanismVisibility,
   extractMechanismVisibilityPhrases,
   extractMechanismVisibilityTerms,
-} from "./agent5-mechanism-visibility.js";
+} from "./mechanism-visibility.js";
 import {
   CANONICAL_CLUE_ID_RE,
   checkContradictionPairs,
@@ -49,7 +49,7 @@ import {
   checkInferencePathCoverage,
   checkInferenceStepBounds,
   getCanonicalEvidenceClueIds,
-} from "./agent5-inference-checks.js";
+} from "./inference-checks.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   CANONICAL_CLUE_ID_RE,
@@ -59,23 +59,23 @@ export {
   checkInferencePathCoverage,
   checkInferenceStepBounds,
   getCanonicalEvidenceClueIds,
-} from "./agent5-inference-checks.js";
+} from "./inference-checks.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   checkMechanismVisibility,
-} from "./agent5-mechanism-visibility.js";
+} from "./mechanism-visibility.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   analyzeSuspectCoverage,
   checkSuspectElimination,
-} from "./agent5-suspect-coverage.js";
+} from "./suspect-coverage.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   RedHerringOverlapDetail,
   findRedHerringOverlapDetails,
   findRedHerringTrueSolutionOverlap,
   isOverlapCandidateToken,
-} from "./agent5-red-herrings.js";
+} from "./red-herrings.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   buildStrictSourcePathWhitelist,
@@ -84,7 +84,7 @@ export {
   repairInvalidSourcePaths,
   strictSourcePathWhitelistCache,
   validateSourcePath,
-} from "./agent5-source-paths.js";
+} from "./source-paths.js";
 // Re-exported so existing importers of this module keep their path.
 export {
   checkEraTimeStyleInClues,
@@ -93,7 +93,7 @@ export {
   repairLockedFactClueTimeTranspositions,
   replaceDigitTimesWithEraWords,
   sanitizeEraTimeStyleInClues,
-} from "./agent5-clue-time.js";
+} from "./clue-time.js";
 
 /**
  * The culprit-direct slot contract. `weaponTrace` / `weaponPhrase` are set when the case carries a
@@ -1476,20 +1476,38 @@ export function enforceAgent5DeterministicContracts(
   return { warnings };
 }
 
-export function recomputeCoverageSnapshotForAgent6(
+export type CoverageSnapshot = {
+  coverageResult: InferenceCoverageResult;
+  falseAssumptionIssues: ClueGuardrailIssue[];
+  discrimTestIssues: ClueGuardrailIssue[];
+  suspectIssues: ClueGuardrailIssue[];
+  allCoverageIssues: ClueGuardrailIssue[];
+};
+
+/**
+ * The coverage checks over one clue set, merged in one order. A5-D09: Agent 5's snapshot has always left
+ * out checkMechanismVisibility (its own timing-gate repair checks it separately) while Agent 6's includes
+ * it. The Agent 5 copy feeds the coverage-retry prompt (agent5/extraction.ts), so aligning the two is a
+ * prompt change (R2); the difference is a parameter here instead of a second body.
+ */
+export function buildCoverageSnapshot(
   cml: CaseData,
   clues: ClueDistributionResult,
-): { coverageResult: InferenceCoverageResult; allCoverageIssues: ClueGuardrailIssue[] } {
-  const inferredCoverage = checkInferencePathCoverage(cml, clues);
+  options: { mechanismVisibility: boolean },
+): CoverageSnapshot {
+  const coverageResult = checkInferencePathCoverage(cml, clues);
   const contradictionIssues = checkContradictionPairs(cml, clues);
   const falseAssumptionIssues = checkFalseAssumptionContradiction(cml, clues);
   const discrimTestIssues = checkDiscriminatingTestReachability(cml, clues);
-  const mechanismVisibilityIssues = checkMechanismVisibility(cml, clues);
+  const mechanismVisibilityIssues = options.mechanismVisibility ? checkMechanismVisibility(cml, clues) : [];
   const suspectIssues = checkSuspectElimination(cml, clues);
   return {
-    coverageResult: inferredCoverage,
+    coverageResult,
+    falseAssumptionIssues,
+    discrimTestIssues,
+    suspectIssues,
     allCoverageIssues: [
-      ...inferredCoverage.issues,
+      ...coverageResult.issues,
       ...contradictionIssues,
       ...falseAssumptionIssues,
       ...discrimTestIssues,
@@ -1497,4 +1515,11 @@ export function recomputeCoverageSnapshotForAgent6(
       ...suspectIssues,
     ],
   };
+}
+
+export function recomputeCoverageSnapshotForAgent6(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+): CoverageSnapshot {
+  return buildCoverageSnapshot(cml, clues, { mechanismVisibility: true });
 }

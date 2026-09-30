@@ -7,7 +7,7 @@ import type { CaseData } from "@cml/cml";
 import { parseClockTime } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
-} from "./shared.js";
+} from "../agents/shared.js";
 
 export const normalizeTokens = (text: string): string[] =>
   text

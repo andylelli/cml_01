@@ -19,16 +19,14 @@ import {
 import {
   CANONICAL_CLUE_ID_RE,
   analyzeSuspectCoverage,
+  buildCoverageSnapshot as buildAgentCoverageSnapshot,
   buildStrictPromptFeedback,
   checkCastNamePathConsistency,
-  checkContradictionPairs,
   checkDiscriminatingTestReachability,
-  checkFalseAssumptionContradiction,
   checkInferencePathCoverage,
   checkMechanismVisibility,
   checkModelAuditConsistency,
   checkSourcePathValidity,
-  checkSuspectElimination,
   enforceAgent5DeterministicContracts,
   findRedHerringOverlapDetails,
   findRedHerringTrueSolutionOverlap,
@@ -41,7 +39,7 @@ import {
   synthesizeMissingCulpritDiscriminatingClues,
   synthesizeMissingDiscriminatingEvidenceClues,
   validateSourcePath,
-} from "./agent5-contracts.js";
+} from "../clue-contracts/contracts.js";
 import {
   Agent5Run,
   Agent5State,
@@ -82,7 +80,7 @@ export {
   findLockedFactClueTimeConflicts,
   recomputeCoverageSnapshotForAgent6,
   repairLockedFactClueTimeTranspositions,
-} from "./agent5-contracts.js";
+} from "../clue-contracts/contracts.js";
 
 const classifyAgent5FailureClass = (message: string): string => {
   const normalized = String(message ?? "").toLowerCase();
@@ -349,27 +347,8 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   ({ clueGuardrails, clues } = await repairAfterFirstGuardrailPass(ctx, run, state, clues, clueGuardrails, sourcePathSnapshot));
 
   // ── WP4: Inference Path Coverage Gate ─────────────────────────────────────
-  const buildCoverageSnapshot = (activeClues: ClueDistributionResult) => {
-    const inferredCoverage = checkInferencePathCoverage(ctx.cml!, activeClues);
-    const contradictionIssues = checkContradictionPairs(ctx.cml!, activeClues);
-    const falseAssumptionIssuesLocal = checkFalseAssumptionContradiction(ctx.cml!, activeClues);
-    const discriminatingIssuesLocal = checkDiscriminatingTestReachability(ctx.cml!, activeClues);
-    const suspectIssuesLocal = checkSuspectElimination(ctx.cml!, activeClues);
-    const mergedCoverageIssues: ClueGuardrailIssue[] = [
-      ...inferredCoverage.issues,
-      ...contradictionIssues,
-      ...falseAssumptionIssuesLocal,
-      ...discriminatingIssuesLocal,
-      ...suspectIssuesLocal,
-    ];
-    return {
-      coverageResult: inferredCoverage,
-      falseAssumptionIssues: falseAssumptionIssuesLocal,
-      discrimTestIssues: discriminatingIssuesLocal,
-      suspectIssues: suspectIssuesLocal,
-      allCoverageIssues: mergedCoverageIssues,
-    };
-  };
+  const buildCoverageSnapshot = (activeClues: ClueDistributionResult) =>
+    buildAgentCoverageSnapshot(ctx.cml!, activeClues, { mechanismVisibility: false });
 
   const initialCoverage = buildCoverageSnapshot(clues);
   const coverageResult = initialCoverage.coverageResult;

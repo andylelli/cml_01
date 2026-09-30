@@ -1,19 +1,19 @@
 /**
  * Agent 5's phase score. Moved from agent5-run.ts (code review A5-01 / CR-25).
  */
+import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { PhaseScore } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type ClueGuardrailIssue,
-  type InferenceCoverageResult,
 } from "../shared.js";
 import {
   Agent5Run,
   Agent5State,
 } from "./run-state.js";
 
-export async function scoreAgent5Phase(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult, clueGuardrails: { issues: ClueGuardrailIssue[]; fixes: string[]; hasCriticalIssues: boolean; }, finalCoverage: { coverageResult: InferenceCoverageResult; falseAssumptionIssues: ClueGuardrailIssue[]; discrimTestIssues: ClueGuardrailIssue[]; suspectIssues: ClueGuardrailIssue[]; allCoverageIssues: ClueGuardrailIssue[]; }) {
+export async function scoreAgent5Phase(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult, clueGuardrails: { issues: ClueGuardrailIssue[]; fixes: string[]; hasCriticalIssues: boolean; }, finalCoverage: CoverageSnapshot) {
   if (ctx.enableScoring && ctx.scoreAggregator) {
     const guardrailTriggered = clueGuardrails.hasCriticalIssues;
     const coverageGapsFound = finalCoverage.coverageResult.hasCriticalGaps;

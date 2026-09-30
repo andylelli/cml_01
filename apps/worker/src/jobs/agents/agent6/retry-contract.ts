@@ -14,7 +14,7 @@ import {
   enforceAgent5DeterministicContracts,
   buildStrictPromptFeedback,
   recomputeCoverageSnapshotForAgent6,
-} from "../agent5-contracts.js";
+} from "../../clue-contracts/contracts.js";
 import { nameAppearsAsWord } from "../identity-match.js";
 
 const appendUniqueStrings = (base: string[] | undefined, additions: string[]): string[] =>

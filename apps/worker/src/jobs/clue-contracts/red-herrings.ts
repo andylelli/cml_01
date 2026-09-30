@@ -6,7 +6,7 @@ import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   getCaseBlock,
-} from "./agent5-source-paths.js";
+} from "./source-paths.js";
 
 export type RedHerringOverlapDetail = {
   redHerringId: string;
