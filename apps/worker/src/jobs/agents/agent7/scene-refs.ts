@@ -3,8 +3,8 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
-import { getGenerationParams } from "@cml/story-validation";
 
 export type SceneRef = {
   scene: any;
@@ -76,9 +76,6 @@ export function checkNarrativeSceneCountFloor(
 }
 
 export function computeTargetActSceneCounts(expectedTotalScenes: number): Record<1 | 2 | 3, number> {
-  const pacing = getGenerationParams().agent7_narrative.params.pacing;
-  const act1 = Math.round(expectedTotalScenes * pacing.act_distribution.act1_ratio);
-  const act2 = Math.round(expectedTotalScenes * pacing.act_distribution.act2_ratio);
-  const act3 = expectedTotalScenes - act1 - act2;
+  const { act1, act2, act3 } = computeActSceneCounts(expectedTotalScenes); // A7-05
   return { 1: act1, 2: act2, 3: act3 };
 }

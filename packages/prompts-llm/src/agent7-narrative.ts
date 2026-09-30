@@ -39,6 +39,7 @@ import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./types/clue-distribution.js";
 import type { PromptComponents } from "./types.js";
 import { getSceneTarget, getStoryLengthTarget } from "@cml/story-validation";
+import { computeActSceneCounts } from "./agent7-act-counts.js";
 
 /**
  * REMOVED 2026-08-20 — `normalizeOutlineTemporalAnchors` and its helpers.
@@ -569,9 +570,7 @@ function buildUserRequest(
   // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
   // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
   // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
-  const actIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act1_ratio);
-  const actIIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act2_ratio);
-  const actIIIScenes = totalSceneCount - actIScenes - actIIScenes; // remainder guarantees exact sum
+  const { act1: actIScenes, act2: actIIScenes, act3: actIIIScenes } = computeActSceneCounts(totalSceneCount); // A7-05
 
   const styleGuidance = {
     classic:

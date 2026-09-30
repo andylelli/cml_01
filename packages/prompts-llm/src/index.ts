@@ -28,6 +28,7 @@ export type {
 } from "./agent4-patch.js";
 export { buildCluePrompt, extractClues, deriveClueObservable, checkPointsToDistinctness } from "./agent5-clues.js";
 export { auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
+export { computeActSceneCounts } from "./agent7-act-counts.js";
 export { formatNarrative, GOLDEN_AGE_BEATS } from "./agent7-narrative.js";
 // R4 — the structured-output flag reader, exported so the worker's coercion telemetry can stamp
 // which arm produced its counters. A count without its arm is not evidence of anything.

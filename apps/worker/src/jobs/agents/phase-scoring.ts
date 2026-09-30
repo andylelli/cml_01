@@ -9,6 +9,7 @@
  * Agent 3's vanity score is built from run counters (attempts, repairs) and stays in its runner; its
  * honest scorer `scoreRealCml` is characterised directly.
  */
+import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { CastCheckResult } from "@cml/prompts-llm";
 import {
   Agent65WorldBuilderScorer,
@@ -21,7 +22,6 @@ import {
   SettingRefinementScorer,
   TemporalContextScorer,
   getChapterTargetTolerance,
-  getGenerationParams,
   getSceneTarget,
   scoreRealBackground,
   scoreRealCast,
@@ -250,10 +250,7 @@ export async function scoreNarrativePhase(
   if (Math.abs(actualSceneCount - expectedSceneCount) > sceneCountTolerance) {
     // Use the SAME act-distribution ratios that buildUserRequest() uses so the
     // retry feedback tells the LLM exactly what the prompt already asked for.
-    const pacing = getGenerationParams().agent7_narrative.params.pacing;
-    const actI   = Math.round(expectedSceneCount * pacing.act_distribution.act1_ratio);
-    const actII  = Math.round(expectedSceneCount * pacing.act_distribution.act2_ratio);
-    const actIII = expectedSceneCount - actI - actII;
+    const { act1: actI, act2: actII, act3: actIII } = computeActSceneCounts(expectedSceneCount); // A7-05
     return {
       adapted,
       score: {

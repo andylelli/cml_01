@@ -3,9 +3,10 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { computeActSceneCounts } from "@cml/prompts-llm";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
-import { getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
+import { getSceneTarget, getChapterTargetTolerance, getStoryLengthTarget } from "@cml/story-validation";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -217,10 +218,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
       } else {
         // Compute exact act targets using the SAME ratios as buildUserRequest() so the
         // retry message is always consistent with what the prompt already asked for.
-        const pacing = getGenerationParams().agent7_narrative.params.pacing;
-        const actI = Math.round(expectedScenes * pacing.act_distribution.act1_ratio);
-        const actII = Math.round(expectedScenes * pacing.act_distribution.act2_ratio);
-        const actIII = expectedScenes - actI - actII;
+        const { act1: actI, act2: actII, act3: actIII } = computeActSceneCounts(expectedScenes); // A7-05
 
         ctx.warnings.push(
           `Scene count final gate: narrative has ${actualSceneCount} scenes but target is ${expectedScenes} — regenerating.`

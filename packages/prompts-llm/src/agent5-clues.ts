@@ -12,8 +12,8 @@ import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { PromptComponents } from "./types.js";
-import type { Clue, RedHerring, ClueDistributionResult, ClueExtractionAudit } from "./types/clue-distribution.js";
-import { deriveClueObservable, deathMethodTellHints } from "./shared/clue-observable.js";
+import type { Clue, ClueDistributionResult } from "./types/clue-distribution.js";
+import { deathMethodTellHints } from "./shared/clue-observable.js";
 // A5-05: moved to leaves; re-exported so every importer of this module keeps its path.
 export type { Clue, RedHerring, ClueDistributionResult, ClueExtractionAudit } from "./types/clue-distribution.js";
 export { deriveClueObservable, deathMethodTellHints } from "./shared/clue-observable.js";
