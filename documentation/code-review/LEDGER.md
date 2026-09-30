@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 51 | 40 | 0 | 91 |
-| open | 139 | 99 | 72 | 310 |
+| closed | 52 | 40 | 0 | 92 |
+| open | 138 | 99 | 72 | 309 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -37,7 +37,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 5 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
-| CR-21 | 5 | 4 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
+| CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 3 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
 | CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
 | CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
@@ -93,7 +93,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
 | CR-20 | A9V-Q06 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? |  |
-| CR-20 | ORC-Q03 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; and the guard reads only the tail character, so a payload cut just after an inner } passes it (llm-json.test.ts, agent8.test.ts) |
+| CR-20 | ORC-Q03 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; the guard reads only the tail character, so a payload cut just after an inner } passes it; and at Agent 4 a well-formed YAML reply of a valid CML DEGRADES — jsonrepair's array means the YAML fallback never runs (agent4-revise-characterisation 'a YAML reply') |
 | CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
 | CR-27 | A9P-Q04 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
@@ -443,7 +443,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
 | A34-06 | P2 | R1 (+R2) | CR-20 | done | 8054d8a6 | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs | Agents 3/4 on the one ladder; sanitizeYaml (byte-identical) moved to shared/llm-json.ts. Not changed: Agent 3's YAML fallback parses with yaml, Agent 4's with js-yaml (js-yaml is declared now) — one library changes what a YAML payload parses to (R2) |
-| A34-07 | P2 | R1 | CR-21 | todo | fe4372dd | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes-leak bug FIXED (fe4372dd, test reproduces it). The loop restructure waits on CR-20 (callLlmJson) and CR-14 (one normaliser), as the item says |
+| A34-07 | P2 | R1 | CR-21 | done | 9cc72b98 | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes leak fixed (fe4372dd); both loops characterised (13 scenarios) then escalation, reply parsing and degrade moved out: generateCML 440 -> 242, reviseCml 419 -> 329, snapshots unchanged. Not done: reviseCml's loop body mutates six locals (current CML, errors, streak, attempt...); a shared runCmlAttemptLoop needs those as a state object — deferred, the target sizes are within reach of that one step |
 | A34-08 | P2 | R0 (+R2) | CR-07 | todo |  | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" |  |
 | A34-09 | P2 | R1 (+R2) | CR-29 | todo |  | Theme families derived 3×; retry feedback pollutes the theme lock (measured) |  |
 | A34-10 | P2 | R0/R1 | CR-16 | todo |  | Placement: planting check mirrored in rubric-score; case-soundness clones |  |
@@ -548,7 +548,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
 | ORC-Q01 |  |  | CR-07 | todo |  | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
 | ORC-Q02 |  |  | CR-03 | todo |  | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
-| ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; and the guard reads only the tail character, so a payload cut just after an inner } passes it (llm-json.test.ts, agent8.test.ts) |
+| ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; the guard reads only the tail character, so a payload cut just after an inner } passes it; and at Agent 4 a well-formed YAML reply of a valid CML DEGRADES — jsonrepair's array means the YAML fallback never runs (agent4-revise-characterisation 'a YAML reply') |
 | ORC-Q04 |  |  | CR-17 | todo |  | ORC-08: which arc-position formula is canonical? |  |
 | ORC-Q05 |  |  | CR-22 | todo |  | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis… |  |
 | ORC-Q06 |  |  | CR-33 | todo |  | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? |  |

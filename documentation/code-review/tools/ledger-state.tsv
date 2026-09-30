@@ -267,7 +267,7 @@ A34-03	CR-17	todo
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	todo		
 A34-06	CR-20	done	8054d8a6	Agents 3/4 on the one ladder; sanitizeYaml (byte-identical) moved to shared/llm-json.ts. Not changed: Agent 3's YAML fallback parses with `yaml`, Agent 4's with `js-yaml` (js-yaml is declared now) — one library changes what a YAML payload parses to (R2)
-A34-07	CR-21	todo	fe4372dd	notes-leak bug FIXED (fe4372dd, test reproduces it). The loop restructure waits on CR-20 (callLlmJson) and CR-14 (one normaliser), as the item says
+A34-07	CR-21	done	9cc72b98	notes leak fixed (fe4372dd); both loops characterised (13 scenarios) then escalation, reply parsing and degrade moved out: generateCML 440 -> 242, reviseCml 419 -> 329, snapshots unchanged. Not done: reviseCml's loop body mutates six locals (current CML, errors, streak, attempt...); a shared runCmlAttemptLoop needs those as a state object — deferred, the target sizes are within reach of that one step
 A34-08	CR-07	todo		
 A34-09	CR-29	todo		
 A34-10	CR-16	todo		
@@ -362,7 +362,7 @@ ORC-D12	CR-19	dup		= A6-D01
 ORC-D13	CR-06	done	ec237e5a	
 ORC-Q01	CR-07	todo		
 ORC-Q02	CR-03	todo		
-ORC-Q03	CR-20	todo		OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; and the guard reads only the tail character, so a payload cut just after an inner `}` passes it (llm-json.test.ts, agent8.test.ts)
+ORC-Q03	CR-20	todo		OWNER. Now one word per site (guard: false at 2b, 2c, 4, 5, 7). MEASURED for the decision: unguarded, jsonrepair turns non-JSON into a value (prose -> a string, YAML -> an array) that then fails a shape check; the guard reads only the tail character, so a payload cut just after an inner `}` passes it; and at Agent 4 a well-formed YAML reply of a valid CML DEGRADES — jsonrepair's array means the YAML fallback never runs (agent4-revise-characterisation 'a YAML reply')
 ORC-Q04	CR-17	todo		
 ORC-Q05	CR-22	todo		
 ORC-Q06	CR-33	todo		
