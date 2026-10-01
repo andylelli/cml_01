@@ -113,6 +113,35 @@ export function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: 
  * full-replace fallback uses, scoped to just the missing names so it never duplicates or crowds out
  * a real relationship. Exported for unit testing.
  */
+/**
+ * Owner decision 10 (A1X-Q03, 2026-10-01): the user's `castGenders` are a specification, so they are applied to
+ * the finished cast rather than only requested in the prompt. MEASURED: Agent 2 obeyed the lock for 25 of 25
+ * locked characters (4 paired projects), so on the archive this moves nothing; it matters on the schema-repair
+ * re-roll, which has never been sent the genders. Names match trimmed and case-insensitively. Returns the
+ * number of characters changed; each change is a warning.
+ */
+export function applyCastGenders(
+  characters: Array<Record<string, unknown>>,
+  castGenders: Record<string, string> | undefined,
+  warnings: string[] = [],
+): number {
+  if (!castGenders) return 0;
+  const wanted = new Map<string, "male" | "female">();
+  for (const [name, gender] of Object.entries(castGenders)) {
+    const g = String(gender ?? "").trim().toLowerCase();
+    if (g === "male" || g === "female") wanted.set(name.trim().toLowerCase(), g);
+  }
+  let changed = 0;
+  for (const character of characters) {
+    const want = wanted.get(String(character.name ?? "").trim().toLowerCase());
+    if (!want || character.gender === want) continue;
+    warnings.push(`[cast-gender] ${String(character.name)}: ${JSON.stringify(character.gender ?? null)} → ${want} (the user's castGenders)`);
+    character.gender = want;
+    changed += 1;
+  }
+  return changed;
+}
+
 export interface RelationshipPairLike {
   character1?: unknown;
   character2?: unknown;
@@ -171,13 +200,15 @@ function normaliseCrimeDynamicsKeys(castRaw: Record<string, unknown>) {
 }
 
 function normaliseCharacterEnumsAndGenders(characters: Record<string, unknown>[]) {
-  const normaliseGender = (value: unknown): "male" | "female" | "non-binary" | undefined => {
+  // Owner decision 10 (A1X-04 R2): one binary vocabulary, as designCast and every pronoun check already assume
+  // (A_73 §40). Anything else — "non-binary" included (0 of 689 archived characters) — is unrecognised and
+  // resolved below like a missing gender.
+  const normaliseGender = (value: unknown): "male" | "female" | undefined => {
     const raw = String(value ?? "").trim().toLowerCase();
     if (!raw) return undefined;
-    if (raw === "male" || raw === "female" || raw === "non-binary") return raw;
+    if (raw === "male" || raw === "female") return raw;
     if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
     if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
-    if (/non[-\s]?binary|\benby\b|^nb$/.test(raw)) return "non-binary";
     return undefined;
   };
 
@@ -822,8 +853,8 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
       const castSchemaRetryStart = Date.now();
       const retriedCast = await designCast(ctx.client, {
         ...castInputs(),
-        // ORC-02 drift, kept (owner): the re-roll has never passed the user's genders. Passing them changes
-        // this prompt; A1X-04 proposes applying castGenders deterministically instead.
+        // ORC-02 drift, kept: the re-roll's prompt has never carried the user's genders. Owner decision 10
+        // applies them deterministically to the finished cast instead (applyCastGenders, below).
         characterGenders: undefined,
         qualityGuardrails: schemaRepairGuardrails,
       });
@@ -847,6 +878,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     }
   }
   castSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Cast schema warning: ${warning}`));
+  applyCastGenders(((ctx.cast!.cast as unknown) as { characters: Array<Record<string, unknown>> }).characters ?? [], ctx.inputs.castGenders, ctx.warnings);
 
   // Phase-0 shadow: run the deterministic cast checker for telemetry only. Default OFF; when
   // AGENT2_CAST_CHECK is set (shadow/on) it LOGS findings (placeholder/gender/enum/archetype/

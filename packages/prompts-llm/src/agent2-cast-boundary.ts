@@ -4,7 +4,7 @@
  * `designCast` (inline, per character) and the worker's `normaliseCastOutput` (as closures) each coerced a
  * model's near-miss enum values with the same patterns and defaults. These are the worker's bodies, moved
  * verbatim; both now call them. Gender is not here: designCast maps to a binary vocabulary and
- * normaliseCastOutput still accepts "non-binary" — converging them is R2 (A1X-04, the owner's).
+ * normaliseCastOutput is binary too since owner decision 10 (2026-10-01).
  */
 
 export const coerceMotiveStrength = (value: unknown): "weak" | "moderate" | "strong" | "compelling" => {
