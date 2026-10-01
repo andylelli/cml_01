@@ -50,7 +50,7 @@ const FLAG_NAME = /\bprocess\.env\.((?:AGENT|RUBRIC|NOVELTY|CANARY|STORY|GEOMETR
  * are given, so a module-scope `const x = envOn("SOME_FLAG")` freezes exactly as a bare read does. Any
  * name counts here: the helpers exist only for flags.
  */
-const HELPER_READ = /\benv(?:On|NotOff)\(\s*["'`]([A-Z0-9_]+)["'`]/;
+const HELPER_READ = /\b(?:env(?:On|NotOff)|readBooleanFlag)\(\s*["'`]([A-Z0-9_]+)["'`]/;
 
 const files = [];
 const walk = (dir) => {

@@ -6,6 +6,7 @@
  * the story's facts.
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { applyHardCaps } from "./hard-caps.js";
 import { extractStoryFacts, mergeFacts, type ScoringCaseInput } from "./facts.js";
@@ -163,7 +164,7 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
   // surfaced in `structural` for telemetry, but they only clamp the score once an A/B confirms no
   // false-positives (probe-before-default-on, §2.8). Runtime env read — never a frozen module const.
   const a68CapsOn =
-    process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "true" || process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "1";
+    readBooleanFlag("RUBRIC_STRUCTURAL_CAPS_A68", false);
   if (a68CapsOn && verdict.temporalContradiction) deterministic.temporalContradiction = true;
   if (a68CapsOn && verdict.duplicateReveal) deterministic.duplicateReveal = true;
 

@@ -1003,3 +1003,16 @@ they govern nothing.
 for those phases (setting, cast, locations, background, hard-logic, narrative) and their worker adapters are deleted,
 with `ProseScorer` (its last caller was v1). Phases 2b, 2d and 6.5 keep their vanity scorer until they get honest
 tables (SCO-Q07). MEASURED: on the 4 golden bundles the honest-only scores equal the old `enforce` arm exactly.
+
+## Addendum — owner decision 9: one boolean vocabulary (2026-10-01)
+
+Every boolean flag read accepts **`1|true|yes|on`** as on and **`0|false|no|off`** as off, case-insensitive and
+trimmed; any other value logs `[flags] NAME="value" is not a recognised value` once per flag and reads as the flag's
+default. The reader is `readBooleanFlag(name, default)` in `@cml/cml` (`packages/cml/src/flags.ts`); the worker's
+`envOn` / `envNotOff` and `readModeFlag` use it or its off-list, and `parseBooleanEnv` is gone. Converted from a
+`"true"`-only or `"1"`-only read: `NOVELTY_SKIP`, `RESUME_DRY`, `REPLAY_DRY`, `CML_SKIP_ENV_FILES`,
+`AGENT_PROFILES_PARALLEL`, `AGENT9_FOLD_SUSPECT_CLEARANCES` (both readers), `AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK`,
+`AGENT7_STRUCTURED_OUTPUT`, `RUBRIC_STRUCTURAL_CAPS_A68`, `ENABLE_SCORING` (dropped `y`/`n`); `LLM_HTTP_TRANSPORT` reads
+the same on-list inline (llm-client has no `@cml/cml` dependency). MEASURED: `.env.local` sets only canonical values
+for these flags, so no current configuration changes. `flags:check` and `flags:runtime` recognise `readBooleanFlag("X"`
+as a read of X (known positive: a planted unregistered read is reported by both).

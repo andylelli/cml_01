@@ -5,6 +5,7 @@
  * engine; these are the declarations the v2 engine, Agent 7 or scoring still read (with every helper they
  * reference, moved by `scripts/move-declarations.mjs --closure`). Nothing in them changed.
  */
+import { readBooleanFlag } from "@cml/cml";
 import { deriveClueObservable } from "../shared/clue-observable.js";
 import type { ClueDistributionResult } from "../types/clue-distribution.js";
 
@@ -198,8 +199,7 @@ const readSceneBeat = (scene: any): string => String(scene?.beat ?? "").trim().t
 // scene title/purpose SIGNALS when (and only when) no beats are present. Flag-gated, default-OFF,
 // probe-first (per §2.8). Runtime getter — never a module const (dotenv-freeze trap).
 const isAftermathFinalSignalFallbackEnabled = (): boolean =>
-  process.env.AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK === "true" ||
-  process.env.AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK === "1";
+  readBooleanFlag("AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK", false);
 
 // The final chapter reads as an aftermath/denouement close.
 const REVELATION_SIGNAL_RE = /(revelation|aftermath|denouement|reckoning|culprit\s+(?:is\s+)?revealed|unmask|case\s+closed|confession|resolution|epilogue|clearance)/;

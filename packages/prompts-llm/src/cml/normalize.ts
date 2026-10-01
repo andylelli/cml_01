@@ -6,6 +6,7 @@
  * both bodies moved here verbatim as two profiles, sharing the sections that are identical.
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
+import { readBooleanFlag } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { isVictimArchetype } from "@cml/cml";
@@ -710,7 +711,7 @@ function gapFillSuspectClearances(caseBlock: Record<string, unknown>, culpabilit
   // reveal already eliminates non-culprits on-page) instead of stamping them all onto a dedicated
   // pre-reveal scene — the structural root of the duplicate "clearance chapter" the probe reads flag.
   // Default-off (probe before default-on); when off, the historical (reveal − 1) coordinate is kept.
-  const foldSuspectClearances = process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
+  const foldSuspectClearances = readBooleanFlag("AGENT9_FOLD_SUSPECT_CLEARANCES", false);
   const clearanceSceneNum = foldSuspectClearances ? revealSceneNum : Math.max(1, revealSceneNum - 1);
 
   // Build a lookup of clue IDs that appear to eliminate each suspect.

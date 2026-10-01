@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import { readBooleanFlag } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import { resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
@@ -403,7 +404,7 @@ function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: Narrative
  */
 export function applySuspectClearanceGate(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   const enabled =
-    process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
+    readBooleanFlag("AGENT9_FOLD_SUSPECT_CLEARANCES", false);
   if (!enabled) return;
   try {
     const sceneRefs = flattenNarrativeScenes(narrative);

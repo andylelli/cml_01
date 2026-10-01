@@ -87,7 +87,8 @@ describe("evaluateRetryGateGuard", () => {
 describe("readModeFlag (ORC-D07)", () => {
   it("reads every spelling of off as off, including `no`", async () => {
     const { readModeFlag } = await import("../jobs/agents/mode-flag.js");
-    for (const off of [undefined, "", " ", "off", "OFF", "false", "0", "no", "No", "n"]) expect(readModeFlag(off)).toBe("");
+    for (const off of [undefined, "", " ", "off", "OFF", "false", "0", "no", "No"]) expect(readModeFlag(off)).toBe("");
+    expect(readModeFlag("n")).toBe("n"); // owner decision 9: "n" is not in the one vocabulary
     expect(readModeFlag(" Shadow ")).toBe("shadow");
     expect(readModeFlag("enforce")).toBe("enforce");
     expect(readModeFlag("on")).toBe("on");

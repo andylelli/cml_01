@@ -26,6 +26,7 @@
  * request, and a rejected request is a failed run.
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
 
 const stringArray = { type: "array", items: { type: "string" } } as const;
@@ -144,4 +145,4 @@ export const NARRATIVE_OUTLINE_SCHEMA_NAME = "narrative_outline";
  * frozen before dotenv loads, so the flag silently never fires). Default OFF per the corpus regime.
  */
 export const isAgent7StructuredOutputEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  env.AGENT7_STRUCTURED_OUTPUT === "true" || env.AGENT7_STRUCTURED_OUTPUT === "1";
+  readBooleanFlag("AGENT7_STRUCTURED_OUTPUT", false, env);

@@ -14,7 +14,7 @@
  *   → Agent9 (Prose + Release Gate)
  */
 
-import { parseBooleanEnv } from "./env-flags.js";
+import { readBooleanFlag } from "@cml/cml";
 import { artifactPersister } from "./artifact-persistence.js";
 import { recordRunEnvironment } from "./run-config.js";
 import { join } from "path";
@@ -253,7 +253,7 @@ export async function generateMystery(
   // fingerprint and any agent: nothing has been produced yet, so nothing is lost.
   warnings.push(...assertFlagCapabilities());
 
-  const enableScoring = parseBooleanEnv(process.env.ENABLE_SCORING, false); // ORC-D07: `=1` read as off
+  const enableScoring = readBooleanFlag("ENABLE_SCORING", false); // ORC-D07: `=1` read as off; owner decision 9's vocabulary ("y"/"n" no longer)
 
   const logsDir = join(WORKER_APP_ROOT, "logs");
   const runLogger = new RunLogger(logsDir, runId, projectId);

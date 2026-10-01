@@ -30,6 +30,7 @@
  * Same case, same cast, same clues, same outline, same geometry contract — one flag apart.
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { join } from "node:path";
 
 import { generateMystery, type MysteryGenerationInputs } from "./mystery-orchestrator.js";
@@ -71,7 +72,7 @@ async function main(): Promise<void> {
 
   const workspaceRoot = process.env.CML_WORKSPACE_ROOT || process.cwd();
   const workerAppRoot = join(workspaceRoot, "apps", "worker");
-  const dry = process.env.RESUME_DRY === "1";
+  const dry = readBooleanFlag("RESUME_DRY", false);
   loadEnvFiles(workspaceRoot);
 
   console.log(`[resume-run] project    : ${projectId}`);

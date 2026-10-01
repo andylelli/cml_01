@@ -3,25 +3,17 @@
  *
  * ORC-05 counted eight parse idioms across the pipeline. These are the two the worker's own flags use
  * most, written out inline at every site: default-OFF flags accept `1|true|yes|on` (any case), and
- * default-ON flags are on unless set to `0|false|no|off`. Each helper is the site's expression verbatim —
- * no trim, the same words — so moving a flag onto it changes no flag's vocabulary (R1). Accepting one
- * vocabulary everywhere, with a warning on unknown values, is ORC-Q05 (R2, the owner's).
+ * default-ON flags are on unless set to `0|false|no|off`. Since owner decision 9 (ORC-Q05, 2026-10-01) both
+ * are @cml/cml's readBooleanFlag: the one vocabulary, trimmed, with a warning on any other value.
  *
  * Call inside a getter, never at module scope (ADR-0004): `module-const-flag-check.mjs` recognises these
  * calls as flag reads and fails a module-level one, as it does a bare `process.env` read.
  */
 
+import { readBooleanFlag } from "@cml/cml";
+
 /** A default-OFF flag: on for `1`, `true`, `yes`, `on` (any case). */
-export const envOn = (name: string): boolean => /^(1|true|yes|on)$/i.test(process.env[name] ?? "");
+export const envOn = (name: string): boolean => readBooleanFlag(name, false);
 
 /** A default-ON flag: off only for `0`, `false`, `no`, `off` (any case). */
-export const envNotOff = (name: string): boolean => !/^(0|false|no|off)$/i.test(process.env[name] ?? "");
-
-/** Moved from agent9/flags.ts when the v1 engine was deleted (owner decision 1); its only other reader. */
-export const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean => {
-  if (value === undefined || value === null || value.trim() === "") return fallback;
-  const normalized = value.trim().toLowerCase();
-  if (["1", "true", "yes", "y", "on"].includes(normalized)) return true;
-  if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
-  return fallback;
-};
+export const envNotOff = (name: string): boolean => readBooleanFlag(name, true);

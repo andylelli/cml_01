@@ -3,6 +3,7 @@
  * the character bundle (Pillar 2), and the cross-run novelty constraints. Moved from generateMystery (code
  * review ORC-01 / CR-25).
  */
+import { readBooleanFlag } from "@cml/cml";
 import { join } from "path";
 import { WORKER_RUNTIME_PATHS } from "../runtime-paths.js";
 const WORKER_APP_ROOT = WORKER_RUNTIME_PATHS.workerAppRoot;
@@ -160,7 +161,7 @@ export function assembleCharacterBundle(
  * a behaviour lever under the corpus regime, not a free refactor.
  */
 const profilesParallelEnabled = (): boolean =>
-  process.env.AGENT_PROFILES_PARALLEL === "true" || process.env.AGENT_PROFILES_PARALLEL === "1";
+  readBooleanFlag("AGENT_PROFILES_PARALLEL", false);
 
 export async function applyCrossRunNoveltyConstraints(noveltyConstraints: { divergeFrom: string[]; areas: string[]; avoidancePatterns: string[]; }, warnings: string[]) {
   if (isCrossRunNoveltyEnabled()) {

@@ -173,7 +173,7 @@ const collectCodeFlags = () => {
       const literal = scannable.matchAll(/["']([A-Z][A-Z0-9_]{3,})["']/g);
       // 3. CR-22: the worker's flag helpers, `envOn("X")` / `envNotOff("X")` (apps/worker/src/jobs/env-flags.ts),
       //    which read process.env[name] for the name they are given.
-      const helper = text.matchAll(/\benv(?:On|NotOff)\(\s*["'`]([A-Z][A-Z0-9_]+)["'`]/g);
+      const helper = text.matchAll(/\b(?:env(?:On|NotOff)|readBooleanFlag)\(\s*["'`]([A-Z][A-Z0-9_]+)["'`]/g); // + owner decision 9's helper
 
       for (const match of [...direct, ...literal, ...helper]) {
         const name = match[1] || match[2];

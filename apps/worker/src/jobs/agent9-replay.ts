@@ -39,6 +39,7 @@
  * Azure creds are read from .env.local / .env at the workspace root (never printed).
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -293,7 +294,7 @@ async function main(): Promise<void> {
 
   const workspaceRoot = process.env.CML_WORKSPACE_ROOT || process.cwd();
   const workerAppRoot = join(workspaceRoot, "apps", "worker");
-  const dry = process.env.REPLAY_DRY === "1";
+  const dry = readBooleanFlag("REPLAY_DRY", false);
   loadEnvFiles(workspaceRoot);
 
   const runId = label || `replay-${Date.now()}`;

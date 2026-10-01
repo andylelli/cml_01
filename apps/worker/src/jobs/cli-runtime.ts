@@ -10,6 +10,7 @@
  * be invisible to the only cost measurement this project trusts.
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -53,7 +54,7 @@ export function replayCompletenessProblems(): { lines: string[]; failed: boolean
 export function loadEnvFiles(root: string): void {
   // CR-03 — a replay fixture carries its own flag environment; this machine's .env.local must not
   // leak into it (CI has none, so a fixture digested against a local file would fail there).
-  if (process.env.CML_SKIP_ENV_FILES === "1") return;
+  if (readBooleanFlag("CML_SKIP_ENV_FILES", false)) return;
   for (const name of [".env.local", ".env"]) {
     const path = join(root, name);
     if (!existsSync(path)) continue;
