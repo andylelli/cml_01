@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 148 | 127 | 58 | 333 |
-| open | 42 | 12 | 14 | 68 |
+| closed | 149 | 127 | 58 | 334 |
+| open | 41 | 12 | 14 | 67 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -43,7 +43,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
 | CR-25 | 9 | 4 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
 | CR-26 | 7 | 7 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
-| CR-27 | 14 | 10 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
+| CR-27 | 14 | 11 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
 | CR-29 | 20 | 18 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
 | CR-30 | 21 | 19 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
@@ -502,7 +502,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | SCO-01 | P1 | R2 | CR-30 | done | 51f0d14a | Two live scorer families; vanity family measures adapter fabrication — owner decision to retire it | DECIDED (owner decision 8): the vanity family is retired for phases 1/2/2c/2e/3/3b/7 and ProseScorer; 2b/2d/6.5 keep theirs until honest tables exist (SCO-Q07) |
 | SCO-02 | P1 | R1 | CR-18 | done | 6cd2bdae | One scoring engine: 40/30/20/10 skeleton copied 11×, grade ladder 16×, failure-reason 10× | 8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done) |
-| SCO-03 | P2 | R1 | CR-27 | todo |  | Declarative per-agent check tables over the engine; 129 hand-written pass/partial ternaries |  |
+| SCO-03 | P2 | R1 | CR-27 | withdrawn | 51f0d14a | Declarative per-agent check tables over the engine; 129 hand-written pass/partial ternaries | MOOT in substance: the 129 pass/partial ternaries were in the vanity scorers deleted by decision 8; the seven honest scorers (~1,000 lines) already share assembleHonestScore, with 42 short checks — a table layer would fix nothing |
 | SCO-04 | P1 | R1 | CR-18 | done | d860f265 | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored | displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned) |
 | SCO-05 | P1 | R1 | CR-18 | done | 2050362e 52cc50ad | generateReport (324 LOC, cc 59) and five writers of run outcome | deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change) |
 | SCO-06 | P1 | R0/R1 | CR-16 | done | 5107cbf3 | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites | move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9) |

@@ -11,7 +11,7 @@ import { ensureObject, normalizeCmlForRevision } from "./cml/normalize.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
-import { validateCml } from "@cml/cml";
+import { validateCml, verifiedFixesEnabled } from "@cml/cml";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import yaml from "js-yaml";
 import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
@@ -24,6 +24,17 @@ export interface RevisionInputs {
   maxAttempts?: number;              // Max revision attempts for prompt context
   runId?: string;                    // For logging
   projectId?: string;                // For logging
+  /** A34-08: the case's primary axis, printed as "Mystery Axis" when CML_VERIFIED_FIXES is on. */
+  primaryAxis?: string;
+}
+
+/**
+ * A34-08 (owner decision 12, CML_VERIFIED_FIXES): the "Mystery Axis" line printed the first 200 characters of Agent
+ * 3's user prompt (its setting block, not the axis). ON, and when the caller passes the axis, it prints the axis.
+ */
+function mysteryAxisLine(inputs: RevisionInputs): string {
+  if (verifiedFixesEnabled() && inputs.primaryAxis) return inputs.primaryAxis;
+  return `${inputs.originalPrompt.user.substring(0, 200)}...`;
 }
 
 export interface RevisionResult {
@@ -132,7 +143,7 @@ function groupErrorsBySection(errors: string[]): Map<string, string[]> {
  * Build revision prompt with error context and targeted fixes
  */
 export function buildRevisionPrompt(inputs: RevisionInputs): PromptComponents {
-  const { originalPrompt, invalidCml, validationErrors, attempt, maxAttempts } = inputs;
+  const { invalidCml, validationErrors, attempt, maxAttempts } = inputs;
   const promptMaxAttempts = typeof maxAttempts === "number" && maxAttempts > 0 ? maxAttempts : 5;
   const requiredEvidenceGapErrors = validationErrors.filter(hasRequiredEvidenceMissingSignal);
   const hasStructuralFairPlayCoverageError = validationErrors.some((error) =>
@@ -316,7 +327,7 @@ When cast members are missing fields like age_range, role_archetype, etc.:
   // Original prompt context (abbreviated to save tokens)
   developer += `## Original Requirements (for context)
 
-**Mystery Axis**: ${originalPrompt.user.substring(0, 200)}...
+**Mystery Axis**: ${mysteryAxisLine(inputs)}
 
 `;
 

@@ -6,6 +6,7 @@
  * worker agent importing another. Both runners now import this module; agent5-run.ts re-exports what it
  * exported, so existing importers keep their path.
  */
+import { escapeRegExp as escapeRegexNameLiteral } from "@cml/cml";
 import { appendToClueTimeline, openClueSynthesis } from "./synthesis.js";
 import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "./evidence-candidates.js";
 import { provesTheAct } from "@cml/prompts-llm";
@@ -838,7 +839,6 @@ export const checkCastNamePathConsistency = (cml: CaseData, clues: ClueDistribut
   return issues;
 };
 
-const escapeRegexNameLiteral = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const replaceNameCaseInsensitive = (text: string, fromName: string, toName: string): string => {
   if (!text || !fromName || !toName || fromName.toLowerCase() === toName.toLowerCase()) return text;

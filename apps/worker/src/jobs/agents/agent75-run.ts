@@ -132,7 +132,7 @@ const resolveOpenChoices = async (
         projectId: ctx.projectId ?? "",
         agent: "Agent75-StoryGeometry",
       },
-    } as any);
+    });
 
     const parsed = JSON.parse(response.content) as Record<string, unknown>;
     const clueId = String(parsed.clincher_clue_id ?? "").trim();
@@ -205,10 +205,12 @@ const summarise = (geometry: StoryGeometry): string =>
  * and no deterministic check compared an artifact to the case's own time — this one now does.
  *
  * ON: the facts X39 names — the two device clocks and the duration that is their gap — are removed
- * from BOTH places Agent 9 reads: `ctx.lockedFactRegistry` and `hardLogicDevices.devices[*].lockedFacts`
- * (the latter is what `proseLockedFacts` is built from; dropping from the registry alone would change
- * nothing on the page). The device text stays; only the obligation to print its numbers goes, so the
- * case's own anchors are the one time on the page. OFF: byte-identical. Env read at call time.
+ * from BOTH locked-fact copies: `ctx.lockedFactRegistry` (the one Agent 9 reads — the v2 engine reads
+ * only the registry; v1's `proseLockedFacts`, built from the raw device list, retired with v1) and
+ * `hardLogicDevices.devices[*].lockedFacts` (the raw copy the Agent 5 / Agent 6 clue gates still read
+ * unless A5-D07 is on — see `agent5GateLockedFacts`). A34-03. The device text stays; only the
+ * obligation to print its numbers goes, so the case's own anchors are the one time on the page.
+ * OFF: byte-identical. Env read at call time.
  *
  * KNOWN LIMIT: a resume that skips Agent 7.5 as "survived" restores the stored devices artifact and
  * keeps the facts. The drop is logged so a run that carried them is distinguishable from one that did not.
@@ -319,7 +321,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<true | undef
     const geometry = deriveStoryGeometry({
       cml: ctx.cml,
       clues,
-      narrative: (ctx.narrative as any) ?? null,
+      narrative: ctx.narrative ?? null,
       timelineViolations,
       // REVIEW_05 §10.2 (N2) — the device's other fixed clock values. Without them the two-time check
       // reports a locked timer setting as an incoherence the story invented.
@@ -334,7 +336,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<true | undef
       // A7-D09 (owner decision 12, CML_VERIFIED_FIXES): detect a mutation by content, not by the
       // repair list, so whatever the repair wrote into ctx.narrative is re-persisted by the caller.
       const outlineBefore = verifiedFixesEnabled() && ctx.narrative ? JSON.stringify(ctx.narrative) : null;
-      const result = applyGeometryOutlineRepair(geometry, (ctx.narrative as any) ?? null, ctx.cml);
+      const result = applyGeometryOutlineRepair(geometry, ctx.narrative ?? null, ctx.cml);
       repairs = result.repairs;
       if (outlineBefore !== null && JSON.stringify(ctx.narrative) !== outlineBefore) outlineRepaired = true;
     }

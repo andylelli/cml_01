@@ -369,7 +369,7 @@ ORC-Q06	CR-33	done	a52a1365	DECIDED (owner decision 11): POST /run refuses a sec
 ORC-Q07	CR-32	done	69ed426b	DECIDED (decision 12, CR-32): yes — a set AGENTn_MODEL outranks the explicit tier (client.ts)
 SCO-01	CR-30	done	51f0d14a	DECIDED (owner decision 8): the vanity family is retired for phases 1/2/2c/2e/3/3b/7 and ProseScorer; 2b/2d/6.5 keep theirs until honest tables exist (SCO-Q07)
 SCO-02	CR-18	done	6cd2bdae	8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done)
-SCO-03	CR-27	todo		
+SCO-03	CR-27	withdrawn	51f0d14a	MOOT in substance: the 129 pass/partial ternaries were in the vanity scorers deleted by decision 8; the seven honest scorers (~1,000 lines) already share assembleHonestScore, with 42 short checks — a table layer would fix nothing
 SCO-04	CR-18	done	d860f265	displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned)
 SCO-05	CR-18	done	2050362e 52cc50ad	deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change)
 SCO-06	CR-16	done	5107cbf3	move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9)

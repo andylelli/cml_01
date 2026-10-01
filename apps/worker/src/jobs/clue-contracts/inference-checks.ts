@@ -15,7 +15,8 @@ import {
   findRedHerringTrueSolutionOverlap,
 } from "./red-herrings.js";
 
-export const CANONICAL_CLUE_ID_RE = /^clue_[a-z0-9_-]+$/i;
+import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
+export { CANONICAL_CLUE_ID_RE }; // ORC-13: one body (@cml/cml)
 
 export const getCanonicalEvidenceClueIds = (cml: CaseData): string[] => {
   const caseBlock = getCaseBlock(cml);

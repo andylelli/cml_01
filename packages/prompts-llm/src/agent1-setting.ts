@@ -69,8 +69,12 @@ export interface SettingRefinementResult {
   cost: number;
 }
 
-// Simple hash function to generate variation seeds
-const simpleHash = (str: string): number => {
+// Simple hash function to generate variation seeds.
+// ORC-13: NOT the shared `simpleHash` (shared/temporal-anchor.ts). Same 32-bit mixing loop, but the result
+// is masked UNSIGNED (`>>> 0`) where the shared one takes Math.abs — the two disagree on every input whose
+// signed hash is negative (about half of all strings), and this one does not coerce a non-string.
+// Exported for the ORC-13 property test only.
+export const simpleHashUnsigned = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
@@ -86,7 +90,7 @@ const simpleHash = (str: string): number => {
 
 // Generate variation guidance from a composed seed string
 const generateVariationSeed = (seed: string): { archStyle: number; nameStyle: number; focusArea: number } => {
-  const hash = simpleHash(seed);
+  const hash = simpleHashUnsigned(seed);
   return {
     archStyle: (hash % 5) + 1,         // 1-5: architectural emphasis
     nameStyle: ((hash >>> 4) % 5) + 1, // 1-5: naming convention style

@@ -6,6 +6,7 @@
  * was free to drop the required ids, the direct-culprit clue, the late slot and the canonical values.
  */
 import { buildStrictPromptFeedback } from "../../clue-contracts/contracts.js";
+import { verifiedFixesEnabled } from "@cml/cml";
 import type { OrchestratorContext } from "../shared.js";
 
 type StrictPromptFeedbackBase = ReturnType<typeof buildStrictPromptFeedback>;
@@ -36,6 +37,26 @@ export function buildAgent5LockedFactsPayload(ctx: OrchestratorContext) {
   return ctx.inputs.enableLockedFactRegistry && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0
     ? { lockedFacts: ctx.lockedFactRegistry }
     : {};
+}
+
+/**
+ * The locked facts the Agent 5 / Agent 6 clue gates check against (A5-D07).
+ *
+ * OFF (today): every device's RAW `lockedFacts` — which is not what the prompt sent. The prompt sends
+ * `ctx.lockedFactRegistry` (built from devices[0], wordified, article-stripped, X38-reconciled, X51
+ * case facts appended), so a gate could fail a clue for disagreeing with a value the model was never
+ * shown, and pass one that contradicts a registry value it was.
+ *
+ * A5-D07 (owner decision 12, CML_VERIFIED_FIXES): ON, the gates read exactly the facts the prompt
+ * sent (`buildAgent5LockedFactsPayload`). When the prompt sent none — registry disabled or empty —
+ * the gates keep the raw device facts rather than checking nothing.
+ */
+export function agent5GateLockedFacts(ctx: OrchestratorContext): any[] | undefined {
+  const raw = Array.isArray((ctx as any).hardLogicDevices?.devices)
+    ? (ctx as any).hardLogicDevices.devices.flatMap((d: any) => Array.isArray(d?.lockedFacts) ? d.lockedFacts : [])
+    : undefined;
+  if (!verifiedFixesEnabled()) return raw;
+  return buildAgent5LockedFactsPayload(ctx).lockedFacts ?? raw;
 }
 
 /**

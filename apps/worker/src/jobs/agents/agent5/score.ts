@@ -1,9 +1,9 @@
 /**
  * Agent 5's phase score. Moved from agent5-run.ts (code review A5-01 / CR-25).
  */
+import { calculateGrade } from "@cml/story-validation";
 import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
-import type { PhaseScore } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type ClueGuardrailIssue,
@@ -54,7 +54,7 @@ export async function scoreAgent5Phase(ctx: OrchestratorContext, run: Agent5Run,
         completeness_score: clueCountScore,
         consistency_score: consistencyScore,
         total: clueTotal,
-        grade: (clueTotal >= 90 ? "A" : clueTotal >= 80 ? "B" : clueTotal >= 70 ? "C" : clueTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
+        grade: calculateGrade(clueTotal),
         passed: clueTotal >= 75,
         tests: [
           {

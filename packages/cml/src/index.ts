@@ -21,6 +21,7 @@ import {
 export const packageName = "@cml/cml";
 export { validateCml };
 export { FLAG_ON_VALUES, FLAG_OFF_VALUES, readBooleanFlag, verifiedFixesEnabled } from "./flags.js";
+export { CANONICAL_CLUE_ID_RE, escapeRegExp } from "./text-patterns.js";
 export { isVictimArchetype, isDetectiveArchetype, roleTextsOf, CAST_ROLE_ENUM, explicitRoleOf, isDetectiveMember, isVictimMember, isIdentityRoleWinsEnabled, resolveIdentity } from "./roles.js";
 export type { CastRole } from "./roles.js";
 export { surname, namesMatch, nameAppearsAsWord } from "./identity.js";
@@ -28,6 +29,8 @@ export { SOURCE_PATH_FAMILIES, WORKER_LEGAL_SOURCE_PATTERNS, SOURCE_PATH_PROMPT_
 export type { SourcePathFamily } from "./source-paths.js";
 export { findUnplantedDiscriminatingClues } from "./discriminating-planting.js";
 export type { UnplantedDiscriminatingClues } from "./discriminating-planting.js";
+// A34-03 — the pure locked-fact registry helpers (wording normalisation, implied-interval shape).
+export { numberToWordsSmall, wordifyLockedFactValue, stripLeadingArticleFromLockedValue, impliedIntervalFactId } from "./locked-facts.js";
 // X51 (REVIEW_11 §8.1) — case-scoped locked facts: the weapon and each suspect's alibi location.
 export { buildCaseScopedLockedFacts, extractWeaponFromDeathMethod, extractAlibiLocation } from "./case-locked-facts.js";
 export type { CaseScopedLockedFact } from "./case-locked-facts.js";

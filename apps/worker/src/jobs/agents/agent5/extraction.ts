@@ -52,7 +52,7 @@ export async function extractInitialClues(ctx: OrchestratorContext, run: Agent5R
       || /json|parse|unexpected token|structured output/i.test(String((err as Error)?.message ?? ""));
     if (retryableExtractionFailure) {
       ctx.errors.push("Agent 5 first extraction attempt failed due to malformed model payload (deterministic mode: no LLM retry)");
-      run.failAgent5("Agent 5 extraction failed on malformed model payload in deterministic mode");
+      run.failAgent5("Agent 5 extraction failed on malformed model payload in deterministic mode", "extraction_payload");
     } else {
       throw err;
     }

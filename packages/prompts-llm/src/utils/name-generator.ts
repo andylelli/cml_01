@@ -12,19 +12,13 @@
  * English), giving cultural variety across runs while staying era-authentic.
  */
 
+// ORC-13: the one string hash (was a local copy; identical for every string, and the only call site
+// passes `runId || 'default'`, so the copy's missing undefined-coercion was unreachable).
+import { simpleHash } from "../shared/temporal-anchor.js";
+
 // ---------------------------------------------------------------------------
 // PRNG — linear congruential generator seeded from runId hash
 // ---------------------------------------------------------------------------
-
-const simpleHash = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // 32-bit integer
-  }
-  return Math.abs(hash);
-};
 
 class LCG {
   private state: number;

@@ -6,6 +6,7 @@
  * both bodies moved here verbatim as two profiles, sharing the sections that are identical.
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
+import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
 import { readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
@@ -1097,7 +1098,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
       act_number: typeof entry.act_number === "number" ? entry.act_number : 99,
       scene_number: typeof entry.scene_number === "number" ? entry.scene_number : 99,
     }))
-    .filter((entry) => /^clue_[a-z0-9_-]+$/i.test(entry.clue_id))
+    .filter((entry) => CANONICAL_CLUE_ID_RE.test(entry.clue_id))
     .sort((a, b) => a.act_number - b.act_number || a.scene_number - b.scene_number)
     .map((entry) => entry.clue_id);
 
@@ -1105,7 +1106,7 @@ export function normalizeCmlForRevision(raw: Record<string, unknown>, config: Re
     .map((value) => ensureString(value, ""))
     .filter(Boolean);
   const canonicalDiscriminatingEvidenceIds = rawDiscriminatingEvidenceIds
-    .filter((id) => /^clue_[a-z0-9_-]+$/i.test(id));
+    .filter((id) => CANONICAL_CLUE_ID_RE.test(id));
 
   if (canonicalDiscriminatingEvidenceIds.length > 0) {
     discriminatingTest.evidence_clues = canonicalDiscriminatingEvidenceIds;

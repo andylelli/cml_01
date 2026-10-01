@@ -3,6 +3,7 @@
  * solution, with their deterministic backstops. Moved from agent5-run.ts (code review A5-01 / CR-25), which
  * re-exports what it exported.
  */
+import { escapeRegExp as escapeRegex } from "@cml/cml";
 import { openClueSynthesis } from "../../clue-contracts/synthesis.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -110,7 +111,6 @@ function detectTemporalLexicalCollision(
   };
 }
 
-const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function sanitizeRedHerringOverlap(
   cml: CaseData,
@@ -455,7 +455,8 @@ export async function separateRedHerringsFromSolution(ctx: OrchestratorContext, 
       const remainingSevere = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
       if (remainingSevere.length > 0) {
         run.failAgent5(
-          `Agent 5 red-herring overlap gate failed after deterministic sanitization. Overlapping red herring(s): ${remainingSevere.map((d) => d.redHerringId).join(", ")}`
+          `Agent 5 red-herring overlap gate failed after deterministic sanitization. Overlapping red herring(s): ${remainingSevere.map((d) => d.redHerringId).join(", ")}`,
+          "red_herring_overlap",
         );
       }
     }

@@ -104,6 +104,8 @@ export const generateSpecificDate = (
    * Three files hash a runId and all three answer a falsy one differently:
    *
    *   agent2-cast.ts:167       simpleHash(runId)                 → TypeError (simpleHash reads .length)
+   *                            (since fixed: its caller passes `runId || projectId || ""`, and ORC-13
+   *                            replaced its local copy with this module's coercing `simpleHash`)
    *   HERE                     simpleHash(runId || Math.random()) → NON-DETERMINISTIC
    *   name-generator.ts:568    simpleHash(runId || 'default')     → stable fallback
    *

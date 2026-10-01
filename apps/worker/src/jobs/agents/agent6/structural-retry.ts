@@ -284,6 +284,7 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
       });
 
       const revisedResult = await reviseCml(ctx.client, {
+        primaryAxis: ctx.primaryAxis, // A34-08
         originalPrompt: {
           system: revisionPrompt.system,
           developer: revisionPrompt.developer || "",

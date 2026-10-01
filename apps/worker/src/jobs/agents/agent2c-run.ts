@@ -91,21 +91,7 @@ const normalizeSensoryPhrase = (value: unknown): string => {
   return normalized;
 };
 
-const buildLocationFallback = (locationName: string, field: "sights" | "sounds" | "smells" | "tactile"): string => {
-  const lowerName = locationName.trim().toLowerCase() || "the room";
-  switch (field) {
-    case "sights":
-      return `shadowed corners in ${lowerName}`;
-    case "sounds":
-      return `subdued noise carrying through ${lowerName}`;
-    case "smells":
-      return `stale air lingering in ${lowerName}`;
-    case "tactile":
-      return `cold surfaces at ${lowerName}`;
-  }
-};
-
-const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string[]): any => {
+export const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string[]): any => {
   if (!locationProfiles || typeof locationProfiles !== "object") return locationProfiles;
   const keyLocations = Array.isArray(locationProfiles.keyLocations) ? locationProfiles.keyLocations : [];
   let fallbackInsertions = 0;
@@ -113,7 +99,7 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
   for (const location of keyLocations) {
     if (!location || typeof location !== "object") continue;
     const locationName = String((location as any).name ?? (location as any).id ?? "the room");
-    // Same normalisation buildLocationFallback uses, so both paths name the place identically.
+    // A1X-07: the one place-name normalisation every fallback uses.
     const lowerLocationName = locationName.trim().toLowerCase() || "the room";
     const sensoryDetails = ((location as any).sensoryDetails ??= {});
 
@@ -121,10 +107,9 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
       const existing = Array.isArray(sensoryDetails[field]) ? sensoryDetails[field] : [];
       const normalized = Array.from(new Set(existing.map(normalizeSensoryPhrase).filter(Boolean)));
       while (normalized.length < 2) {
-        const variants = SENSORY_FALLBACK_VARIANTS[field];
-        const variant = variants[normalized.length];
-        const fallback = variant ? variant(lowerLocationName) : buildLocationFallback(locationName, field);
-        normalized.push(fallback);
+        // A1X-07: every table holds two variants and this loop runs at length 0 or 1, so the index is
+        // always defined (the old `buildLocationFallback` branch was unreachable and restated variant 0).
+        normalized.push(SENSORY_FALLBACK_VARIANTS[field][normalized.length](lowerLocationName));
         fallbackInsertions += 1;
       }
       sensoryDetails[field] = normalized;
@@ -139,7 +124,8 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
         const variantEntries = Array.isArray((variant as any)[field]) ? (variant as any)[field] : [];
         const normalizedVariant = Array.from(new Set(variantEntries.map(normalizeSensoryPhrase).filter(Boolean)));
         if (normalizedVariant.length === 0) {
-          normalizedVariant.push((sensoryDetails[field] ?? [])[0] ?? buildLocationFallback(locationName, field));
+          // A1X-07: sensoryDetails[field] was padded to >= 2 non-empty entries just above, so [0] is defined.
+          normalizedVariant.push(sensoryDetails[field][0]);
           fallbackInsertions += 1;
         }
         (variant as any)[field] = normalizedVariant;

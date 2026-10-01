@@ -14,7 +14,6 @@
     "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 502,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
     "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 642,
-    "packages/prompts-llm/src/agent5-clues.ts::buildCluePrompt": 595,
     "packages/story-geometry/src/accept.ts::checkManuscriptGeometry": 517,
     "packages/story-validation/src/generation-params.ts::mergeConfig": 829
   }

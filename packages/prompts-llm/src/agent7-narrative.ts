@@ -12,7 +12,8 @@
  * - Provides scene descriptions for prose generation
  *
  * Temperature: 0.5 (moderate - creative scene structuring grounded in CML)
- * Max Tokens: 4000 (larger - detailed scene descriptions)
+ * Max Tokens: config `agent7_narrative.params.model.max_tokens` (16,000 in generation-params.yaml;
+ *   4,000 truncated 16-scene outlines — see formatNarrative)
  * Output Format: JSON (structured scene list)
  */
 
@@ -35,6 +36,16 @@ import {
   isAgent7StructuredOutputEnabled,
 } from "./agent7-narrative-schema.js";
 import { parseLlmJson } from "./shared/llm-json.js";
+import {
+  AGENT7_CASE_POLICY,
+  cmlRoots,
+  constraintSpaceOf,
+  culpritMotiveSeedOf,
+  formatConstraintList,
+  projectCaseForPrompt,
+  renderDiscriminatingTest,
+  victimMemberOf,
+} from "./shared/cml-prompt-view.js";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { CaseData } from "@cml/cml";
@@ -238,7 +249,7 @@ You work from the CML's logical structure (inference path, constraint space) and
 Your output is a JSON scene outline that prose generators can use to write the full story.`;
 
   // Developer: Provide CML and clue context
-  const developer = buildDeveloperContext(caseData, clues, inputs.lockedFacts);
+  const developer = buildDeveloperContext(caseData, clues);
 
   // Pillar 1: append canonical locked facts block to developer context
   const lockedFactsSection =
@@ -266,39 +277,22 @@ Your output is a JSON scene outline that prose generators can use to write the f
   return { system, developer: developer + lockedFactsSection + completenessSection, user };
 }
 
-function buildDeveloperContext(
-  caseData: CaseData,
-  clues: ClueDistributionResult,
-  lockedFacts?: Array<{ id: string; value: string; description: string }>,
-): string {
-  const legacy = caseData as any;
-  const cmlCase = (legacy?.CASE ?? {}) as any;
-  const meta = cmlCase.meta ?? legacy.meta ?? {};
-  const crimeClass = meta.crime_class ?? {};
-  const castRoster = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
-
-  const title = meta?.title || "Untitled Mystery";
-  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
-  const era = meta?.era?.decade
-    ? `${meta.era.decade} - ${meta.setting?.location ?? "Unknown"}`
-    : legacy.setup?.era
-      ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
-      : "Unknown era";
-  const settingLocation = meta?.setting?.location ?? legacy.setup?.era?.location ?? "Unknown setting";
-  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
+// A7-09: the never-read `lockedFacts` parameter is gone; the locked-facts block is appended by buildNarrativePrompt.
+function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
+  // A7-03: the shared header projection. Agent 7 keeps its older precedence (meta.primary_axis before
+  // false_assumption.type; setup.crime before crime_class) — byte-preserving; see shared/cml-prompt-view.ts.
+  const view = projectCaseForPrompt(caseData, AGENT7_CASE_POLICY);
+  const { legacy, cmlCase, meta, crimeClass, title, primaryAxis, era, settingLocation, crime, culpritName } = view;
+  const castRoster = view.cast;
   // A7-D01 (owner decision 12, CML_VERIFIED_FIXES): read the victim and motive from CML 2.0 (CASE.cast),
   // not the CML-1.x paths that always printed "Unknown".
   const fixA7D01 = verifiedFixesEnabled();
-  const victimMember = fixA7D01 ? castRoster.find((c: any) => isVictimMember(c)) : undefined;
+  const victimMember = fixA7D01 ? victimMemberOf(view, isVictimMember) : undefined;
   const victim = (fixA7D01 && typeof victimMember?.name === "string" && victimMember.name) || legacy.setup?.crime?.victim || "Unknown";
-  const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || "Unknown";
-  const culpritMember = fixA7D01 ? castRoster.find((c: any) => c?.name === culpritName) : undefined;
-  const motive = (fixA7D01 && typeof culpritMember?.motive_seed === "string" && culpritMember.motive_seed.trim())
+  const motive = (fixA7D01 && culpritMotiveSeedOf(view, culpritName))
     || legacy.solution?.culprit?.motive || "Unknown motive";
   const method = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown method";
-  const falseAssumption =
-    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const falseAssumption = view.falseAssumptionStatement;
   const whenRevealed = legacy.solution?.false_assumption?.when_revealed || "final act";
 
   // Cast list
@@ -330,7 +324,8 @@ function buildDeveloperContext(
     .join("\n");
 
   // Inference path
-  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? [])
+  // A7-03: still reads the non-schema step.type / step.reasoning fallbacks Agent 6 dropped (FA-1/FA-2).
+  const inferenceSteps = view.inferenceSteps
     .map((step: any, idx: number) => {
       const observation = step.observation || step.type || "Observation";
       const correction = step.correction || step.reasoning || "Correction";
@@ -340,9 +335,7 @@ function buildDeveloperContext(
     .join("\n");
 
   // Discriminating test
-  const discrimTest = cmlCase.discriminating_test
-    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
-    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**Test**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Reveals**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
+  const discrimTest = renderDiscriminatingTest(view, "test_reveals");
 
   // Clue organization
   const earlyClues = clues.clues.filter((c) => c.placement === "early");
@@ -364,16 +357,9 @@ function buildDeveloperContext(
     : "None";
 
   // Key constraints
-  const constraintSpace = cmlCase.constraint_space ?? legacy.constraint_space ?? {};
-  const formatConstraintList = (value: any, keys: string[]) => {
-    if (Array.isArray(value)) {
-      return value.slice(0, 3).map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
-    }
-    const lines = keys.flatMap((key) => (Array.isArray(value?.[key]) ? value[key] : []));
-    return lines.slice(0, 3).map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
-  };
-  const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
-  const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
+  const constraintSpace = constraintSpaceOf(view);
+  const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"], 3);
+  const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"], 3);
   const eraDetails = Array.isArray(meta?.era?.realism_constraints)
     ? meta.era.realism_constraints.map((d: any) => `- ${d}`).join("\n")
     : legacy.setup?.era?.key_details?.map((d: any) => `- ${d}`).join("\n") || "None";
@@ -565,16 +551,17 @@ function buildCompletenessContext(
   return lines.join("\n");
 }
 
-function buildUserRequest(
-  caseData: CaseData,
-  targetLength: string,
-  narrativeStyle: string,
-  qualityGuardrails: string[],
-  detectiveType?: 'police' | 'private' | 'amateur',
-  completenessOpts?: { enabled: boolean; redHerringIds: string[] },
-): string {
-  const config = getGenerationParams().agent7_narrative.params;
-  const legacy = caseData as any;
+// A7-09 (R0): buildUserRequest split into section builders. Every section's text is unchanged and the
+// composed message is byte-identical (verified against the archived inputs, CML_VERIFIED_FIXES off and on).
+// NOT changed here, because each would change the prompt (R2, owner decision): the prose-requirements
+// block is still rendered twice (developer context AND this message), and the clue-pacing rule is still
+// stated both in Pacing Principles and in the run's pacing guardrail.
+
+type DetectiveType = 'police' | 'private' | 'amateur';
+
+/** The crime victim's name and the example location the output-format block prints. */
+function resolveVictimExample(caseData: CaseData): { crimeVictim: string; exampleLocation: string } {
+  const legacy = cmlRoots(caseData).legacy;
   // A3: Resolve victim full name from the cast list (which may have "Julian Ashcroft")
   // before falling back to legacy.setup.crime.victim (which may only have "Ashcroft").
   // Use the same resolution order as castRoster below: direct array → nested .characters → empty.
@@ -595,6 +582,10 @@ function buildUserRequest(
   const exampleLocation = crimeVictim !== "the victim"
     ? `${crimeVictim}'s ${locationWord}`
     : rawLocation;
+  return { crimeVictim, exampleLocation };
+}
+
+function lengthGuidanceFor(targetLength: string): string {
   const _shortTarget  = getStoryLengthTarget('short');
   const _mediumTarget = getStoryLengthTarget('medium');
   const _longTarget   = getStoryLengthTarget('long');
@@ -603,27 +594,21 @@ function buildUserRequest(
     medium: `${_mediumTarget.scenes} scenes, targeting a novella of ~${_mediumTarget.minWords.toLocaleString()}–${_mediumTarget.maxWords.toLocaleString()} words`,
     long: `${_longTarget.scenes} scenes, targeting a full novel of ~${_longTarget.minWords.toLocaleString()}–${_longTarget.maxWords.toLocaleString()} words`,
   };
+  return lengthGuidance[targetLength as keyof typeof lengthGuidance];
+}
 
-  // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
-  const totalSceneCount = getSceneTarget(targetLength);
-  const minClueScenes = Math.ceil(totalSceneCount * config.pacing.min_clue_scene_ratio);
+const STYLE_GUIDANCE = {
+  classic:
+    "Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues",
+  modern:
+    "Contemporary mystery style - character-driven, psychological depth, naturalistic dialogue, atmospheric tension",
+  atmospheric:
+    "Gothic/noir style - mood and setting prominent, shadows and secrets, poetic prose, emphasis on dread and revelation",
+};
 
-  // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
-  // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
-  // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
-  const { act1: actIScenes, act2: actIIScenes, act3: actIIIScenes } = computeActSceneCounts(totalSceneCount); // A7-05
-
-  const styleGuidance = {
-    classic:
-      "Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues",
-    modern:
-      "Contemporary mystery style - character-driven, psychological depth, naturalistic dialogue, atmospheric tension",
-    atmospheric:
-      "Gothic/noir style - mood and setting prominent, shadows and secrets, poetic prose, emphasis on dread and revelation",
-  };
-
-  // Act I entry-point rules based on detective type — this is non-negotiable story logic
-  const detectiveEntryRule = detectiveType === 'private'
+// Act I entry-point rules based on detective type — this is non-negotiable story logic
+const detectiveEntryRuleFor = (detectiveType?: DetectiveType): string =>
+  detectiveType === 'private'
     ? `### Detective Entry (MANDATORY — Private Investigator)
 The private investigator is NOT present before the crime. A scene in Act I MUST show them being engaged by a client (one of the named cast members or a credible off-page party such as a solicitor or insurance agent). This scene must establish:
 - **Who the client is** and their relationship to the victim or the situation
@@ -640,14 +625,16 @@ NEVER write the amateur as automatically welcomed or respected. Their involvemen
     : `### Detective Entry (Police Inspector)
 The police detective/inspector is summoned in an official capacity following a formal report of the crime. They arrive at the scene with full investigative authority. Act I opens with or shortly after their official arrival. Witnesses are expected to cooperate; the detective can compel access.`;
 
-  const guardrailBlock = qualityGuardrails.length > 0
+const guardrailBlockFor = (qualityGuardrails: string[]): string =>
+  qualityGuardrails.length > 0
     ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
     : "";
 
-  // SWEEP B: for the 10-chapter Golden Age format, map each chapter to a named structural beat,
-  // in order, and require the model to set scene.beat. This makes the spec's arc a property of
-  // the outline rather than something inferred later at prose time.
-  const beatArcBlock = totalSceneCount === GOLDEN_AGE_BEATS.length
+// SWEEP B: for the 10-chapter Golden Age format, map each chapter to a named structural beat,
+// in order, and require the model to set scene.beat. This makes the spec's arc a property of
+// the outline rather than something inferred later at prose time.
+const beatArcBlockFor = (totalSceneCount: number): string =>
+  totalSceneCount === GOLDEN_AGE_BEATS.length
     ? `\n## Golden Age 10-Chapter Beat Arc (MANDATORY for this length)\n` +
       `Produce exactly ${GOLDEN_AGE_BEATS.length} scenes (one per chapter), each fulfilling the beat below IN THIS ORDER. ` +
       `Set the "beat" field on each scene to the given key.\n` +
@@ -655,19 +642,19 @@ The police detective/inspector is summoned in an official capacity following a f
       `\nThe culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect. "final_trap" must be deduction-led (no confession as the proof), and "revelation" must NOT re-stage the accusation or confession — it ties off the explanation and aftermath.\n`
     : "";
 
-  // Only cue the model to emit `beat` when the Golden-Age arc is active (the 10-chapter path
-  // that supplies the allowed vocabulary above). Off that path the schema still enforces the
-  // beat enum, but the vocabulary is never supplied — so an emitted `beat` free-texts and
-  // hard-aborts validation. Omitting it from the output example removes the cue at source;
-  // Agent 7's deterministic coercion cleans any stragglers.
-  const beatExampleField = totalSceneCount === GOLDEN_AGE_BEATS.length
+// Only cue the model to emit `beat` when the Golden-Age arc is active (the 10-chapter path
+// that supplies the allowed vocabulary above). Off that path the schema still enforces the
+// beat enum, but the vocabulary is never supplied — so an emitted `beat` free-texts and
+// hard-aborts validation. Omitting it from the output example removes the cue at source;
+// Agent 7's deterministic coercion cleans any stragglers.
+const beatExampleFieldFor = (totalSceneCount: number): string =>
+  totalSceneCount === GOLDEN_AGE_BEATS.length
     ? `\n          "beat": "gathering",`
     : "";
 
-  const proseRequirementsBlock = buildProseRequirements(caseData);
-
-  // Pillar 4: pre-compute completeness contract strings for template interpolation
-  const completenessExampleFields = completenessOpts?.enabled
+// Pillar 4: pre-compute completeness contract strings for template interpolation
+const completenessExampleFieldsFor = (completenessOpts?: { enabled: boolean; redHerringIds: string[] }): string =>
+  completenessOpts?.enabled
     ? `,
           "pivotElement": "The stopped pocket watch found in the victim's hand — still showing ten past eleven",
           "factEstablished": "Establishes the victim died no later than eleven past eleven, contradicting three suspects' alibis",
@@ -675,7 +662,8 @@ The police detective/inspector is summoned in an official capacity following a f
           "redHerringPlacement": { "redHerringId": "rh_1", "placementDetail": "[how the red herring is seeded: which character, what they say or do, what false impression is created]" }`
     : "";
 
-  const completenessContractBlock = completenessOpts?.enabled
+const completenessContractBlockFor = (completenessOpts?: { enabled: boolean; redHerringIds: string[] }): string =>
+  completenessOpts?.enabled
     ? `
 
 ## SCENE COMPLETENESS CONTRACT (Pillar 4 — MANDATORY)
@@ -701,21 +689,21 @@ For EVERY scene you MUST fill these additional fields:
 By the end of Acts I and II every red herring ID listed in your context must appear in at least one scene's redHerringPlacement.${completenessOpts.redHerringIds.length === 0 ? "\n(No red herrings for this run — set redHerringPlacement: null for all Act I–II scenes.)" : ""}`
     : "";
 
-  // A_95 M6 — a beat label is a rate; the fields below are the operation. Measured: a false_solution
-  // scene's purpose names an innocent being accused in 23 of 51 outlines, an alibis scene carries its
-  // second incident in 2 of 51.
-  const beatJobContractBlock = isBeatJobFieldsEnabled() ? buildBeatJobContract() : "";
+const targetSpecificationsBlock = (targetLength: string, narrativeStyle: string): string => {
+  const lengthGuidance = lengthGuidanceFor(targetLength);
+  const styleGuidance = STYLE_GUIDANCE[narrativeStyle as keyof typeof STYLE_GUIDANCE];
+  return `## Target Specifications
+- **Length**: ${targetLength} (${lengthGuidance})
+- **Style**: ${narrativeStyle} (${styleGuidance})`;
+};
 
-  return `# Narrative Outline Task
-
-Create a scene-by-scene outline for this mystery story.
-
-## Target Specifications
-- **Length**: ${targetLength} (${lengthGuidance[targetLength as keyof typeof lengthGuidance]})
-- **Style**: ${narrativeStyle} (${styleGuidance[narrativeStyle as keyof typeof styleGuidance]})
-${proseRequirementsBlock}
-
-## Scene Construction Guidelines
+const sceneConstructionBlock = (
+  totalSceneCount: number,
+  actIScenes: number,
+  actIIScenes: number,
+  actIIIScenes: number,
+  detectiveEntryRule: string,
+): string => `## Scene Construction Guidelines
 
 **CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **${totalSceneCount} scenes** total: **${actIScenes} in Act I**, **${actIIScenes} in Act II**, **${actIIIScenes} in Act III**. No more, no fewer. Count your scenes before submitting.
 
@@ -768,9 +756,9 @@ purpose describes two scenes, and the second of them has already happened. Write
 Act II or into the run-up, put the confrontation in the reveal scene, and give the closing scene
 consequence to carry.
 
-If Act III is a single scene, that scene IS the reveal and none of the above restricts it.
+If Act III is a single scene, that scene IS the reveal and none of the above restricts it.`;
 
-## Scene Requirements
+const SCENE_REQUIREMENTS_AND_FAIR_PLAY_SEQUENCING = `## Scene Requirements
 
 Each scene must include:
 1. **Setting**: Location, time of day, atmosphere
@@ -815,9 +803,9 @@ Each scene must include:
 ✅ Scene 12: "Detective stages discriminating test using earlier evidence" (test using revealed clue)
 ✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
 
-**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
+**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.`;
 
-## Pacing Principles
+const pacingPrinciplesBlock = (totalSceneCount: number, minClueScenes: number): string => `## Pacing Principles
 - Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
 - **EMOTIONAL BEATS**: Include at least 1 non-plot micro-moment beat per 5 scenes — a brief pause where a character grieves, hesitates, remembers, or fears, that does NOT advance the investigation but reveals emotional truth. Mark these with \`microMomentBeats\` in \`dramaticElements\` (array of 1-sentence beats). Readers engage with mystery through feeling, not just logic.
 - **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with ${totalSceneCount} scenes, at least ${minClueScenes} scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
@@ -826,36 +814,35 @@ Each scene must include:
 - Use red herrings in Act I and early Act II
 - Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
 - Save essential clues for when inference path requires them
-- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
+- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning`;
 
-## CRITICAL: Murder Victim Excluded After Discovery Scene
+const victimExclusionBlock = (crimeVictim: string): string => `## CRITICAL: Murder Victim Excluded After Discovery Scene
 **${crimeVictim}** is the murder victim — already dead before the story begins. Therefore:
 - **Act I discovery scene ONLY**: include ${crimeVictim} in that scene's \`characters\` array (they are found as a body).
 - **ALL subsequent scenes**: do NOT include ${crimeVictim} in any scene's \`characters\` array. They cannot attend scenes, speak, gesture, or react. They exist only in past-tense references, memories, and physical evidence.
-- Do NOT write microMomentBeats, summary text, or purpose text that depicts ${crimeVictim} doing anything present-tense in any scene after the discovery.
+- Do NOT write microMomentBeats, summary text, or purpose text that depicts ${crimeVictim} doing anything present-tense in any scene after the discovery.`;
 
-## CRITICAL: Character Names in Scenes
+const CHARACTER_NAME_RULES = `## CRITICAL: Character Names in Scenes
 In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
 **NEVER** use role labels such as "detective", "butler", "suspect", "constable", "witness" — these are placeholder examples in the JSON schema, not real names.
-Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.
+Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.`;
 
-${detectiveType === 'amateur' || detectiveType === 'private'
+const noInventedPoliceBlock = (detectiveType?: DetectiveType): string =>
+  detectiveType === 'amateur' || detectiveType === 'private'
   ? `## CRITICAL: No Invented Police Officials
 This story has a **${detectiveType === 'amateur' ? 'civilian amateur' : 'private investigator'}** as the detective. Do NOT invent named police officials (no "Inspector [Surname]", no "Constable [Surname]", no "Sergeant [Surname]") anywhere in scene summaries, purposes, or dramaticElements. The only named characters are those in the Cast of Characters above. If police must appear, describe them anonymously: "a local constable", "the sergeant", "officers from the village". Any invented police name will be scrubbed automatically and will confuse the prose LLM.
 `
-  : ''}
+  : '';
 
-## CRITICAL: Follow Prose Requirements
+const FOLLOW_PROSE_REQUIREMENTS_RULES = `## CRITICAL: Follow Prose Requirements
 **You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
 - If a discriminating test scene is specified, that scene must appear at that position
 - If suspect clearance scenes are specified, each must appear at their designated positions
 - If a culprit revelation scene is specified, it must appear at that position
 - Scene descriptions must mention the required elements and clues indicated
-- These requirements are mandatory for story validation - missing them will cause generation failure
-${guardrailBlock}
-${beatArcBlock}
+- These requirements are mandatory for story validation - missing them will cause generation failure`;
 
-## Output Format
+const outputFormatBlock = (exampleLocation: string, beatExampleField: string, completenessExampleFields: string): string => `## Output Format
 
 Return a JSON object:
 
@@ -899,9 +886,61 @@ Return a JSON object:
     "Character development balanced with clue discovery"
   ]
 }
-\`\`\`
+\`\`\``;
 
-Create a complete, well-paced outline that brings this mystery to life.${completenessContractBlock}${beatJobContractBlock}`;
+function buildUserRequest(
+  caseData: CaseData,
+  targetLength: string,
+  narrativeStyle: string,
+  qualityGuardrails: string[],
+  detectiveType?: DetectiveType,
+  completenessOpts?: { enabled: boolean; redHerringIds: string[] },
+): string {
+  const config = getGenerationParams().agent7_narrative.params;
+  const { crimeVictim, exampleLocation } = resolveVictimExample(caseData);
+
+  // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
+  const totalSceneCount = getSceneTarget(targetLength);
+  const minClueScenes = Math.ceil(totalSceneCount * config.pacing.min_clue_scene_ratio);
+
+  // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
+  // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
+  // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
+  const { act1: actIScenes, act2: actIIScenes, act3: actIIIScenes } = computeActSceneCounts(totalSceneCount); // A7-05
+
+  const proseRequirementsBlock = buildProseRequirements(caseData);
+
+  // A_95 M6 — a beat label is a rate; the fields below are the operation. Measured: a false_solution
+  // scene's purpose names an innocent being accused in 23 of 51 outlines, an alibis scene carries its
+  // second incident in 2 of 51.
+  const beatJobContractBlock = isBeatJobFieldsEnabled() ? buildBeatJobContract() : "";
+
+  return `# Narrative Outline Task
+
+Create a scene-by-scene outline for this mystery story.
+
+${targetSpecificationsBlock(targetLength, narrativeStyle)}
+${proseRequirementsBlock}
+
+${sceneConstructionBlock(totalSceneCount, actIScenes, actIIScenes, actIIIScenes, detectiveEntryRuleFor(detectiveType))}
+
+${SCENE_REQUIREMENTS_AND_FAIR_PLAY_SEQUENCING}
+
+${pacingPrinciplesBlock(totalSceneCount, minClueScenes)}
+
+${victimExclusionBlock(crimeVictim)}
+
+${CHARACTER_NAME_RULES}
+
+${noInventedPoliceBlock(detectiveType)}
+
+${FOLLOW_PROSE_REQUIREMENTS_RULES}
+${guardrailBlockFor(qualityGuardrails)}
+${beatArcBlockFor(totalSceneCount)}
+
+${outputFormatBlock(exampleLocation, beatExampleFieldFor(totalSceneCount), completenessExampleFieldsFor(completenessOpts))}
+
+Create a complete, well-paced outline that brings this mystery to life.${completenessContractBlockFor(completenessOpts)}${beatJobContractBlock}`;
 }
 
 // ============================================================================

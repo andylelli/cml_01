@@ -1271,6 +1271,7 @@ async function parseCmlReply(response: Awaited<ReturnType<AzureOpenAIClient["cha
  */
 async function escalateToRevision({ attempt, client, cml, inputs, logger, modelName, normalizationNotes, prompt, resolvedMaxAttempts, startTime, validation }: { attempt: number; client: AzureOpenAIClient; cml: any; inputs: CMLPromptInputs; logger: ReturnType<AzureOpenAIClient["getLogger"]>; modelName: string; normalizationNotes: string[]; prompt: PromptMessages; resolvedMaxAttempts: number; startTime: number; validation: ReturnType<typeof validateCml> }) {
   const revisionResult = await reviseCml(client, {
+    primaryAxis: inputs.primaryAxis, // A34-08
     originalPrompt: {
       system: prompt.system, 
       developer: prompt.developer || "", 

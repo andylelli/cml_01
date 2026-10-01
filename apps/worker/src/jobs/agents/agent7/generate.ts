@@ -27,7 +27,12 @@ export async function rescoreNarrative(ctx: OrchestratorContext, narrative: Narr
   try {
     // Owner decision 8: the honest scorer. This re-score used the vanity NarrativeScorer, so after a repair it
     // overwrote the phase's honest score even under HONEST_SCORERS=enforce.
-    const score = honestScore(() => scoreRealNarrative(narrative, ctx.inputs.targetLength ?? "medium"), "agent7-narrative");
+    // A7-07 (owner decision 12, CML_VERIFIED_FIXES): re-score through the stage's own scorer, so the
+    // scene-count F gate applies to an adopted outline exactly as it did to the first one. OFF: the
+    // honest score without the gate, as before.
+    const score = verifiedFixesEnabled()
+      ? (await scoreNarrativePhase(narrative, ctx.cml!, ctx.cast?.cast, ctx.inputs.targetLength, ctx.warnings)).score
+      : honestScore(() => scoreRealNarrative(narrative, ctx.inputs.targetLength ?? "medium"), "agent7-narrative");
     ctx.scoreAggregator.upsertPhaseScore(
       "agent7_narrative",
       "Narrative Outline",

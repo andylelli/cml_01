@@ -3,6 +3,7 @@
  * structural abort, and the pre-prose CML gate (evidence back-fill, discriminating test, critical coverage).
  * Moved from generateMystery (code review ORC-01 / CR-25); mystery-orchestrator.ts re-exports what it exported.
  */
+import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
 import { DISCRIMINATING_EVIDENCE_MIN } from "../clue-contracts/evidence-floor.js";
 import type { CaseData } from "@cml/cml";
 import type {
@@ -20,7 +21,7 @@ type FairPlayViolationLike = {
 
 const canonicalizeTraceabilityClueId = (value: unknown): string => {
   const normalized = String(value ?? "").trim();
-  return /^clue_[a-z0-9_-]+$/i.test(normalized) ? normalized : "";
+  return CANONICAL_CLUE_ID_RE.test(normalized) ? normalized : "";
 };
 
 const hasDeterministicPreTestTraceabilityBreak = (params: {

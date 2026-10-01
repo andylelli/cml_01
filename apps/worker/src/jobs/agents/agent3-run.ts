@@ -17,7 +17,9 @@ import type { PhaseScore } from "@cml/story-validation";
 import { scoreRealCml } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9LlmRetriesEnabled, honestScore } from "./shared.js";
 // A_74 §8 DE3 — the bridge from the cross-run ledger into the structural judge's corpus.
-import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
+// A34-03: no worker-agent -> worker-agent import; the pure helper lives in @cml/cml.
+import { writeLockedFactsArtifact } from "./agent3b/locked-fact-registry.js";
+import { stripLeadingArticleFromLockedValue } from "@cml/cml";
 import {
   applyCmlRepairAndRevalidate,
   reportNormalizationNotes,

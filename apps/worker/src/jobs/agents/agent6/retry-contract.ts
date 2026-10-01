@@ -18,6 +18,7 @@ import {
   recomputeCoverageSnapshotForAgent6,
 } from "../../clue-contracts/contracts.js";
 import { nameAppearsAsWord } from "../identity-match.js";
+import { agent5GateLockedFacts } from "../agent5/contract-payload.js";
 
 const appendUniqueStrings = (base: string[] | undefined, additions: string[]): string[] =>
   [...new Set([...(base ?? []), ...additions].map((entry) => String(entry ?? "").trim()).filter(Boolean))];
@@ -354,11 +355,8 @@ export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext,
     throw new Error(`Agent 6 regenerated clue guardrail failure (${contextLabel}): ${summary || "critical guardrail issues"}`);
   }
 
-  const hardLogicLockedFacts = Array.isArray((ctx as any).hardLogicDevices?.devices)
-    ? (ctx as any).hardLogicDevices.devices.flatMap((d: any) =>
-        Array.isArray(d?.lockedFacts) ? d.lockedFacts : [],
-      )
-    : undefined;
+  // A5-D07 (owner decision 12, CML_VERIFIED_FIXES): ON, the facts Agent 5's prompt sent; OFF, raw device facts.
+  const hardLogicLockedFacts = agent5GateLockedFacts(ctx);
 
   const expectedEvidenceIds = Array.isArray(((ctx.cml as any)?.CASE ?? (ctx.cml as any))?.discriminating_test?.evidence_clues)
     ? (((ctx.cml as any)?.CASE ?? (ctx.cml as any)).discriminating_test.evidence_clues as unknown[])

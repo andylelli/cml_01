@@ -3,6 +3,7 @@
  * the audit, the CML regeneration retry, the NOVELTY_MODE blocking policy, and the novelty phase score.
  * Moved from agent3-run.ts (code review A34-04 / CR-24), where it was ~300 of its lines.
  */
+import { calculateGrade } from "@cml/story-validation";
 import { generateCML, auditNovelty, type CMLGenerationResult } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
@@ -282,7 +283,7 @@ export async function scoreNoveltyPhase(ctx: OrchestratorContext) {
           completeness_score: 100,
           consistency_score: 100,
           total: noveltyTotal,
-          grade: (noveltyTotal >= 90 ? "A" : noveltyTotal >= 80 ? "B" : noveltyTotal >= 70 ? "C" : noveltyTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
+          grade: calculateGrade(noveltyTotal),
           passed: noveltyStatus !== "fail",
           failure_reason: noveltyStatus === "fail"
             ? `Too similar to seed patterns (${Math.round(highestSim * 100)}% match with "${ctx.noveltyAudit.mostSimilarSeed}")`

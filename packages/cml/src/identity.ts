@@ -4,11 +4,12 @@
  * package can use the one body.
  */
 
+import { escapeRegExp as escapeRegExpLiteral } from "./text-patterns.js";
+
 /** Last whitespace-separated token, lower-cased — the surname for "Ada Blythe" → "blythe". */
 export const surname = (value: string | undefined): string =>
   String(value ?? "").trim().split(/\s+/).pop()?.toLowerCase() ?? "";
 
-const escapeRegExpLiteral = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
  * Exact (case-insensitive) match OR shared surname. Deliberately NOT a raw substring match —

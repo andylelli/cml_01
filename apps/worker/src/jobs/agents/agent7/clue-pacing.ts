@@ -4,7 +4,8 @@
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
 import { recordAgent7Coercion, recordOutlineCoercions } from "./normalize.js";
-import { narrativeInputs } from "./generate.js";
+import { narrativeInputs, rescoreNarrative } from "./generate.js";
+import { verifiedFixesEnabled } from "@cml/cml";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -278,6 +279,7 @@ export function buildCluePacingGuardrails(expectedScenes: number, minRatio: numb
 }
 
 export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run, narrative: NarrativeOutline) {
+  const incoming = narrative; // A7-D04
   {
     const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
     const totalOutlineSceneCount = allOutlineScenes.length;
@@ -418,6 +420,10 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
       }
     }
   }
+  // A7-D04 (owner decision 12, CML_VERIFIED_FIXES): every adoption above (first retry, second retry,
+  // either one after the bounded fill) replaced the outline without a re-score, so the reported Agent 7
+  // score described the discarded outline. Re-score the adopted one, after any fill has been applied.
+  if (verifiedFixesEnabled() && narrative !== incoming) await rescoreNarrative(ctx, narrative);
   return narrative;
 }
 

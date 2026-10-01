@@ -7,6 +7,8 @@
  * Writes ctx.fairPlayAudit and ctx.hasCriticalFairPlayFailure.
  */
 
+import { calculateGrade } from "@cml/story-validation";
+import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
 import { envOn } from "../env-flags.js";
 import {
   auditFairPlay,
@@ -19,7 +21,7 @@ import { verifiedFixesEnabled } from "@cml/cml";
 import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "./agent5/contract-payload.js";
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
 import { isContentFilterRefusal } from "@cml/llm-client";
-import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
+import { getGenerationParams, validateGenreStructure, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   clearWarningsInPlace,
@@ -140,7 +142,7 @@ const deriveBlindReaderRequiredCluePhrases = (
 
 const canonicalizeClueId = (value: unknown): string => {
   const normalized = String(value ?? "").trim();
-  return /^clue_[a-z0-9_-]+$/i.test(normalized) ? normalized : "";
+  return CANONICAL_CLUE_ID_RE.test(normalized) ? normalized : "";
 };
 
 const deriveClueDeliveryMethod = (clue: any): string => {
@@ -563,7 +565,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         completeness_score: 100,
         consistency_score: 100,
         total: fpValidation,
-        grade: (fpValidation >= 90 ? "A" : fpValidation >= 80 ? "B" : fpValidation >= 70 ? "C" : fpValidation >= 60 ? "D" : "F") as PhaseScore["grade"],
+        grade: calculateGrade(fpValidation),
         passed: fpValidation >= 75,
         failure_reason:
           fpStatus === "fail"

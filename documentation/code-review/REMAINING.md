@@ -47,7 +47,7 @@ withdrawn with their evidence in the ledger.
 | A1X-09 | a | todo | | with ORC-03 |
 | ORC-03 | a | todo | | |
 | A1X-12 | a | todo | | |
-| SCO-03 | a | todo | | |
+| SCO-03 | a | withdrawn | 51f0d14a | MOOT in substance: the 129 pass/partial ternaries were in the vanity scorers deleted by decision 8; the seven honest scorers (~1,000 lines)  |
 | A5-D06 | b | todo | | batch candidate |
 | A5-D07 | b | todo | | batch candidate |
 | A7-07 | b | todo | | reported number only |

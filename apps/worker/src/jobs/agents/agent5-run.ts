@@ -9,6 +9,7 @@
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
 import { extractClues } from "@cml/prompts-llm";
 import { strictPromptContractsEnabled } from "./agent5/contract-payload.js";
+import { Agent5GateError, classifyAgent5Failure, type Agent5Gate } from "./agent5/gate-error.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 // ONE clock parser. This file used to keep a private third copy; see parseFactClockMinutes.
@@ -83,15 +84,8 @@ export {
   repairLockedFactClueTimeTranspositions,
 } from "../clue-contracts/contracts.js";
 
-const classifyAgent5FailureClass = (message: string): string => {
-  const normalized = String(message ?? "").toLowerCase();
-  if (/red-?herring\s+overlap/.test(normalized)) return "agent5.red_herring_overlap";
-  if (/source-?path|source path/.test(normalized)) return "agent5.invalid_source_path";
-  if (/discriminating.*(id|evidence clue)|evidence id/.test(normalized)) return "agent5.discriminating_id_coverage";
-  if (/weak elimination|suspect-coverage/.test(normalized)) return "agent5.weak_elimination_evidence";
-  if (/time-style|digit-based time/.test(normalized)) return "agent5.time_style_violation";
-  return "agent5.unknown_failure";
-};
+// A5-06 (R1): the message classifier moved to agent5/gate-error.ts, beside the typed gate error that
+// now carries the gate; labels are unchanged (see AGENT5_GATE_LABEL).
 
 // strictPromptContractsEnabled moved to agent5/contract-payload.ts (A5-11 / A5-D04) so Agent 6's
 // regenerations read the same switch.
@@ -293,12 +287,13 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     );
   };
 
-  const failAgent5 = (message: string): never => {
+  const failAgent5 = (message: string, gate?: Agent5Gate): never => {
     ctx.agent5FirstPassPassed = false;
     ctx.agent5RetryInvoked = state.agent5RetryInvoked;
-    ctx.agent5FailureClass = classifyAgent5FailureClass(message);
+    ctx.agent5FailureClass = classifyAgent5Failure(message, gate);
     recordHardFailPhaseScore(message);
-    throw new Error(message);
+    // A5-06 (R1): typed when the site names its gate; same message, same Error name.
+    throw gate ? new Agent5GateError(gate, message) : new Error(message);
   };
 
   const extractWithAttempt = (payload: any) =>

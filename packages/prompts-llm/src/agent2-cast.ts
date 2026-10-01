@@ -13,6 +13,9 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { verifiedFixesEnabled } from "@cml/cml";
 import { checkCast } from "./agent2-cast-checker.js";
+// ORC-13: the one string hash (was a local copy; identical for every string, and the only call site
+// passes `inputs.runId || inputs.projectId || ""`, so the copy's missing undefined-coercion was unreachable).
+import { simpleHash } from "./shared/temporal-anchor.js";
 import type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast-types.js";
 export type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast-types.js";
 
@@ -80,17 +83,6 @@ export function normalizeRelationshipWeb(raw: unknown): RelationshipWeb {
   }
   return { pairs: [] };
 }
-
-// Simple hash function for variation
-const simpleHash = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
-};
 
 /**
  * Derive N distinct first-name starting letters from the run hash.

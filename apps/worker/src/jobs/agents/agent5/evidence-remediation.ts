@@ -7,6 +7,7 @@ import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence
 import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -35,6 +36,7 @@ import {
   Agent5Run,
   Agent5State,
 } from "./run-state.js";
+import { agent5GateLockedFacts } from "./contract-payload.js";
 import {
 } from "./extraction.js";
 
@@ -169,6 +171,13 @@ export const remapMissingDiscriminatingEvidenceIdsToExistingClues = (
 
   if (remapped.length > 0) {
     discrimTest.evidence_clues = [...new Set(canonicalEvidence)];
+    // A5-D06 (owner decision 12, CML_VERIFIED_FIXES): the whitelist/feedback memos are keyed by the cml
+    // identity and enumerate evidence_clues[i]; the purge below invalidates them after mutating the
+    // array and this path did not, so enforceAgent5DeterministicContracts read a stale memo.
+    if (verifiedFixesEnabled()) {
+      strictSourcePathWhitelistCache.delete(cml as unknown as object);
+      strictPromptFeedbackCache.delete(cml as unknown as object);
+    }
   }
 
   const remainingMissing = getMissingDiscriminatingEvidenceIds(cml, clues);
@@ -299,7 +308,7 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   const sourcePathValidation = checkSourcePathValidity(ctx.cml!, clues);
   sourcePathValidation.issues.forEach((issue) => ctx.errors.push(`Agent 5 source-path validation: ${issue.message}`));
   if (sourcePathValidation.issues.length > 0) {
-    run.failAgent5(`Agent 5 source-path gate failed with ${sourcePathValidation.issues.length} invalid source path(s).`);
+    run.failAgent5(`Agent 5 source-path gate failed with ${sourcePathValidation.issues.length} invalid source path(s).`, "source_path");
   }
 
   reconcileModelAudit(ctx.cml!, clues);
@@ -307,7 +316,7 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   const stepBoundIssues = checkInferenceStepBounds(ctx.cml!, clues);
   stepBoundIssues.forEach((issue) => ctx.errors.push(`Agent 5 inference-step bounds: ${issue.message}`));
   if (stepBoundIssues.length > 0) {
-    run.failAgent5(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`);
+    run.failAgent5(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`, "step_index");
   }
 
   const castPathRepairs = repairCastNamePathConsistency(ctx.cml!, clues);
@@ -322,13 +331,13 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   const castPathConsistencyIssues = checkCastNamePathConsistency(ctx.cml!, clues);
   castPathConsistencyIssues.forEach((issue) => ctx.errors.push(`Agent 5 cast-path consistency: ${issue.message}`));
   if (castPathConsistencyIssues.length > 0) {
-    run.failAgent5(`Agent 5 cast-path consistency gate failed with ${castPathConsistencyIssues.length} issue(s).`);
+    run.failAgent5(`Agent 5 cast-path consistency gate failed with ${castPathConsistencyIssues.length} issue(s).`, "cast_path");
   }
 
   const auditConsistencyIssues = checkModelAuditConsistency(ctx.cml!, clues);
   auditConsistencyIssues.forEach((issue) => ctx.errors.push(`Agent 5 audit consistency: ${issue.message}`));
   if (auditConsistencyIssues.length > 0) {
-    run.failAgent5(`Agent 5 audit-consistency gate failed with ${auditConsistencyIssues.length} mismatch(es).`);
+    run.failAgent5(`Agent 5 audit-consistency gate failed with ${auditConsistencyIssues.length} mismatch(es).`, "audit_consistency");
   }
 
   let eraTimeStyleIssues = checkEraTimeStyleInClues(clues);
@@ -339,14 +348,12 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   }
   eraTimeStyleIssues.forEach((issue) => ctx.errors.push(`Agent 5 era time style: ${issue.message}`));
   if (eraTimeStyleIssues.length > 0) {
-    run.failAgent5(`Agent 5 era time-style gate failed with ${eraTimeStyleIssues.length} digit-based time issue(s).`);
+    run.failAgent5(`Agent 5 era time-style gate failed with ${eraTimeStyleIssues.length} digit-based time issue(s).`, "era_time_style");
   }
 
   // Strict locked-fact/clue semantic consistency gate before committing clues downstream.
-  const hardLogicLockedFacts = Array.isArray((ctx as any).hardLogicDevices?.devices)
-    ? (ctx as any).hardLogicDevices.devices.flatMap((d: any) => Array.isArray(d?.lockedFacts) ? d.lockedFacts : []
-    )
-    : undefined;
+  // A5-D07 (owner decision 12, CML_VERIFIED_FIXES): ON, the facts the prompt sent; OFF, raw device facts.
+  const hardLogicLockedFacts = agent5GateLockedFacts(ctx);
   // X86 — same repair-then-recheck as the guardrail site above. A run died here on 2026-08-21 for a
   // pair of transposed registry values, while three sibling gates in the same file repair first.
   let timeConflicts = findLockedFactClueTimeConflicts(ctx.cml!, clues, hardLogicLockedFacts);
@@ -359,7 +366,8 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
   if (timeConflicts.length > 0) {
     timeConflicts.forEach((msg) => ctx.errors.push(`Agent 5 CML-clue consistency failure: ${msg}`));
     run.failAgent5(
-      `Agent 5 CML-clue consistency gate failed (${timeConflicts.length} time conflict(s)).`
+      `Agent 5 CML-clue consistency gate failed (${timeConflicts.length} time conflict(s)).`,
+      "time_conflict",
     );
   }
 
@@ -370,7 +378,8 @@ export function runDeterministicClueChecks(ctx: OrchestratorContext, run: Agent5
     const remainingCulpritGaps = findCulpritDiscriminatingGaps(ctx.cml!, clues);
     if (remainingCulpritGaps.length > 0) {
       run.failAgent5(
-        `Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): ${remainingCulpritGaps.join(", ")}`
+        `Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): ${remainingCulpritGaps.join(", ")}`,
+        "culprit_evidence",
       );
     }
   }
@@ -457,7 +466,7 @@ export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: A
     deterministicContracts.warnings.forEach((warning) => ctx.warnings.push(warning));
     finalCoverage = buildCoverageSnapshot(clues);
   } catch (error) {
-    run.failAgent5((error as Error).message || "Agent 5 deterministic contract gate failed.");
+    run.failAgent5((error as Error).message || "Agent 5 deterministic contract gate failed.", "deterministic_contract");
   }
 
   // Final hard gate: if critical inference/discriminating-test coverage still fails
@@ -473,7 +482,7 @@ export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: A
       ? criticalMessages.join("; ")
       : "critical inference coverage gaps remain after retries";
     ctx.errors.push(`Agent 5 coverage hard gate failed after retries: ${summary}`);
-    run.failAgent5(`Agent 5 coverage hard gate failed after retries: ${summary}`);
+    run.failAgent5(`Agent 5 coverage hard gate failed after retries: ${summary}`, "coverage");
   }
   return finalCoverage;
 }

@@ -5,6 +5,7 @@
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import type { Agent5Gate } from "./gate-error.js";
 import {
   buildStrictPromptFeedback,
   getCanonicalEvidenceClueIds,
@@ -69,7 +70,8 @@ export interface Agent5Run {
   mergeStrictPromptFeedback: (feedback?: any, isRetry?: boolean) => any;
   cluesStart: number;
   recordHardFailPhaseScore: (reason: string) => void;
-  failAgent5: (message: string) => never;
+  /** A5-06: `gate` types the thrown error; the failure-class label is unchanged (agent5/gate-error.ts). */
+  failAgent5: (message: string, gate?: Agent5Gate) => never;
   extractWithAttempt: (payload: any) => Promise<ClueDistributionResult>;
 }
 

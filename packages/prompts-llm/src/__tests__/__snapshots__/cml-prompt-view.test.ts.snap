@@ -1,0 +1,1402 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`prompt bytes on a CML 2.0 fixture (characterisation) > Agents 6/7/8 with CML_VERIFIED_FIXES off 1`] = `
+{
+  "fairDeveloper": "# Fair Play Audit Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Primary Axis / False Assumption Type**: temporal
+**Crime**: poisoning
+**Culprit**: Clara Venn
+
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+**Narrative**: A stopped clock fixes the hour.
+
+### Accepted Facts (reader takes these as given)
+- The clock read nine
+
+### Inferred Conclusions (reader draws these from accepted facts)
+- Death at nine
+
+---
+
+## Hidden Model (What Is Actually True)
+**Mechanism**: Clock set back an hour
+
+### Delivery Path
+1. wind back
+2. leave
+
+**Outcome**: Lord Ashby dead
+
+---
+
+## False Assumption
+**Statement**: He died at nine.
+**Why it seems reasonable**: The clock stopped.
+**What it hides**: The clock was set back.
+
+---
+
+## Inference Path (Detective's Logic)
+The detective follows these logical steps to reach the solution:
+
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+   **CML authoring notes (scaffold only — NOT formal clue IDs; do not audit against these)**:
+   • dusty key
+2. **Train ticket**: Clara was in town at ten *(detective reasoning only)*
+
+### Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+> ⚠️ AUDIT SCOPE — READ BEFORE PROCEEDING:
+> The "## Clue Distribution" section below is your SINGLE SOURCE OF TRUTH for all structural checks.
+> The "CML authoring notes" items in the Inference Path above are scaffold text — NOT formal clue IDs.
+> Do NOT report violations for evidence strings that do not appear as formal clues.
+> Only flag violations for clue IDs that are explicitly absent from the Clue ID Manifest below.
+
+---
+
+## Clue ID Manifest (system-generated — use for structural checks)
+
+**discriminating_test.evidence_clues** (must each be present in early|mid distribution):
+- clue_1
+
+**All clue IDs by placement**:
+- Early: clue_1
+- Mid:   clue_2
+- Late:  clue_3
+
+**Essential clues by inference step**:
+  Step 1: clue_1(early)
+  Step 2: clue_2(mid)
+
+---
+
+## Clue Distribution
+The mystery distributes 3 clues to the reader:
+
+### Early Clues (Act I) - 1 clues
+- [essential] temporal →step1 (observation): Dust on the clock key
+
+### Mid Clues (Act II) - 1 clues
+- [essential] testimonial →step2: Ticket stub for the ten o'clock
+
+### Late Clues (Act III) - 1 clues
+- [supporting] physical: A slow watch
+
+### Essential Clues (per inference step)
+- Dust on the clock key (early, step 1)
+- Ticket stub for the ten o'clock (mid, step 2)
+
+### Red Herrings
+- The gardener's muddy boots (supports: outsider)
+
+---
+
+## Constraint Space
+The mystery establishes these constraints:
+
+### Temporal Constraints
+- nine chimes
+- ten train
+- 8–10 pm
+- clock vs train
+
+### Access Constraints
+- Clara
+- key
+
+### Physical Evidence
+- springs unwind
+- dust
+
+### Social Constraints
+- butler
+
+---
+
+## Cast — Alibi, Access & Evidence Sensitivity
+- **Inspector Hale**: alibi="n/a" | access="unknown" | opportunities: none | evidence_sensitivity: none
+- **Lord Ashby**: alibi="unknown" | access="unknown" | opportunities: none | evidence_sensitivity: none
+- **Clara Venn**: alibi="unknown" | access="unknown" | opportunities: study door | evidence_sensitivity: none
+- **Tom Reed**: alibi="unknown" | access="unknown" | opportunities: none | evidence_sensitivity: none
+
+---
+
+## CML Fair Play Declarations
+all_clues_visible: true
+no_special_knowledge_required: true
+no_late_information: true
+reader_can_solve: true
+explanation: none
+
+---
+
+## Quality Controls
+**Discriminating test must appear**: late Act II
+**Essential clues minimum**: 3 | before discriminating test: not specified
+**Clues per act minimum**: early=2, mid=not specified, late=not specified
+
+---
+
+## Clue-to-Scene Mapping (when present)
+- clue clue_1: Act 1, Scene 2 (observation)",
+  "fairNarrativeDeveloper": "# Narrative Quality Audit Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Primary Axis / False Assumption Type**: temporal
+**Crime**: poisoning
+**Culprit**: Clara Venn
+
+
+## STRUCTURAL STATUS (system-verified — do not re-derive)
+All structural checks PASSED before this call: discriminating-test evidence present, every inference step has essential early|mid coverage, and non-culprit eliminations are in place.
+
+> Your task: assess NARRATIVE QUALITY only.
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+A stopped clock fixes the hour.
+
+## Hidden Model (What Is Actually True)
+Clock set back an hour
+
+---
+
+## False Assumption
+**Statement**: He died at nine.
+**Why it seems reasonable**: The clock stopped.
+**What it hides**: The clock was set back.
+
+---
+
+## Inference Path (Detective's Logic)
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+2. **Train ticket**: Clara was in town at ten *(detective reasoning only)*
+
+### Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+## Clue Distribution (summary — id, placement/criticality, one-line)
+- clue_1 [early/essential] →step1: Dust on the clock key
+- clue_2 [mid/essential] →step2: Ticket stub for the ten o'clock
+- clue_3 [late/supporting]: A slow watch
+
+### Red Herrings
+- The gardener's muddy boots (supports: outsider)",
+  "narrativeDeveloper": "# Narrative Formatting Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Era & Setting**: 1930s - Ashby Grange
+**Setting Lock**: All scenes must remain within this setting: Ashby Grange. Do not move to a different location type.
+**Primary Axis**: temporal
+**Crime**: poisoning
+**Victim**: Unknown
+**Culprit**: Clara Venn
+**Motive**: Unknown motive
+**Method**: poisoning
+
+## The False Assumption
+He died at nine.
+*Revealed: final act*
+
+---
+
+## Cast of Characters
+- **Detective**: Inspector Hale
+- **Suspect**: Inspector Hale
+- **Suspect**: Lord Ashby
+- **Suspect**: Tom Reed
+- **Witness**: Clara Venn
+
+---
+
+## Detective's Inference Path
+The logical steps the detective follows:
+
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+2. **Train ticket**: Clara was in town at ten
+
+### The Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+## Clue Distribution
+
+### Early Clues (Act I)
+- [clue_1] temporal: Dust on the clock key
+
+### Mid Clues (Act II)
+- [clue_2] testimonial: Ticket stub for the ten o'clock
+
+### Late Clues (Act III)
+- [clue_3] physical: A slow watch
+
+### Red Herrings
+- [rh_1] The gardener's muddy boots
+
+---
+
+## Key Constraints
+
+### Temporal
+- nine chimes
+- ten train
+- 8–10 pm
+
+### Access
+- Clara
+- key
+
+---
+
+## Era Details
+- telephone exchange
+- railway timetable
+- gas lamps
+- telegrams
+
+---
+
+## Prose Requirements (CRITICAL - Must be reflected in outline)
+### Suspect Clearance Scenes (REQUIRED)
+- **Tom Reed**: Act 2, Scene 3
+  - Method: alibi
+  - Clues: clue_2
+
+### Clue Placement Guidelines
+- **clue_1**: Act 1, Scene 2 (observation)
+
+
+---
+
+## Quality Bar
+- Scene purposes must be specific and progression-driving, not generic transitions.
+- Clue reveal and clue usage must be temporally separated to preserve fair play.
+- Character presence should reflect motive/access logic from CML constraints.
+- **NO REPEAT INTERROGATIONS**: A named suspect may only be the primary interrogation target of a scene ONCE in Act II unless a new piece of named physical evidence (clue ID) was introduced in the scene immediately before the second interrogation. Two consecutive scenes questioning the same suspect about the same alibi — even with different wording — will produce identical prose. If you need to interrogate a suspect twice, the intervening scene MUST reveal a new clue that changes what the detective knows.
+- **SCENE ACTION UNIQUENESS**: Each scene must have a distinct primary action that no adjacent scene shares. The four action types are: (R)eveal clue, (I)nterrogate suspect, (A)nalyse/deduce, (C)onfront. A sequence of I→I→I with the same suspect is always wrong. Valid progressions: R→I, I→R→I, I→A→C.
+
+## Micro-exemplars
+- Weak scene purpose: "Investigation continues."
+- Strong scene purpose: "Force two alibis into direct contradiction by replaying dining-room timing under servant testimony."
+- Weak dramatic element: "Tension rises."
+- Strong dramatic element: "Detective notices wet cuff links despite suspect claiming no outdoor movement during rain window."
+
+## Silent Pre-Output Checklist
+- exact scene count and act distribution satisfied
+- clue reveal precedes clue usage in later scenes
+- discriminating test occurs only after supporting clues appear
+- character arrays use exact cast names
+- JSON only, no markdown fences",
+  "narrativeUser": "# Narrative Outline Task
+
+Create a scene-by-scene outline for this mystery story.
+
+## Target Specifications
+- **Length**: short (10 scenes, targeting a short story of ~4,500–12,500 words)
+- **Style**: classic (Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues)
+### Suspect Clearance Scenes (REQUIRED)
+- **Tom Reed**: Act 2, Scene 3
+  - Method: alibi
+  - Clues: clue_2
+
+### Clue Placement Guidelines
+- **clue_1**: Act 1, Scene 2 (observation)
+
+
+## Scene Construction Guidelines
+
+**CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **10 scenes** total: **3 in Act I**, **5 in Act II**, **2 in Act III**. No more, no fewer. Count your scenes before submitting.
+
+### Act I: Setup (exactly 3 scenes)
+- **Introduce the crime**: Discovery of victim, initial shock
+- **Establish setting**: Era atmosphere, location details
+- **Meet the cast**: Detective, suspects, witnesses
+- **Plant early clues**: Subtle hints, initial observations
+- **Support false assumption**: Lead reader toward wrong conclusion
+- **End with**: Detective commits to investigation, stakes established
+- **CRITICAL — Scene 1 (discovery) internal order**: The scene summary and prose must follow this sequence: (1) ONE sentence of arrival/atmosphere, (2) physical discovery of the body — no later than the second paragraph of the resulting chapter, (3) investigator reaction, (4) suspects named, (5) first contradictory observation. Do NOT open Scene 1 with extended clock examination, atmospheric landscape, or suspect introductions before the body is found. The body comes first.
+- **MECHANISM SPOILER BAN (Scene 1 and 2)**: Scenes 1 and 2 must NOT explain why any device was tampered with, by how much it was altered, or name the person responsible. Show only that two evidence sources disagree. Write the scene 1 summary and purpose text accordingly — if it reads "the clock was wound back by X minutes", rewrite it to "two clocks show contradictory times". The full mechanism belongs in Act II.
+
+### Detective Entry (MANDATORY — Amateur / Civilian)
+The amateur investigator has no official standing. Act I MUST establish, organically and plausibly:
+- **Why they were already present** (invited guest, local resident, stranded traveller, visiting relative) OR what specific event drew them in after the crime
+- **Why they are uniquely placed to investigate** despite having no authority (specialist knowledge, the victim's prior confidence in them, access to spaces or people the police can't reach socially)
+- **Their uneasy relationship with authority**: the official police (if present) may be dismissive, obstructive, or actively suspicious of their involvement. Other characters may refuse to cooperate.
+NEVER write the amateur as automatically welcomed or respected. Their involvement must be earned scene by scene.
+
+### Act II: Investigation (exactly 5 scenes)
+- **Interview scenes**: Suspects reveal information, alibis, motives
+- **Clue discovery**: Physical evidence, testimonies, constraints
+- **Red herrings**: Misdirection supporting false assumption
+- **Character development**: Relationships, conflicts, secrets
+- **Discriminating test**: The crucial scene that shifts everything
+- **Rising tension**: Complications, dead ends, breakthroughs
+- **End with**: Detective has all pieces but hasn't assembled them
+- **PENULTIMATE SCENE RULE**: The scene immediately before Act III must NOT be a standalone suspect-clearance scene if clearances have already been established in earlier Act II scenes. A scene whose sole purpose is "X, Y, and Z are cleared" is redundant and weakens pacing. If eliminations are already distributed earlier, the Act II final scene should instead serve a distinct function: a second-act reversal (detective realises they were wrong about something), a proactive culprit move (antagonist takes action to deflect suspicion), or a late-breaking complication that forces the investigator toward the confrontation.
+
+### Act III: Resolution (exactly 2 scenes)
+- **Revelation**: Detective assembles the solution
+- **Confrontation**: Culprit exposed, confession or capture
+- **Explanation**: How the clues fit together
+- **Justice**: Resolution of crime and consequences
+- **Denouement**: Loose ends tied, reflection, restoration
+
+**These five are a SEQUENCE, not a menu — and the order is enforced downstream.**
+
+Exactly ONE scene names the culprit. Call it the reveal. Everything before it may build toward it;
+everything after it is AFTERMATH, and an aftermath scene has a different job from the reveal:
+
+- **Clearing the innocent belongs BEFORE the reveal, not after it.** Once the culprit is named, the
+  others are cleared by that fact alone. A scene that walks back through each suspect's alibi after
+  the answer is known tells the reader something they already worked out, and it is the single most
+  common structural complaint this pipeline receives.
+- **A scene after the reveal must NOT re-confront the culprit, re-stage the accusation, re-quote the
+  confession, or re-run the evidence chain.** Refer to those as settled. Show what they COST —
+  consequence, reaction, changed relationships, the restored or unrestored order.
+- **A scene after the reveal must NOT introduce decisive new evidence.** If a piece of evidence is
+  needed to prove the case, it belongs at or before the reveal.
+
+So do not write a final scene whose purpose is "clear the suspects and confront the culprit". That
+purpose describes two scenes, and the second of them has already happened. Write the clearance into
+Act II or into the run-up, put the confrontation in the reveal scene, and give the closing scene
+consequence to carry.
+
+If Act III is a single scene, that scene IS the reveal and none of the above restricts it.
+
+## Scene Requirements
+
+Each scene must include:
+1. **Setting**: Location, time of day, atmosphere
+2. **Characters present**: Who appears in the scene
+3. **Purpose**: Why this scene exists narratively
+4. **Clues revealed**: Which clue IDs are naturally woven in
+5. **Dramatic elements**: Conflict, tension, revelation, or misdirection
+6. **Summary**: 2-3 sentence description of what happens
+7. **Fair-play parity**: All deductions must reference only clue IDs already listed in earlier scenes' cluesRevealed arrays — no deduction may rely on information not yet shown to the reader
+
+## CRITICAL: Fair Play Clue Sequencing Rules
+
+**You MUST enforce fair play by separating clue revelation from clue usage:**
+
+1. **Clue Revelation Scenes**: Scenes where the reader sees evidence, physical traces, witness statements, or observations
+   - Tag these scenes with clear clue IDs in cluesRevealed array
+   - Must occur in Act I or early-to-mid Act II
+
+2. **Investigation/Processing Scenes**: Scenes where detective analyzes, deduces, or pieces together clues
+   - Must occur AFTER the clues have been revealed (typically mid-to-late Act II)
+   - Cannot reference clues not yet shown to reader
+
+3. **Discriminating Test Scene**: The crucial scene where detective applies a test or key deduction
+   - Must occur in late Act II or early Act III
+   - Can ONLY use clues already revealed in prior scenes
+   - Include description of test mechanism explicitly
+
+4. **Confrontation/Revelation Scene**: Where detective accuses or reveals solution
+   - Must occur in Act III
+   - Must be AT LEAST 1-2 scenes AFTER the discriminating test scene
+   - Cannot introduce new clues during revelation - only synthesize existing ones
+
+**VIOLATION EXAMPLES (DO NOT DO THIS):**
+❌ Scene 12: "Detective finds key evidence" + "Detective immediately confronts suspect with it"
+❌ Scene 15: "Detective discovers incriminating detail" + "Detective immediately tests suspect"  
+❌ Act III Scene 1: "Detective reveals premeditation knowledge reader never saw"
+
+**CORRECT SEQUENCING:**
+✅ Scene 8: "Detective finds key evidence" (clue revealed to reader)
+✅ Scene 9-10: Investigation continues, other suspects interviewed
+✅ Scene 11: "Detective analyses discovered evidence" (processing/analysis)
+✅ Scene 12: "Detective stages discriminating test using earlier evidence" (test using revealed clue)
+✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
+
+**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
+
+## Pacing Principles
+- Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
+- **EMOTIONAL BEATS**: Include at least 1 non-plot micro-moment beat per 5 scenes — a brief pause where a character grieves, hesitates, remembers, or fears, that does NOT advance the investigation but reveals emotional truth. Mark these with \`microMomentBeats\` in \`dramaticElements\` (array of 1-sentence beats). Readers engage with mystery through feeling, not just logic.
+- **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with 10 scenes, at least 6 scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
+- Space clues evenly across all three acts — no act should be entirely clue-free
+- Build tension toward act breaks
+- Use red herrings in Act I and early Act II
+- Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
+- Save essential clues for when inference path requires them
+- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
+
+## CRITICAL: Murder Victim Excluded After Discovery Scene
+**the victim** is the murder victim — already dead before the story begins. Therefore:
+- **Act I discovery scene ONLY**: include the victim in that scene's \`characters\` array (they are found as a body).
+- **ALL subsequent scenes**: do NOT include the victim in any scene's \`characters\` array. They cannot attend scenes, speak, gesture, or react. They exist only in past-tense references, memories, and physical evidence.
+- Do NOT write microMomentBeats, summary text, or purpose text that depicts the victim doing anything present-tense in any scene after the discovery.
+
+## CRITICAL: Character Names in Scenes
+In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
+**NEVER** use role labels such as "detective", "butler", "suspect", "constable", "witness" — these are placeholder examples in the JSON schema, not real names.
+Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.
+
+## CRITICAL: No Invented Police Officials
+This story has a **civilian amateur** as the detective. Do NOT invent named police officials (no "Inspector [Surname]", no "Constable [Surname]", no "Sergeant [Surname]") anywhere in scene summaries, purposes, or dramaticElements. The only named characters are those in the Cast of Characters above. If police must appear, describe them anonymously: "a local constable", "the sergeant", "officers from the village". Any invented police name will be scrubbed automatically and will confuse the prose LLM.
+
+
+## CRITICAL: Follow Prose Requirements
+**You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
+- If a discriminating test scene is specified, that scene must appear at that position
+- If suspect clearance scenes are specified, each must appear at their designated positions
+- If a culprit revelation scene is specified, it must appear at that position
+- Scene descriptions must mention the required elements and clues indicated
+- These requirements are mandatory for story validation - missing them will cause generation failure
+
+## Quality Guardrails (Must Satisfy)
+1. Spread the clues
+
+
+## Golden Age 10-Chapter Beat Arc (MANDATORY for this length)
+Produce exactly 10 scenes (one per chapter), each fulfilling the beat below IN THIS ORDER. Set the "beat" field on each scene to the given key.
+1. beat: "gathering" — The Gathering — introduce era, setting, detective, victim, suspects, tensions; end on an unsettling incident.
+2. beat: "crime" — The Crime — the central crime occurs/is discovered; crime scene, first clues, obvious suspect; end on a contradiction the detective notices.
+3. beat: "first_enquiries" — First Enquiries — interviews, timeline, suspicious behaviour, a hidden clue; end proving someone lied.
+4. beat: "motives" — Motives — reveal ≥3 plausible motives and one misleading clue; end with a discovery that shifts suspicion.
+5. beat: "alibis" — Alibis & Contradictions — timing, movements, a false/incomplete alibi, a small inconsistency; end with a second dramatic incident.
+6. beat: "false_solution" — The False Solution — a convincing wrong solution accusing an innocent suspect; the detective spots its one flaw; end with the case seeming solved to everyone but the detective.
+7. beat: "secrets" — Secrets Beneath Secrets — unrelated lies surface and explain earlier red herrings; separate moral guilt from criminal guilt; end on a clue that reinterprets an earlier scene.
+8. beat: "pattern" — The Pattern Emerges — reconstruct timeline/scene via logic, language, etiquette, placement; end preparing a final test or trap.
+9. beat: "final_trap" — The Final Trap — staged confrontation/decisive, deduction-led proof (NOT a confession as the proof); the culprit exposes themselves through knowledge or reaction and is named on-page; end ready to explain.
+10. beat: "revelation" — The Revelation — aftermath-dominant close: with the culprit already exposed in the final trap, tie off which clues mattered and why the false solution was wrong WITHOUT re-staging the accusation or confession; refer to the culprit by name in retrospect; end on the emotional/social aftermath.
+The culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect. "final_trap" must be deduction-led (no confession as the proof), and "revelation" must NOT re-stage the accusation or confession — it ties off the explanation and aftermath.
+
+
+## Output Format
+
+Return a JSON object:
+
+\`\`\`json
+{
+  "acts": [
+    {
+      "actNumber": 1,
+      "title": "Act I: The Crime",
+      "purpose": "Establish mystery and introduce cast",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "act": 1,
+          "title": "[an object, a place or an hour from this scene, two to four words]",
+          "setting": {
+            "location": "the scene",
+            "timeOfDay": "Morning after the murder",
+            "atmosphere": "Tense household awaiting the detective's arrival"
+          },
+          "characters": ["[EXACT NAME FROM CAST LIST]", "[EXACT NAME FROM CAST LIST]"],
+          "purpose": "Introduce the crime and detective",
+          "cluesRevealed": ["clue_1", "clue_2"],
+          "dramaticElements": {
+            "conflict": "Locked room mystery established",
+            "tension": "Every suspect had access to the victim",
+            "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
+          },
+          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
+          "beat": "gathering",
+          "estimatedWordCount": 1800
+        }
+      ],
+      "estimatedWordCount": 12000
+    }
+  ],
+  "totalScenes": 28,
+  "estimatedTotalWords": 45000,
+  "pacingNotes": [
+    "Discriminating test placed in Scene 19 (late Act II)",
+    "Red herrings concentrated in Scenes 4-8",
+    "Character development balanced with clue discovery"
+  ]
+}
+\`\`\`
+
+Create a complete, well-paced outline that brings this mystery to life.",
+  "noveltyDeveloper": "# Novelty Audit Context
+
+## Generated Mystery (To Be Checked)
+
+### Generated Mystery
+**Title**: The Orchard Clock
+**Primary Axis**: temporal
+**Era & Setting**: 1930s - Ashby Grange
+**Era Details**: telephone exchange, railway timetable, gas lamps
+
+**Crime**: poisoning
+**Victim**: Unknown
+**Method**: poisoning
+
+**Cast (4)**: Inspector Hale, Lord Ashby, Clara Venn, Tom Reed
+
+**Culprit**: Clara Venn
+**Motive**: Unknown
+**Solution Method**: poisoning
+
+**False Assumption**: He died at nine.
+**Discriminating Test**: Ask who knew the clock was slow
+
+**Constraints**: 4 temporal, 2 access, 2 physical
+**Inference Path**: 2 steps
+
+---
+
+## Seed CML Examples (Reference Patterns)
+
+### Seed 1
+**Title**: Untitled
+**Primary Axis**: spatial
+**Era & Setting**: 1925 - Bath
+**Era Details**: 
+
+**Crime**: Stabbed in the library
+**Victim**: Unknown
+**Method**: stabbing
+
+**Cast (0)**: 
+
+**Culprit**: Unknown
+**Motive**: Unknown
+**Solution Method**: stabbing
+
+**False Assumption**: Unknown
+**Discriminating Test**: the knife test
+
+**Constraints**: 0 temporal, 0 access, 0 physical
+**Inference Path**: 0 steps",
+  "noveltyUser": "# Novelty Audit Task
+
+Compare the generated mystery against ALL seed examples and compute similarity scores.
+
+## Similarity Dimensions
+
+For each seed CML, evaluate:
+
+### 1. Plot Similarity (0-1)
+- Same crime type (murder, theft, fraud, etc.)
+- Same crime method (stabbing, poisoning, etc.)
+- Same crime location type (locked room, public space, etc.)
+- Same victim profile
+- **High similarity (>0.7)**: Indicates plot copying
+
+### 2. Character Similarity (0-1)
+- Same or similar character names
+- Same character role combinations (butler + nephew + doctor)
+- Same relationship dynamics (love triangle, inheritance dispute)
+- Same character count and distribution
+- **High similarity (>0.7)**: Indicates character copying
+
+### 3. Setting Similarity (0-1)
+- Same era (exact year or within 5 years)
+- Same location (city, country estate, ship, etc.)
+- Same era details (gaslight, telegraph, hansom cabs)
+- **High similarity (>0.8)**: Indicates setting copying (era alone is OK)
+
+### 4. Solution Similarity (0-1)
+- Same culprit profile (role, relationship to victim)
+- Same motive category (greed, revenge, protection, etc.)
+- Same solution method (spare key, poison switch, alibi fabrication)
+- Same false assumption pattern
+- Same discriminating test type
+- **High similarity (>0.7)**: Indicates solution copying
+
+### 5. Structural Similarity (0-1)
+- Similar inference path length
+- Similar constraint counts
+- Similar cast size
+- Similar CML structure
+- **High similarity (>0.8)**: OK - structural patterns are allowed
+
+## Similarity Scoring
+
+**Overall Similarity** = weighted average:
+- Plot: 30%
+- Characters: 25%
+- Setting: 15%
+- Solution: 25%
+- Structural: 5%
+
+## Pass/Fail Threshold
+
+- **Pass**: Overall similarity < 90% for ALL seeds
+- **Warning**: Overall similarity 90-100% for any seed
+- **Fail**: Overall similarity > 100% for any seed
+
+## Quality Bar
+- Justify high similarity scores with specific matched elements, not vague summaries.
+- Differentiate acceptable structural reuse from disallowed content copying.
+- Provide recommendations that meaningfully reduce future similarity risk.
+
+## Micro-exemplars
+- Weak warning: "Some similarities exist."
+- Strong warning: "Character similarity 0.74 driven by mirrored role triangle (heiress-doctor-steward) and near-identical inheritance-conflict motive arc."
+
+## Silent Pre-Output Checklist
+- all similarity dimensions scored for each seed
+- weighted overall similarity matches configured formula
+- status matches threshold policy
+- violations/warnings cite concrete matched elements
+- JSON only, no markdown fences
+
+## Output Format
+
+Return a JSON object:
+
+\`\`\`json
+{
+  "status": "pass" | "fail" | "warning",
+  "overallNovelty": 0.75,
+  "mostSimilarSeed": "The Moonstone",
+  "highestSimilarity": 0.62,
+  "similarityScores": [
+    {
+      "seedTitle": "The Moonstone",
+      "overallSimilarity": 0.62,
+      "plotSimilarity": 0.55,
+      "characterSimilarity": 0.70,
+      "settingSimilarity": 0.80,
+      "solutionSimilarity": 0.50,
+      "structuralSimilarity": 0.65,
+      "concerningMatches": [
+        "Same era (Victorian England)",
+        "Similar character count (7 vs 8)",
+        "Both involve locked room mysteries"
+      ]
+    }
+  ],
+  "violations": [
+    "Critical: Plot similarity 0.85 with 'The Moonstone' (same locked room + theft)"
+  ],
+  "warnings": [
+    "Moderate: Character similarity 0.73 with 'The Sign of the Four' (similar cast structure)"
+  ],
+  "recommendations": [
+    "Consider changing the crime location to increase plot differentiation",
+    "Adjust character names to reduce similarity with Seed 2"
+  ],
+  "summary": "Generated mystery shows acceptable novelty. Highest similarity is 0.62 with 'The Moonstone', below the 90% threshold."
+}
+\`\`\`
+
+Be specific about what similarities exist and whether they violate novelty principles.",
+}
+`;
+
+exports[`prompt bytes on a CML 2.0 fixture (characterisation) > Agents 6/7/8 with CML_VERIFIED_FIXES on 1`] = `
+{
+  "fairDeveloper": "# Fair Play Audit Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Primary Axis / False Assumption Type**: temporal
+**Crime**: poisoning
+**Culprit**: Clara Venn
+
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+**Narrative**: A stopped clock fixes the hour.
+
+### Accepted Facts (reader takes these as given)
+- The clock read nine
+
+### Inferred Conclusions (reader draws these from accepted facts)
+- Death at nine
+
+---
+
+## Hidden Model (What Is Actually True)
+**Mechanism**: Clock set back an hour
+
+### Delivery Path
+1. wind back
+2. leave
+
+**Outcome**: Lord Ashby dead
+
+---
+
+## False Assumption
+**Statement**: He died at nine.
+**Why it seems reasonable**: The clock stopped.
+**What it hides**: The clock was set back.
+
+---
+
+## Inference Path (Detective's Logic)
+The detective follows these logical steps to reach the solution:
+
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+   **CML authoring notes (scaffold only — NOT formal clue IDs; do not audit against these)**:
+   • dusty key
+2. **Train ticket**: Clara was in town at ten *(detective reasoning only)*
+
+### Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+> ⚠️ AUDIT SCOPE — READ BEFORE PROCEEDING:
+> The "## Clue Distribution" section below is your SINGLE SOURCE OF TRUTH for all structural checks.
+> The "CML authoring notes" items in the Inference Path above are scaffold text — NOT formal clue IDs.
+> Do NOT report violations for evidence strings that do not appear as formal clues.
+> Only flag violations for clue IDs that are explicitly absent from the Clue ID Manifest below.
+
+---
+
+## Clue ID Manifest (system-generated — use for structural checks)
+
+**discriminating_test.evidence_clues** (must each be present in early|mid distribution):
+- clue_1
+
+**All clue IDs by placement**:
+- Early: clue_1
+- Mid:   clue_2
+- Late:  clue_3
+
+**Essential clues by inference step**:
+  Step 1: clue_1(early)
+  Step 2: clue_2(mid)
+
+---
+
+## Clue Distribution
+The mystery distributes 3 clues to the reader:
+
+### Early Clues (Act I) - 1 clues
+- [essential] temporal →step1 (observation): Dust on the clock key
+
+### Mid Clues (Act II) - 1 clues
+- [essential] testimonial →step2: Ticket stub for the ten o'clock
+
+### Late Clues (Act III) - 1 clues
+- [supporting] physical: A slow watch
+
+### Essential Clues (per inference step)
+- Dust on the clock key (early, step 1)
+- Ticket stub for the ten o'clock (mid, step 2)
+
+### Red Herrings
+- The gardener's muddy boots (supports: outsider)
+
+---
+
+## Constraint Space
+The mystery establishes these constraints:
+
+### Temporal Constraints
+- nine chimes
+- ten train
+- 8–10 pm
+- clock vs train
+
+### Access Constraints
+- Clara
+- key
+
+### Physical Evidence
+- springs unwind
+- dust
+
+### Social Constraints
+- butler
+
+---
+
+## Cast — Alibi, Access & Evidence Sensitivity
+- **Inspector Hale**: alibi="n/a" | access="unknown" | opportunities: none | evidence_sensitivity: none
+- **Lord Ashby**: alibi="unknown" | access="unknown" | opportunities: none | evidence_sensitivity: none
+- **Clara Venn**: alibi="unknown" | access="unknown" | opportunities: study door | evidence_sensitivity: none
+- **Tom Reed**: alibi="unknown" | access="unknown" | opportunities: none | evidence_sensitivity: none
+
+---
+
+## CML Fair Play Declarations
+all_clues_visible: true
+no_special_knowledge_required: true
+no_late_information: true
+reader_can_solve: true
+explanation: none
+
+---
+
+## Quality Controls
+**Discriminating test must appear**: late Act II
+**Essential clues minimum**: 3 | before discriminating test: not specified
+**Clues per act minimum**: early=2, mid=not specified, late=not specified
+
+---
+
+## Clue-to-Scene Mapping (when present)
+- clue clue_1: Act 1, Scene 2 (observation)",
+  "fairNarrativeDeveloper": "# Narrative Quality Audit Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Primary Axis / False Assumption Type**: temporal
+**Crime**: poisoning
+**Culprit**: Clara Venn
+
+
+## STRUCTURAL STATUS (system-verified — do not re-derive)
+All structural checks PASSED before this call: discriminating-test evidence present, every inference step has essential early|mid coverage, and non-culprit eliminations are in place.
+
+> Your task: assess NARRATIVE QUALITY only.
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+A stopped clock fixes the hour.
+
+## Hidden Model (What Is Actually True)
+Clock set back an hour
+
+---
+
+## False Assumption
+**Statement**: He died at nine.
+**Why it seems reasonable**: The clock stopped.
+**What it hides**: The clock was set back.
+
+---
+
+## Inference Path (Detective's Logic)
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+2. **Train ticket**: Clara was in town at ten *(detective reasoning only)*
+
+### Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+## Clue Distribution (summary — id, placement/criticality, one-line)
+- clue_1 [early/essential] →step1: Dust on the clock key
+- clue_2 [mid/essential] →step2: Ticket stub for the ten o'clock
+- clue_3 [late/supporting]: A slow watch
+
+### Red Herrings
+- The gardener's muddy boots (supports: outsider)",
+  "narrativeDeveloper": "# Narrative Formatting Context
+
+## Mystery Overview
+**Title**: The Orchard Clock
+**Era & Setting**: 1930s - Ashby Grange
+**Setting Lock**: All scenes must remain within this setting: Ashby Grange. Do not move to a different location type.
+**Primary Axis**: temporal
+**Crime**: poisoning
+**Victim**: Lord Ashby
+**Culprit**: Clara Venn
+**Motive**: debts to the estate
+**Method**: poisoning
+
+## The False Assumption
+He died at nine.
+*Revealed: final act*
+
+---
+
+## Cast of Characters
+- **Detective**: Inspector Hale
+- **Suspect**: Inspector Hale
+- **Suspect**: Clara Venn
+- **Suspect**: Tom Reed
+
+---
+
+## Detective's Inference Path
+The logical steps the detective follows:
+
+1. **Dust on the key**: The clock was wound recently → time is unreliable
+2. **Train ticket**: Clara was in town at ten
+
+### The Discriminating Test
+**Method**: trap
+**Design**: Ask who knew the clock was slow
+**Reveals**: Only the culprit knew
+
+---
+
+## Clue Distribution
+
+### Early Clues (Act I)
+- [clue_1] temporal: Dust on the clock key
+
+### Mid Clues (Act II)
+- [clue_2] testimonial: Ticket stub for the ten o'clock
+
+### Late Clues (Act III)
+- [clue_3] physical: A slow watch
+
+### Red Herrings
+- [rh_1] The gardener's muddy boots
+
+---
+
+## Key Constraints
+
+### Temporal
+- nine chimes
+- ten train
+- 8–10 pm
+
+### Access
+- Clara
+- key
+
+---
+
+## Era Details
+- telephone exchange
+- railway timetable
+- gas lamps
+- telegrams
+
+---
+
+## Prose Requirements (CRITICAL - Must be reflected in outline)
+### Suspect Clearance Scenes (REQUIRED)
+- **Tom Reed**: Act 2, Scene 3
+  - Method: alibi
+  - Clues: clue_2
+
+### Clue Placement Guidelines
+- **clue_1**: Act 1, Scene 2 (observation)
+
+
+---
+
+## Quality Bar
+- Scene purposes must be specific and progression-driving, not generic transitions.
+- Clue reveal and clue usage must be temporally separated to preserve fair play.
+- Character presence should reflect motive/access logic from CML constraints.
+- **NO REPEAT INTERROGATIONS**: A named suspect may only be the primary interrogation target of a scene ONCE in Act II unless a new piece of named physical evidence (clue ID) was introduced in the scene immediately before the second interrogation. Two consecutive scenes questioning the same suspect about the same alibi — even with different wording — will produce identical prose. If you need to interrogate a suspect twice, the intervening scene MUST reveal a new clue that changes what the detective knows.
+- **SCENE ACTION UNIQUENESS**: Each scene must have a distinct primary action that no adjacent scene shares. The four action types are: (R)eveal clue, (I)nterrogate suspect, (A)nalyse/deduce, (C)onfront. A sequence of I→I→I with the same suspect is always wrong. Valid progressions: R→I, I→R→I, I→A→C.
+
+## Micro-exemplars
+- Weak scene purpose: "Investigation continues."
+- Strong scene purpose: "Force two alibis into direct contradiction by replaying dining-room timing under servant testimony."
+- Weak dramatic element: "Tension rises."
+- Strong dramatic element: "Detective notices wet cuff links despite suspect claiming no outdoor movement during rain window."
+
+## Silent Pre-Output Checklist
+- exact scene count and act distribution satisfied
+- clue reveal precedes clue usage in later scenes
+- discriminating test occurs only after supporting clues appear
+- character arrays use exact cast names
+- JSON only, no markdown fences",
+  "narrativeUser": "# Narrative Outline Task
+
+Create a scene-by-scene outline for this mystery story.
+
+## Target Specifications
+- **Length**: short (10 scenes, targeting a short story of ~4,500–12,500 words)
+- **Style**: classic (Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues)
+### Suspect Clearance Scenes (REQUIRED)
+- **Tom Reed**: Act 2, Scene 3
+  - Method: alibi
+  - Clues: clue_2
+
+### Clue Placement Guidelines
+- **clue_1**: Act 1, Scene 2 (observation)
+
+
+## Scene Construction Guidelines
+
+**CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **10 scenes** total: **3 in Act I**, **5 in Act II**, **2 in Act III**. No more, no fewer. Count your scenes before submitting.
+
+### Act I: Setup (exactly 3 scenes)
+- **Introduce the crime**: Discovery of victim, initial shock
+- **Establish setting**: Era atmosphere, location details
+- **Meet the cast**: Detective, suspects, witnesses
+- **Plant early clues**: Subtle hints, initial observations
+- **Support false assumption**: Lead reader toward wrong conclusion
+- **End with**: Detective commits to investigation, stakes established
+- **CRITICAL — Scene 1 (discovery) internal order**: The scene summary and prose must follow this sequence: (1) ONE sentence of arrival/atmosphere, (2) physical discovery of the body — no later than the second paragraph of the resulting chapter, (3) investigator reaction, (4) suspects named, (5) first contradictory observation. Do NOT open Scene 1 with extended clock examination, atmospheric landscape, or suspect introductions before the body is found. The body comes first.
+- **MECHANISM SPOILER BAN (Scene 1 and 2)**: Scenes 1 and 2 must NOT explain why any device was tampered with, by how much it was altered, or name the person responsible. Show only that two evidence sources disagree. Write the scene 1 summary and purpose text accordingly — if it reads "the clock was wound back by X minutes", rewrite it to "two clocks show contradictory times". The full mechanism belongs in Act II.
+
+### Detective Entry (MANDATORY — Amateur / Civilian)
+The amateur investigator has no official standing. Act I MUST establish, organically and plausibly:
+- **Why they were already present** (invited guest, local resident, stranded traveller, visiting relative) OR what specific event drew them in after the crime
+- **Why they are uniquely placed to investigate** despite having no authority (specialist knowledge, the victim's prior confidence in them, access to spaces or people the police can't reach socially)
+- **Their uneasy relationship with authority**: the official police (if present) may be dismissive, obstructive, or actively suspicious of their involvement. Other characters may refuse to cooperate.
+NEVER write the amateur as automatically welcomed or respected. Their involvement must be earned scene by scene.
+
+### Act II: Investigation (exactly 5 scenes)
+- **Interview scenes**: Suspects reveal information, alibis, motives
+- **Clue discovery**: Physical evidence, testimonies, constraints
+- **Red herrings**: Misdirection supporting false assumption
+- **Character development**: Relationships, conflicts, secrets
+- **Discriminating test**: The crucial scene that shifts everything
+- **Rising tension**: Complications, dead ends, breakthroughs
+- **End with**: Detective has all pieces but hasn't assembled them
+- **PENULTIMATE SCENE RULE**: The scene immediately before Act III must NOT be a standalone suspect-clearance scene if clearances have already been established in earlier Act II scenes. A scene whose sole purpose is "X, Y, and Z are cleared" is redundant and weakens pacing. If eliminations are already distributed earlier, the Act II final scene should instead serve a distinct function: a second-act reversal (detective realises they were wrong about something), a proactive culprit move (antagonist takes action to deflect suspicion), or a late-breaking complication that forces the investigator toward the confrontation.
+
+### Act III: Resolution (exactly 2 scenes)
+- **Revelation**: Detective assembles the solution
+- **Confrontation**: Culprit exposed, confession or capture
+- **Explanation**: How the clues fit together
+- **Justice**: Resolution of crime and consequences
+- **Denouement**: Loose ends tied, reflection, restoration
+
+**These five are a SEQUENCE, not a menu — and the order is enforced downstream.**
+
+Exactly ONE scene names the culprit. Call it the reveal. Everything before it may build toward it;
+everything after it is AFTERMATH, and an aftermath scene has a different job from the reveal:
+
+- **Clearing the innocent belongs BEFORE the reveal, not after it.** Once the culprit is named, the
+  others are cleared by that fact alone. A scene that walks back through each suspect's alibi after
+  the answer is known tells the reader something they already worked out, and it is the single most
+  common structural complaint this pipeline receives.
+- **A scene after the reveal must NOT re-confront the culprit, re-stage the accusation, re-quote the
+  confession, or re-run the evidence chain.** Refer to those as settled. Show what they COST —
+  consequence, reaction, changed relationships, the restored or unrestored order.
+- **A scene after the reveal must NOT introduce decisive new evidence.** If a piece of evidence is
+  needed to prove the case, it belongs at or before the reveal.
+
+So do not write a final scene whose purpose is "clear the suspects and confront the culprit". That
+purpose describes two scenes, and the second of them has already happened. Write the clearance into
+Act II or into the run-up, put the confrontation in the reveal scene, and give the closing scene
+consequence to carry.
+
+If Act III is a single scene, that scene IS the reveal and none of the above restricts it.
+
+## Scene Requirements
+
+Each scene must include:
+1. **Setting**: Location, time of day, atmosphere
+2. **Characters present**: Who appears in the scene
+3. **Purpose**: Why this scene exists narratively
+4. **Clues revealed**: Which clue IDs are naturally woven in
+5. **Dramatic elements**: Conflict, tension, revelation, or misdirection
+6. **Summary**: 2-3 sentence description of what happens
+7. **Fair-play parity**: All deductions must reference only clue IDs already listed in earlier scenes' cluesRevealed arrays — no deduction may rely on information not yet shown to the reader
+
+## CRITICAL: Fair Play Clue Sequencing Rules
+
+**You MUST enforce fair play by separating clue revelation from clue usage:**
+
+1. **Clue Revelation Scenes**: Scenes where the reader sees evidence, physical traces, witness statements, or observations
+   - Tag these scenes with clear clue IDs in cluesRevealed array
+   - Must occur in Act I or early-to-mid Act II
+
+2. **Investigation/Processing Scenes**: Scenes where detective analyzes, deduces, or pieces together clues
+   - Must occur AFTER the clues have been revealed (typically mid-to-late Act II)
+   - Cannot reference clues not yet shown to reader
+
+3. **Discriminating Test Scene**: The crucial scene where detective applies a test or key deduction
+   - Must occur in late Act II or early Act III
+   - Can ONLY use clues already revealed in prior scenes
+   - Include description of test mechanism explicitly
+
+4. **Confrontation/Revelation Scene**: Where detective accuses or reveals solution
+   - Must occur in Act III
+   - Must be AT LEAST 1-2 scenes AFTER the discriminating test scene
+   - Cannot introduce new clues during revelation - only synthesize existing ones
+
+**VIOLATION EXAMPLES (DO NOT DO THIS):**
+❌ Scene 12: "Detective finds key evidence" + "Detective immediately confronts suspect with it"
+❌ Scene 15: "Detective discovers incriminating detail" + "Detective immediately tests suspect"  
+❌ Act III Scene 1: "Detective reveals premeditation knowledge reader never saw"
+
+**CORRECT SEQUENCING:**
+✅ Scene 8: "Detective finds key evidence" (clue revealed to reader)
+✅ Scene 9-10: Investigation continues, other suspects interviewed
+✅ Scene 11: "Detective analyses discovered evidence" (processing/analysis)
+✅ Scene 12: "Detective stages discriminating test using earlier evidence" (test using revealed clue)
+✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
+
+**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
+
+## Pacing Principles
+- Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
+- **EMOTIONAL BEATS**: Include at least 1 non-plot micro-moment beat per 5 scenes — a brief pause where a character grieves, hesitates, remembers, or fears, that does NOT advance the investigation but reveals emotional truth. Mark these with \`microMomentBeats\` in \`dramaticElements\` (array of 1-sentence beats). Readers engage with mystery through feeling, not just logic.
+- **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with 10 scenes, at least 6 scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
+- Space clues evenly across all three acts — no act should be entirely clue-free
+- Build tension toward act breaks
+- Use red herrings in Act I and early Act II
+- Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
+- Save essential clues for when inference path requires them
+- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
+
+## CRITICAL: Murder Victim Excluded After Discovery Scene
+**Lord Ashby** is the murder victim — already dead before the story begins. Therefore:
+- **Act I discovery scene ONLY**: include Lord Ashby in that scene's \`characters\` array (they are found as a body).
+- **ALL subsequent scenes**: do NOT include Lord Ashby in any scene's \`characters\` array. They cannot attend scenes, speak, gesture, or react. They exist only in past-tense references, memories, and physical evidence.
+- Do NOT write microMomentBeats, summary text, or purpose text that depicts Lord Ashby doing anything present-tense in any scene after the discovery.
+
+## CRITICAL: Character Names in Scenes
+In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
+**NEVER** use role labels such as "detective", "butler", "suspect", "constable", "witness" — these are placeholder examples in the JSON schema, not real names.
+Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.
+
+## CRITICAL: No Invented Police Officials
+This story has a **civilian amateur** as the detective. Do NOT invent named police officials (no "Inspector [Surname]", no "Constable [Surname]", no "Sergeant [Surname]") anywhere in scene summaries, purposes, or dramaticElements. The only named characters are those in the Cast of Characters above. If police must appear, describe them anonymously: "a local constable", "the sergeant", "officers from the village". Any invented police name will be scrubbed automatically and will confuse the prose LLM.
+
+
+## CRITICAL: Follow Prose Requirements
+**You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
+- If a discriminating test scene is specified, that scene must appear at that position
+- If suspect clearance scenes are specified, each must appear at their designated positions
+- If a culprit revelation scene is specified, it must appear at that position
+- Scene descriptions must mention the required elements and clues indicated
+- These requirements are mandatory for story validation - missing them will cause generation failure
+
+## Quality Guardrails (Must Satisfy)
+1. Spread the clues
+
+
+## Golden Age 10-Chapter Beat Arc (MANDATORY for this length)
+Produce exactly 10 scenes (one per chapter), each fulfilling the beat below IN THIS ORDER. Set the "beat" field on each scene to the given key.
+1. beat: "gathering" — The Gathering — introduce era, setting, detective, victim, suspects, tensions; end on an unsettling incident.
+2. beat: "crime" — The Crime — the central crime occurs/is discovered; crime scene, first clues, obvious suspect; end on a contradiction the detective notices.
+3. beat: "first_enquiries" — First Enquiries — interviews, timeline, suspicious behaviour, a hidden clue; end proving someone lied.
+4. beat: "motives" — Motives — reveal ≥3 plausible motives and one misleading clue; end with a discovery that shifts suspicion.
+5. beat: "alibis" — Alibis & Contradictions — timing, movements, a false/incomplete alibi, a small inconsistency; end with a second dramatic incident.
+6. beat: "false_solution" — The False Solution — a convincing wrong solution accusing an innocent suspect; the detective spots its one flaw; end with the case seeming solved to everyone but the detective.
+7. beat: "secrets" — Secrets Beneath Secrets — unrelated lies surface and explain earlier red herrings; separate moral guilt from criminal guilt; end on a clue that reinterprets an earlier scene.
+8. beat: "pattern" — The Pattern Emerges — reconstruct timeline/scene via logic, language, etiquette, placement; end preparing a final test or trap.
+9. beat: "final_trap" — The Final Trap — staged confrontation/decisive, deduction-led proof (NOT a confession as the proof); the culprit exposes themselves through knowledge or reaction and is named on-page; end ready to explain.
+10. beat: "revelation" — The Revelation — aftermath-dominant close: with the culprit already exposed in the final trap, tie off which clues mattered and why the false solution was wrong WITHOUT re-staging the accusation or confession; refer to the culprit by name in retrospect; end on the emotional/social aftermath.
+The culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect. "final_trap" must be deduction-led (no confession as the proof), and "revelation" must NOT re-stage the accusation or confession — it ties off the explanation and aftermath.
+
+
+## Output Format
+
+Return a JSON object:
+
+\`\`\`json
+{
+  "acts": [
+    {
+      "actNumber": 1,
+      "title": "Act I: The Crime",
+      "purpose": "Establish mystery and introduce cast",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "act": 1,
+          "title": "[an object, a place or an hour from this scene, two to four words]",
+          "setting": {
+            "location": "Lord Ashby's scene",
+            "timeOfDay": "Morning after the murder",
+            "atmosphere": "Tense household awaiting the detective's arrival"
+          },
+          "characters": ["[EXACT NAME FROM CAST LIST]", "[EXACT NAME FROM CAST LIST]"],
+          "purpose": "Introduce the crime and detective",
+          "cluesRevealed": ["clue_1", "clue_2"],
+          "dramaticElements": {
+            "conflict": "Locked room mystery established",
+            "tension": "Every suspect had access to the victim",
+            "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
+          },
+          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
+          "beat": "gathering",
+          "estimatedWordCount": 1800
+        }
+      ],
+      "estimatedWordCount": 12000
+    }
+  ],
+  "totalScenes": 28,
+  "estimatedTotalWords": 45000,
+  "pacingNotes": [
+    "Discriminating test placed in Scene 19 (late Act II)",
+    "Red herrings concentrated in Scenes 4-8",
+    "Character development balanced with clue discovery"
+  ]
+}
+\`\`\`
+
+Create a complete, well-paced outline that brings this mystery to life.",
+  "noveltyDeveloper": "# Novelty Audit Context
+
+## Generated Mystery (To Be Checked)
+
+### Generated Mystery
+**Title**: The Orchard Clock
+**Primary Axis**: temporal
+**Era & Setting**: 1930s - Ashby Grange
+**Era Details**: telephone exchange, railway timetable, gas lamps
+
+**Crime**: poisoning
+**Victim**: Lord Ashby
+**Method**: poisoning
+
+**Cast (4)**: Inspector Hale, Lord Ashby, Clara Venn, Tom Reed
+
+**Culprit**: Clara Venn
+**Motive**: debts to the estate
+**Solution Method**: Clock set back an hour
+
+**False Assumption**: He died at nine.
+**Discriminating Test**: Ask who knew the clock was slow
+
+**Constraints**: 4 temporal, 2 access, 2 physical
+**Inference Path**: 2 steps
+
+---
+
+## Seed CML Examples (Reference Patterns)
+
+### Seed 1
+**Title**: Untitled
+**Primary Axis**: spatial
+**Era & Setting**: 1925 - Bath
+**Era Details**: 
+
+**Crime**: Stabbed in the library
+**Victim**: Unknown
+**Method**: stabbing
+
+**Cast (0)**: 
+
+**Culprit**: Unknown
+**Motive**: Unknown
+**Solution Method**: stabbing
+
+**False Assumption**: Unknown
+**Discriminating Test**: the knife test
+
+**Constraints**: 0 temporal, 0 access, 0 physical
+**Inference Path**: 0 steps",
+  "noveltyUser": "# Novelty Audit Task
+
+Compare the generated mystery against ALL seed examples and compute similarity scores.
+
+## Similarity Dimensions
+
+For each seed CML, evaluate:
+
+### 1. Plot Similarity (0-1)
+- Same crime type (murder, theft, fraud, etc.)
+- Same crime method (stabbing, poisoning, etc.)
+- Same crime location type (locked room, public space, etc.)
+- Same victim profile
+- **High similarity (>0.7)**: Indicates plot copying
+
+### 2. Character Similarity (0-1)
+- Same or similar character names
+- Same character role combinations (butler + nephew + doctor)
+- Same relationship dynamics (love triangle, inheritance dispute)
+- Same character count and distribution
+- **High similarity (>0.7)**: Indicates character copying
+
+### 3. Setting Similarity (0-1)
+- Same era (exact year or within 5 years)
+- Same location (city, country estate, ship, etc.)
+- Same era details (gaslight, telegraph, hansom cabs)
+- **High similarity (>0.8)**: Indicates setting copying (era alone is OK)
+
+### 4. Solution Similarity (0-1)
+- Same culprit profile (role, relationship to victim)
+- Same motive category (greed, revenge, protection, etc.)
+- Same solution method (spare key, poison switch, alibi fabrication)
+- Same false assumption pattern
+- Same discriminating test type
+- **High similarity (>0.7)**: Indicates solution copying
+
+### 5. Structural Similarity (0-1)
+- Similar inference path length
+- Similar constraint counts
+- Similar cast size
+- Similar CML structure
+- **High similarity (>0.8)**: OK - structural patterns are allowed
+
+## Similarity Scoring
+
+**Overall Similarity** = weighted average:
+- Plot: 30%
+- Characters: 25%
+- Setting: 15%
+- Solution: 25%
+- Structural: 5%
+
+## Pass/Fail Threshold
+
+- **Pass**: Overall similarity < 90% for ALL seeds
+- **Warning**: Overall similarity 90-100% for any seed
+- **Fail**: Overall similarity > 100% for any seed
+
+## Quality Bar
+- Justify high similarity scores with specific matched elements, not vague summaries.
+- Differentiate acceptable structural reuse from disallowed content copying.
+- Provide recommendations that meaningfully reduce future similarity risk.
+
+## Micro-exemplars
+- Weak warning: "Some similarities exist."
+- Strong warning: "Character similarity 0.74 driven by mirrored role triangle (heiress-doctor-steward) and near-identical inheritance-conflict motive arc."
+
+## Silent Pre-Output Checklist
+- all similarity dimensions scored for each seed
+- weighted overall similarity matches configured formula
+- status matches threshold policy
+- violations/warnings cite concrete matched elements
+- JSON only, no markdown fences
+
+## Output Format
+
+Return a JSON object:
+
+\`\`\`json
+{
+  "status": "pass" | "fail" | "warning",
+  "overallNovelty": 0.75,
+  "mostSimilarSeed": "The Moonstone",
+  "highestSimilarity": 0.62,
+  "similarityScores": [
+    {
+      "seedTitle": "The Moonstone",
+      "overallSimilarity": 0.62,
+      "plotSimilarity": 0.55,
+      "characterSimilarity": 0.70,
+      "settingSimilarity": 0.80,
+      "solutionSimilarity": 0.50,
+      "structuralSimilarity": 0.65,
+      "concerningMatches": [
+        "Same era (Victorian England)",
+        "Similar character count (7 vs 8)",
+        "Both involve locked room mysteries"
+      ]
+    }
+  ],
+  "violations": [
+    "Critical: Plot similarity 0.85 with 'The Moonstone' (same locked room + theft)"
+  ],
+  "warnings": [
+    "Moderate: Character similarity 0.73 with 'The Sign of the Four' (similar cast structure)"
+  ],
+  "recommendations": [
+    "Consider changing the crime location to increase plot differentiation",
+    "Adjust character names to reduce similarity with Seed 2"
+  ],
+  "summary": "Generated mystery shows acceptable novelty. Highest similarity is 0.62 with 'The Moonstone', below the 90% threshold."
+}
+\`\`\`
+
+Be specific about what similarities exist and whether they violate novelty principles.",
+}
+`;
