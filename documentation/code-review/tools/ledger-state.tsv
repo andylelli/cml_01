@@ -1,173 +1,173 @@
 # key	cr	status	commit	note   (edit this file; LEDGER.md is generated)
-A9W-01	CR-26	todo		
-A9W-02	CR-17	todo		
-A9W-03	CR-17	todo		
-A9W-04	CR-12	todo		
-A9W-05	CR-13	todo		
-A9W-06	CR-23	todo		
-A9W-07	CR-31	todo		
-A9W-08	CR-17	todo		
-A9W-09	CR-31	todo		
-A9W-10	CR-23	todo		
-A9W-11	CR-31	todo		
-A9W-12	CR-09	deferred		CR-09 waits: every consumer of the helper layer (agent9-run.ts:1-4096) is below runAgent9's v2 early return, so it is v1-only code; owner decision 2026-09-26: v1 takes bug fixes only, no refactors (same as CR-26)
-A9W-13	CR-22	todo	ec4665c2	CANARY_REPLAY_FAIRPLAY_ADVISORY registered and named in the checker; agent9/flags.ts stale P5 block deleted (ec4665c2). Waits (v1): moving agent9-run.ts's inline getters and fixing its 'ON by default' comment
+A9W-01	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-02	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-03	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-04	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-05	CR-13	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — ProseGenerationResult (types.ts)
+A9W-06	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-07	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-08	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-09	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-10	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-11	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-12	CR-09	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-13	CR-22	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-14	CR-08	done	3295ad4e 5662ca4c 094de134	unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only)
 A9W-15	CR-03	done	1374e38e	ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI
-A9W-16	CR-31	todo		
-A9W-17	CR-34	todo		
+A9W-16	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-17	CR-34	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-18		withdrawn		CPU is not a lever (README §3); negligible against LLM latency
 A9W-19	CR-02	done	72265dfc	size-ratchet-check in pretest; known-positive probe caught +1 line in runAgent9
-A9W-D01	CR-07	todo		
-A9W-D02	CR-07	todo		
-A9W-D03	CR-07	todo		
-A9W-D04	CR-17	todo		
-A9W-D05	CR-07	todo		
-A9W-D06	CR-33	todo		waits: v1 (agent9-run.ts throw paths)
-A9W-D07	CR-07	todo		
-A9W-D08	CR-07	todo		
-A9W-D09	CR-07	todo		
-A9W-D10	CR-12	todo		
-A9W-Q01	CR-17	todo		
-A9W-Q02	CR-17	todo		
-A9W-Q03	CR-30	todo		
-A9W-Q04	CR-12	todo		
-A9W-Q05	CR-33	todo		
-A9G-01	CR-26	todo		
-A9G-02	CR-26	todo		
-A9G-03	CR-30	todo		
-A9G-04	CR-15	todo		
-A9G-05	CR-26	todo		
-A9G-06	CR-29	todo		
-A9G-07	CR-29	todo		
-A9G-08	CR-22	todo		waits: agent9-prose is the v1 engine (bug fixes only)
-A9G-09	CR-17	todo		
-A9G-10	CR-26	todo		
-A9G-11	CR-16	todo		
+A9W-D01	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D02	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D03	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D04	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D05	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D06	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D07	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D08	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D09	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-D10	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-Q01	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-Q02	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-Q03	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-Q04	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9W-Q05	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-01	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-02	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-03	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-04	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-05	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-06	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-07	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-08	CR-22	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-09	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-10	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-11	CR-16	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9G-12	CR-08	done	3295ad4e 5662ca4c 094de134	imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split)
-A9G-13	CR-30	todo		
-A9G-14	CR-13	todo		
-A9G-15	CR-11	deferred		measurement for S6; its conclusion (a leaf prose-contracts package) is the owner's question A9G-Q03
-A9G-16	CR-28	todo		
-A9G-17	CR-31	todo		
-A9G-D01	CR-30	todo		
-A9G-D02	CR-32	todo		
-A9G-D03	CR-17	todo		
+A9G-13	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-14	CR-13	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-15	CR-11	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-16	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-17	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D01	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D02	CR-32	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D03	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9G-D04	CR-06	done	ec237e5a	
-A9G-D05	CR-17	todo		
-A9G-D06	CR-22	todo		waits: v1 (a flag-parse divergence for yes/TRUE spellings; also ORC-Q05)
-A9G-D07	CR-15	todo		
-A9G-D08	CR-29	todo		
-A9G-D09	CR-19	deferred		v1 prose engine (generate.ts) — telemetry undercount; v1 takes bug fixes only and this is a reporting gap, not a defect in the book
-A9G-D10	CR-26	todo		
-A9G-D11	CR-10	deferred		the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11)
+A9G-D05	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D06	CR-22	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D07	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D08	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D09	CR-19	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D10	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-D11	CR-10	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9G-D12	CR-08	done	bf3fefc9	BOMs and mojibake removed
-A9G-Q01	CR-30	todo		
-A9G-Q02	CR-17	todo		
-A9G-Q03	CR-11	todo		
-A9G-Q04	CR-29	todo		
-A9G-Q05	CR-30	todo		
-A9G-Q06	CR-15	todo		
-A9P-01	CR-17	todo		
-A9P-02	CR-27	todo		
-A9P-03	CR-28	todo		
-A9P-04	CR-28	todo		
-A9P-05	CR-27	todo		
-A9P-06	CR-27	todo		
-A9P-07	CR-28	todo		
-A9P-08	CR-28	todo		
-A9P-09	CR-27	todo		
-A9P-10	CR-28	todo		
-A9P-11	CR-27	todo		
-A9P-12	CR-28	todo		
-A9P-13	CR-13	todo		
-A9P-14	CR-22	todo		waits: agent9-prose is the v1 engine (bug fixes only)
-A9P-15	CR-30	todo		
+A9G-Q01	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-Q02	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-Q03	CR-11	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-Q04	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-Q05	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9G-Q06	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-01	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-02	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-03	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-04	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-05	CR-27	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — DT_SIGNAL_RE (scene-ref-reconcile.ts)
+A9P-06	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-07	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-08	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-09	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-10	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-11	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-12	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-13	CR-13	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-14	CR-22	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-15	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-16	CR-08	done	3295ad4e bf3fefc9	unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split
-A9P-D01	CR-07	todo		
-A9P-D02	CR-28	todo		
+A9P-D01	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D02	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-D03	CR-07	dup		= A9W-D03 (cml.CAST)
-A9P-D04	CR-07	todo		
-A9P-D05	CR-07	todo		
-A9P-D06	CR-07	todo		
-A9P-D07	CR-07	todo		
-A9P-D08	CR-17	todo		
-A9P-D09	CR-07	todo		
-A9P-D10	CR-27	todo		
-A9P-D11	CR-07	todo		
-A9P-Q01	CR-28	todo		
-A9P-Q02	CR-28	todo		
-A9P-Q03	CR-28	todo		
-A9P-Q04	CR-27	todo		
-A9P-Q05	CR-30	todo		
-A9P-Q06	CR-17	todo		
-A9P-Q07	CR-28	todo		
-A9V-01	CR-15	todo		
-A9V-02	CR-27	todo		
-A9V-03	CR-31	todo		
-A9V-04	CR-16	todo		
-A9V-05	CR-17	todo		
-A9V-06	CR-31	todo		
-A9V-07	CR-31	todo		
-A9V-08	CR-31	todo		
-A9V-09	CR-31	todo		
-A9V-10	CR-31	todo		
-A9V-11	CR-27	todo		
-A9V-12	CR-15	todo		
+A9P-D04	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D05	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D06	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D07	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D08	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D09	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D10	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-D11	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q01	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q02	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q03	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q04	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q05	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q06	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9P-Q07	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-01	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-02	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-03	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-04	CR-16	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — CLUE_TOKEN_STOPWORDS (clue-obligations.ts), tokenMatchesText (clue-obligations.ts), chapterMentionsRequiredClue (clue-obligations.ts)
+A9V-05	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-06	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-07	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-08	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-09	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-10	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-11	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-12	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9V-13	CR-08	done	3295ad4e 094de134	mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param
-A9V-14	CR-20	todo		waits: agent9-prose is the v1 engine (bug fixes only); the prose parse is ladder (b) unguarded, listed in ORC-Q03
+A9V-14	CR-20	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9V-15		withdrawn		CPU is not a lever (README §3); ~2 s per run
 A9V-16	CR-10	done	fdd6c939	compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07
-A9V-D01	CR-15	todo		
-A9V-D02	CR-15	todo		
-A9V-D03	CR-17	todo		
-A9V-D04	CR-17	todo		
-A9V-D05	CR-31	todo		
-A9V-D06	CR-15	todo		
-A9V-D07	CR-31	todo		
-A9V-D08	CR-31	todo		
-A9V-D09	CR-31	todo		
-A9V-D10	CR-07	todo		
-A9V-D11	CR-07	todo		
-A9V-D12	CR-27	todo		
+A9V-D01	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D02	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D03	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D04	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D05	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D06	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D07	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D08	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D09	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D10	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D11	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-D12	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9V-D13	CR-22	done		ENABLE_PROSE_BLIND_READER was named in the checker and registered in CR-06 (VERIFIED-BUGS #22); verify:flags clean
-A9V-Q01	CR-15	todo		
-A9V-Q02	CR-16	todo		
-A9V-Q03	CR-17	todo		
-A9V-Q04	CR-31	todo		
-A9V-Q05	CR-30	todo		
-A9V-Q06	CR-20	todo		v1 prose parser: moot once v1 is deleted (owner decision 1)
-A9R-01	CR-23	todo		
-A9R-02	CR-31	todo		
-A9R-03	CR-29	todo		
-A9R-04	CR-12	todo		
-A9R-05	CR-23	todo		
-A9R-06	CR-23	todo		
-A9R-07	CR-33	todo		waits: v1 (agent9-prose repair stores)
-A9R-08	CR-29	todo		
-A9R-09	CR-12	todo		
-A9R-10	CR-32	todo		
+A9V-Q01	CR-15	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-Q02	CR-16	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-Q03	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-Q04	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-Q05	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9V-Q06	CR-20	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-01	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-02	CR-31	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts), isInjectedSentence (injected-sentences.ts)
+A9R-03	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-04	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-05	CR-23	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — assembleScoringChapterTexts (scoring-texts.ts)
+A9R-06	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-07	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-08	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-09	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-10	CR-32	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-11	CR-08	done	094de134	hasRepetitionRewriteRegression delegates to the reason fn; ClueRegenPassResult alias gone. runClearanceRegenPass and ProseDefectKind members belong to the regen registry (CR-23); applyClearancePatch param is v1 generate.ts (bug-fix-only)
-A9R-12	CR-31	todo		
-A9R-13	CR-13	todo		
-A9R-14	CR-28	todo		
-A9R-D01	CR-31	todo		
-A9R-D02	CR-31	todo		
-A9R-D03	CR-12	todo		
-A9R-D04	CR-07	todo		
-A9R-D05	CR-29	todo		
+A9R-12	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-13	CR-13	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-14	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D01	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D02	CR-31	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts)
+A9R-D03	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D04	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D05	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-D06	CR-32	dup		= A9R-10
 A9R-D07	CR-12	dup		= A9R-09
-A9R-D08	CR-07	todo		
-A9R-D09	CR-33	todo		waits: v1
-A9R-D10	CR-33	todo		waits: v1
-A9R-Q01	CR-29	todo		
-A9R-Q02	CR-31	todo		
-A9R-Q03	CR-12	todo		
-A9R-Q04	CR-30	todo		
-A9R-Q05	CR-31	todo		
+A9R-D08	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D09	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-D10	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-Q01	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-Q02	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-Q03	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-Q04	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
+A9R-Q05	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A5-01	CR-25	done	ad612520	runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/
-A5-02	CR-16	todo	ec47208f	step 1 (R1) done: @cml/cml source-paths.ts is the one table (templates, derived regexes, one enumerator, prompt roots, retry templates); the worker validator, strict whitelist, retry templates, prompts-llm enumerator and the prompt's root list derive from it; equivalence test against verbatim copies over 137 library cases; Agent 5 prompt byte-identical on replay. Step 2 (OWNER): is CASE.death_method legal (the prompt demands it, the worker rewrites it)
+A5-02	CR-16	done	79e6d803	step 1 (R1) ec47208f: one source-path table in @cml/cml; step 2 DECIDED (owner decision 4): CASE.death_method is legal — validator, strict whitelist and prompt agree (79e6d803)
 A5-03	CR-16	done	04e0bc58	R1: the three evidence-candidate scorers through clue-contracts/evidence-candidates.ts, each keeping its weights (tested against verbatim copies). Step 2 — one evidence-id policy applied once — is A5-Q05 (owner)
 A5-04	CR-13	todo		
 A5-05	CR-10	done	fdd6c939	contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16)
@@ -197,7 +197,7 @@ A5-Q01	CR-16	done	79e6d803	DECIDED (owner decision 4): CASE.death_method is lega
 A5-Q02	CR-07	todo		
 A5-Q03	CR-28	todo		
 A5-Q04	CR-16	todo		
-A5-Q05	CR-16	todo		
+A5-Q05	CR-16	done	ec9904b2	DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs)
 A5-Q06	CR-30	todo		
 A5-Q07	CR-16	todo		
 A6-01	CR-25	done	71c3fdab	runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue)
@@ -294,7 +294,7 @@ A34-D16	CR-14	done	c7506ca7	Agent 3's cast keeps role, moral_complexity and ever
 A34-Q01	CR-14	done	51664c31	DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH
 A34-Q02	CR-17	todo		
 A34-Q03	CR-30	todo		
-A34-Q04	CR-16	todo		
+A34-Q04	CR-16	withdrawn	fd058f16	MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1)
 A34-Q05	CR-32	todo		
 A1X-01	CR-12	todo	8f86016c	R0 done (8f86016c): surname/namesMatch/nameAppearsAsWord moved to @cml/cml, re-exported; roleArchetypeIncludesWord deleted. OWNER (A1X-Q01): unifying the detective/victim predicates — 577 disagreements over 2,502 archived cast members (scripts/role-predicate-disagreement.mjs)
 A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
@@ -346,7 +346,7 @@ ORC-12	CR-33	todo	ba1b5496	process-guards flush keyed by run (ba1b5496). Waits (
 ORC-13	CR-31	todo		
 ORC-14	CR-32	todo		
 ORC-15	CR-13	todo		
-ORC-16	CR-26	todo		
+ORC-16	CR-26	withdrawn	fd058f16	MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1)
 ORC-D01	CR-07	todo		
 ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
 ORC-D03	CR-06	done	dff49644	
@@ -395,7 +395,7 @@ SCO-D12	CR-18	todo		OWNER: novelty 'skipped' recorded as 100/A in the mean — a
 SCO-Q01	CR-30	todo		
 SCO-Q02	CR-18	todo		
 SCO-Q03	CR-18	todo		
-SCO-Q04	CR-16	todo		
+SCO-Q04	CR-16	withdrawn	8631e31b	MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose
 SCO-Q05	CR-30	todo		
 SCO-Q06	CR-06	todo		
 SCO-Q07	CR-18	todo		

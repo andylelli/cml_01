@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 60 | 47 | 3 | 110 |
-| open | 130 | 92 | 69 | 291 |
+| closed | 129 | 96 | 35 | 260 |
+| open | 61 | 43 | 37 | 141 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -23,34 +23,34 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 20 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
-| CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
+| CR-07 | 43 | 20 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
-| CR-09 | 1 | 0 | A9W-12 |
-| CR-10 | 5 | 4 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
-| CR-11 | 3 | 1 | A9G-15 A9G-Q03 ORC-10 |
-| CR-12 | 17 | 4 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
-| CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
+| CR-09 | 1 | 1 | A9W-12 |
+| CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
+| CR-11 | 3 | 3 | A9G-15 A9G-Q03 ORC-10 |
+| CR-12 | 17 | 11 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
+| CR-13 | 12 | 3 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
-| CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
-| CR-16 | 25 | 11 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
-| CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
+| CR-15 | 11 | 9 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
+| CR-16 | 25 | 17 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
+| CR-17 | 28 | 17 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
-| CR-19 | 7 | 3 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
-| CR-20 | 10 | 7 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
+| CR-19 | 7 | 4 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
+| CR-20 | 10 | 9 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
-| CR-22 | 8 | 3 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
-| CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
+| CR-22 | 8 | 7 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
+| CR-23 | 6 | 4 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
 | CR-24 | 5 | 4 | A7-01 A7-05 A7-12 A34-04 A34-12 |
 | CR-25 | 9 | 4 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
-| CR-26 | 7 | 0 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
-| CR-27 | 14 | 0 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
-| CR-28 | 19 | 0 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
-| CR-29 | 20 | 1 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
-| CR-30 | 21 | 0 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
-| CR-31 | 27 | 0 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
-| CR-32 | 10 | 2 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
-| CR-33 | 13 | 5 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
-| CR-34 | 3 | 0 | A9W-17 A6-16 A6-Q03 |
+| CR-26 | 7 | 7 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
+| CR-27 | 14 | 9 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
+| CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
+| CR-29 | 20 | 9 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
+| CR-30 | 21 | 10 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
+| CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
+| CR-32 | 10 | 4 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
+| CR-33 | 13 | 10 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
+| CR-34 | 3 | 1 | A9W-17 A6-16 A6-Q03 |
 
 ## Decision sheet — open owner questions by CR
 
@@ -64,67 +64,35 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-07 | A5-Q02 | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
 | CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
 | CR-07 | ORC-Q01 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
-| CR-11 | A9G-Q03 | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
 | CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site) |
-| CR-12 | A9R-Q03 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observation)? |  |
-| CR-12 | A9W-Q04 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
-| CR-15 | A9G-Q06 | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? |  |
-| CR-15 | A9V-Q01 | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. |  |
-| CR-16 | A34-Q04 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |
 | CR-16 | A5-Q04 | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
-| CR-16 | A5-Q05 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? |  |
 | CR-16 | A5-Q07 | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
 | CR-16 | A7-Q04 | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
-| CR-16 | A9V-Q02 | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) |  |
-| CR-16 | SCO-Q04 | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? |  |
 | CR-17 | A1X-Q04 | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
 | CR-17 | A34-Q02 | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
-| CR-17 | A9G-Q02 | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
-| CR-17 | A9P-Q06 | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? |  |
-| CR-17 | A9V-Q03 | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? |  |
-| CR-17 | A9W-Q01 | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into fresh-run prompts behind a probe? |  |
-| CR-17 | A9W-Q02 | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the embargo? |  |
 | CR-17 | ORC-Q04 | ORC-08: which arc-position formula is canonical? |  |
 | CR-18 | A1X-Q02 | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | CR-18 | SCO-Q02 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
 | CR-18 | SCO-Q03 | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
-| CR-20 | A9V-Q06 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? | v1 prose parser: moot once v1 is deleted (owner decision 1) |
 | CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
-| CR-27 | A9P-Q04 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
-| CR-28 | A9P-Q01 | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8 still matter. |  |
-| CR-28 | A9P-Q02 | Which copy of the outcome contract stays — system or user (A9P-07)? |  |
-| CR-28 | A9P-Q03 | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? |  |
-| CR-28 | A9P-Q07 | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? |  |
 | CR-29 | A1X-Q07 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
 | CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? |  |
 | CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
-| CR-29 | A9G-Q04 | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? |  |
-| CR-29 | A9R-Q01 | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acceptable as the deciding evidence? |  |
 | CR-30 | A1X-Q05 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
 | CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
 | CR-30 | A34-Q03 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
 | CR-30 | A5-Q06 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
 | CR-30 | A7-Q01 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, and it costs about 70 lines of forks. |  |
 | CR-30 | A7-Q03 | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Should A7-01 wait for that decision, or proceed? This report recommends proceeding: the split makes a later delet… |  |
-| CR-30 | A9G-Q01 | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
-| CR-30 | A9G-Q05 | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? |  |
-| CR-30 | A9P-Q05 | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? |  |
-| CR-30 | A9R-Q04 | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? |  |
-| CR-30 | A9V-Q05 | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? |  |
-| CR-30 | A9W-Q03 | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guards), or retire them (ADR-0011 evidence: the policy history)? |  |
 | CR-30 | SCO-Q01 | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
 | CR-30 | SCO-Q05 | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
-| CR-31 | A9R-Q02 | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that paste? |  |
-| CR-31 | A9R-Q05 | Is the det-repair fallback's castNames omission (A9R-12) intended? |  |
-| CR-31 | A9V-Q04 | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? |  |
 | CR-32 | A34-Q05 | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
 | CR-32 | A6-Q04 | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
 | CR-32 | ORC-Q07 | ORC-14: should a per-agent model override outrank the design tier? |  |
 | CR-33 | A7-Q02 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the floor. |  |
-| CR-33 | A9W-Q05 | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? |  |
 | CR-33 | ORC-Q06 | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? |  |
 | CR-34 | A6-Q03 | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-02 shows is mostly discarded? |  |
 
@@ -132,200 +100,200 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9W-01 | P1 | R0→R1 | CR-26 | todo |  | runAgent9 → ~350-line coordinator over typed phase functions |  |
-| A9W-02 | P1 | R2 | CR-17 | todo |  | Two NarrativeState bodies; worker copy never reaches prompts |  |
-| A9W-03 | P1 | R0 then R2 | CR-17 | todo |  | Two Story Bibles; 11 worker regens run with beatSheet: [] (no embargo) |  |
-| A9W-04 | P1 | R1/R2 | CR-12 | todo |  | 9 derivations of victim/suspect/detective; 2 culprit-role repairers |  |
-| A9W-05 | P1 | R0 | CR-13 | todo |  | prose: any / validationReport: any discard existing types; 405 any |  |
-| A9W-06 | P1 | R0 | CR-23 | todo |  | Regen-stage wrapper repeated ×10 |  |
-| A9W-07 | P2 | R0 + R2 | CR-31 | todo |  | Clearance floor ×2 and evidence vocabulary ×3 |  |
-| A9W-08 | P2 | R2 | CR-17 | todo |  | Clock/duration parsing ×3; classifyFactValue ignores A_58 |  |
-| A9W-09 | P2 | R1 | CR-31 | todo |  | 7th copy of the opening-grounding vocabulary (X95 missed it) |  |
-| A9W-10 | P2 | R1 (+R2) | CR-23 | todo |  | Pronoun repair: 6 call sites, 4 guard policies, a package twin |  |
-| A9W-11 | P2 | R1 | CR-31 | todo |  | Injector floor chain ×3 with divergent guards, after the "last write" |  |
-| A9W-12 | P2 | R0 | CR-09 | deferred |  | Helper layer (3,645 lines) → 12 modules behind re-export shims | CR-09 waits: every consumer of the helper layer (agent9-run.ts:1-4096) is below runAgent9's v2 early return, so it is v1-only code; owner decision 2026-09-26: v1 takes bug fixes only, no refactors (same as CR-26) |
-| A9W-13 | P2 | R0 | CR-22 | todo | ec4665c2 | Flag surface has leaked back out of flags.ts | CANARY_REPLAY_FAIRPLAY_ADVISORY registered and named in the checker; agent9/flags.ts stale P5 block deleted (ec4665c2). Waits (v1): moving agent9-run.ts's inline getters and fixing its 'ON by default' comment |
+| A9W-01 | P1 | R0→R1 | CR-26 | withdrawn | fd058f16 | runAgent9 → ~350-line coordinator over typed phase functions | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-02 | P1 | R2 | CR-17 | withdrawn | fd058f16 | Two NarrativeState bodies; worker copy never reaches prompts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-03 | P1 | R0 then R2 | CR-17 | withdrawn | fd058f16 | Two Story Bibles; 11 worker regens run with beatSheet: [] (no embargo) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-04 | P1 | R1/R2 | CR-12 | withdrawn | fd058f16 | 9 derivations of victim/suspect/detective; 2 culprit-role repairers | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-05 | P1 | R0 | CR-13 | todo |  | prose: any / validationReport: any discard existing types; 405 any | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — ProseGenerationResult (types.ts) |
+| A9W-06 | P1 | R0 | CR-23 | withdrawn | fd058f16 | Regen-stage wrapper repeated ×10 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-07 | P2 | R0 + R2 | CR-31 | withdrawn | fd058f16 | Clearance floor ×2 and evidence vocabulary ×3 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-08 | P2 | R2 | CR-17 | withdrawn | fd058f16 | Clock/duration parsing ×3; classifyFactValue ignores A_58 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-09 | P2 | R1 | CR-31 | withdrawn | fd058f16 | 7th copy of the opening-grounding vocabulary (X95 missed it) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-10 | P2 | R1 (+R2) | CR-23 | withdrawn | fd058f16 | Pronoun repair: 6 call sites, 4 guard policies, a package twin | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-11 | P2 | R1 | CR-31 | withdrawn | fd058f16 | Injector floor chain ×3 with divergent guards, after the "last write" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-12 | P2 | R0 | CR-09 | withdrawn | fd058f16 | Helper layer (3,645 lines) → 12 modules behind re-export shims | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-13 | P2 | R0 | CR-22 | withdrawn | fd058f16 | Flag surface has leaked back out of flags.ts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9W-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code and a vestigial counter | unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only) |
 | A9W-15 | P1 | R0 | CR-03 | done | 1374e38e | No test reaches runAgent9; golden ship-layer test first | ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI |
-| A9W-16 | P3 | R0/R1 | CR-31 | todo |  | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) |  |
-| A9W-17 | P3 | R1 | CR-34 | todo |  | Re-validation ×9 re-pays uncached semantic LLM fallbacks |  |
+| A9W-16 | P3 | R0/R1 | CR-31 | withdrawn | fd058f16 | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-17 | P3 | R1 | CR-34 | withdrawn | fd058f16 | Re-validation ×9 re-pays uncached semantic LLM fallbacks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9W-18 | P3 | R1 | **—** | withdrawn |  | O(n²) cumulative chapter scoring — negligible | CPU is not a lever (README §3); negligible against LLM latency |
 | A9W-19 | P2 | R0 | CR-02 | done | 72265dfc | Growth guard: size ratchet in pretest | size-ratchet-check in pretest; known-positive probe caught +1 line in runAgent9 |
-| A9W-D01 |  |  | CR-07 | todo |  | Floor writes nonsense for distance values (MEASURED, offline dist probe): classifyFactValue bare-to rule (:1124) → "It was thirty paces to the gate b… |  |
-| A9W-D02 |  |  | CR-07 | todo |  | Curly-apostrophe o'clock facts never floor-injected (MEASURED): the class o['']clock (:1124) holds two ASCII ' (bytes checked); "eleven o’clock" → ge… |  |
-| A9W-D03 |  |  | CR-07 | todo |  | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… |  |
-| A9W-D04 |  |  | CR-17 | todo |  | Beat history and atom stamps never reach fresh-run prompts (A9W-02). High on data flow; prose impact UNVERIFIABLE. |  |
-| A9W-D05 |  |  | CR-07 | todo |  | Worker regens carry no culprit/mechanism embargo (A9W-03). High on code path; impact UNVERIFIABLE. |  |
-| A9W-D06 |  |  | CR-33 | todo |  | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… | waits: v1 (agent9-run.ts throw paths) |
-| A9W-D07 |  |  | CR-07 | todo |  | Full-story diagnostic apply rewrites chapters after the release gate without re-validation (:7541-7557), against the parity invariant stated at :6605… |  |
-| A9W-D08 |  |  | CR-07 | todo |  | Schema-repair retry (:5558) regenerates from chapter 1 with the end-of-story narrativeState (advanced by the first pass's onBatchComplete) and drops… |  |
-| A9W-D09 |  |  | CR-07 | todo |  | Mojibake table: rows :35-36 of prose-text.ts match "â€" + ASCII " (bytes checked); the en-dash row is unreachable since the first commit, and CP1252… |  |
-| A9W-D10 |  |  | CR-12 | todo |  | Culprit lock truncates to one culprit (:1383-1387) while downstream code loops over culprits; possibly deliberate. Low. |  |
-| A9W-Q01 |  |  | CR-17 | todo |  | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into f… |  |
-| A9W-Q02 |  |  | CR-17 | todo |  | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the… |  |
-| A9W-Q03 |  |  | CR-30 | todo |  | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guar… |  |
-| A9W-Q04 |  |  | CR-12 | todo |  | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
-| A9W-Q05 |  |  | CR-33 | todo |  | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? |  |
+| A9W-D01 |  |  | CR-07 | withdrawn | fd058f16 | Floor writes nonsense for distance values (MEASURED, offline dist probe): classifyFactValue bare-to rule (:1124) → "It was thirty paces to the gate b… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D02 |  |  | CR-07 | withdrawn | fd058f16 | Curly-apostrophe o'clock facts never floor-injected (MEASURED): the class o['']clock (:1124) holds two ASCII ' (bytes checked); "eleven o’clock" → ge… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D03 |  |  | CR-07 | withdrawn | fd058f16 | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D04 |  |  | CR-17 | withdrawn | fd058f16 | Beat history and atom stamps never reach fresh-run prompts (A9W-02). High on data flow; prose impact UNVERIFIABLE. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D05 |  |  | CR-07 | withdrawn | fd058f16 | Worker regens carry no culprit/mechanism embargo (A9W-03). High on code path; impact UNVERIFIABLE. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D06 |  |  | CR-33 | withdrawn | fd058f16 | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D07 |  |  | CR-07 | withdrawn | fd058f16 | Full-story diagnostic apply rewrites chapters after the release gate without re-validation (:7541-7557), against the parity invariant stated at :6605… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D08 |  |  | CR-07 | withdrawn | fd058f16 | Schema-repair retry (:5558) regenerates from chapter 1 with the end-of-story narrativeState (advanced by the first pass's onBatchComplete) and drops… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D09 |  |  | CR-07 | withdrawn | fd058f16 | Mojibake table: rows :35-36 of prose-text.ts match "â€" + ASCII " (bytes checked); the en-dash row is unreachable since the first commit, and CP1252… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D10 |  |  | CR-12 | withdrawn | fd058f16 | Culprit lock truncates to one culprit (:1383-1387) while downstream code loops over culprits; possibly deliberate. Low. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q01 |  |  | CR-17 | withdrawn | fd058f16 | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into f… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q02 |  |  | CR-17 | withdrawn | fd058f16 | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q03 |  |  | CR-30 | withdrawn | fd058f16 | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guar… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q04 |  |  | CR-12 | withdrawn | fd058f16 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q05 |  |  | CR-33 | withdrawn | fd058f16 | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 02-agent9-generation
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9G-01 | P1 | R1 | CR-26 | todo |  | generateProse is a 2,661-LOC closure: decompose it into a ~150-line coordinator over explicit state types |  |
-| A9G-02 | P1 | R1 (+R2) | CR-26 | todo |  | Chapter acceptance has three bodies (main, exhaustion fallback, exception fallback) with divergent check sets |  |
-| A9G-03 | P1 | R2 | CR-30 | todo |  | buildEnhancedRetryFeedback and its satellites are unreachable at the live budget (commit 79524bd6, unflagged) |  |
-| A9G-04 | P1 | R1 → R2 | CR-15 | todo |  | Eleven classifiers of validator message strings; they measurably disagree |  |
-| A9G-05 | P1 | R1/R2 | CR-26 | todo |  | Boundary: NSD, pronoun sweep, resolution backstop, regen bible, flags and model tier are each decided on both sides |  |
-| A9G-06 | P1 | R2 | CR-29 | todo |  | Structural levers that would avoid retries (37% of prose prompt volume) |  |
-| A9G-07 | P2 | R2 | CR-29 | todo |  | One retry message has three authors: each error repeated 4×, 16 headers, contradictory draft instructions |  |
-| A9G-08 | P2 | R1 | CR-22 | todo |  | 7 env flags / 13 reads / 3 parse idioms; rollout flags re-derived; 2 rollout flags control nothing | waits: agent9-prose is the v1 engine (bug fixes only) |
-| A9G-09 | P2 | R1/R2 | CR-17 | todo |  | Run-constant facts derived per call and in divergent ways; arc position has 6 bodies (loop and prompt disagree on 6/10 chapters) |  |
-| A9G-10 | P2 | R1 | CR-26 | todo |  | The post-LLM normalisation chain is written three times (main, expansion, polish), each slightly different |  |
-| A9G-11 | P2 | R2 | CR-16 | todo |  | The provisional score re-implements clue presence with a looser threshold and feeds the next prompt |  |
+| A9G-01 | P1 | R1 | CR-26 | withdrawn | fd058f16 | generateProse is a 2,661-LOC closure: decompose it into a ~150-line coordinator over explicit state types | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-02 | P1 | R1 (+R2) | CR-26 | withdrawn | fd058f16 | Chapter acceptance has three bodies (main, exhaustion fallback, exception fallback) with divergent check sets | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-03 | P1 | R2 | CR-30 | withdrawn | fd058f16 | buildEnhancedRetryFeedback and its satellites are unreachable at the live budget (commit 79524bd6, unflagged) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-04 | P1 | R1 → R2 | CR-15 | withdrawn | fd058f16 | Eleven classifiers of validator message strings; they measurably disagree | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-05 | P1 | R1/R2 | CR-26 | withdrawn | fd058f16 | Boundary: NSD, pronoun sweep, resolution backstop, regen bible, flags and model tier are each decided on both sides | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-06 | P1 | R2 | CR-29 | withdrawn | fd058f16 | Structural levers that would avoid retries (37% of prose prompt volume) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-07 | P2 | R2 | CR-29 | withdrawn | fd058f16 | One retry message has three authors: each error repeated 4×, 16 headers, contradictory draft instructions | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-08 | P2 | R1 | CR-22 | withdrawn | fd058f16 | 7 env flags / 13 reads / 3 parse idioms; rollout flags re-derived; 2 rollout flags control nothing | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-09 | P2 | R1/R2 | CR-17 | withdrawn | fd058f16 | Run-constant facts derived per call and in divergent ways; arc position has 6 bodies (loop and prompt disagree on 6/10 chapters) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-10 | P2 | R1 | CR-26 | withdrawn | fd058f16 | The post-LLM normalisation chain is written three times (main, expansion, polish), each slightly different | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-11 | P2 | R2 | CR-16 | withdrawn | fd058f16 | The provisional score re-implements clue presence with a looser threshold and feeds the next prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9G-12 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports | imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split) |
-| A9G-13 | P2 | R2 | CR-30 | todo |  | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry |  |
-| A9G-14 | P2 | R0/R1 | CR-13 | todo |  | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any |  |
-| A9G-15 | P2 | R0 | CR-11 | deferred |  | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found | measurement for S6; its conclusion (a leaf prose-contracts package) is the owner's question A9G-Q03 |
-| A9G-16 | P2 | R2 | CR-28 | todo |  | context-management does no budgeting; its STORY TO DATE block (all prior text) bypasses budgeting |  |
-| A9G-17 | P3 | R1/R2 | CR-31 | todo |  | Vocabulary and regex copies: hard-coded atmosphere list (28 of 39 words), DT regex ×4, leakage regex ×2 |  |
-| A9G-D01 |  |  | CR-30 | todo |  | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… |  |
-| A9G-D02 |  |  | CR-32 | todo |  | The in-loop clue regen ignores the regen tier. makeRegenFn({ model: inputs.model }) (2741) runs on the generate deployment. The worker fixed its 10 s… |  |
-| A9G-D03 |  |  | CR-17 | todo |  | Deployed atoms and beat history never reach the in-loop prompt. Only the worker's NSD copy is stamped. The in-loop liveNarrativeState gets only the b… |  |
+| A9G-13 | P2 | R2 | CR-30 | withdrawn | fd058f16 | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-14 | P2 | R0/R1 | CR-13 | withdrawn | fd058f16 | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-15 | P2 | R0 | CR-11 | withdrawn | fd058f16 | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-16 | P2 | R2 | CR-28 | withdrawn | fd058f16 | context-management does no budgeting; its STORY TO DATE block (all prior text) bypasses budgeting | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-17 | P3 | R1/R2 | CR-31 | withdrawn | fd058f16 | Vocabulary and regex copies: hard-coded atmosphere list (28 of 39 words), DT regex ×4, leakage regex ×2 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D01 |  |  | CR-30 | withdrawn | fd058f16 | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D02 |  |  | CR-32 | withdrawn | fd058f16 | The in-loop clue regen ignores the regen tier. makeRegenFn({ model: inputs.model }) (2741) runs on the generate deployment. The worker fixed its 10 s… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D03 |  |  | CR-17 | withdrawn | fd058f16 | Deployed atoms and beat history never reach the in-loop prompt. Only the worker's NSD copy is stamped. The in-loop liveNarrativeState gets only the b… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9G-D04 |  |  | CR-06 | done | ec237e5a | A throw from onBatchComplete duplicates chapters. Chapters are pushed at 4027 before the awaited callback at 4183. A throw (for example the worker's… |  |
-| A9G-D05 |  |  | CR-17 | todo |  | The loop and the prompt builder disagree on arc position for 6/10 chapters (A9G-09). *High* that they differ, *medium* that it is unintended. |  |
-| A9G-D06 |  |  | CR-22 | todo |  | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… | waits: v1 (a flag-parse divergence for yes/TRUE spellings; also ORC-Q05) |
-| A9G-D07 |  |  | CR-15 | todo |  | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… |  |
-| A9G-D08 |  |  | CR-29 | todo |  | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… |  |
-| A9G-D09 |  |  | CR-19 | deferred |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… | v1 prose engine (generate.ts) — telemetry undercount; v1 takes bug fixes only and this is a reporting gap, not a defect in the book |
-| A9G-D10 |  |  | CR-26 | todo |  | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… |  |
-| A9G-D11 |  |  | CR-10 | deferred |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. | the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11) |
+| A9G-D05 |  |  | CR-17 | withdrawn | fd058f16 | The loop and the prompt builder disagree on arc position for 6/10 chapters (A9G-09). *High* that they differ, *medium* that it is unintended. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D06 |  |  | CR-22 | withdrawn | fd058f16 | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D07 |  |  | CR-15 | withdrawn | fd058f16 | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D08 |  |  | CR-29 | withdrawn | fd058f16 | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D09 |  |  | CR-19 | withdrawn | fd058f16 | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D10 |  |  | CR-26 | withdrawn | fd058f16 | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D11 |  |  | CR-10 | withdrawn | fd058f16 | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9G-D12 |  |  | CR-08 | done | bf3fefc9 | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. | BOMs and mojibake removed |
-| A9G-Q01 |  |  | CR-30 | todo |  | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
-| A9G-Q02 |  |  | CR-17 | todo |  | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
-| A9G-Q03 |  |  | CR-11 | todo |  | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
-| A9G-Q04 |  |  | CR-29 | todo |  | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? |  |
-| A9G-Q05 |  |  | CR-30 | todo |  | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? |  |
-| A9G-Q06 |  |  | CR-15 | todo |  | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? |  |
+| A9G-Q01 |  |  | CR-30 | withdrawn | fd058f16 | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q02 |  |  | CR-17 | withdrawn | fd058f16 | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q03 |  |  | CR-11 | withdrawn | fd058f16 | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q04 |  |  | CR-29 | withdrawn | fd058f16 | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q05 |  |  | CR-30 | withdrawn | fd058f16 | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q06 |  |  | CR-15 | withdrawn | fd058f16 | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 03-agent9-prompts
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9P-01 | P1 | R1 → R2 | CR-17 | todo |  | Bible facts re-derived 3–9× each in the prompt layer (ADR-0005); frozen objects built but unread |  |
-| A9P-02 | P1 | R1 | CR-27 | todo |  | No block interface: metadata in 4 places; ~50% of the prompt outside the block model |  |
-| A9P-03 | P1 | R1 model / R2 cap | CR-28 | todo |  | STORY TO DATE is not a block: 59% of the ch10 prompt, ≈99% of "fixed" growth, uncapped |  |
-| A9P-04 | P1 | R1 / R2 | CR-28 | todo |  | Stale caps + mid-word truncation: 3 blocks truncated in 40/40 and 32/32 prompts |  |
-| A9P-05 | P1 | R1 | CR-27 | todo |  | buildChapterObligationBlock: 14 params, 974 LOC, 557-line callback cc 137 |  |
-| A9P-06 | P1 | R1 | CR-27 | todo |  | buildProsePrompt: 943-LOC coordinator; unasserted .replace() splices |  |
-| A9P-07 | P2 | R2 | CR-28 | todo |  | CHAPTER OUTCOME CONTRACT concatenated twice (system + user) in every prompt |  |
-| A9P-08 | P2 | R2 | CR-28 | todo |  | 14 facts rendered 2–10× per prompt; four pairs disagree |  |
-| A9P-09 | P2 | R0 / R2 | CR-27 | todo |  | Prompt-as-code: ~29k chars of literals; humour/craft guides are a second body of notes/*.md |  |
-| A9P-10 | P2 | R1 + R2 | CR-28 | todo |  | Budget telemetry printed into the model's prompt; never reaches the report |  |
-| A9P-11 | P2 | R1 | CR-27 | todo |  | Stage-mode knowledge in 5 tables across 3 files, typed string |  |
-| A9P-12 | P2 | R2 | CR-28 | todo |  | R8 prefix cache defeated by budget drops of run-stable blocks |  |
-| A9P-13 | P2 | R0 | CR-13 | todo |  | Missing input types: CmlCase, ProseScene, unified CastMember; four artifacts any |  |
-| A9P-14 | P3 | R0/R1 | CR-22 | todo |  | 13 flags, 4 parse idioms, 8 read inline mid-function | waits: agent9-prose is the v1 engine (bug fixes only) |
-| A9P-15 | P3 | R0 (owner) | CR-30 | todo |  | Unwired/write-only: opening-ideation.ts, prose-brief.ts, 3 StoryContract fields, 4 Bible fields |  |
+| A9P-01 | P1 | R1 → R2 | CR-17 | withdrawn | fd058f16 | Bible facts re-derived 3–9× each in the prompt layer (ADR-0005); frozen objects built but unread | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-02 | P1 | R1 | CR-27 | withdrawn | fd058f16 | No block interface: metadata in 4 places; ~50% of the prompt outside the block model | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-03 | P1 | R1 model / R2 cap | CR-28 | withdrawn | fd058f16 | STORY TO DATE is not a block: 59% of the ch10 prompt, ≈99% of "fixed" growth, uncapped | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-04 | P1 | R1 / R2 | CR-28 | withdrawn | fd058f16 | Stale caps + mid-word truncation: 3 blocks truncated in 40/40 and 32/32 prompts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-05 | P1 | R1 | CR-27 | todo |  | buildChapterObligationBlock: 14 params, 974 LOC, 557-line callback cc 137 | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — DT_SIGNAL_RE (scene-ref-reconcile.ts) |
+| A9P-06 | P1 | R1 | CR-27 | withdrawn | fd058f16 | buildProsePrompt: 943-LOC coordinator; unasserted .replace() splices | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-07 | P2 | R2 | CR-28 | withdrawn | fd058f16 | CHAPTER OUTCOME CONTRACT concatenated twice (system + user) in every prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-08 | P2 | R2 | CR-28 | withdrawn | fd058f16 | 14 facts rendered 2–10× per prompt; four pairs disagree | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-09 | P2 | R0 / R2 | CR-27 | withdrawn | fd058f16 | Prompt-as-code: ~29k chars of literals; humour/craft guides are a second body of notes/*.md | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-10 | P2 | R1 + R2 | CR-28 | withdrawn | fd058f16 | Budget telemetry printed into the model's prompt; never reaches the report | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-11 | P2 | R1 | CR-27 | withdrawn | fd058f16 | Stage-mode knowledge in 5 tables across 3 files, typed string | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-12 | P2 | R2 | CR-28 | withdrawn | fd058f16 | R8 prefix cache defeated by budget drops of run-stable blocks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-13 | P2 | R0 | CR-13 | withdrawn | fd058f16 | Missing input types: CmlCase, ProseScene, unified CastMember; four artifacts any | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-14 | P3 | R0/R1 | CR-22 | withdrawn | fd058f16 | 13 flags, 4 parse idioms, 8 read inline mid-function | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-15 | P3 | R0 (owner) | CR-30 | withdrawn | fd058f16 | Unwired/write-only: opening-ideation.ts, prose-brief.ts, 3 StoryContract fields, 4 Bible fields | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9P-16 | P3 | R0 | CR-08 | done | 3295ad4e bf3fefc9 | Dead computation and orphaned docblocks | unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split |
-| A9P-D01 |  |  | CR-07 | todo |  | Pronoun rules 9–11 never reach the model — block truncated for every cast size, cut mid-word in rule 9; rule 10 lost since it was added; rule 11 (cas… |  |
-| A9P-D02 |  |  | CR-28 | todo |  | temporal_context season-lock rules 8–9 cut in 4/4 golden bundles (2.9–3.4k chars lost); location_profiles and usually first_appearance_contracts also… |  |
+| A9P-D01 |  |  | CR-07 | withdrawn | fd058f16 | Pronoun rules 9–11 never reach the model — block truncated for every cast size, cut mid-word in rule 9; rule 10 lost since it was added; rule 11 (cas… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D02 |  |  | CR-28 | withdrawn | fd058f16 | temporal_context season-lock rules 8–9 cut in 4/4 golden bundles (2.9–3.4k chars lost); location_profiles and usually first_appearance_contracts also… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9P-D03 |  |  | CR-07 | dup |  | precompileStoryContract({ castData: cml.CAST }) (agent9-run.ts:4491): no such key; victim fallback_unknown in 62/62 archived JSON; culpritAlibiWindow… | = A9W-D03 (cml.CAST) |
-| A9P-D04 |  |  | CR-07 | todo |  | Voice fragments unguarded in world_document while guarded in character_contracts (X43 half-applied). MEASURED. High. |  |
-| A9P-D05 |  |  | CR-07 | todo |  | Opening freshness exempts [object Object]: String(CASE.hidden_model.mechanism) (prompt-builder.ts:2239), but mechanism is an object (schema :157), so… |  |
-| A9P-D06 |  |  | CR-07 | todo |  | Placeholder clue ids (clue_id_1) shown by buildProseRequirements; the obligation block filters them. MEASURED in the 07-31 prompt. Medium. |  |
-| A9P-D07 |  |  | CR-07 | todo |  | Manner of death from raw subtype ‖ category (obligation-block.ts:916) can print "murder" or a setting label as the "manner of death". INFERRED. Mediu… |  |
-| A9P-D08 |  |  | CR-17 | todo |  | Arc position off by one between worker (agent9-run.ts:4603, 1-based) and prompt builder (0-based), so previousChapterArcPosition and currentArcPositi… |  |
-| A9P-D09 |  |  | CR-07 | todo |  | Case-specific hard bans (banned-phrases.ts:11: "quarter past three" families, getTieredBannedPhrasePolicy ignores its case argument) go into every pr… |  |
-| A9P-D10 |  |  | CR-27 | todo |  | Deleting notes/*.md silently removes humour_guide/craft_guide from every prompt (A9P-09). INFERRED. High, latent. |  |
-| A9P-D11 |  |  | CR-07 | todo |  | Literal backslashes (\") in pronoun rule 9–10 examples (prompt-blocks.ts:62); moot while truncated. Low. |  |
-| A9P-Q01 |  |  | CR-28 | todo |  | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8… |  |
-| A9P-Q02 |  |  | CR-28 | todo |  | Which copy of the outcome contract stays — system or user (A9P-07)? |  |
-| A9P-Q03 |  |  | CR-28 | todo |  | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? |  |
-| A9P-Q04 |  |  | CR-27 | todo |  | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
-| A9P-Q05 |  |  | CR-30 | todo |  | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? |  |
-| A9P-Q06 |  |  | CR-17 | todo |  | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? |  |
-| A9P-Q07 |  |  | CR-28 | todo |  | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? |  |
+| A9P-D04 |  |  | CR-07 | withdrawn | fd058f16 | Voice fragments unguarded in world_document while guarded in character_contracts (X43 half-applied). MEASURED. High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D05 |  |  | CR-07 | withdrawn | fd058f16 | Opening freshness exempts [object Object]: String(CASE.hidden_model.mechanism) (prompt-builder.ts:2239), but mechanism is an object (schema :157), so… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D06 |  |  | CR-07 | withdrawn | fd058f16 | Placeholder clue ids (clue_id_1) shown by buildProseRequirements; the obligation block filters them. MEASURED in the 07-31 prompt. Medium. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D07 |  |  | CR-07 | withdrawn | fd058f16 | Manner of death from raw subtype ‖ category (obligation-block.ts:916) can print "murder" or a setting label as the "manner of death". INFERRED. Mediu… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D08 |  |  | CR-17 | withdrawn | fd058f16 | Arc position off by one between worker (agent9-run.ts:4603, 1-based) and prompt builder (0-based), so previousChapterArcPosition and currentArcPositi… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D09 |  |  | CR-07 | withdrawn | fd058f16 | Case-specific hard bans (banned-phrases.ts:11: "quarter past three" families, getTieredBannedPhrasePolicy ignores its case argument) go into every pr… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D10 |  |  | CR-27 | withdrawn | fd058f16 | Deleting notes/*.md silently removes humour_guide/craft_guide from every prompt (A9P-09). INFERRED. High, latent. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D11 |  |  | CR-07 | withdrawn | fd058f16 | Literal backslashes (\") in pronoun rule 9–10 examples (prompt-blocks.ts:62); moot while truncated. Low. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q01 |  |  | CR-28 | withdrawn | fd058f16 | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q02 |  |  | CR-28 | withdrawn | fd058f16 | Which copy of the outcome contract stays — system or user (A9P-07)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q03 |  |  | CR-28 | withdrawn | fd058f16 | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q04 |  |  | CR-27 | withdrawn | fd058f16 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q05 |  |  | CR-30 | withdrawn | fd058f16 | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q06 |  |  | CR-17 | withdrawn | fd058f16 | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q07 |  |  | CR-28 | withdrawn | fd058f16 | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 04-agent9-validation
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9V-01 | P1 | R1 → R2 | CR-15 | todo |  | Four failure vocabularies; lint/obligation types flattened to strings; 3 regex classifiers disagree (17/42 wrong gate, 8/42 unknown, 6/42 no family) |  |
-| A9V-02 | P1 | R1 | CR-27 | todo |  | lintBatchProse is ~21 independent rules in one closure; make it a rule table with ids and per-rule counters |  |
-| A9V-03 | P1 | R1 → R2 | CR-31 | todo |  | Audit/debug-note leak patterns in 4 bodies; the exhaustion pre-accept strip cannot remove what the lint flags (MEASURED) |  |
-| A9V-04 | P1 | R1 → R2 | CR-16 | todo |  | Clue presence: gate matcher vs scorer matcher (split brain) + 4 near-clone matchers in one file |  |
-| A9V-05 | P1 | R0 + R2 | CR-17 | todo |  | Season: detector (story-validation) vs repairer (lint.ts) use different "mechanical spring" rules; repairer corrupts evidence names (MEASURED); 3rd/4… |  |
-| A9V-06 | P2 | R2 | CR-31 | todo |  | Death-method surface predicate: gate ≠ grader despite the comment; gate vacuous on "with"/"head" (MEASURED) |  |
-| A9V-07 | P2 | R2 | CR-31 | todo |  | "Re-staged reveal" in 3 bodies, "culprit disclosure" in ~8; the generation gate is the loosest |  |
-| A9V-08 | P2 | R1 | CR-31 | todo |  | mechanism-detect.ts is a byte-identical copy of the rubric's detector; move to prose-guard |  |
-| A9V-09 | P2 | R2 | CR-31 | todo |  | Two classifyOpeningStyle bodies; lint's opening-sentence extractor cuts at "Dr." (MEASURED) |  |
-| A9V-10 | P2 | R1 → R2 | CR-31 | todo |  | Clearance *evidence* connectors: 3 private byte-identical copies + a shared export that disagrees with the release gate (MEASURED) |  |
-| A9V-11 | P2 | R1 | CR-27 | todo |  | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… |  |
-| A9V-12 | P2 | R2 | CR-15 | todo |  | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) |  |
+| A9V-01 | P1 | R1 → R2 | CR-15 | withdrawn | fd058f16 | Four failure vocabularies; lint/obligation types flattened to strings; 3 regex classifiers disagree (17/42 wrong gate, 8/42 unknown, 6/42 no family) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-02 | P1 | R1 | CR-27 | withdrawn | fd058f16 | lintBatchProse is ~21 independent rules in one closure; make it a rule table with ids and per-rule counters | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-03 | P1 | R1 → R2 | CR-31 | withdrawn | fd058f16 | Audit/debug-note leak patterns in 4 bodies; the exhaustion pre-accept strip cannot remove what the lint flags (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-04 | P1 | R1 → R2 | CR-16 | todo |  | Clue presence: gate matcher vs scorer matcher (split brain) + 4 near-clone matchers in one file | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — CLUE_TOKEN_STOPWORDS (clue-obligations.ts), tokenMatchesText (clue-obligations.ts), chapterMentionsRequiredClue (clue-obligations.ts) |
+| A9V-05 | P1 | R0 + R2 | CR-17 | withdrawn | fd058f16 | Season: detector (story-validation) vs repairer (lint.ts) use different "mechanical spring" rules; repairer corrupts evidence names (MEASURED); 3rd/4… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-06 | P2 | R2 | CR-31 | withdrawn | fd058f16 | Death-method surface predicate: gate ≠ grader despite the comment; gate vacuous on "with"/"head" (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-07 | P2 | R2 | CR-31 | withdrawn | fd058f16 | "Re-staged reveal" in 3 bodies, "culprit disclosure" in ~8; the generation gate is the loosest | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-08 | P2 | R1 | CR-31 | withdrawn | fd058f16 | mechanism-detect.ts is a byte-identical copy of the rubric's detector; move to prose-guard | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-09 | P2 | R2 | CR-31 | withdrawn | fd058f16 | Two classifyOpeningStyle bodies; lint's opening-sentence extractor cuts at "Dr." (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-10 | P2 | R1 → R2 | CR-31 | withdrawn | fd058f16 | Clearance *evidence* connectors: 3 private byte-identical copies + a shared export that disagrees with the release gate (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-11 | P2 | R1 | CR-27 | withdrawn | fd058f16 | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-12 | P2 | R2 | CR-15 | withdrawn | fd058f16 | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9V-13 | P3 | R0 | CR-08 | done | 3295ad4e 094de134 | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… | mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param |
-| A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks | waits: agent9-prose is the v1 engine (bug fixes only); the prose parse is ladder (b) unguarded, listed in ORC-Q03 |
+| A9V-14 | P3 | R0 / R2 | CR-20 | withdrawn | fd058f16 | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9V-15 | P3 | R1 | **—** | withdrawn |  | CPU is negligible: 31 ms mean / 50 ms worst per lint call; ≈1.9 s per 60-call run | CPU is not a lever (README §3); ~2 s per run |
 | A9V-16 | P3 | R0 / R2 | CR-10 | done | fdd6c939 | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt | compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07 |
-| A9V-D01 |  |  | CR-15 | todo |  | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… |  |
-| A9V-D02 |  |  | CR-15 | todo |  | gate_outcomes in the report misattribute 17 of 42 message templates (control-plane leakage → completeness; "verbatim" → locked_fact_word_form) |  |
-| A9V-D03 |  |  | CR-17 | todo |  | Season repairer rewrites "broken spring fragment" → "broken autumn fragment" |  |
-| A9V-D04 |  |  | CR-17 | todo |  | Whole-story narrative-continuity validator still flags the mechanical spring (no case args, narrative-continuity-validator.ts:210) |  |
-| A9V-D05 |  |  | CR-31 | todo |  | proseSurfacesDeathMethod passes prose that never names the death for methods containing "with", "head" |  |
-| A9V-D06 |  |  | CR-15 | todo |  | Gender-collective rule fails valid prose ("Both men turned as she entered") and is typed debug_note_bleed, so it and the verdict-closer rule ride the… |  |
-| A9V-D07 |  |  | CR-31 | todo |  | extractOpeningSentence cuts at "Dr."/"Mr." |  |
-| A9V-D08 |  |  | CR-31 | todo |  | Exhaustion pre-accept strip cannot remove lint-only debug notes; keeps any mixed paragraph |  |
-| A9V-D09 |  |  | CR-31 | todo |  | Regen clearance validator accepts connectors ("witness", "saw") the release gate rejects |  |
-| A9V-D10 |  |  | CR-07 | todo |  | validateChecklistRequirements failure text is sent to the model as the DT checklist block |  |
-| A9V-D11 |  |  | CR-07 | todo |  | revealChapterText is documented as the reveal chapter but generate.ts passes all prior chapters joined, making the reveal-satisfied conjunction near-… |  |
-| A9V-D12 |  |  | CR-27 | todo |  | "back-to-back" opener-bypass prefix unreachable (sentence-dup rule co-fires with a non-bypass type) |  |
+| A9V-D01 |  |  | CR-15 | withdrawn | fd058f16 | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D02 |  |  | CR-15 | withdrawn | fd058f16 | gate_outcomes in the report misattribute 17 of 42 message templates (control-plane leakage → completeness; "verbatim" → locked_fact_word_form) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D03 |  |  | CR-17 | withdrawn | fd058f16 | Season repairer rewrites "broken spring fragment" → "broken autumn fragment" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D04 |  |  | CR-17 | withdrawn | fd058f16 | Whole-story narrative-continuity validator still flags the mechanical spring (no case args, narrative-continuity-validator.ts:210) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D05 |  |  | CR-31 | withdrawn | fd058f16 | proseSurfacesDeathMethod passes prose that never names the death for methods containing "with", "head" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D06 |  |  | CR-15 | withdrawn | fd058f16 | Gender-collective rule fails valid prose ("Both men turned as she entered") and is typed debug_note_bleed, so it and the verdict-closer rule ride the… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D07 |  |  | CR-31 | withdrawn | fd058f16 | extractOpeningSentence cuts at "Dr."/"Mr." | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D08 |  |  | CR-31 | withdrawn | fd058f16 | Exhaustion pre-accept strip cannot remove lint-only debug notes; keeps any mixed paragraph | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D09 |  |  | CR-31 | withdrawn | fd058f16 | Regen clearance validator accepts connectors ("witness", "saw") the release gate rejects | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D10 |  |  | CR-07 | withdrawn | fd058f16 | validateChecklistRequirements failure text is sent to the model as the DT checklist block | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D11 |  |  | CR-07 | withdrawn | fd058f16 | revealChapterText is documented as the reveal chapter but generate.ts passes all prior chapters joined, making the reveal-satisfied conjunction near-… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D12 |  |  | CR-27 | withdrawn | fd058f16 | "back-to-back" opener-bypass prefix unreachable (sentence-dup rule co-fires with a non-bypass type) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9V-D13 |  |  | CR-22 | done |  | ENABLE_PROSE_BLIND_READER invisible to flags:check | ENABLE_PROSE_BLIND_READER was named in the checker and registered in CR-06 (VERIFIED-BUGS #22); verify:flags clean |
-| A9V-Q01 |  |  | CR-15 | todo |  | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. |  |
-| A9V-Q02 |  |  | CR-16 | todo |  | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) |  |
-| A9V-Q03 |  |  | CR-17 | todo |  | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? |  |
-| A9V-Q04 |  |  | CR-31 | todo |  | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? |  |
-| A9V-Q05 |  |  | CR-30 | todo |  | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? |  |
-| A9V-Q06 |  |  | CR-20 | todo |  | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? | v1 prose parser: moot once v1 is deleted (owner decision 1) |
+| A9V-Q01 |  |  | CR-15 | withdrawn | fd058f16 | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q02 |  |  | CR-16 | withdrawn | fd058f16 | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q03 |  |  | CR-17 | withdrawn | fd058f16 | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q04 |  |  | CR-31 | withdrawn | fd058f16 | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q05 |  |  | CR-30 | withdrawn | fd058f16 | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q06 |  |  | CR-20 | withdrawn | fd058f16 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 05-agent9-repair
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9R-01 | P1 | R1 | CR-23 | todo |  | Registry is metadata, not dispatch: 1 dead entry, ≥4 live passes missing, 11 worker wrapper blocks untouched |  |
-| A9R-02 | P1 | R0 + R2 | CR-31 | todo |  | Floor templates and their recognisers have drifted: 8 of 11 live floor sentences evade the scaffold detector, 9 of 10 evade INJECTED_SENTENCE_PATTERNS |  |
-| A9R-03 | P1 | R1 → R2 | CR-29 | todo |  | Polish and validators fight by construction; rollback telemetry cannot show which validator |  |
-| A9R-04 | P1 | R0 → R2 | CR-12 | todo |  | "Suspect cleared" has 5 bodies and 2 evidence vocabularies; the suspect-elimination pass and floor disagree (A_64 F1's unfixed sibling) |  |
-| A9R-05 | P2 | R1 | CR-23 | todo |  | regen-integration.ts is six modules; the pass skeleton is repeated 13× |  |
-| A9R-06 | P2 | R1 | CR-23 | todo |  | Five independent "LLM rewrites a chapter" engines; truncation handled at one site, for one provider |  |
-| A9R-07 | P2 | R1 | CR-33 | todo |  | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes | waits: v1 (agent9-prose repair stores) |
-| A9R-08 | P2 | R2 | CR-29 | todo |  | Regen retries resend a byte-identical prompt; insertion passes have no structural channel |  |
-| A9R-09 | P2 | R2 | CR-12 | todo |  | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies |  |
-| A9R-10 | P2 | R2 | CR-32 | todo |  | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier |  |
+| A9R-01 | P1 | R1 | CR-23 | withdrawn | fd058f16 | Registry is metadata, not dispatch: 1 dead entry, ≥4 live passes missing, 11 worker wrapper blocks untouched | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-02 | P1 | R0 + R2 | CR-31 | todo |  | Floor templates and their recognisers have drifted: 8 of 11 live floor sentences evade the scaffold detector, 9 of 10 evade INJECTED_SENTENCE_PATTERNS | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts), isInjectedSentence (injected-sentences.ts) |
+| A9R-03 | P1 | R1 → R2 | CR-29 | withdrawn | fd058f16 | Polish and validators fight by construction; rollback telemetry cannot show which validator | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-04 | P1 | R0 → R2 | CR-12 | withdrawn | fd058f16 | "Suspect cleared" has 5 bodies and 2 evidence vocabularies; the suspect-elimination pass and floor disagree (A_64 F1's unfixed sibling) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-05 | P2 | R1 | CR-23 | todo |  | regen-integration.ts is six modules; the pass skeleton is repeated 13× | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — assembleScoringChapterTexts (scoring-texts.ts) |
+| A9R-06 | P2 | R1 | CR-23 | withdrawn | fd058f16 | Five independent "LLM rewrites a chapter" engines; truncation handled at one site, for one provider | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-07 | P2 | R1 | CR-33 | withdrawn | fd058f16 | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-08 | P2 | R2 | CR-29 | withdrawn | fd058f16 | Regen retries resend a byte-identical prompt; insertion passes have no structural channel | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-09 | P2 | R2 | CR-12 | withdrawn | fd058f16 | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-10 | P2 | R2 | CR-32 | withdrawn | fd058f16 | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9R-11 | P3 | R0/R1 | CR-08 | done | 094de134 | Dead and vestigial: runClearanceRegenPass, applyClearancePatch, clueTerms, a 40-line boolean clone, 3 producer-less defect kinds | hasRepetitionRewriteRegression delegates to the reason fn; ClueRegenPassResult alias gone. runClearanceRegenPass and ProseDefectKind members belong to the regen registry (CR-23); applyClearancePatch param is v1 generate.ts (bug-fix-only) |
-| A9R-12 | P3 | R1 | CR-31 | todo |  | Split deterministic-repair.ts; merge the two floor patch chains |  |
-| A9R-13 | P3 | R0 | CR-13 | todo |  | CaseData = any casts, 14× as const defect literals, a 10-positional-parameter LLM function |  |
-| A9R-14 | P3 | R2/R1 | CR-28 | todo |  | Regen prompt order defeats caching; atmosphere calls run serially; instruction and detail duplicated in the prompt |  |
-| A9R-D01 |  |  | CR-31 | todo |  | Scaffold detector blind to current floor templates (A9R-02). Since 07-17, 3 of 5 A1 sentence shapes evade it; since 07-31, all 3 clearance frames do.… |  |
-| A9R-D02 |  |  | CR-31 | todo |  | INJECTED_SENTENCE_PATTERNS misses 9 of 10 floor templates. A reveal delivered by the det-repair fallback reads met, not met_by_injection. High. |  |
-| A9R-D03 |  |  | CR-12 | todo |  | Suspect-elimination pass and floor disagree on scope, vocabulary and name matching (A9R-04). High on the code; frequency unmeasured. |  |
-| A9R-D04 |  |  | CR-07 | todo |  | Polish finish-reason check ignores Azure length/content_filter (post-pass-polish.ts:286). High. |  |
-| A9R-D05 |  |  | CR-29 | todo |  | clueTerms guard never wired. Neither runFullStoryRepetitionPolish (:685) nor full-story-diagnostic.ts:408 passes it, so the A_71 "clue reworded out"… |  |
+| A9R-12 | P3 | R1 | CR-31 | withdrawn | fd058f16 | Split deterministic-repair.ts; merge the two floor patch chains | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-13 | P3 | R0 | CR-13 | withdrawn | fd058f16 | CaseData = any casts, 14× as const defect literals, a 10-positional-parameter LLM function | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-14 | P3 | R2/R1 | CR-28 | withdrawn | fd058f16 | Regen prompt order defeats caching; atmosphere calls run serially; instruction and detail duplicated in the prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D01 |  |  | CR-31 | withdrawn | fd058f16 | Scaffold detector blind to current floor templates (A9R-02). Since 07-17, 3 of 5 A1 sentence shapes evade it; since 07-31, all 3 clearance frames do.… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D02 |  |  | CR-31 | todo |  | INJECTED_SENTENCE_PATTERNS misses 9 of 10 floor templates. A reveal delivered by the det-repair fallback reads met, not met_by_injection. High. | Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts) |
+| A9R-D03 |  |  | CR-12 | withdrawn | fd058f16 | Suspect-elimination pass and floor disagree on scope, vocabulary and name matching (A9R-04). High on the code; frequency unmeasured. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D04 |  |  | CR-07 | withdrawn | fd058f16 | Polish finish-reason check ignores Azure length/content_filter (post-pass-polish.ts:286). High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D05 |  |  | CR-29 | withdrawn | fd058f16 | clueTerms guard never wired. Neither runFullStoryRepetitionPolish (:685) nor full-story-diagnostic.ts:408 passes it, so the A_71 "clue reworded out"… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9R-D06 |  |  | CR-32 | dup |  | Clue regen on the prose tier despite AGENT9_MODEL_REGEN (A9R-10). High. | = A9R-10 |
 | A9R-D07 |  |  | CR-12 | dup |  | X50 ?? role bug in 4 suspect-set copies and the fallback investigator (A9R-09). Medium (depends on Agent 3 archetype strings). | = A9R-09 |
-| A9R-D08 |  |  | CR-07 | todo |  | Clue-paste lead skips A_68 title-casing (deterministic-repair.ts:346). Low–medium. |  |
-| A9R-D09 |  |  | CR-33 | todo |  | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. | waits: v1 |
-| A9R-D10 |  |  | CR-33 | todo |  | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. | waits: v1 |
-| A9R-Q01 |  |  | CR-29 | todo |  | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acce… |  |
-| A9R-Q02 |  |  | CR-31 | todo |  | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that… |  |
-| A9R-Q03 |  |  | CR-12 | todo |  | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observat… |  |
-| A9R-Q04 |  |  | CR-30 | todo |  | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? |  |
-| A9R-Q05 |  |  | CR-31 | todo |  | Is the det-repair fallback's castNames omission (A9R-12) intended? |  |
+| A9R-D08 |  |  | CR-07 | withdrawn | fd058f16 | Clue-paste lead skips A_68 title-casing (deterministic-repair.ts:346). Low–medium. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D09 |  |  | CR-33 | withdrawn | fd058f16 | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D10 |  |  | CR-33 | withdrawn | fd058f16 | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q01 |  |  | CR-29 | withdrawn | fd058f16 | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acce… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q02 |  |  | CR-31 | withdrawn | fd058f16 | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q03 |  |  | CR-12 | withdrawn | fd058f16 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observat… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q04 |  |  | CR-30 | withdrawn | fd058f16 | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q05 |  |  | CR-31 | withdrawn | fd058f16 | Is the det-repair fallback's castNames omission (A9R-12) intended? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 06-agent5-clues
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A5-01 | P1 | R1 | CR-25 | done | ad612520 | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… | runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/ |
-| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo | ec47208f | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) | step 1 (R1) done: @cml/cml source-paths.ts is the one table (templates, derived regexes, one enumerator, prompt roots, retry templates); the worker validator, strict whitelist, retry templates, prompts-llm enumerator and the prompt's root list derive from it; equivalence test against verbatim copies over 137 library cases; Agent 5 prompt byte-identical on replay. Step 2 (OWNER): is CASE.death_method legal (the prompt demands it, the worker rewrites it) |
+| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | done | 79e6d803 | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) | step 1 (R1) ec47208f: one source-path table in @cml/cml; step 2 DECIDED (owner decision 4): CASE.death_method is legal — validator, strict whitelist and prompt agree (79e6d803) |
 | A5-03 | P1 | R1 / R2 | CR-16 | done | 04e0bc58 | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies | R1: the three evidence-candidate scorers through clue-contracts/evidence-candidates.ts, each keeping its weights (tested against verbatim copies). Step 2 — one evidence-id policy applied once — is A5-Q05 (owner) |
 | A5-04 | P1 | R1 | CR-13 | todo |  | Normalise LLM JSON at the parse boundary + typed case view (removes most any) |  |
 | A5-05 | P1 | R0 | CR-10 | done | fdd6c939 | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) | contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16) |
@@ -355,7 +323,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-Q02 |  |  | CR-07 | todo |  | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
 | A5-Q03 |  |  | CR-28 | todo |  | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
 | A5-Q04 |  |  | CR-16 | todo |  | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
-| A5-Q05 |  |  | CR-16 | todo |  | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? |  |
+| A5-Q05 |  |  | CR-16 | done | ec9904b2 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? | DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs) |
 | A5-Q06 |  |  | CR-30 | todo |  | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
 | A5-Q07 |  |  | CR-16 | todo |  | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
 
@@ -467,7 +435,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-Q01 |  |  | CR-14 | done | 51664c31 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH |
 | A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
 | A34-Q03 |  |  | CR-30 | todo |  | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
-| A34-Q04 |  |  | CR-16 | todo |  | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |
+| A34-Q04 |  |  | CR-16 | withdrawn | fd058f16 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML | MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1) |
 | A34-Q05 |  |  | CR-32 | todo |  | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
 
 ## 10-agents1-2-8-context
@@ -529,7 +497,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
 | ORC-14 | P2 | R2 | CR-32 | todo |  | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites |  |
 | ORC-15 | P3 | R0 | CR-13 | todo |  | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts |  |
-| ORC-16 | P3 | R1 | CR-26 | todo |  | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read |  |
+| ORC-16 | P3 | R1 | CR-26 | withdrawn | fd058f16 | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read | MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1) |
 | ORC-D01 |  |  | CR-07 | todo |  | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert |  |
 | ORC-D02 |  |  | CR-03 | todo |  | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones | waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented) |
 | ORC-D03 |  |  | CR-06 | done | dff49644 | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
@@ -583,7 +551,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-Q01 |  |  | CR-30 | todo |  | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
 | SCO-Q02 |  |  | CR-18 | todo |  | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
 | SCO-Q03 |  |  | CR-18 | todo |  | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
-| SCO-Q04 |  |  | CR-16 | todo |  | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? |  |
+| SCO-Q04 |  |  | CR-16 | withdrawn | 8631e31b | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? | MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose |
 | SCO-Q05 |  |  | CR-30 | todo |  | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
 | SCO-Q06 |  |  | CR-06 | todo |  | Canonical fair-play weighting for the diagnostic: 35/35/15/15? |  |
 | SCO-Q07 |  |  | CR-18 | todo |  | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |

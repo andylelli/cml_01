@@ -1,8 +1,9 @@
 # Record / replay harness (CR-03)
 
-**Written:** 2026-09-29 · **Status:** the whole pipeline is covered — v2 prose, v1 prose, from-clues (Agents 5 → 9) and full
-(Agents 1 → 9 through `generateMystery`), 4 fixtures and 1 variant, all MATCH; the scoring characterisation (SCO-12)
-runs in the worker suite. Open: ORC-07's replay-rubric question (owner) and an optional paid recording.
+**Written:** 2026-09-29 · **Status (2026-10-01):** the whole pipeline is covered on the **v2** prose engine — two v2 prose fixtures, from-clues
+(Agents 5 → 9) and full (Agents 1 → 9 through `generateMystery`), 4 fixtures and 1 variant, all MATCH; the scoring
+characterisation (SCO-12) runs in the worker suite. The v1 engine and its fixture were deleted (owner decision 1); the
+paid v2 recording they needed is done. Open: ORC-07's replay-rubric question (owner).
 
 ## What it is for
 
@@ -54,7 +55,7 @@ byte), a recorded call was never requested, or the prose digest moved.
 | Rebase to current code | 39 of 46 calls had a changed prompt since the recording (2026-09-25); 5 recorded third drafts no longer requested; 2 editor calls new → synthetic |
 | Strict replay | MATCH, 46 calls, 52 attempts; ~7 s; prose digest `8312428c1259b1d3`, identical across repeated runs and from the 0.2 MB store extract |
 | Known positive | one character added to the writer system prompt → NO MATCH at byte 29 of `Agent9v2-Writer-S0-D1`, exit 5; reverted → MATCH |
-| Fixture 2 | `eval/replay/v1-prose-d0ee7b26` — the v1 prose stage of the fresh run `run_7b1ec2ef` (2026-09-18), `PROSE_ENGINE=v1` override, 1.4 MB. Rebase: 38 calls with a changed prompt, 2 synthetic regen failures. Strict: MATCH, 75 calls, 105 attempts, ~60 s, digest `23e066747bc53699` |
+| Fixture 2 | **Deleted 2026-10-01** with the v1 engine (owner decision 1). It was `eval/replay/v1-prose-d0ee7b26`, the v1 prose stage of `run_7b1ec2ef` under `PROSE_ENGINE=v1`; its replacement is `v2-prose-d0ee7b26` (row below) |
 | Fixture 3 | `eval/replay/from-clues-d0ee7b26` — `RESUME_REDO=clues` on the same run: Agents 5, 6, 6.5, 7, 7.5 and 9 through `generateMystery`, `PROSE_ENGINE=v1` and `AGENT65_OMIT_RUN_TELEMETRY=true` overrides, 1.5 MB. Rebase: 43 calls with a changed prompt, 13 recorded attempts no longer made (Agents 1–3b are not re-run on a clue redo), 2 synthetic regen failures. Strict: MATCH, 83 calls, 113 attempts, ~46 s, digest `23e066747bc53699` — the same prose as fixture 2, as it should be: both serve the run's recorded Agent 9 replies |
 | Fixture 4 | `eval/replay/full-d0ee7b26` — `RESUME_REDO=setting` on the same run: nothing restored, all of Agents 1, 2, 2b–2e, 3b, 3, 4, 5, 6, 6.5, 7, 7.5, 9 re-run on the project's recorded spec. Rebase: 46 calls with a changed prompt, 6 recorded Agent 9 attempts no longer made, 2 synthetic. Strict: MATCH, 90 calls, 120 attempts, digest `23e066747bc53699`. Two rebases identical |
 | Variant 4b | `eval/replay/full-d0ee7b26-noscore` (2026-09-30, CR-21) — `{ variantOf, envOverrides }`: fixture 4 with `ENABLE_SCORING=false`, same cassette, store, ledger and digest; the file holds only the override, so rebasing fixture 4 keeps it valid. It pins every runner's non-scoring branch, which the four fixtures (all scoring ON) never ran. MATCH, 90 calls. Known positive: a `throw` planted in Agent 2d's non-scoring branch (dist) failed the variant alone; removed → 5/5 MATCH |
