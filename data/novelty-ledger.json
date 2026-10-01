@@ -2073,6 +2073,20 @@
       "discrimDesign": "The discriminating test compares lighthouse, shadow, and mannequin against the claimed timeline.",
       "premise": "During a brief autumn stay at a modest seaside hotel in Blakeney, Reginald Hemsworth is found strangled with a silk scarf. Witnesses insist two men were seen near the lighthouse around the time of the murder, suggesting multiple possible suspects. Hotel ledger irregularities and confusing seating arrangements at dinner further complicate alibis. The detective, Edith Mallory, uncovers a cunning impersonation and ledger tampering that mask the true murderer among the Hemsworth family and hotel staff.",
       "mechanismFamily": "unclassified"
+    },
+    {
+      "id": "mystery-1790896091454",
+      "title": "The Half-Hour Hand: A Theatre Clock Deception",
+      "era": "1950s",
+      "location": "Dense urban theatre district with ornate historic theatres and narrow backstage corridors",
+      "crimeSubtype": "stabbing in backstage area",
+      "deathMethod": "stabbed with a theatre prop dagger, to the heart",
+      "axis": "temporal",
+      "falseAssumption": "The murder occurred around quarter to six in the evening, as indicated by the theatre foyer clock and multiple witness statements.",
+      "discrimMethod": "trap",
+      "discrimDesign": "A controlled comparison is staged between the theatre foyer clock and an independent accurate timepiece, demonstrating the fifteen-minute advancement caused by tampering. Witnesses are questioned about their reliance on the theatre clock, exposing contradictions in their timelines. The clock's mechanical winding marks are examined in front of all to prove recent adjustment, forcing Kenneth Ingram to admit his manipulation.",
+      "premise": "Prudence Merrow, a beloved actress in a historic London theatre, is found stabbed backstage. Witnesses report seeing the murder occur around quarter to six in the evening, based on the theatre's grand foyer clock. However, the victim's personal watch stopped exactly at six o'clock. Detective Ambrose Dunmore uncovers a mechanical deception: the theatre clock was wound forward by fifteen minutes shortly after the murder, fabricating an alibi for the culprit. The investigation reveals tampering with the clock's mechanism and forged schedule announcements, exposing the killer who exploited the false timeline.",
+      "mechanismFamily": "locked_room_timing"
     }
   ]
 }

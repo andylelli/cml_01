@@ -1,0 +1,23 @@
+{
+  "seed": 5670,
+  "runId": "mystery-1790896091454",
+  "projectId": "canary_1790896091452",
+  "primaryAxis": "temporal",
+  "storyAngle": "a bomb-disposal officer home on leave",
+  "targetLength": "short",
+  "eraPreference": "1950s",
+  "locationPreset": "Theatre",
+  "tone": "Classic",
+  "detectiveType": "amateur",
+  "narrativeStyle": "classic",
+  "humourLevel": "classic",
+  "castSize": 5,
+  "castNames": [
+    "Ambrose Dunmore",
+    "Prudence Merrow",
+    "Clarissa Ellery",
+    "Julian Penhale",
+    "Kenneth Ingram"
+  ],
+  "generatedAt": "2026-10-01T23:22:05.475Z"
+}

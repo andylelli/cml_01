@@ -162,3 +162,32 @@ A6-Q01 is reopened. That arm is unset in `.env`/`.env.local` and defaults OFF (`
   changes no call's model under today's env files.
 - **ORC-D11 live.** `name-generator.ts:591-599` duplicates the pool for "2× weight", then de-duplicates it — a no-op.
 - **SCO-Q05.** `comparePromptVariants` has no importer outside its barrel and its own test.
+
+## The batch's first live run — seed 5670 (2026-10-02)
+
+`CML_VERIFIED_FIXES=1 CANARY_CORE_INPUTS_YAML=scripts/generated/run-params-5670.yaml node --use-system-ca scripts/canary-core.mjs`
+— temporal · 1950s · Theatre · Classic · short · amateur · classic · humour classic · cast 5 (Ambrose Dunmore,
+Prudence Merrow, Clarissa Ellery, Julian Penhale, Kenneth Ingram) · angle "a bomb-disposal officer home on leave" ·
+fresh names: 25 given / 25 surnames excluded from the last 5 runs. A smoke test of the batch, not a read.
+
+**Attempt 1** — `mystery-1790895750302`, **£0.04**, aborted at Agent 8: the audit's reply hit its 2,500-token cap
+(`finishReason: length`, unterminated JSON). Cause (MEASURED): A1X-D03 gives every seed summary its real victim,
+motive and method — "Unknown" in the prompt 250 → 40, the prompt 160k → 206k chars; the five previous audits ended
+at 891–1,020 tokens. Fixed under the same flag: the cap is 8,000 when it is on (`e8d7b700`).
+
+**Attempt 2** — `mystery-1790896091454` / `canary_1790896091452`, **£0.93** ($1.17, run-cost-audit), 10 chapters,
+12,207 words, `stories/story_20261002-0022/`. Release gate as written: `unknown`; run_outcome `failed — One or more
+phases failed threshold` (Agent 3 82, Agent 7 70).
+
+| # | Prediction | Result |
+|---|---|---|
+| 1 | Completes to a release-gate verdict, no crash or abort from batch code | **Partly.** Attempt 1 aborted on batch code (fixed); attempt 2 completed, but the gate read `unknown` — a separate, pre-existing defect: only v1 ever wrote `release_gate_summary`, so every v2 run fell back to phase thresholds. Fixed: v2's own gate is now the run's release gate (`recordV2ReleaseGate`). Under it this run is "shipped, needs review" (0 stops, 10 warnings). |
+| 2 | Agent 7's prompt names the real victim and motive (A7-D01) | **Pass.** `**Victim**: Prudence Merrow`, `**Motive**: Feared Prudence would reveal his past political affiliations`; 0 "Unknown". |
+| 3 | Agent 8 runs and its summaries name the victim (A1X-D03) | **Pass** — and it is what broke attempt 1. Attempt 2: `stop` at 977 tokens. |
+| 4 | `[identity-disagree]` lines appear | **Fail.** 0 lines: no detective/victim site disagreed on this cast. The counter's first live value is 0. |
+| 5 | No `[A6-Q02]` unless the World Builder fails | **Pass** (0). |
+| 6 | Cost £0.9–1.4 | **Pass.** £0.93 + £0.04. |
+
+**Do not send this book to a reader:** its SHIP-CHECK is WORTH A LOOK — 156 repeated 6-word spans, 125.1 per 10k,
+7.2× the corpus median ("quarter to six in the evening" ×25). One scene-ref join fell back to keywords (5/21
+unresolved); no prose chapter was forced to a deterministic fallback.
