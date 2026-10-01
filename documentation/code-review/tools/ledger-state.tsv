@@ -3,7 +3,7 @@ A9W-01	CR-26	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was delet
 A9W-02	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-03	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-04	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
-A9W-05	CR-13	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — ProseGenerationResult (types.ts)
+A9W-05	CR-13	withdrawn	fd058f16	MOOT: agent9-run.ts is a 17-line v2 shim; agent9-v2 has 0 any; ProseGenerationResult is typed (prose-contract/types.ts). The earlier 'still applies after v1 deletion' note was wrong
 A9W-06	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-07	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9W-08	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
@@ -72,7 +72,7 @@ A9P-01	CR-17	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was delet
 A9P-02	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-03	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-04	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
-A9P-05	CR-27	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — DT_SIGNAL_RE (scene-ref-reconcile.ts)
+A9P-05	CR-27	withdrawn	fd058f16	MOOT: buildChapterObligationBlock has 0 hits; what moved to prose-contract is unrelated. The earlier 'still applies' note was wrong
 A9P-06	CR-27	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-07	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9P-08	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
@@ -138,10 +138,10 @@ A9V-Q04	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was dele
 A9V-Q05	CR-30	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9V-Q06	CR-20	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-01	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
-A9R-02	CR-31	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts), isInjectedSentence (injected-sentences.ts)
+A9R-02	CR-31	withdrawn	fd058f16	MOOT on the live path: the floor writers are deleted; INJECTED_SENTENCE_PATTERNS is read only by three offline eval scripts over archived books; v2 writes no deterministic sentences
 A9R-03	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-04	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
-A9R-05	CR-23	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — assembleScoringChapterTexts (scoring-texts.ts)
+A9R-05	CR-23	withdrawn	fd058f16	MOOT: regen-integration.ts deleted; its survivor assembleScoringChapterTexts is already its own 26-line module
 A9R-06	CR-23	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-07	CR-33	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-08	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
@@ -152,7 +152,7 @@ A9R-12	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was delet
 A9R-13	CR-13	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-14	CR-28	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-D01	CR-31	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
-A9R-D02	CR-31	todo		Still applies after the v1 deletion (owner decision 1): the code it reviews moved to prose-contract/ — INJECTED_SENTENCE_PATTERNS (injected-sentences.ts)
+A9R-D02	CR-31	withdrawn	fd058f16	MOOT on the live path (as A9R-02): met_by_injection can fire only in the offline eval scripts
 A9R-D03	CR-12	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-D04	CR-07	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
 A9R-D05	CR-29	withdrawn	fd058f16	MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/
@@ -190,7 +190,7 @@ A5-D04	CR-29	todo
 A5-D05	CR-07	todo		
 A5-D06	CR-25	todo		OWNER: a 2-line fix (invalidate strictPromptFeedbackCache/strictSourcePathWhitelistCache after remapMissingDiscriminatingEvidenceIdsToExistingClues, as three other sites do) stops a fabricated clue on remap runs — it changes clues, so prompts downstream; needs a flag or the owner's yes
 A5-D07	CR-17	todo		
-A5-D08	CR-15	todo		
+A5-D08	CR-15	withdrawn	3d63527f	DONE earlier: Agent 6's dead branches removed by A6-05 (3d63527f); comment at agent6/retry-contract.ts:390
 A5-D09	CR-16	done	12131e7c	One body: buildCoverageSnapshot(cml, clues, { mechanismVisibility }) in clue-contracts/contracts.ts; Agent 5 passes false, Agent 6 true. MEASURED: Agent 5's copy feeds the coverage-retry PROMPT (agent5/extraction.ts violations list), so including checkMechanismVisibility there is R2 (a prompt change); the release gates read Agent 6's full snapshot, written last by runAgent6 — absorbed per WF-002
 A5-D10	CR-20	done	21992344	category/placement/criticality lower-cased at parse; suspect-coverage eligibility lower-cased
 A5-Q01	CR-16	done	79e6d803	DECIDED (owner decision 4): CASE.death_method is legal; workerLegal true, the enumerator always offers it; prompt, validator and strict whitelist name the same set
@@ -244,7 +244,7 @@ A7-09	CR-27	todo
 A7-10	CR-20	todo		DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6)
 A7-11	CR-33	done	6f233c91	formatNarrative's 5 coercion sites + the silent clue-id drop counted per site, at all 7 call sites, on a non-enumerable side channel; two silent sites warn; [R4] original keys unchanged. Not counted yet: the remaining sites the item lists in the v1 prose path and the Pillar-4/coverage patches (each already warns)
 A7-12	CR-24	deferred		small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change
-A7-13	CR-17	todo		
+A7-13	CR-17	withdrawn	fd058f16	MOOT: the other two arc formulas were v1 (prompt-builder.ts, generate.ts); neither prose-engine nor agent9-v2 reads emotionalRegister/arcPosition; leftovers under ORC-08
 A7-14	CR-13	todo		
 A7-D01	CR-07	todo		
 A7-D02	CR-07	todo		
@@ -253,7 +253,7 @@ A7-D04	CR-18	todo
 A7-D05	CR-07	todo		
 A7-D06	CR-06	done	faeb6755	
 A7-D07	CR-16	todo		OWNER (R2): the pacing gate counts hallucinated clue ids as clue-bearing; filtering them changes when the gate fires
-A7-D08	CR-17	todo		
+A7-D08	CR-17	withdrawn	fd058f16	MOOT: the second register source was v1
 A7-D09	CR-07	todo		
 A7-D10	CR-06	done	9801b481	fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields
 A7-Q01	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites
@@ -276,7 +276,7 @@ A34-12	CR-24	done	d292ff22	generateDevices and the registry phase extracted; reg
 A34-13	CR-08	done	094de134	gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split
 A34-14	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
 A34-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
-A34-D02	CR-17	todo		
+A34-D02	CR-17	withdrawn	fd058f16	MOOT: v2 reads ctx.lockedFactRegistry (agent9-v2/run.ts:107,669)
 A34-D03	CR-07	todo		
 A34-D04	CR-07	todo		
 A34-D05	CR-12	done	51664c31	cannotBeCulprit (role or archetype) on both paths; Agent 3's last resort never the detective/victim, Agent 4 drops such a culprit (owner decision 5 §4). MEASURED: the old last resort named Holmes, Thorndyke x2, Philo Vance, Father Brown, John Straker on the harness's casts
@@ -292,7 +292,7 @@ A34-D14	CR-06	done	ec237e5a
 A34-D15	CR-19	done	50e05468	patch path adds the Agent4-Patch label
 A34-D16	CR-14	done	c7506ca7	Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2)
 A34-Q01	CR-14	done	51664c31	DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH
-A34-Q02	CR-17	todo		
+A34-Q02	CR-17	withdrawn	fd058f16	MOOT: v2 already reads only the registry
 A34-Q03	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran
 A34-Q04	CR-16	withdrawn	fd058f16	MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1)
 A34-Q05	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
@@ -351,7 +351,7 @@ ORC-D01	CR-07	withdrawn	03c4f5d3	MOOT: executeAgentWithRetry and abortCritical w
 ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
 ORC-D03	CR-06	done	dff49644	
 ORC-D04	CR-06	done	faeb6755	
-ORC-D05	CR-17	todo		
+ORC-D05	CR-17	withdrawn	fd058f16	MOOT: obligation-block.ts, prompt-builder.ts and generate.ts deleted with v1
 ORC-D06	CR-07	dup		= A1X-D04
 ORC-D07	CR-06	done	faeb6755	
 ORC-D08	CR-32	dup		= ORC-14
@@ -363,7 +363,7 @@ ORC-D13	CR-06	done	ec237e5a
 ORC-Q01	CR-07	done	03c4f5d3	DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003)
 ORC-Q02	CR-03	todo		
 ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest
-ORC-Q04	CR-17	todo		
+ORC-Q04	CR-17	withdrawn	fd058f16	MOOT: one live arc-position formula remains (agent7/world-first.ts)
 ORC-Q05	CR-22	done	7cb43ad0	DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1|true|yes|on / 0|false|no|off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted
 ORC-Q06	CR-33	done	a52a1365	DECIDED (owner decision 11): POST /run refuses a second concurrent run with 409; the slot is freed when the pipeline settles (a timed-out run keeps it)
 ORC-Q07	CR-32	done	69ed426b	DECIDED (decision 12, CR-32): yes — a set AGENTn_MODEL outranks the explicit tier (client.ts)
@@ -383,11 +383,11 @@ SCO-13		withdrawn		CPU is not a lever (README §3); ~2.8 s per run
 SCO-D01	CR-06	withdrawn	51f0d14a	MOOT: neither copy survives (v1 agent9-run deleted, ProseScorer deleted by owner decision 8)
 SCO-D02	CR-06	done	ec237e5a	
 SCO-D03	CR-18	done	52cc50ad	failed phases carry a reason
-SCO-D04	CR-18	todo		OWNER: retry-feedback 'partial successes' never renders (score vs weight) — fixing it changes retry prompt text (retries are off by default)
+SCO-D04	CR-18	wip		retry-feedback.ts has had no caller since decision 7 deleted the phase-score retry feedback; deleted (commit pending with the CR-07 batch)
 SCO-D05	CR-06	done	dff49644	
 SCO-D06	CR-18	done	1db19ec1	rescoreAgent9ProsePhase passes fallbackTelemetry; v1 bug fix
 SCO-D07	CR-06	done	ec237e5a	
-SCO-D08	CR-18	todo		OWNER: Agent 1 adapter discards location.description — fixing it changes the vanity score
+SCO-D08	CR-18	withdrawn	51f0d14a	MOOT: agent1-scoring-adapter.ts was deleted with the vanity scorers (owner decision 8)
 SCO-D09	CR-06	done	ec237e5a	
 SCO-D10	CR-13	todo		
 SCO-D11	CR-06	dup		= A34-D14 (flag register)
