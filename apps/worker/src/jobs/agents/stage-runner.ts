@@ -4,14 +4,13 @@
  * Moved verbatim from `shared.ts` (code review ORC-06), which re-exports it.
  */
 import type {
-  ScoreAggregator,
-  RetryManager,
-  PhaseScore,
+PhaseScore,
+ScoreAggregator
 } from "@cml/story-validation";
-import { buildRetryFeedback, getFailedComponents, parseHonestScorerMode } from "@cml/story-validation";
+import { parseHonestScorerMode } from "@cml/story-validation";
 import type { ScoringLogger } from "../scoring-logger.js";
 import type { OrchestratorContext } from "./context.js";
-import { delay, describeError } from "./run-utils.js";
+import { describeError } from "./run-utils.js";
 
 export function appendRetryFeedback(base: string, retryFeedback?: string): string {
   if (!retryFeedback || retryFeedback.trim().length === 0) {
@@ -73,111 +72,43 @@ export function preAgent9ContractRecoveryEnabled(): boolean {
   return true;
 }
 
-export async function executeAgentWithRetry<T>(
+/**
+ * Generate once, score once, record the score. Owner decision 7 (2026-10-01, SCO-Q02 / ORC-Q01, ADR-0003 and
+ * ADR-0006): the phase-score retry loop and its abort-on-exhaustion are deleted. The loop ran only under
+ * AGENT_PRE9_ENABLE_LLM_RETRIES, which no configuration has set since the deterministic mode, and its abort
+ * was unreachable (ORC-11: the throw was swallowed by its own catch). At default this is what always ran:
+ * a below-threshold score is recorded and reported, never retried.
+ */
+async function executeAndScore<T>(
   agentId: string,
   phaseName: string,
-  executeAgent: (retryFeedback?: string) => Promise<{ result: T; cost: number }>,
+  generate: () => Promise<{ result: T; cost: number }>,
   scoreOutput: (result: T) => Promise<{ adapted: any; score: PhaseScore }>,
-  retryManager: RetryManager,
   scoreAggregator: ScoreAggregator,
   scoringLogger: ScoringLogger,
   runId: string,
   projectId: string,
   warnings: string[],
   onPhaseScored?: () => Promise<void>,
-  // A_53 P2 (agent65-score-failure-aborts-via-shared-retry): phases whose output is creative texture
-  // (e.g. Agent 6.5 World Builder) are NOT abort-critical — a sub-threshold score degrades to a
-  // warning + best-effort document instead of killing the whole pipeline. Defaults to abort-critical
-  // to preserve existing behavior for the load-bearing phases.
-  abortCritical: boolean = true,
-): Promise<{ result: T; duration: number; cost: number; retryCount: number }> {
-  let attempts = 0;
-  let totalCost = 0;
+): Promise<{ result: T; duration: number; cost: number }> {
   const startTime = Date.now();
-  let retryFeedback: string | undefined;
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
-
-  while (true) {
-    const attemptStart = Date.now();
-
-    const { result, cost } = await executeAgent(retryFeedback);
-    // Every generator reports its label's RUNNING total on this client (cost-tracker byAgent), not the
-    // cost of this attempt, so summing attempts counted k(k+1)/2 calls (CR-06 / ORC-D03). Keep the latest.
-    totalCost = cost;
-
-    const attemptDuration = Date.now() - attemptStart;
-
-    try {
-      const { score } = await scoreOutput(result);
-
-      scoreAggregator.upsertPhaseScore(agentId, phaseName, score, attemptDuration, cost);
-      scoringLogger.logPhaseScore(agentId, phaseName, score, attemptDuration, cost, runId, projectId);
-
-      if (onPhaseScored) {
-        try { await onPhaseScored(); } catch { /* best-effort */ }
-      }
-
-      const phasePassed = scoreAggregator.passesThreshold(score);
-      if (phasePassed) {
-        const totalDuration = Date.now() - startTime;
-        if (attempts > 0) {
-          warnings.push(`${phaseName}: ✓ Passed after ${attempts} retry(s) - ${score.grade} (${score.total}/100)`);
-        }
-        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
-      }
-
-      if (!retriesEnabled) {
-        warnings.push(
-          `${phaseName}: deterministic mode active - skipping scoring retry (score ${score.total}/100, ${score.grade})`
-        );
-        const totalDuration = Date.now() - startTime;
-        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
-      }
-
-      if (!retryManager.canRetry(agentId)) {
-        if (retryManager.shouldAbortOnMaxRetries() && abortCritical) {
-          throw new Error(
-            `${phaseName} failed after ${attempts + 1} attempt(s) and all retries are exhausted. ` +
-            `Aborting generation. Failure reason: ${score.failure_reason || `Score ${score.total}/100 (${score.grade}) below threshold`}`
-          );
-        }
-        warnings.push(
-          abortCritical
-            ? `${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - Max retries exceeded`
-            : `${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - non-critical phase, continuing with best-effort document`,
-        );
-        const totalDuration = Date.now() - startTime;
-        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
-      }
-
-      const failedComponents = getFailedComponents(score);
-      const effectiveFailureReason = score.failure_reason
-        || (failedComponents.length > 0
-            ? `Component minimums not met: ${failedComponents.join('; ')}`
-            : `Score ${score.total}/100 (${score.grade}) below threshold`);
-
-      attempts++;
-      // SCO-D05: the delay before this retry is read BEFORE recordRetry moves the count (it was read
-      // after, so the first retry waited the second retry's delay).
-      const backoffMs = retryManager.getBackoffDelay(agentId);
-      retryManager.recordRetry(agentId, effectiveFailureReason, score.total);
-      const maxRetries = retryManager.getMaxRetries(agentId);
-      scoringLogger.logRetryAttempt(agentId, phaseName, attempts, effectiveFailureReason, backoffMs, maxRetries, runId, projectId);
-
-      retryFeedback = buildRetryFeedback(score, attempts);
-
-      warnings.push(`${phaseName}: ↻ Retry ${attempts}/${maxRetries} - Score: ${score.total}/100 (${score.grade}), waiting ${backoffMs}ms...`);
-
-      if (backoffMs > 0) {
-        await delay(backoffMs);
-      }
-    } catch (scoringError) {
-      scoringLogger.logScoringError(agentId, phaseName, scoringError, runId, projectId);
-      warnings.push(`${phaseName}: Scoring failed - ${describeError(scoringError)} - continuing without retry`);
-      const totalDuration = Date.now() - startTime;
-      return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
+  const { result, cost } = await generate();
+  const generateDuration = Date.now() - startTime;
+  try {
+    const { score } = await scoreOutput(result);
+    scoreAggregator.upsertPhaseScore(agentId, phaseName, score, generateDuration, cost);
+    scoringLogger.logPhaseScore(agentId, phaseName, score, generateDuration, cost, runId, projectId);
+    if (onPhaseScored) {
+      try { await onPhaseScored(); } catch { /* best-effort */ }
     }
+    if (!scoreAggregator.passesThreshold(score)) {
+      warnings.push(`${phaseName}: below threshold (score ${score.total}/100, ${score.grade}) — recorded, not retried`);
+    }
+  } catch (scoringError) {
+    scoringLogger.logScoringError(agentId, phaseName, scoringError, runId, projectId);
+    warnings.push(`${phaseName}: Scoring failed - ${describeError(scoringError)} - continuing without retry`);
   }
+  return { result, duration: Date.now() - startTime, cost };
 }
 
 /** What `runStage` reads and writes on the run: scoring handles, identity, and the cost/duration ledgers. */
@@ -190,11 +121,9 @@ export type StageRunContext = Pick<
 export interface StageSpec<T> {
   agentId: string;
   phaseName: string;
-  /** One generator call. `retryFeedback` is set only on a scoring retry; each runner folds it into its own channel. */
-  generate: (retryFeedback?: string) => Promise<{ result: T; cost: number }>;
+  /** One generator call (there is no scoring retry since owner decision 7). */
+  generate: () => Promise<{ result: T; cost: number }>;
   score: (result: T) => Promise<{ adapted: any; score: PhaseScore }>;
-  /** See executeAgentWithRetry. Default true. */
-  abortCritical?: boolean;
 }
 
 /**
@@ -210,23 +139,21 @@ export interface StageSpec<T> {
 export async function runStage<T>(ctx: StageRunContext, spec: StageSpec<T>): Promise<T> {
   let outcome: { result: T; duration: number; cost: number };
   if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    outcome = await executeAgentWithRetry(
+    outcome = await executeAndScore(
       spec.agentId,
       spec.phaseName,
       spec.generate,
       spec.score,
-      ctx.retryManager,
       ctx.scoreAggregator,
       ctx.scoringLogger,
       ctx.runId,
       ctx.projectId || "",
       ctx.warnings,
       ctx.savePartialReport,
-      spec.abortCritical ?? true,
     );
   } else {
     const start = Date.now();
-    const { result, cost } = await spec.generate(undefined);
+    const { result, cost } = await spec.generate();
     outcome = { result, cost, duration: Date.now() - start };
   }
   ctx.agentCosts[spec.agentId] = outcome.cost;

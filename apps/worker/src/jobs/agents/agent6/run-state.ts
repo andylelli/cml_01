@@ -17,6 +17,8 @@ export interface Agent6Run {
   fairPlayConfig: ReturnType<typeof getGenerationParams>["agent6_fairplay"]["params"];
   retryBudget: { getConsumed: () => number; consume: (cost: number, label: string) => void; };
   perCallCostDelta: (costKey: string, cumulativeCost: number) => number;
+  /** Owner decision 7: re-take a cost source's baseline after one of Agent 6's own non-retry calls. */
+  rebaseCost: (costKey: string) => void;
   minBlindConfidence: string;
   maxBlindRemediationCycles: number;
   maxFairPlayAttempts: number;

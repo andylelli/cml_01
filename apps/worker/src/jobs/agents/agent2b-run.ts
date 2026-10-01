@@ -40,8 +40,8 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   ctx.characterProfiles = await runStage(ctx, {
     agentId: "agent2b_profiles",
     phaseName: "Character Profiles",
-    generate: async (retryFeedback?: string) => {
-      const profilesResult = await generateCharacterProfiles(ctx.client, profileInputs(retryFeedback));
+    generate: async () => {
+      const profilesResult = await generateCharacterProfiles(ctx.client, profileInputs());
       return { result: profilesResult, cost: profilesResult.cost };
     },
     score: async (profilesResult) => scoreCharacterProfilesPhase(profilesResult.profiles, ctx.cast!.cast, ctx.cml!),

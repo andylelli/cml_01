@@ -344,6 +344,24 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
   return updates;
 };
 
+/**
+ * Owner decision 7 (A6-D01): what each Agent 6 retry cost. `summary` is the client's cumulative cost per
+ * label. The baseline starts at the summary when the meter is made; `perCallCostDelta(label, cumulative)`
+ * charges the rise since the label's baseline and moves it; `rebaseCost(label)` moves it without charging,
+ * after a call that is not a retry.
+ */
+export function createRetryCostMeter(summary: () => Record<string, number>) {
+  const costBaseline: Record<string, number> = { ...summary() };
+  const perCallCostDelta = (costKey: string, cumulativeCost: number): number => {
+    const c = Number.isFinite(cumulativeCost) ? cumulativeCost : 0;
+    const delta = Math.max(0, c - (costBaseline[costKey] ?? 0));
+    costBaseline[costKey] = c;
+    return delta;
+  };
+  const rebaseCost = (costKey: string): void => { costBaseline[costKey] = Number(summary()[costKey] ?? 0) || 0; };
+  return { perCallCostDelta, rebaseCost };
+}
+
 export function createFairPlayRetryBudgetTracker(maxRetryCostUsd: number) {
   let consumed = 0;
   return {
@@ -452,25 +470,17 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const MAX_FAIR_PLAY_RETRY_COST = fairPlayConfig.retries.max_retry_cost_usd;
   const retryBudget = createFairPlayRetryBudgetTracker(MAX_FAIR_PLAY_RETRY_COST);
 
-  // A_53 P3 (cost double-count): every `result.cost` is the CUMULATIVE byAgent run-total, so
-  // accumulating it (`+=`) or feeding it straight to `retryBudget.consume` double-counts — the
-  // inflated value trips the $0.15 retry budget early and manufactures a spurious abort. Charge the
-  // budget the true PER-CALL delta instead: the first observation of each cost source establishes the
-  // baseline (spend already incurred before this remediation loop → 0 delta); only later increments
-  // count. agentCosts are written as the cumulative total (overwrite, not +=) per the byAgent semantics.
-  const lastCumulativeCost: Record<string, number> = {};
-  const seenCostBaseline = new Set<string>();
-  const perCallCostDelta = (costKey: string, cumulativeCost: number): number => {
-    const c = Number.isFinite(cumulativeCost) ? cumulativeCost : 0;
-    if (!seenCostBaseline.has(costKey)) {
-      seenCostBaseline.add(costKey);
-      lastCumulativeCost[costKey] = c;
-      return 0;
-    }
-    const delta = Math.max(0, c - (lastCumulativeCost[costKey] ?? 0));
-    lastCumulativeCost[costKey] = c;
-    return delta;
-  };
+  // A_53 P3 (cost double-count): every `result.cost` is the CUMULATIVE byAgent run-total, so the budget is
+  // charged the PER-CALL delta. Owner decision 7 (2026-10-01, A6-D01): the delta used to start from the
+  // cost source's FIRST OBSERVATION — which happens after the first retry returns — so the first retry of
+  // each source was charged 0. The baseline is now the cost tracker's figure when the budget is created
+  // (Agent 5 and Agent 4 spent their non-retry calls before Agent 6), re-taken after each of Agent 6's own
+  // non-retry calls (the first fair-play audit, the primary and reveal-gate blind reads). Every retry is
+  // charged its own cost, the first included, so the budget means what its number says. This can newly trip
+  // the $0.15 budget on a run that retried — the decision accepted that.
+  const { perCallCostDelta, rebaseCost } = createRetryCostMeter(
+    () => (ctx.client as any)?.getCostTracker?.()?.getSummary?.()?.byAgent ?? {},
+  );
   const minBlindConfidence = normalizeConfidence(
     (fairPlayConfig.blind_reader as any)?.pass_criteria?.min_confidence ?? "likely",
   );
@@ -511,7 +521,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   };
 
   // CR-25: what every phase below reads besides ctx — resolved once, read-only.
-  const run: Agent6Run = { retriesEnabled, emitAgent6Warning, clearWarningsFromSet, transientProgressWarnings, transientDiagnosticWarnings, fairPlayConfig, retryBudget, perCallCostDelta, minBlindConfidence, maxBlindRemediationCycles, maxFairPlayAttempts, maxTargetedRegenAttempts, clueDensity, fairPlayStart, auditCurrentFairPlay };
+  const run: Agent6Run = { retriesEnabled, emitAgent6Warning, clearWarningsFromSet, transientProgressWarnings, transientDiagnosticWarnings, fairPlayConfig, retryBudget, perCallCostDelta, rebaseCost, minBlindConfidence, maxBlindRemediationCycles, maxFairPlayAttempts, maxTargetedRegenAttempts, clueDensity, fairPlayStart, auditCurrentFairPlay };
 
   // ── Phase 2: pre-LLM deterministic fixes + structural audit ─────────────────
   // Run backstops BEFORE the LLM call so the LLM audits the already-patched state.
@@ -660,6 +670,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const blindReadEligible =
     castNamesForBlind.length > 0 && Boolean(falseAssumptionStatement) && Boolean(actualCulpritName);
   primaryBlindRead = await runPrimaryBlindReadPhase(ctx, blindReadEligible, primaryBlindRead, runPrimaryBlindRead, falseAssumptionStatement, castNamesForBlind);
+  run.rebaseCost("Agent6-BlindReader"); // owner decision 7: the primary read is not a retry
 
   if (blindReadEligible && primaryBlindRead) {
     const blindResult = primaryBlindRead;

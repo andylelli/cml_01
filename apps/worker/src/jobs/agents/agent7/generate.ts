@@ -86,8 +86,8 @@ export async function generateInitialOutline(ctx: OrchestratorContext, run: Agen
   const narrative = await runStage(ctx, {
     agentId: "agent7_narrative",
     phaseName: "Narrative Outline",
-    generate: async (retryFeedback?: string) => {
-      const narrativeResult = await formatNarrative(ctx.client, narrativeInputs(ctx, run, retryFeedback ? [retryFeedback] : []));
+    generate: async () => {
+      const narrativeResult = await formatNarrative(ctx.client, narrativeInputs(ctx, run, []));
       recordOutlineCoercions(ctx, narrativeResult); // A7-11
       return { result: narrativeResult, cost: narrativeResult.cost };
     },

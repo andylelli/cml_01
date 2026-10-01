@@ -82,6 +82,8 @@ export async function runFairPlayAuditLoop(ctx: OrchestratorContext, run: Agent6
 
     if (state.fairPlayAttempt > 1) {
       run.retryBudget.consume(run.perCallCostDelta("Agent6-FairPlayAuditor", state.fairPlayAudit.cost), `fair-play re-audit attempt ${state.fairPlayAttempt}`);
+    } else {
+      run.rebaseCost("Agent6-FairPlayAuditor"); // owner decision 7: the first audit is not a retry
     }
 
     if (state.fairPlayAudit.overallStatus === "pass") break;

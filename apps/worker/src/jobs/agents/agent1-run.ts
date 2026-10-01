@@ -33,8 +33,8 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
   ctx.setting = await runStage(ctx, {
     agentId: "agent1_setting",
     phaseName: "Setting Refinement",
-    generate: async (retryFeedback?: string) => {
-      const settingResult = await refineSetting(ctx.client, settingInputs(retryFeedback));
+    generate: async () => {
+      const settingResult = await refineSetting(ctx.client, settingInputs());
       return { result: settingResult, cost: settingResult.cost };
     },
     score: async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),

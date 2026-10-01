@@ -247,8 +247,8 @@ async function generateDevices(ctx: OrchestratorContext, setting: SettingRefinem
   ctx.hardLogicDevices = await runStage(ctx, {
     agentId: "agent3b_hard_logic_devices",
     phaseName: "Hard Logic Devices",
-    generate: async (retryFeedback?: string) => {
-      const hlResult = await generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock, retryFeedback));
+    generate: async () => {
+      const hlResult = await generateHardLogicDevices(ctx.client, deviceInputs(ctx, setting, deviceLibraryBlock));
       return { result: hlResult, cost: hlResult.cost };
     },
     score: async (hlResult) => scoreHardLogicPhase(hlResult.devices, setting.setting, cast.cast, backgroundContext, ctx.warnings),

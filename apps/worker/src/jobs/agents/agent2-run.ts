@@ -750,8 +750,8 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   ctx.cast = await runStage(ctx, {
     agentId: "agent2_cast",
     phaseName: "Cast Design",
-    generate: async (retryFeedback?: string) => {
-      const castResult = await designCast(ctx.client, castInputs(retryFeedback));
+    generate: async () => {
+      const castResult = await designCast(ctx.client, castInputs());
       return { result: castResult, cost: castResult.cost };
     },
     score: async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),

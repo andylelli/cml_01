@@ -20,13 +20,13 @@ export async function runAgent2d(ctx: OrchestratorContext): Promise<void> {
   ctx.temporalContext = await runStage(ctx, {
     agentId: "agent2d_temporal_context",
     phaseName: "Temporal Context",
-    generate: async (retryFeedback?: string) => {
+    generate: async () => {
       const tempResult = await generateTemporalContext(ctx.client, {
         settingRefinement: ctx.setting!.setting,
         caseData: ctx.cml!,
         runId: ctx.runId,
         projectId: ctx.projectId || "",
-        qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
+        qualityGuardrails: undefined,
       });
       return { result: tempResult, cost: tempResult.cost };
     },

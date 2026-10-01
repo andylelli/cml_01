@@ -31,7 +31,6 @@ export {
   delay,
   appendRetryFeedback,
   appendRetryFeedbackOptional,
-  executeAgentWithRetry,
   normalizePrimaryAxis,
   CML_PRIMARY_AXES,
   DEFAULT_PRIMARY_AXIS,

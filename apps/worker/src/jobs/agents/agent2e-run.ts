@@ -5,21 +5,19 @@
  * handles scoring-path retry and schema validation, and writes ctx.backgroundContext.
  */
 
+import { validateArtifact } from "@cml/cml";
+import {
+BACKDROP_SUMMARY_STUB,
+type BackgroundContextArtifact,
+deriveBackgroundContext,
+type DeriveBackgroundContextInputs,
+generateBackgroundContext,
+} from "@cml/prompts-llm";
 import { readModeFlag } from "./mode-flag.js";
 import { scoreBackgroundPhase } from "./phase-scoring.js";
 import {
-  generateBackgroundContext,
-  deriveBackgroundContext,
-  BACKDROP_SUMMARY_STUB,
-  type DeriveBackgroundContextInputs,
-  type BackgroundContextArtifact,
-} from "@cml/prompts-llm";
-import { validateArtifact } from "@cml/cml";
-import {
-  type OrchestratorContext,
-  runStage,
-  appendRetryFeedback,
-  appendRetryFeedbackOptional,
+type OrchestratorContext,
+runStage
 } from "./shared.js";
 
 export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
@@ -33,12 +31,12 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
   backgroundContextResult = await runStage(ctx, {
     agentId: "agent2e_background_context",
     phaseName: "Background Context",
-    generate: async (retryFeedback?: string) => {
+    generate: async () => {
       const bgResult = await generateBackgroundContext(ctx.client, {
         settingRefinement: setting.setting,
         cast: cast.cast,
-        theme: appendRetryFeedbackOptional(ctx.inputs.theme, retryFeedback),
-        tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+        theme: ctx.inputs.theme,
+        tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       });

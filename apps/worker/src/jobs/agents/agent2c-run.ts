@@ -179,8 +179,8 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   ctx.locationProfiles = compileSensoryAtoms(await runStage(ctx, {
     agentId: "agent2c_location_profiles",
     phaseName: "Location Profiles",
-    generate: async (retryFeedback?: string) => {
-      const locResult = await generateLocationProfiles(ctx.client, locationInputs(retryFeedback));
+    generate: async () => {
+      const locResult = await generateLocationProfiles(ctx.client, locationInputs());
       return { result: locResult, cost: locResult.cost };
     },
     score: async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),

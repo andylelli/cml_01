@@ -21,7 +21,7 @@ export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
   ctx.worldDocument = await runStage(ctx, {
     agentId: "agent65_world_builder",
     phaseName: "World Builder",
-    generate: async (_retryFeedback?: string) => {
+    generate: async () => {
       const worldDoc = await generateWorldDocument(
         {
           caseData: ctx.cml!,
@@ -43,7 +43,6 @@ export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
     score: async (worldDoc) => scoreWorldDocumentPhase(worldDoc, ctx.cml!),
     // A_53 P2: Agent 6.5 produces creative texture — a sub-threshold score degrades to a warning +
     // best-effort document rather than aborting the whole pipeline.
-    abortCritical: false,
   });
 
   ctx.reportProgress("world-builder", "World Document complete", 93);
