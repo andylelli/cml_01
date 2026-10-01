@@ -6,7 +6,7 @@
  * both bodies moved here verbatim as two profiles, sharing the sections that are identical.
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
-import { readBooleanFlag } from "@cml/cml";
+import { readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { isVictimArchetype } from "@cml/cml";
@@ -170,7 +170,7 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
 
   const crimeClass = normalizeMeta(caseBlock, inputs);
 
-  const { normalizedCast, roleIncludes } = normalizeCast(caseBlock, inputs);
+  const { normalizedCast, roleIncludes } = normalizeCast(caseBlock, inputs, normalizationNotes);
 
   const { validCulprits, rawCulprits, normalizedCulprits, culpability } = resolveCulprits(caseBlock, normalizedCast, roleIncludes, normalizationNotes);
 
@@ -217,11 +217,65 @@ function normalizeMeta(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
 /** A cast member as normalizeCast returns it. */
 type NormalizedCastMember = ReturnType<typeof normalizeCast>["normalizedCast"][number];
 
-function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInputs) {
+/** A34-D04 — key for name matching: trimmed, lower-cased, whitespace collapsed. */
+const castNameKey = (value: unknown) => String(value ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+
+/**
+ * A34-D04 (owner decision 12, CML_VERIFIED_FIXES): pair each requested cast name with the reply's member OF THAT
+ * NAME (exact, then one name containing the other — "Lady Eleanor Voss" / "Eleanor Voss"), not the member at the
+ * same index. Names the reply lacks are padded; reply members matching no name are kept, appended, and noted.
+ */
+function pairCastByName(names: string[], castArray: unknown[], normalizationNotes?: string[]) {
+  const claimed = new Set<number>();
+  const keys = castArray.map((c) => castNameKey((c as any)?.name));
+  const claim = (test: (key: string) => boolean) => {
+    const i = keys.findIndex((key, idx) => !claimed.has(idx) && key !== "" && test(key));
+    if (i >= 0) claimed.add(i);
+    return i;
+  };
+  const exact = names.map((name) => claim((key) => key === castNameKey(name)));
+  const pairs: Array<{ name: string; existing: Record<string, unknown> }> = names.map((name, n) => {
+    const want = castNameKey(name);
+    const wantTokens = want.split(" ");
+    const contains = (outer: string[], inner: string[]) => inner.every((t) => outer.includes(t));
+    const i = exact[n] >= 0 ? exact[n] : want
+      ? claim((key) => contains(key.split(" "), wantTokens) || contains(wantTokens, key.split(" ")))
+      : -1;
+    return { name, existing: i >= 0 ? ensureObject(castArray[i]) : {} };
+  });
+  castArray.forEach((member, idx) => {
+    if (claimed.has(idx)) return;
+    const extraName = String((member as any)?.name ?? "").trim();
+    if (!extraName) {
+      // An unnamed member is not a character to keep — naming it would invent one.
+      normalizationNotes?.push(`[A34-D04] Agent 3 returned an unnamed cast member (position ${idx + 1}); dropped.`);
+      return;
+    }
+    pairs.push({ name: extraName, existing: ensureObject(member) });
+    normalizationNotes?.push(`[A34-D04] Agent 3 returned cast member "${extraName}" not in the requested cast; kept and appended.`);
+  });
+  return pairs;
+}
+
+function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInputs, normalizationNotes?: string[]) {
   const castArray = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
   const names = inputs.castNames?.length ? inputs.castNames : castArray.map((c) => (c as any)?.name).filter(Boolean);
-  const normalizedCast = (names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean)).map((name, index) => {
-    const existing = ensureObject(castArray[index]);
+  const fixed = verifiedFixesEnabled();
+  const sourceNames: string[] = names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean);
+  // A34-D04: flag ON pairs by name; flag OFF is the positional pairing this function always used.
+  const pairs = fixed
+    ? pairCastByName(sourceNames, castArray, normalizationNotes)
+    : sourceNames.map((name, index) => ({ name, existing: ensureObject(castArray[index]) }));
+  // A34-D03 (owner decision 12, CML_VERIFIED_FIXES): the gender belongs to the member's OWN name, not to the
+  // requested name at its index — a reordered reply swapped genders.
+  const genderFor = (memberName: string, pairedName: string) => {
+    const genders = inputs.castGenders ?? {};
+    const own = Object.keys(genders).find((key) => castNameKey(key) === castNameKey(memberName));
+    if (own !== undefined) return genders[own];
+    const paired = Object.keys(genders).find((key) => castNameKey(key) === castNameKey(pairedName));
+    return paired !== undefined ? genders[paired] : undefined;
+  };
+  const normalizedCast = pairs.map(({ name, existing }, index) => {
     // Owner decision 5 §3: case-insensitive, as the revise profile reads them — "Guilty" used to become
     // "unknown" here and "guilty" there.
     const normalizedEligibility = normalizeEnum(existing.culprit_eligibility, ["eligible", "ineligible", "locked"] as const, "eligible");
@@ -243,7 +297,7 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
       evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
       culprit_eligibility: normalizedEligibility,
       culpability: normalizedCulpability,
-      gender: existing.gender || inputs.castGenders?.[name] || undefined,
+      gender: existing.gender || (fixed ? genderFor(ensureString(existing.name, name), name) : inputs.castGenders?.[name]) || undefined,
     };
     // Owner decision 5 §2 (A34-D16): keep every other field the reply carried — the schema's `role` and
     // `moral_complexity` among them — as the revise profile always has. Agent 3 dropped them on every run.

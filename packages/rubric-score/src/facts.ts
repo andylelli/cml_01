@@ -31,7 +31,7 @@ export interface ScoringCaseInput {
 // "is the manner of death mentioned?" — so resolve robust death-method stems from the typed
 // death_method (or meta.crime_class) and check those against the prose, rather than an exact
 // substring of the outcome sentence (which almost never appears verbatim in free prose).
-const DEATH_METHOD_TOKENS: Array<[RegExp, string[]]> = [
+export const DEATH_METHOD_TOKENS: Array<[RegExp, string[]]> = [ // A6-19: Agent 6's reveal gate imports this table
   // NB: "wound" is deliberately excluded — it collides with "wound" (past tense of wind), common in
   // clock-tampering mysteries ("the clock was wound back"). "stab" stems stab/stabbed/stabbing.
   [/stab|knif|blade/i, ["stab", "blade", "knife", "dagger"]],

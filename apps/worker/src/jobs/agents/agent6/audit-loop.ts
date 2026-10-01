@@ -6,6 +6,8 @@ import {
   extractClues,
 } from "@cml/prompts-llm";
 import type { StructuralAuditResult } from "@cml/prompts-llm";
+import { verifiedFixesEnabled } from "@cml/cml";
+import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "../agent5/contract-payload.js";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -104,6 +106,9 @@ export async function runFairPlayAuditLoop(ctx: OrchestratorContext, run: Agent6
         fairPlayFeedback: buildFairPlayFeedbackPayload(state.fairPlayAudit, ctx.cml, ctx.clues),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
+        // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
+        // Agent 5's first pass sends, which this regeneration used to omit.
+        ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
       });
 
       applyAgent5ContractsToRegeneratedClues(ctx, "fair-play retry");

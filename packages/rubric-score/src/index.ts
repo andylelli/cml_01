@@ -31,7 +31,7 @@ export { bandFor } from "./bands.js";
 export { applyHardCaps } from "./hard-caps.js";
 // detectDualValueNoContrast (A_57 D2) is exported for the worker's rewrite acceptance
 // validator — a rewrite that still states the staged/true pair without contrast must not pass.
-export { extractStoryFacts, mergeFacts, detectDualValueNoContrast } from "./facts.js";
+export { extractStoryFacts, mergeFacts, detectDualValueNoContrast, DEATH_METHOD_TOKENS } from "./facts.js";
 export type { ScoringCaseInput, StoryFactsWithEvidence } from "./facts.js";
 export { buildRubricSystemPrompt, buildRubricUserMessage } from "./prompt.js";
 export { RUBRIC_SCHEMA } from "./schema.js";

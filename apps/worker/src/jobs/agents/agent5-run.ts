@@ -8,6 +8,7 @@
 
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
 import { extractClues } from "@cml/prompts-llm";
+import { strictPromptContractsEnabled } from "./agent5/contract-payload.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 // ONE clock parser. This file used to keep a private third copy; see parseFactClockMinutes.
@@ -51,7 +52,7 @@ import {
   retryForInferenceCoverage,
 } from "./agent5/extraction.js";
 import {
-  enforceRedHerringFloor,
+  enforceRedHerringFloorKeepingCoverage,
   enforceSuspectCoverage,
   pruneOverlappingRedHerrings,
   sanitizeRedHerringOverlap,
@@ -92,13 +93,8 @@ const classifyAgent5FailureClass = (message: string): string => {
   return "agent5.unknown_failure";
 };
 
-const strictPromptContractsEnabled = (): boolean => {
-  // Strict prompt-contract feedback is active by default for all core reliability paths.
-  // Set AGENT5_STRICT_PROMPT_CONTRACTS=off to disable (diagnostic/testing only).
-  const value = String(process.env.AGENT5_STRICT_PROMPT_CONTRACTS ?? "").trim().toLowerCase();
-  if (value === "0" || value === "false" || value === "no" || value === "off") return false;
-  return true;
-};
+// strictPromptContractsEnabled moved to agent5/contract-payload.ts (A5-11 / A5-D04) so Agent 6's
+// regenerations read the same switch.
 
 const sanitizeDiscriminatingEvidenceClueIds = (cml: CaseData): { removed: string[]; kept: string[] } => {
   const caseBlock = getCaseBlock(cml);
@@ -376,7 +372,9 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   //
   // Off-switch: AGENT5_RED_HERRING_FLOOR=false. Runtime getter, never a module const
   // (`module-const-flags-frozen-before-dotenv`).
-  clues = await enforceRedHerringFloor(ctx, run, state, clues);
+  // A5-D05 (owner decision 12, CML_VERIFIED_FIXES): the wrapper re-runs suspect coverage when the floor
+  // regenerated the clue set (OFF: exactly enforceRedHerringFloor).
+  clues = await enforceRedHerringFloorKeepingCoverage(ctx, run, state, clues);
 
   // Red-herring separation hardening: if a red herring semantically overlaps with
   // true-solution correction language, run one bounded regeneration pass and hard-fail

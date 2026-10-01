@@ -3,7 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { readBooleanFlag } from "@cml/cml";
+import { readBooleanFlag, validateArtifact, verifiedFixesEnabled } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import { resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
@@ -504,6 +504,21 @@ export function warnBeatArcDrift(ctx: OrchestratorContext, narrative: NarrativeO
   }
 }
 
+/** A7-D05 — schema-check the outline being committed; pushes one warning, never throws. */
+export function warnIfCommittedOutlineInvalid(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  try {
+    const validation = validateArtifact("narrative_outline", narrative);
+    if (!validation.valid) {
+      ctx.warnings.push(
+        `[A7-D05] Committed outline fails narrative_outline schema validation (${validation.errors.length} error(s)): ` +
+        validation.errors.slice(0, 5).join("; ")
+      );
+    }
+  } catch (e) {
+    ctx.warnings.push(`[A7-D05] Committed outline schema validation could not run: ${(e as Error).message}`);
+  }
+}
+
 export function commitAndStampOutline(ctx: OrchestratorContext, narrative: NarrativeOutline, coveragePatched: boolean, finalCoverageIssues: OutlineCoverageIssue[]) {
   const finalCoercion = coerceNarrativeSceneBeats(narrative);
   const finalHoist = hoistMisplacedSceneFields(narrative);
@@ -519,6 +534,11 @@ export function commitAndStampOutline(ctx: OrchestratorContext, narrative: Narra
   // schema made coercion redundant" is an assertion, and this codebase has been wrong about exactly
   // that kind of assertion before ("(common)" on a lever that fired 0/18).
   emitAgent7CoercionTelemetry(ctx);
+
+  // A7-D05 (owner decision 12, CML_VERIFIED_FIXES): only the first attempt and the schema-repair retry
+  // were schema-validated; an outline adopted by the scene-count, coverage, clue-pacing or completeness
+  // route was committed unvalidated. Validate the committed outline once here — warn-only, never throw.
+  if (verifiedFixesEnabled()) warnIfCommittedOutlineInvalid(ctx, narrative);
 
   ctx.narrative = narrative;
   // A_53 P10 (outline-coverage-evaluated-thrice): reuse the deterministic-patch scan; only the

@@ -90,10 +90,6 @@ export { scoreRealCml } from './phase-scorers/agent3-cml-real-scorer.js';
 export { scoreRealHardLogic } from './phase-scorers/agent3b-device-real-scorer.js';
 export { scoreRealNarrative } from './phase-scorers/agent7-narrative-real-scorer.js';
 
-// Retry feedback
-export { 
-  buildRetryFeedback, 
-} from './retry-feedback.js';
 
 // Report invariant guardrails
 export {

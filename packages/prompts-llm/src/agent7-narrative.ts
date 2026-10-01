@@ -25,6 +25,7 @@ import { resolveIdentity } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
 import type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
 import { isVictimArchetype } from "@cml/cml";
+import { isVictimMember, verifiedFixesEnabled } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // R4 — structured-output schema for this agent. Safe to import: the schema reads the beat list
 // from constants/golden-age-beats.js, not from here, so there is no cycle.
@@ -285,10 +286,16 @@ function buildDeveloperContext(
       : "Unknown era";
   const settingLocation = meta?.setting?.location ?? legacy.setup?.era?.location ?? "Unknown setting";
   const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
-  const victim = legacy.setup?.crime?.victim || "Unknown";
+  // A7-D01 (owner decision 12, CML_VERIFIED_FIXES): read the victim and motive from CML 2.0 (CASE.cast),
+  // not the CML-1.x paths that always printed "Unknown".
+  const fixA7D01 = verifiedFixesEnabled();
+  const victimMember = fixA7D01 ? castRoster.find((c: any) => isVictimMember(c)) : undefined;
+  const victim = (fixA7D01 && typeof victimMember?.name === "string" && victimMember.name) || legacy.setup?.crime?.victim || "Unknown";
   const culpritName =
     cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || "Unknown";
-  const motive = legacy.solution?.culprit?.motive || "Unknown motive";
+  const culpritMember = fixA7D01 ? castRoster.find((c: any) => c?.name === culpritName) : undefined;
+  const motive = (fixA7D01 && typeof culpritMember?.motive_seed === "string" && culpritMember.motive_seed.trim())
+    || legacy.solution?.culprit?.motive || "Unknown motive";
   const method = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown method";
   const falseAssumption =
     cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
@@ -301,12 +308,16 @@ function buildDeveloperContext(
   );
   const suspects = castRoster.filter((c: any) => {
     const name = typeof c?.name === "string" ? c.name : "";
+    // A7-D01: the culprit is a suspect (not a witness); the victim is neither.
+    if (fixA7D01 && name && victimMember && victimMember.name === name) return false;
+    if (fixA7D01 && name && culprits.has(name)) return !detective || detective.name !== name;
     if (!name || culprits.has(name)) return false;
     if (c?.culprit_eligibility && c.culprit_eligibility !== "eligible") return false;
     return true;
   });
   const witnesses = castRoster.filter((c: any) => {
     const name = typeof c?.name === "string" ? c.name : "";
+    if (fixA7D01 && (culprits.has(name) || (victimMember && victimMember.name === name))) return false;
     return Boolean(name) && !suspects.some((s: any) => s.name === name) && (!detective || detective.name !== name);
   });
 
@@ -567,9 +578,12 @@ function buildUserRequest(
   // A3: Resolve victim full name from the cast list (which may have "Julian Ashcroft")
   // before falling back to legacy.setup.crime.victim (which may only have "Ashcroft").
   // Use the same resolution order as castRoster below: direct array → nested .characters → empty.
+  // A7-D01 (owner decision 12, CML_VERIFIED_FIXES): the CML passed in is `{ CASE }` — search CASE.cast when
+  // the legacy cast is absent.
   const castCharactersForVictim: any[] =
     Array.isArray(legacy.cast?.characters) ? legacy.cast.characters :
-    Array.isArray(legacy.cast) ? legacy.cast : [];
+    Array.isArray(legacy.cast) ? legacy.cast :
+    verifiedFixesEnabled() && Array.isArray(legacy?.CASE?.cast) ? legacy.CASE.cast : [];
   const victimFromCast: string | undefined = castCharactersForVictim.find((c: any) => {
     const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
     return resolveIdentity("agent7.victim", "victim", c, c.role === 'victim' || (typeof archetype === 'string' && isVictimArchetype(archetype)));

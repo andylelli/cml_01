@@ -2,6 +2,8 @@
  * Agent 6 phase: the CML revision retry on a structural fair-play failure (WP6B + WP8). Moved from
  * agent6-run.ts (code review A6-01 / CR-25).
  */
+import { verifiedFixesEnabled } from "@cml/cml";
+import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "../agent5/contract-payload.js";
 import {
   extractClues,
   buildCMLPrompt,
@@ -333,6 +335,9 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
           fairPlayFeedback: buildFairPlayFeedbackPayload(revisionFeedbackAudit, ctx.cml, ctx.clues),
           runId: ctx.runId,
           projectId: ctx.projectId || "",
+          // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
+          // Agent 5's first pass sends, which this regeneration used to omit.
+          ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
         });
         ctx.agentCosts["agent5_clues"] =
           ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
@@ -397,6 +402,9 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
         fairPlayFeedback: buildFairPlayFeedbackPayload(state.fairPlayAudit!, ctx.cml, ctx.clues),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
+        // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
+        // Agent 5's first pass sends, which this regeneration used to omit.
+        ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
       });
       ctx.agentCosts["agent5_clues"] =
         ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=

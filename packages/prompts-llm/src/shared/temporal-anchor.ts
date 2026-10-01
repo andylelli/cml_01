@@ -23,31 +23,11 @@
  */
 
 /**
- * Canonical season vocabulary. Copied EXACTLY from agent9-prose/lint.ts (`CanonicalSeason`).
- * Note: the season space is {spring, summer, autumn, winter} — Agent 9 uses "autumn" (not "fall"),
- * which is the value that wins over the LLM-authored season in prose generation.
+ * Canonical season vocabulary and the month → season map. A1X-08 (CR-17): ONE table, owned by
+ * @cml/story-validation (temporal-consistency.ts) — this module had a byte-identical copy.
  */
-export type CanonicalSeason = "spring" | "summer" | "autumn" | "winter";
-
-/**
- * Month → season map. Copied EXACTLY (byte-identical) from agent9-prose/lint.ts `MONTH_TO_SEASON`.
- * This is the ONE map the redesign wants to exist in exactly one place. Keys are lowercase month
- * names; the season values are the load-bearing temporal facts Agent 9 enforces in prose.
- */
-export const MONTH_TO_SEASON: Record<string, CanonicalSeason> = {
-  january: "winter",
-  february: "winter",
-  march: "spring",
-  april: "spring",
-  may: "spring",
-  june: "summer",
-  july: "summer",
-  august: "summer",
-  september: "autumn",
-  october: "autumn",
-  november: "autumn",
-  december: "winter",
-};
+import { MONTH_TO_SEASON, type CanonicalSeason } from "@cml/story-validation";
+export { MONTH_TO_SEASON, type CanonicalSeason };
 
 /**
  * Normalize a month token (trim + lowercase). Copied EXACTLY from agent9-prose/lint.ts

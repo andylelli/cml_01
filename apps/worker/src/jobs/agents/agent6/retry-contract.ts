@@ -7,7 +7,7 @@ import { appendToClueTimeline, openClueSynthesis } from "../../clue-contracts/sy
 import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence-floor.js";
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import { isDetectiveArchetype, isVictimArchetype, roleTextsOf } from "@cml/cml";
+import { isDetectiveArchetype, isVictimArchetype, roleTextsOf, verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
   applyClueGuardrails,
@@ -275,8 +275,15 @@ export const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cm
     }
   }
 
+  // A6-02 (unflagged — only the AGENT_PRE9_ENABLE_LLM_RETRIES arm, default OFF, reaches this): the fixed
+  // contract lines came FIRST and the list was cut to 16, so with a 7-member cast (one binding rule per
+  // member) no failure-derived phrase survived. The phrases derived from THIS failure now lead, under
+  // their own cap, so specific content always reaches the model; the fixed lines fill what is left.
+  const SPECIFIC_PHRASE_CAP = 8;
+  const specificPhrases = [...new Set(phrases)].slice(0, SPECIFIC_PHRASE_CAP);
   return [
     ...new Set([
+      ...specificPhrases,
       ...STRICT_FIRST_PASS_ACCEPTANCE_STATEMENTS,
       ...unifiedRetryContractPhrases,
       ...castPathBindingRules,
@@ -888,6 +895,10 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
     }
 
     if (hasEarlyMidContradictionForStep) continue;
+    // A6-D08 (owner decision 12, CML_VERIFIED_FIXES): with no correction there is nothing for a
+    // contradiction to state — the clue below was minted from the same observation/effect text as the
+    // observation clue, a duplicate labelled "contradiction". Do not add it.
+    if (verifiedFixesEnabled() && !correction) continue;
 
     const contradictionId = nextId(`clue_fp_contradiction_step_${stepNumber}`);
     const contradictionSource = correction

@@ -11,6 +11,7 @@
 import { coerceAccessPlausibility, coerceMotiveStrength, coerceRelationshipTension as normalizeRelationshipTension } from "./agent2-cast-boundary.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
+import { verifiedFixesEnabled } from "@cml/cml";
 import { checkCast } from "./agent2-cast-checker.js";
 import type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast-types.js";
 export type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast-types.js";
@@ -543,6 +544,17 @@ interface CastAttempt {
 }
 type CastStepResult = "retry" | void;
 
+/**
+ * A1X-Q07 (owner decision 12, CML_VERIFIED_FIXES): in legacy (non-constrained) mode a culprit-count or
+ * archetype miss is repaired deterministically on the final attempt anyway — a blind LLM re-roll before it
+ * spends a call the repair makes redundant. Flag ON: repair now. Constrained mode keeps its feedback retries.
+ */
+const repairNowInsteadOfReroll = (at: CastAttempt, what: string): boolean => {
+  if (at.constrained || at.attempt >= at.maxAttempts || !verifiedFixesEnabled()) return false;
+  console.warn(`Attempt ${at.attempt}: ${what} — deterministically repairable; repairing now instead of re-rolling (A1X-Q07).`);
+  return true;
+};
+
 const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
 const VALID_MOTIVE = new Set(["weak", "moderate", "strong", "compelling"]);
 const VALID_GENDER = new Set(["male", "female"]);
@@ -749,7 +761,8 @@ function culpritCountStep(cast: CastDesign, at: CastAttempt): CastStepResult {
     ? cast.crimeDynamics.possibleCulprits
     : [];
   if (possibleCulprits.length < requiredCulprits) {
-    if (attempt < resolvedMaxAttempts) {
+    const repairNow = repairNowInsteadOfReroll(at, `only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}`);
+    if (attempt < resolvedMaxAttempts && !repairNow) {
       console.warn(
         `Attempt ${attempt}: Only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. Retrying.`,
       );
@@ -816,7 +829,8 @@ function archetypeDiversityStep(cast: CastDesign, at: CastAttempt): CastStepResu
     cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
   );
   if (uniqueArchetypesBefore.size < requiredUniqueArchetypes) {
-    if (attempt < resolvedMaxAttempts) {
+    const repairNow = repairNowInsteadOfReroll(at, `only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}`);
+    if (attempt < resolvedMaxAttempts && !repairNow) {
       console.warn(
         `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
       );

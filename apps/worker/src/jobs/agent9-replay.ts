@@ -423,9 +423,9 @@ async function main(): Promise<void> {
     agentCosts: {} as Record<string, number>,
     agentDurations: {} as Record<string, number>,
     primaryAxis: (spec?.primaryAxis ?? "temporal") as any,
-    initialHardLogicDirectives: {},
+    initialHardLogicDirectives: {} as OrchestratorContext["initialHardLogicDirectives"], // read only by Agents 3/3b, never by Agent 9
     locationSpec: { location: "", institution: "" },
-    noveltyConstraints: {},
+    noveltyConstraints: { divergeFrom: [], areas: [], avoidancePatterns: [] },
     /**
       * A_86 item 69 — MEASURED 2026-09-10 against the built loader:
       *   <workspaceRoot>/examples      -> 14 seed files

@@ -12,6 +12,7 @@ import {
   Agent5Run,
   Agent5State,
 } from "./run-state.js";
+import { buildAgent5LockedFactsPayload, buildAgent5StrictContract } from "./contract-payload.js";
 
 /**
  * A_71 (A_70 §6) — the misdirection budget, named once.
@@ -36,21 +37,12 @@ export async function extractInitialClues(ctx: OrchestratorContext, run: Agent5R
     // Agent-5 request). This channel renders unconditionally, so the LLM AUTHORS the required
     // ids / direct-culprit clue / late slot in scene register and the deterministic synthesis
     // (5/5 runs in the warning corpus) becomes the rare counted floor.
-    strictContract: run.strictPromptFeedbackBase
-      ? {
-        strictSourcePaths: run.strictPromptFeedbackBase.strictSourcePaths,
-        requiredIdToSourceMappings: run.strictPromptFeedbackBase.requiredIdToSourceMappings,
-        requiredStepCoverageFloors: run.strictPromptFeedbackBase.requiredStepCoverageFloors,
-        requiredLateClueSlot: run.strictPromptFeedbackBase.requiredLateClueSlot,
-        requiredDirectCulpritClue: run.strictPromptFeedbackBase.requiredDirectCulpritClue,
-      }
-      : undefined,
+    // A5-11 / A5-D04: built by the shared helper so regenerations can send the identical contract.
+    strictContract: buildAgent5StrictContract(run.strictPromptFeedbackBase),
     runId: ctx.runId,
     projectId: ctx.projectId || "",
     // Pillar 1: pass locked facts so clue descriptions honour canonical values
-    ...(ctx.inputs.enableLockedFactRegistry && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0
-      ? { lockedFacts: ctx.lockedFactRegistry }
-      : {}),
+    ...buildAgent5LockedFactsPayload(ctx),
   };
   try {
     clues = await run.extractWithAttempt(cluesInputBase);

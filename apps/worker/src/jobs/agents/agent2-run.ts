@@ -508,6 +508,11 @@ export function enforceVictimRoleInvariant(
   // A_53 P4 (Pattern D): word-boundary archetype test that excludes non-police "building inspector".
   const archetypeDetective = (c: Record<string, unknown>): boolean =>
     resolveIdentity("agent2.detective", "detective", c, isDetectiveArchetype(archetypeOf(c)));
+  // A1X-D01 (unflagged — shadow only): the victim fallback's substring test (`/victim/` matches "Friend of
+  // the victim") now passes through the unified predicate like the detective sites above. With
+  // CML_IDENTITY_ROLE_WINS OFF resolveIdentity returns the old verdict and logs any disagreement.
+  const archetypeVictim = (c: Record<string, unknown>): boolean =>
+    resolveIdentity("agent2.victim", "victim", c, /victim/.test(archetypeOf(c)));
 
   const detectiveCandidateKeys = Array.isArray(cd.detectiveCandidates)
     ? (cd.detectiveCandidates as unknown[]).map((n) => String(n).trim().toLowerCase()).filter(Boolean)
@@ -543,7 +548,7 @@ export function enforceVictimRoleInvariant(
   const victimCandidateKeys = new Set(victimCandidates.map((v) => v.toLowerCase()));
   const victim =
     characters.find((c) => roleOf(c) === "victim" && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
-    characters.find((c) => /victim/.test(archetypeOf(c)) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
+    characters.find((c) => archetypeVictim(c) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
     characters.find((c) => nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey && victimCandidateKeys.has(nameOf(c).toLowerCase())) ??
     characters.find((c) => {
       const k = nameOf(c).toLowerCase();
@@ -562,7 +567,7 @@ export function enforceVictimRoleInvariant(
   const detectiveNames = new Set(detectiveKey ? [detectiveKey] : []);
 
   // 2. Lock the victim archetype so the role is first-class downstream.
-  if (!/victim/.test(archetypeOf(victim))) {
+  if (!archetypeVictim(victim)) { // A1X-D01
     const prior = String(victim.roleArchetype ?? "").trim();
     victim.roleArchetype = "victim";
     warnings.push(`[agent2-victim][repair] designated ${victimName} as the named victim (was "${prior || "unset"}").`);

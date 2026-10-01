@@ -286,7 +286,9 @@ export function hoistMisplacedSceneFields(narrative: unknown): { hoisted: number
   return { hoisted };
 }
 
-export function normalizeRawOutline(ctx: OrchestratorContext, narrative: NarrativeOutline) {
+// A7-D02 (owner decision 12, CML_VERIFIED_FIXES): extracted from normalizeRawOutline so the
+// schema-repair retry can apply the same act-purpose fill as attempt 1. Behaviour unchanged.
+export function fillMissingActPurposes(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   const ACT_DEFAULT_PURPOSES: Record<number, string> = {
     1: "Establish the setting, introduce key characters, and present the inciting incident.",
     2: "Develop the investigation, deepen the mystery, and introduce complications.",
@@ -300,6 +302,10 @@ export function normalizeRawOutline(ctx: OrchestratorContext, narrative: Narrati
       }
     }
   }
+}
+
+export function normalizeRawOutline(ctx: OrchestratorContext, narrative: NarrativeOutline) {
+  fillMissingActPurposes(ctx, narrative);
 
   // ── Truncation, named on attempt one ───────────────────────────────────────
   // MEASURED over 68 stored Agent 7 responses: 7 are truncated (10%), and 4 of the 5 earlier runs

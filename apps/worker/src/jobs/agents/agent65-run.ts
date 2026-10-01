@@ -9,7 +9,9 @@
  */
 
 import { scoreWorldDocumentPhase } from "./phase-scoring.js";
-import { generateWorldDocument } from "@cml/prompts-llm";
+import { generateWorldDocument, degradedWorldDocument } from "@cml/prompts-llm";
+import { verifiedFixesEnabled } from "@cml/cml";
+import { describeError } from "./run-utils.js";
 import {
   type OrchestratorContext,
   runStage,
@@ -22,22 +24,32 @@ export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
     agentId: "agent65_world_builder",
     phaseName: "World Builder",
     generate: async () => {
-      const worldDoc = await generateWorldDocument(
-        {
-          caseData: ctx.cml!,
-          characterProfiles: ctx.characterProfiles!,
-          locationProfiles: ctx.locationProfiles!,
-          temporalContext: ctx.temporalContext!,
-          backgroundContext: ctx.backgroundContext!,
-          hardLogicDevices: ctx.hardLogicDevices!,
-          clueDistribution: ctx.clues!,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          onProgress: (phase, msg) =>
-            ctx.reportProgress("world-builder", `${phase}: ${msg}`, 92),
-        },
-        ctx.client
-      );
+      let worldDoc;
+      try {
+        worldDoc = await generateWorldDocument(
+          {
+            caseData: ctx.cml!,
+            characterProfiles: ctx.characterProfiles!,
+            locationProfiles: ctx.locationProfiles!,
+            temporalContext: ctx.temporalContext!,
+            backgroundContext: ctx.backgroundContext!,
+            hardLogicDevices: ctx.hardLogicDevices!,
+            clueDistribution: ctx.clues!,
+            runId: ctx.runId,
+            projectId: ctx.projectId || "",
+            onProgress: (phase, msg) =>
+              ctx.reportProgress("world-builder", `${phase}: ${msg}`, 92),
+          },
+          ctx.client
+        );
+      } catch (error) {
+        // A6-Q02 (owner decision 12, CML_VERIFIED_FIXES): 6.5 is creative texture (A_53 P2), so exhausting its
+        // attempts degrades to the normalised empty document with a floor warning instead of aborting the run.
+        if (!verifiedFixesEnabled()) throw error;
+        ctx.warnings.push(`[A6-Q02] Agent 6.5 World Builder failed (${describeError(error)}); continuing with the normalised default World Document`);
+        const spent = ctx.client.getCostTracker?.().getSummary().byAgent["Agent65-WorldBuilder"] ?? 0;
+        worldDoc = { ...degradedWorldDocument({ caseData: ctx.cml!, temporalContext: ctx.temporalContext! }), cost: spent };
+      }
       return { result: worldDoc, cost: worldDoc.cost };
     },
     score: async (worldDoc) => scoreWorldDocumentPhase(worldDoc, ctx.cml!),

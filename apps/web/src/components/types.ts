@@ -336,8 +336,13 @@ export interface GenerationReport {
   overall_score: number;
   overall_grade: string;
   passed: boolean;
-  run_outcome?: "passed" | "failed" | "aborted" | "infra_failure";
+  // SCO-D10: mirrors @cml/story-validation GenerationReport (the web app does not depend on it). A partial snapshot
+  // carries in_progress (A_71); scoring_enabled=false means phases were not scored and grades read N/A (decision 8).
+  run_outcome?: "passed" | "failed" | "aborted" | "infra_failure" | "in_progress";
   run_outcome_reason?: string;
+  scoring_enabled?: boolean;
+  /** Every phase met its threshold — advisory, never a run-failure signal (A_65b Ph1.3). */
+  phase_thresholds_met?: boolean;
   scoring_outcome?: {
     score: number;
     grade: string;

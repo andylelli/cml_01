@@ -29,6 +29,8 @@ import {
 import {
   RED_HERRING_BUDGET,
 } from "./extraction.js";
+import { verifiedFixesEnabled } from "@cml/cml";
+import { buildAgent5RegenerationContract } from "./contract-payload.js";
 
 type TemporalLexicalCollisionResult = {
   detected: boolean;
@@ -363,6 +365,9 @@ export async function enforceRedHerringFloor(ctx: OrchestratorContext, run: Agen
         }),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
+        // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the first pass's strict contract and
+        // locked facts, which this regeneration used to omit.
+        ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, run.strictPromptFeedbackBase) : {}),
       });
       ctx.agentCosts["agent5_clues"] = clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent5_clues"] =
@@ -386,6 +391,21 @@ export async function enforceRedHerringFloor(ctx: OrchestratorContext, run: Agen
     );
   }
   return clues;
+}
+
+/**
+ * A5-D05 (owner decision 12, CML_VERIFIED_FIXES): `enforceSuspectCoverage` adds deterministic backstop
+ * clues, and the red-herring floor's regeneration then REPLACES the whole clue set, discarding them —
+ * suspect coverage was never re-run. Flag ON: when the floor regenerated, re-run it on the new clues.
+ * Flag OFF: exactly `enforceRedHerringFloor`.
+ */
+export async function enforceRedHerringFloorKeepingCoverage(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult) {
+  const beforeFloor = clues;
+  const afterFloor = await enforceRedHerringFloor(ctx, run, state, clues);
+  if (verifiedFixesEnabled() && afterFloor !== beforeFloor) {
+    return enforceSuspectCoverage(ctx, run, state, afterFloor);
+  }
+  return afterFloor;
 }
 
 export async function separateRedHerringsFromSolution(ctx: OrchestratorContext, run: Agent5Run, state: Agent5State, clues: ClueDistributionResult) {

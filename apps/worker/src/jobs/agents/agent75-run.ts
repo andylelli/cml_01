@@ -21,7 +21,7 @@
  */
 
 // X39 — the case's two temporal spines, checked while a repair is still cheap (REVIEW_09 §3).
-import { resolveIdentity } from "@cml/cml";
+import { resolveIdentity, verifiedFixesEnabled } from "@cml/cml";
 import { checkCaseTimelineDeception, checkCaseTimeCoherence } from "@cml/prompts-llm";
 import {
   applyGeometryOutlineRepair,
@@ -253,7 +253,13 @@ export const dropForeignClockFacts = (
   return unique;
 };
 
-export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
+/**
+ * Returns true only when the caller must re-persist the outline: A7-D09 (owner decision 12,
+ * CML_VERIFIED_FIXES) — the outline artifact is persisted BEFORE this stage, so a gate-mode repair to
+ * `ctx.narrative` was lost on resume. Otherwise it resolves undefined, exactly as before — so with the
+ * flag OFF the return value is unchanged.
+ */
+export async function runAgent75(ctx: OrchestratorContext): Promise<true | undefined> {
   const mode = resolveGeometryStageMode();
   if (mode === "off") return;
 
@@ -288,6 +294,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
 
   const started = Date.now();
   let cost = 0;
+  let outlineRepaired = false; // A7-D09
   try {
     ctx.reportProgress("narrative", "Compiling story geometry...", 94);
 
@@ -324,8 +331,12 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
     if (mode === "gate" && !geometry.closure.closed) {
       // Bounded, additive, and re-checked. It buys outline repair before the expensive stage; it does
       // not stop the run. Calling it a hard gate would claim an enforcement strength it does not have.
+      // A7-D09 (owner decision 12, CML_VERIFIED_FIXES): detect a mutation by content, not by the
+      // repair list, so whatever the repair wrote into ctx.narrative is re-persisted by the caller.
+      const outlineBefore = verifiedFixesEnabled() && ctx.narrative ? JSON.stringify(ctx.narrative) : null;
       const result = applyGeometryOutlineRepair(geometry, (ctx.narrative as any) ?? null, ctx.cml);
       repairs = result.repairs;
+      if (outlineBefore !== null && JSON.stringify(ctx.narrative) !== outlineBefore) outlineRepaired = true;
     }
 
     /**
@@ -389,6 +400,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
     );
     ctx.agentDurations["agent75_geometry"] = Date.now() - started;
   }
+  return outlineRepaired ? true : undefined;
 }
 
 /**

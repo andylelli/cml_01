@@ -30,7 +30,7 @@ RetryManager,
 ScoreAggregator,
 ValidationReport
 } from "@cml/story-validation";
-import type { MysteryGenerationInputs } from "../run-contract.js";
+import type { MysteryGenerationInputs, MysteryGenerationProgress } from "../run-contract.js";
 import type { RunLogger } from "../run-logger.js";
 import type { ScoringLogger } from "../scoring-logger.js";
 import type { ClueGuardrailIssue,InferenceCoverageResult } from "./clue-guardrails.js";
@@ -207,7 +207,7 @@ export interface OrchestratorContext {
   startTime: number;
 
   // ── Callbacks ────────────────────────────────────────────────────────────
-  reportProgress: (stage: any, message: string, pct: number) => void;
+  reportProgress: (stage: MysteryGenerationProgress["stage"], message: string, pct: number) => void; // ORC-15: typed
   savePartialReport: () => Promise<void>;
 
   // ── Scoring (all optional — disabled when ENABLE_SCORING env is false) ──
@@ -228,9 +228,9 @@ export interface OrchestratorContext {
 
   // ── Pre-computed / init-time values ─────────────────────────────────────
   primaryAxis: CmlPrimaryAxis;
-  initialHardLogicDirectives: any;
+  initialHardLogicDirectives: HardLogicDirectives;
   locationSpec: { location: string; institution: string };
-  noveltyConstraints: any;
+  noveltyConstraints: { divergeFrom: string[]; areas: string[]; avoidancePatterns: string[] };
   criticalFairPlayRules: Set<string>;
   maxCmlRevisionAttempts: number;
 

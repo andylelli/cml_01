@@ -591,7 +591,7 @@ export async function generateMystery(
     // when `AGENT75_GEOMETRY=off` — which would close the prefix and force prose to re-run on every
     // resume. Its artifact is restored by `applyResumeBundle` regardless, and `runAgent75` returns
     // early when the contract is already on ctx. Never throws (ADR-0003).
-    await runAgent75(ctx);
+    if (await runAgent75(ctx)) await persistArtifact("outline", ctx.narrative); // A7-D09: re-persist a gate-mode repair
     await persistArtifact("story_geometry", ctx.storyGeometry);
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────

@@ -94,7 +94,9 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     }
   }
   if (!settingSchemaValidation.valid) {
-    ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation with schema repair guardrails");
+    // A1X-D10 (unflagged — telemetry text only): the re-roll below sends the SAME prompt; the warning used to
+    // claim "schema repair guardrails", which no Agent 1 request carries.
+    ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation (same prompt, re-roll only)");
     const settingSchemaRetryStart = Date.now();
     const retriedSetting = await refineSetting(ctx.client, settingInputs(), 2);
     ctx.agentCosts["agent1_setting"] = retriedSetting.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)

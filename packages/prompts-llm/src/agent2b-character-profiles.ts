@@ -7,6 +7,7 @@
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { CastDesign } from "./agent2-cast.js";
@@ -139,7 +140,30 @@ export const isTicTemplateBanEnabled = (env: NodeJS.ProcessEnv = process.env): b
 
 import { humourBand, resolveHumourLevel } from "./humour-level.js";
 
-export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
+/**
+ * A1X-D11 (owner decision 12, CML_VERIFIED_FIXES): the cast member a profile describes, by the profile's own
+ * name (case-insensitive); the same index only when no name matches. Flag OFF: always the same index.
+ */
+export const castMemberForProfile = (
+  inputs: CharacterProfilesInputs,
+  profile: { name?: unknown } | undefined,
+  index: number,
+) => {
+  const characters = inputs.cast.characters;
+  if (verifiedFixesEnabled()) {
+    const key = typeof profile?.name === "string" ? profile.name.trim().toLowerCase() : "";
+    const byName = key ? characters.find((c) => String(c?.name ?? "").trim().toLowerCase() === key) : undefined;
+    if (byName) return byName;
+  }
+  return characters[index];
+};
+
+export const buildProfilesPrompt = (
+  inputs: CharacterProfilesInputs,
+  previousErrors?: string[],
+  // A1X-D11: the previous attempt's profiles, so a profiles[i] error names the profile's own character.
+  previousProfiles?: ReadonlyArray<{ name?: unknown }>,
+) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
@@ -156,7 +180,7 @@ export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErr
     const match = err.match(/^profiles\[(\d+)\]\.(.*)/);
     if (match) {
       const idx = parseInt(match[1], 10);
-      const character = inputs.cast.characters[idx];
+      const character = castMemberForProfile(inputs, previousProfiles?.[idx], idx);
       const name = character?.name ?? `character at index ${idx}`;
       return `The profile for "${name}" is missing or incomplete: ${match[2]} — ensure this character has a full "paragraphs" array of 4–6 narrative paragraphs (~${inputs.targetWordCount ?? 1000} words total).`;
     }
@@ -342,7 +366,7 @@ async function repairMissingParagraphs(
   profile: CharacterProfileOutput,
   characterIndex: number
 ): Promise<CharacterProfileOutput> {
-  const character = inputs.cast.characters[characterIndex];
+  const character = castMemberForProfile(inputs, profile, characterIndex); // A1X-D11
   const tone = inputs.tone ?? "Cozy";
   const targetWordCount = inputs.targetWordCount ?? 1000;
   const title = (inputs.caseData as any)?.CASE?.meta?.title ?? "Untitled Mystery";
@@ -403,6 +427,7 @@ export async function generateCharacterProfiles(
   const config = getGenerationParams().agent2b_profiles.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
+  let lastProfiles: CharacterProfileOutput[] | undefined;
   // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
   const { result, cost, durationMs } = await generateJsonArtifact<Omit<CharacterProfilesResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2b (Character Profiles)",
@@ -415,11 +440,12 @@ export async function generateCharacterProfiles(
     runId: inputs.runId,
     projectId: inputs.projectId,
     guard: true, // owner decision 3 (ORC-Q03)
-    buildMessages: (previousErrors) => buildProfilesPrompt(inputs, previousErrors).messages,
+    buildMessages: (previousErrors) => buildProfilesPrompt(inputs, previousErrors, lastProfiles).messages,
     structuralCheck: (profiles) => {
       if (!Array.isArray(profiles.profiles) || profiles.profiles.length === 0) {
         throw new Error("Invalid character profiles output: missing profiles");
       }
+      lastProfiles = profiles.profiles; // A1X-D11: the attempt whose validation errors feed the next prompt
     },
   });
   const validatedResult = result as CharacterProfilesResult;
@@ -433,7 +459,7 @@ export async function generateCharacterProfiles(
         try {
           validatedResult.profiles[i] = await repairMissingParagraphs(client, inputs, p, i);
           console.log(
-            `[Agent 2b] Repaired missing paragraphs for "${inputs.cast.characters[i]?.name ?? `profile[${i}]`}"`
+            `[Agent 2b] Repaired missing paragraphs for "${castMemberForProfile(inputs, p, i)?.name ?? `profile[${i}]`}"`
           );
         } catch (repairErr) {
           console.error(

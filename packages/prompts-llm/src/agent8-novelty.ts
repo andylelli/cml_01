@@ -21,6 +21,7 @@
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { isVictimMember, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 
@@ -152,17 +153,25 @@ function summarizeCML(cml: CaseData, label: string): string {
     ? meta.era.realism_constraints.slice(0, 3).join(", ")
     : legacy.setup?.era?.key_details?.slice(0, 3).join(", ") || "";
   const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
-  const victim = legacy.setup?.crime?.victim || "Unknown";
+  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
+  // A1X-D03 (owner decision 12, CML_VERIFIED_FIXES): read the victim and motive from CML 2.0
+  // (CASE.cast), not the CML-1.x setup/solution paths that summarised every case as "Unknown".
+  const fixA1XD03 = verifiedFixesEnabled();
+  const victimMember = fixA1XD03 && Array.isArray(castList) ? castList.find((c: any) => isVictimMember(c)) : undefined;
+  const victim = (fixA1XD03 && typeof victimMember?.name === "string" && victimMember.name) || legacy.setup?.crime?.victim || "Unknown";
   const method = legacy.setup?.crime?.method || crimeClass.subtype || "Unknown";
 
-  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
   const castSummary = castList.map((c: any) => c.name || "Unknown").join(", ");
   const castCount = castList.length;
 
   const culpritName =
     cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
-  const motive = legacy.solution?.culprit?.motive || "Unknown";
-  const solutionMethod = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
+  const culpritMember = fixA1XD03 && Array.isArray(castList) ? castList.find((c: any) => c?.name === culpritName) : undefined;
+  const motive = (fixA1XD03 && typeof culpritMember?.motive_seed === "string" && culpritMember.motive_seed.trim())
+    || legacy.solution?.culprit?.motive || "Unknown";
+  const mechanism = cmlCase.hidden_model?.mechanism?.description;
+  const solutionMethod = (fixA1XD03 && typeof mechanism === "string" && mechanism.trim())
+    || legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
   const falseAssumption =
     cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
   const discrimTest = cmlCase.discriminating_test?.design || legacy.inference_path?.discriminating_test?.test || "Unknown";

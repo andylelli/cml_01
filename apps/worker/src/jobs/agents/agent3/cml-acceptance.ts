@@ -10,7 +10,7 @@ import {
   checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
   isChronologyEnabled, renderCaseTimes, renderPlannedCulpritAlibi, summariseChronology,
 } from "@cml/cml";
-import { parseClockTime, validateCml, alibiSpanFromWindow,
+import { parseClockTime, validateCml, verifiedFixesEnabled, alibiSpanFromWindow,
   isValidAlibiSpan,
   repairActualCovered,
   renderAlibiWindow,
@@ -252,6 +252,12 @@ export function applyCmlRepairAndRevalidate(
 
   const repairedValidation = validateCml(cmlResult.cml as any);
   if (!repairedValidation.valid) {
+    // A34-D12 (owner decision 12, CML_VERIFIED_FIXES): the repairs above mutated cmlResult.cml IN PLACE,
+    // so the prior validation describes a document that no longer exists — and it fed the degrade
+    // warnings and the abort decision. Return the post-repair validation with the repaired CML.
+    if (verifiedFixesEnabled()) {
+      return { ...cmlResult, validation: repairedValidation };
+    }
     // Repair didn't yield a valid document — preserve the prior result/validation.
     return cmlResult;
   }

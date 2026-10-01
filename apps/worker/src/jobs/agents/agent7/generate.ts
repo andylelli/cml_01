@@ -3,7 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { validateArtifact } from "@cml/cml";
+import { validateArtifact, verifiedFixesEnabled } from "@cml/cml";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import { formatNarrative } from "@cml/prompts-llm";
 import { scoreRealNarrative } from "@cml/story-validation";
@@ -16,6 +16,7 @@ runStage,
 import { honestScore } from "../stage-runner.js";
 import {
 coerceNarrativeSceneBeats,
+fillMissingActPurposes,
 hoistMisplacedSceneFields,
 recordAgent7Coercion,
 recordOutlineCoercions,
@@ -122,6 +123,9 @@ export async function ensureSchemaValid(ctx: OrchestratorContext, run: Agent7Run
       );
     }
     recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(retriedNarrative).hoisted });
+    // A7-D02 (owner decision 12, CML_VERIFIED_FIXES): attempt 1 fills a missing act purpose in
+    // normalizeRawOutline; the retry did not, so a retry omitting one hard-aborted below.
+    if (verifiedFixesEnabled()) fillMissingActPurposes(ctx, retriedNarrative);
 
     const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     if (!retryValidation.valid) {

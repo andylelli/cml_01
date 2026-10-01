@@ -13,6 +13,7 @@
  * blind-reader guess and decides shadow (warn) vs enforce (block, never throw).
  */
 
+import { DEATH_METHOD_TOKENS } from "@cml/rubric-score";
 import type { CaseData } from "@cml/cml";
 // A_53 P4 (Pattern D): the word-boundary/surname matcher lives in a shared module now; re-exported
 // here for this file's existing importers.
@@ -76,24 +77,9 @@ const DEATH_TOKEN_STOPWORDS = new Set([
   "killed", "killing", "victim", "method", "cause", "manner", "means", "fatal", "fatally",
 ]);
 
-/**
- * Curated death-method → synonym-stem map (mirrors `resolveDeathMethodTokens` in
- * packages/rubric-score/src/facts.ts; kept local to avoid a worker→rubric-score dependency). This
- * fixes both the false negatives (a "stabbing" deduced via "knife") and the false positives that a
- * blind 4-char-prefix match produced ("gunshot"→"guns" matching "the guns were locked away"). NB:
- * "wound" is deliberately excluded — it collides with the past tense of "wind" (clock tampering).
- */
-const DEATH_METHOD_TOKENS: Array<[RegExp, string[]]> = [
-  [/stab|knif|blade/i, ["stab", "blade", "knife", "dagger"]],
-  [/shoot|shot|gun|firearm|pistol|revolver/i, ["shot", "gunshot", "bullet", "firearm", "pistol"]],
-  [/strangl|garrot|throttl/i, ["strangl", "throttl", "garrot"]],
-  [/poison|arsenic|cyanide|toxin/i, ["poison", "arsenic", "cyanide", "toxin"]],
-  [/bludgeon|blunt|cudgel/i, ["bludgeon", "blunt", "blow"]],
-  [/drown/i, ["drown"]],
-  [/smother|suffocat|asphyxiat/i, ["smother", "suffocat", "asphyxiat"]],
-  [/electrocut/i, ["electrocut"]],
-  [/burn|arson/i, ["burn"]],
-];
+// A6-19 (CR-31): the curated death-method → synonym-stem map is rubric-score's own table, imported rather than
+// copied (it was a byte-identical copy "kept local to avoid a dependency" the worker already has). It fixes both a
+// "stabbing" deduced via "knife" and the false "gunshot"→"guns" prefix match; "wound" is excluded (past tense of wind).
 
 /** Resolve the death-method string: CASE.death_method → crime_class.subtype → category. */
 export const resolveDeathMethodString = (cml: CaseData | undefined | null): string => {

@@ -15,6 +15,8 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { verifiedFixesEnabled } from "@cml/cml";
+import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "./agent5/contract-payload.js";
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
@@ -744,6 +746,9 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           },
           runId: ctx.runId,
           projectId: ctx.projectId || "",
+          // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
+          // Agent 5's first pass sends, which this regeneration used to omit.
+          ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
         });
 
         ctx.agentCosts["agent5_clues"] =

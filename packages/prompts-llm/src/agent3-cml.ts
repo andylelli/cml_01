@@ -11,7 +11,7 @@ import {
   validateCml, parseClockTime, parseDurationMinutes,
   checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
   isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
-  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair,
+  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled,
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
@@ -451,6 +451,16 @@ Binding rules — these values are settled and the case must be built around the
   reproduces them exactly, and two spellings of one hour read to a reader as two different times.${buildDeviceArithmeticRule(lockedFacts)}${buildAlibiPlanRule(lockedFacts)}${buildChronologyRule(lockedFacts as ReadonlyArray<ChronologyFactInput>)}`
       : "";
 
+  // A34-D11 (owner decision 12, CML_VERIFIED_FIXES): the skeleton tells Agent 3 to leave evidence_clues empty
+  // (Agent 5 back-fills it); two rules demanded it non-empty. Flag ON, the rules agree with the skeleton.
+  const fixA34D11 = verifiedFixesEnabled();
+  const evidenceCluesConstraint = fixA34D11
+    ? "- Leave discriminating_test.evidence_clues empty (Agent 5 back-fills it with the planted clue IDs); any clue ID you do list must appear in prose_requirements.clue_to_scene_mapping."
+    : "- Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.";
+  const evidenceTraceabilityRule = fixA34D11
+    ? "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues may be left empty — Agent 5 back-fills it with the planted clue IDs; any clue ID you do list must appear in prose_requirements.clue_to_scene_mapping."
+    : "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.";
+
   const backgroundGroundingSection = `
 **Background Context Artifact (must remain separate from mechanism logic)**:
 ${backgroundContextText}
@@ -569,7 +579,7 @@ Quality bar:
 Hard constraints learned from failures:
 - Keep required setting fields non-empty, including CASE.meta.setting.institution.
 - Use canonical enum vocabulary consistently; avoid ad-hoc variant labels.
-- Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.
+${evidenceCluesConstraint}
 - Ensure each inference step has concrete required_evidence that downstream clue extraction can convert directly to clues.
 - Use era-appropriate worded time references in narrative-facing evidence text (for example, "ten minutes to eleven", not "10:50 PM").
 - Ensure each inference effect is consistent with final culprit assignment; do not eliminate the declared culprit in any inference step.
@@ -898,7 +908,7 @@ ${hardLogicDeviceText}
       ✗ WRONG: Detective privately deduces premeditation; reader sees it only at confrontation → Information Parity 0/100
       ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs eight minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
       ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
-    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.
+${evidenceTraceabilityRule}
     f. ANTI-ABSTRACTION: If discriminating_test.design references mechanism details (for example clock spring marks, forged signatures, key transfer, poison preparation, altered ledger entries), those exact details must already appear as concrete required_evidence in earlier inference steps.
     g. FACT-FORWARD TEST DESIGN: Do not stop at procedure wrappers ("reenactment", "staged", "under scrutiny", "surrounding events"). The design sentence must explicitly name the contradiction or mechanism fact being proven from earlier evidence.
     h. UNIQUE-MEANS DISCRIMINATOR (critical — closes the "unfair reveal"): if the concealment mechanism requires a special skill, tool, access, or knowledge to execute (e.g. clock-tampering needs clockwork/horological knowledge; a forged ledger needs bookkeeping access; a poison needs pharmaceutical know-how), then an EARLY or MID inference step MUST establish — as concrete reader_observable required_evidence — that the CULPRIT uniquely possessed that capability AND that the other suspects did not. The reveal/discriminating test may rely only on this PLANTED means-discriminator. NEVER introduce the culprit's special capability ("only X had the mechanical knowledge", "only X could read the dining log") for the first time at the reveal — that is the #1 fair-play failure. Add an evidence_clue for it in clue_to_scene_mapping at an early/mid scene.

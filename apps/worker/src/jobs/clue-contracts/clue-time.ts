@@ -188,10 +188,13 @@ const parseFactClockMinutes = (value: string): number | null => parseClockTime(v
  * an explicit meridiem, and 4 of 1,132 clue texts do — so the corrected gate would fire on a handful
  * of pairs, not none and not many. Off is byte-identical to every run to date.
  */
-const statesExplicitMeridiem = (text: string): boolean => {
+export const statesExplicitMeridiem = (text: string): boolean => {
   const corrected = /^(1|true|yes|on)$/i.test(String(process.env.AGENT5_MERIDIEM_CHECK ?? "").trim());
   if (!corrected) return false;   // the historical behaviour, stated plainly instead of by accident
-  return /\b(am|pm|a\.m\.|p\.m\.)\b/i.test(String(text));
+  // A5-Q02 (unflagged — behind AGENT5_MERIDIEM_CHECK, default OFF): the bare `\b(am|pm|...)\b` matched
+  // the verb in "I am here", and its trailing `\b` can never follow "a.m." (two non-word characters),
+  // so "at 8 a.m. sharp" did NOT match. A meridiem now needs a clock number (digit or word) before it.
+  return /(?:\b\d{1,2}(?::\d{2})?|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve))\s*(?:a\.m\.|p\.m\.|am\b|pm\b)/i.test(String(text));
 };
 
 /** The locked facts a check reads: the override when given, else the case's own registry. */

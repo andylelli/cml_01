@@ -104,7 +104,7 @@ export {
 } from "./prose-contract/scene-ref-reconcile.js";
 export type { SceneRefReconcileResult } from "./prose-contract/scene-ref-reconcile.js";
 
-export { generateWorldDocument } from "./agent65-world-builder.js";
+export { generateWorldDocument, degradedWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
 export type { WorldDocumentResult, WorldDocumentHistoricalMoment, WorldDocumentCharacterPortrait, WorldDocumentVoiceFragment, WorldDocumentCharacterVoiceSketch, WorldDocumentLocationRegister, WorldDocumentArcTurningPoint, WorldDocumentEmotionalArc, WorldDocumentHumourEntry, WorldDocumentBreakMoment, WorldDocumentValidationConfirmations } from "./types/world-document.js";
 
@@ -155,7 +155,6 @@ export type { HardLogicDeviceIdea } from "./types.js";
 export { initNarrativeState, updateNSD, stampDeployedAtoms, checkNSDParity } from "./types/narrative-state.js";
 export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
 
-export type { ChapterObligation } from "./contracts/chapter-obligation-contract.js";
 export type { BackgroundContextInput } from "./types.js";
 
 // A_73 §11.1 — the one prose-stage clearance vocabulary (was seven bodies across five packages).

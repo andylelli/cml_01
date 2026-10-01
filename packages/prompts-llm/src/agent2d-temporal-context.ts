@@ -5,6 +5,7 @@
  * Includes season, fashion, current affairs, cultural trends, and daily life details.
  */
 
+import { MONTH_TO_SEASON } from "./shared/temporal-anchor.js";
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
@@ -111,11 +112,10 @@ export { simpleHash, generateSpecificDate };
  * before the season feeds the Agent 9 lock).
  */
 export const deriveSeasonFromMonth = (month: string | undefined): "spring" | "summer" | "fall" | "winter" => {
-  const m = String(month ?? "").trim().toLowerCase();
-  if (["march", "april", "may"].includes(m)) return "spring";
-  if (["june", "july", "august"].includes(m)) return "summer";
-  if (["september", "october", "november"].includes(m)) return "fall";
-  return "winter"; // december, january, february (+ unknown fallback)
+  // A1X-08: the one MONTH_TO_SEASON table, in this function's "fall" vocabulary. Exact full month names only (no
+  // abbreviation normalising), and anything unknown is winter — exactly as before.
+  const season = MONTH_TO_SEASON[String(month ?? "").trim().toLowerCase()] ?? "winter";
+  return season === "autumn" ? "fall" : season;
 };
 
 const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousErrors?: string[]) => {
