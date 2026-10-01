@@ -3,7 +3,8 @@
  * time transpositions. Split from agent5-contracts.ts (code review A5-05), which re-exports what it exported.
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
-import type { CaseData } from "@cml/cml";
+import type { CaseData, CaseLockedFact } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import { parseClockTime } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
@@ -55,7 +56,7 @@ const valueAppearsInText = (value: string, text: string): boolean => {
 export const checkEraTimeStyleInClues = (clues: ClueDistributionResult): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
   const digitTimePattern = /\b\d{1,2}:\d{2}\s*(?:am|pm|a\.m\.|p\.m\.)?\b|\b\d{1,2}\s*(?:am|pm|a\.m\.|p\.m\.)\b/i;
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
     if (digitTimePattern.test(text)) {
       issues.push({
@@ -126,7 +127,7 @@ export const replaceDigitTimesWithEraWords = (text: string): string => {
 
 export function sanitizeEraTimeStyleInClues(clues: ClueDistributionResult): string[] {
   const repairs: string[] = [];
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const originalDescription = String(clue?.description ?? "");
     const originalPointsTo = String(clue?.pointsTo ?? "");
@@ -198,8 +199,8 @@ export const statesExplicitMeridiem = (text: string): boolean => {
 };
 
 /** The locked facts a check reads: the override when given, else the case's own registry. */
-const lockedFactsOf = (cml: CaseData, lockedFactsOverride?: any[]): any[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+const lockedFactsOf = (cml: CaseData, lockedFactsOverride?: CaseLockedFact[]): CaseLockedFact[] => {
+  const caseBlock = caseOf(cml);
   return Array.isArray(lockedFactsOverride)
     ? lockedFactsOverride
     : Array.isArray(caseBlock?.locked_facts)
@@ -213,14 +214,14 @@ const lockedFactsOf = (cml: CaseData, lockedFactsOverride?: any[]): any[] => {
  * clue states a parseable time. A5-07: the conflict detector and the transposition repair select
  * through this one body. Lazy, so the repair reads each clue's text when it reaches that pair.
  */
-function* lockedTimeFactPairs(cml: CaseData, clues: ClueDistributionResult, lockedFacts: any[]) {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+function* lockedTimeFactPairs(cml: CaseData, clues: ClueDistributionResult, lockedFacts: CaseLockedFact[]) {
+  const caseBlock = caseOf(cml);
   const mapping = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
     ? caseBlock.prose_requirements.clue_to_scene_mapping
     : [];
   const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
   const mappedClueIds: string[] = mapping
-    .map((m: any) => String(m?.clue_id ?? ""))
+    .map((m) => String(m?.clue_id ?? ""))
     .filter((id: string) => id.length > 0);
 
   for (const fact of lockedFacts) {
@@ -234,8 +235,8 @@ function* lockedTimeFactPairs(cml: CaseData, clues: ClueDistributionResult, lock
     for (const clueId of mappedClueIds) {
       const clue = clueById.get(clueId);
       if (!clue) continue;
-      const description = String((clue as any).description ?? "");
-      const pointsTo = String((clue as any).pointsTo ?? "");
+      const description = String(clue.description ?? "");
+      const pointsTo = String(clue.pointsTo ?? "");
       const clueText = `${description} ${pointsTo}`;
       if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
 
@@ -274,14 +275,14 @@ function* lockedTimeFactPairs(cml: CaseData, clues: ClueDistributionResult, lock
 export const repairLockedFactClueTimeTranspositions = (
   cml: CaseData,
   clues: ClueDistributionResult,
-  lockedFactsOverride?: any[],
+  lockedFactsOverride?: CaseLockedFact[],
 ): string[] => {
   const lockedFacts = lockedFactsOf(cml, lockedFactsOverride);
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];
 
   /** Every OTHER registry value that parses as a clock time — the only strings we may substitute away. */
   const timeFacts = lockedFacts
-    .map((f: any) => ({ id: String(f?.id ?? ""), value: String(f?.value ?? "").trim() }))
+    .map((f) => ({ id: String(f?.id ?? ""), value: String(f?.value ?? "").trim() }))
     .filter((f) => f.value.length > 0 && parseFactClockMinutes(f.value) !== null);
   if (timeFacts.length < 2) return [];
 
@@ -301,10 +302,10 @@ export const repairLockedFactClueTimeTranspositions = (
     if (!other) continue;
 
     if (description.includes(other.value)) {
-      (clue as any).description = description.split(other.value).join(factValue);
+      clue.description = description.split(other.value).join(factValue);
     }
     if (pointsTo.includes(other.value)) {
-      (clue as any).pointsTo = pointsTo.split(other.value).join(factValue);
+      clue.pointsTo = pointsTo.split(other.value).join(factValue);
     }
     repairs.push(
       `${clueId}: carried "${other.value}" (the canonical value of locked fact "${other.id}") where ` +
@@ -325,7 +326,7 @@ export const repairLockedFactClueTimeTranspositions = (
 export const findLockedFactClueTimeConflicts = (
   cml: CaseData,
   clues: ClueDistributionResult,
-  lockedFactsOverride?: any[],
+  lockedFactsOverride?: CaseLockedFact[],
 ): string[] => {
   const lockedFacts = lockedFactsOf(cml, lockedFactsOverride);
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];

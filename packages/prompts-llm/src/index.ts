@@ -2,7 +2,7 @@
  * Prompts LLM Package - Templates for all 8 agents
  */
 
-export { refineSetting } from "./agent1-setting.js";
+export { backfillSetting, refineSetting } from "./agent1-setting.js";
 export { designCast } from "./agent2-cast.js";
 export { coerceMotiveStrength, coerceAccessPlausibility, coerceRelationshipTension } from "./agent2-cast-boundary.js";
 export { checkCast, summarizeCastCheck } from "./agent2-cast-checker.js";

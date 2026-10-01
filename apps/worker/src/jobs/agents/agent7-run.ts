@@ -7,13 +7,14 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
+import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology, verifiedFixesEnabled } from "@cml/cml";
 import { auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import { getSceneTarget, getGenerationParams } from "@cml/story-validation";
 import {
   type OrchestratorContext,
 } from "./shared.js";
 import {
+  adoptOutlineCandidate,
   normalizeRawOutline,
 } from "./agent7/normalize.js";
 import {
@@ -130,7 +131,10 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // The LLM intermittently omits the required `purpose` field on one or more acts
   // (most commonly acts[2], Act III).  Synthesise a default before schema validation
   // so the repair retry is not wasted on this trivial gap.
-  normalizeRawOutline(ctx, narrative);
+  // A7-02 (owner decision 12, CML_VERIFIED_FIXES): the same normalisation through the one adoption
+  // pipeline every later route uses, plus its warn-only schema line. OFF: normalizeRawOutline alone.
+  if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, narrative, "initial");
+  else normalizeRawOutline(ctx, narrative);
 
   // ── Schema repair ──────────────────────────────────────────────────────────
   narrative = await ensureSchemaValid(ctx, run, narrative);

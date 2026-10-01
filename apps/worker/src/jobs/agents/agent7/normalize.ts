@@ -6,6 +6,7 @@
 import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, stripClearanceText, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, readOutlineCoercions } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import { distributeChapterWordBudget } from "@cml/story-validation";
+import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -383,4 +384,45 @@ export function normalizeRawOutline(ctx: OrchestratorContext, narrative: Narrati
       `Narrative field hoist: recovered ${fieldHoist.hoisted} scene field(s) the model nested under 'setting' (purpose/summary/characters/…) before schema validation — prevents a spurious completeness abort.`
     );
   }
+}
+
+/** A7-02 — every route by which runAgent7 can replace its outline with an LLM candidate. */
+export type OutlineAdoptionRoute =
+  | "initial"
+  | "schema-repair"
+  | "scene-count"
+  | "scene-count-repair"
+  | "coverage"
+  | "clue-pacing"
+  | "clue-pacing-fill"
+  | "clue-pacing-second"
+  | "clue-pacing-second-fill"
+  | "completeness";
+
+/**
+ * A7-02 step 2 (owner decision 12, CML_VERIFIED_FIXES): the one adoption pipeline. Agent 7 adopts outlines
+ * from up to eight routes and each normalised differently: only attempt 1 ran `normalizeRawOutline` (act
+ * purposes, word counts, beat coercion, field hoist, the flag-gated beat-sequence and clearance passes); the
+ * schema retry ran three of its steps, the completeness remediation one, and the scene-count, coverage and
+ * clue-pacing candidates none until the final commit pass. Callers invoke this only when the flag is ON, on
+ * the candidate they are about to adopt (completeness: before its abort gate, where the hoist used to run).
+ *
+ * The schema validation here is WARN-ONLY: the hard schema gate stays where it was (attempt 1 and its repair
+ * retry); this makes an invalid candidate adopted on a later route visible instead of silent. Every pass in
+ * `normalizeRawOutline` is idempotent, so a second application is a no-op.
+ */
+export function adoptOutlineCandidate(
+  ctx: OrchestratorContext,
+  candidate: NarrativeOutline,
+  route: OutlineAdoptionRoute,
+): ReturnType<typeof validateArtifact> {
+  normalizeRawOutline(ctx, candidate);
+  const validation = validateArtifact("narrative_outline", candidate);
+  if (!validation.valid) {
+    ctx.warnings.push(
+      `[A7-02] outline candidate from ${route} fails schema validation (warn-only, ${validation.errors.length} error(s)): ` +
+        validation.errors.slice(0, 5).join("; "),
+    );
+  }
+  return validation;
 }

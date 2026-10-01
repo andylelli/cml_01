@@ -3,11 +3,12 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { recordOutlineCoercions } from "./normalize.js";
+import { adoptOutlineCandidate, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -186,6 +187,7 @@ export async function enforceOutlineQuality(ctx: OrchestratorContext, run: Agent
     const retryCountCheck = checkNarrativeSceneCountFloor(retriedNarrative, sceneCountLock);
 
     if (retryOutlineIssues.length < outlineCoverageIssues.length && retryCountCheck.ok) {
+      if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, retriedNarrative, "coverage"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
       narrative = retriedNarrative;
       ctx.warnings.push("Outline retry improved coverage");
       await rescoreNarrative(ctx, narrative);

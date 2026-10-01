@@ -115,6 +115,23 @@ export function getInferencePath(cml: CaseData): InferencePath {
 // Keep backward-compatible any export
 export type CaseData = any;
 
+// A5-04 / A6-18 — the typed read view of `CASE`: `caseOf(cml)` is `(cml as any)?.CASE ?? cml`, typed.
+export { caseOf } from "./case-view.js";
+export type {
+  CaseView,
+  CaseCastMember,
+  CaseInferenceStep,
+  CaseDiscriminatingTest,
+  CaseFalseAssumption,
+  CaseFalseSolution,
+  CaseRedHerring,
+  CaseConstraintSpace,
+  CaseClueSceneMapping,
+  CaseProseRequirements,
+  CaseQualityControls,
+  CaseLockedFact,
+} from "./case-view.js";
+
 // Alias for validateCml function (used by agents)
 export { validateCml as validateCaseData };
 

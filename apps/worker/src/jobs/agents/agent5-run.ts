@@ -114,7 +114,7 @@ const getCanonicalMappingClueIds = (cml: CaseData): string[] => {
   const caseBlock = getCaseBlock(cml);
   const mappingIds: string[] = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
     ? caseBlock.prose_requirements.clue_to_scene_mapping
-        .map((entry: any) => String(entry?.clue_id ?? "").trim())
+        .map((entry) => String(entry?.clue_id ?? "").trim())
         .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id))
     : [];
   return [...new Set<string>(mappingIds)];

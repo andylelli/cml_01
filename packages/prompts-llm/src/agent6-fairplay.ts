@@ -15,6 +15,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { isDetectiveMember, isVictimMember, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { ClueDistributionResult } from "./types/clue-distribution.js";
@@ -866,6 +867,27 @@ export async function auditFairPlay(
 // WP5: Blind Reader Simulation
 // ============================================================================
 
+/**
+ * A6-D04 (owner decision 12, CML_VERIFIED_FIXES): the names the blind-reader prompt calls "the suspects".
+ * OFF: every name the caller passed — the whole CASE cast, so the detective and the victim were offered as
+ * suspects. ON, when the caller supplies the CASE cast: only names whose cast entry is neither the detective
+ * nor the victim (@cml/cml isDetectiveMember / isVictimMember — the explicit role wins, else the archetype).
+ * A name with no matching entry is kept. Falls back to the full list when fewer than two names would remain,
+ * or when no cast is supplied.
+ */
+export function blindReaderSuspectNames(castNames: string[], caseCast?: unknown[]): string[] {
+  if (!verifiedFixesEnabled() || !Array.isArray(caseCast) || caseCast.length === 0) return castNames;
+  const key = (n: unknown) => String(n ?? "").trim().toLowerCase();
+  const excluded = new Set(
+    caseCast
+      .filter((entry) => isDetectiveMember(entry) || isVictimMember(entry))
+      .map((entry) => key((entry as { name?: unknown } | null)?.name))
+      .filter(Boolean),
+  );
+  const suspects = castNames.filter((n) => !excluded.has(key(n)));
+  return suspects.length >= 2 ? suspects : castNames;
+}
+
 export interface BlindReaderResult {
   suspectedCulprit: string;
   reasoning: string;
@@ -884,6 +906,11 @@ export async function blindReaderSimulation(
     runId?: string;
     projectId?: string;
     placementFilter?: Array<"early" | "mid" | "late">;
+    /**
+     * A6-D04: the CASE cast entries `castNames` came from. With CML_VERIFIED_FIXES on, the detective and the
+     * victim are dropped from "The suspects are:" (see blindReaderSuspectNames). Omitted = the names as given.
+     */
+    caseCast?: unknown[];
     /**
      * X33 continued, 2026-09-07 — the second framing, tried only after a content-filter refusal.
      *
@@ -944,7 +971,7 @@ export async function blindReaderSimulation(
   const user = "Here are all the clues you encountered while reading this mystery:\n\n" +
     clueList + "\n\n" +
     (redHerringList ? "Additional observations:\n" + redHerringList + "\n\n" : "") +
-    "The suspects are: " + castNames.join(", ") + "\n\n" +
+    "The suspects are: " + blindReaderSuspectNames(castNames, inputs.caseCast).join(", ") + "\n\n" + // A6-D04
     "The initial assumption is: \"" + falseAssumption + "\"\n\n" +
     "Based ONLY on these clues, who do you think committed the crime and why? " +
     "If you cannot determine the culprit, explain what information is missing.\n\n" +

@@ -16,10 +16,12 @@ import {
   flattenNarrativeScenes,
 } from "./scene-refs.js";
 import {
+  adoptOutlineCandidate,
   hoistMisplacedSceneFields,
   recordAgent7Coercion,
   recordOutlineCoercions,
 } from "./normalize.js";
+import { verifiedFixesEnabled } from "@cml/cml";
 import {
   Agent7Run,
   rescoreNarrative,
@@ -102,7 +104,10 @@ export async function enforcePreCommitCompleteness(ctx: OrchestratorContext, run
         (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - remediationStart);
 
       // recover any still-misplaced fields before the abort gate
-      recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(remediatedNarrative).hoisted });
+      // A7-02 (owner decision 12, CML_VERIFIED_FIXES): ON, the full adoption normalisation (which includes the
+      // hoist) runs here, before the gate, where the hoist ran. OFF: the hoist alone.
+      if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, remediatedNarrative, "completeness");
+      else recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(remediatedNarrative).hoisted });
       const countCheck = checkNarrativeSceneCountFloor(remediatedNarrative, sceneCountLock);
       const remainingIssues = evaluateOutlinePreCommitCompleteness(remediatedNarrative);
 

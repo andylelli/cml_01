@@ -4,6 +4,7 @@
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { caseOf, type CaseView } from "@cml/cml";
 import { WORKER_LEGAL_SOURCE_PATTERNS, enumerateSourcePaths } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
@@ -17,7 +18,8 @@ type SourcePathValidationResult = {
 // CR-16 (A5-02): derived from the one source-path table in @cml/cml (worker-legal families).
 export const ALLOWED_SOURCE_PATTERNS: RegExp[] = WORKER_LEGAL_SOURCE_PATTERNS;
 
-export const getCaseBlock = (cml: CaseData): any => ((cml as any)?.CASE ?? cml);
+/** A5-04 — kept as the clue-contract name for `caseOf` (same reference, now typed). */
+export const getCaseBlock = (cml: CaseData): CaseView => caseOf(cml);
 
 export const getByPath = (root: any, path: string): { ok: boolean; value?: any } => {
   const tokens = path.match(/[A-Za-z_][A-Za-z0-9_]*|\[(\d+)\]/g);
@@ -52,7 +54,7 @@ export const checkSourcePathValidity = (cml: CaseData, clues: ClueDistributionRe
   const invalidPaths = new Set<string>();
   const issues: ClueGuardrailIssue[] = [];
 
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const sourcePath = String(clue?.sourceInCML ?? "").trim();
     if (!validateSourcePath(cml, sourcePath)) {
       invalidPaths.add(sourcePath || "(empty-source-path)");
@@ -125,7 +127,7 @@ export const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionR
   // a degenerate CML that exposes no valid source path anywhere — that residual case the gate surfaces.
   const guaranteedFallbackPath = fallbackSourcePath || buildStrictSourcePathWhitelist(cml)[0] || "";
 
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const sourcePath = String(clue?.sourceInCML ?? "").trim();
 

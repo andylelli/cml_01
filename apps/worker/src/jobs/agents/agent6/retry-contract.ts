@@ -5,8 +5,9 @@
  */
 import { appendToClueTimeline, openClueSynthesis } from "../../clue-contracts/synthesis.js";
 import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence-floor.js";
-import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
+import type { Clue, FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import { isDetectiveArchetype, isVictimArchetype, roleTextsOf, verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
@@ -24,10 +25,10 @@ const appendUniqueStrings = (base: string[] | undefined, additions: string[]): s
   [...new Set([...(base ?? []), ...additions].map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 
 const deriveCastPathNameIndexMap = (cml?: CaseData): Array<{ index: number; name: string }> => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   return cast
-    .map((member: any, index: number) => ({ index, name: String(member?.name ?? "").trim() }))
+    .map((member, index: number) => ({ index, name: String(member?.name ?? "").trim() }))
     .filter((entry: { index: number; name: string }) => entry.name.length > 0);
 };
 
@@ -44,7 +45,7 @@ const deriveCastPathBindingRules = (cml?: CaseData): string[] => {
 };
 
 const buildUnifiedRetryContractPhrases = (cml?: CaseData): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const evidenceIds = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
     ? caseBlock.discriminating_test.evidence_clues
         .map((id: unknown) => String(id ?? "").trim())
@@ -106,7 +107,7 @@ const deriveRetryTargetedClueIds = (
   cml?: CaseData,
   clues?: { clues?: Array<{ id?: string }> },
 ): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const normalizedRules = new Set(
     (Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [])
       .map((violation) => String(violation?.rule ?? "").trim().toLowerCase())
@@ -168,7 +169,7 @@ export const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cm
   const phrases: string[] = [];
   const unifiedRetryContractPhrases = buildUnifiedRetryContractPhrases(cml);
   const castPathBindingRules = deriveCastPathBindingRules(cml);
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const culpritName = String(caseBlock?.culpability?.culprits?.[0] ?? "").trim();
   const discriminatingDesign = String(caseBlock?.discriminating_test?.design ?? "").trim();
   const discriminatingKnowledge = String(caseBlock?.discriminating_test?.knowledge_revealed ?? "").trim();
@@ -337,8 +338,8 @@ export const buildFairPlayFeedbackPayload = (
 export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contextLabel: string): void => {
   if (!ctx.clues || !ctx.cml) return;
   const pushError = (message: string) => {
-    if (Array.isArray((ctx as any).errors)) {
-      (ctx as any).errors.push(message);
+    if (Array.isArray(ctx.errors)) {
+      ctx.errors.push(message);
     }
   };
 
@@ -358,14 +359,14 @@ export const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext,
   // A5-D07 (owner decision 12, CML_VERIFIED_FIXES): ON, the facts Agent 5's prompt sent; OFF, raw device facts.
   const hardLogicLockedFacts = agent5GateLockedFacts(ctx);
 
-  const expectedEvidenceIds = Array.isArray(((ctx.cml as any)?.CASE ?? (ctx.cml as any))?.discriminating_test?.evidence_clues)
-    ? (((ctx.cml as any)?.CASE ?? (ctx.cml as any)).discriminating_test.evidence_clues as unknown[])
+  const expectedEvidenceIds = Array.isArray(caseOf(ctx.cml)?.discriminating_test?.evidence_clues)
+    ? (caseOf(ctx.cml).discriminating_test!.evidence_clues as unknown[])
       .map((id) => String(id ?? "").trim())
       .filter(Boolean)
     : [];
   const listCurrentClueIds = (): Set<string> => new Set(
     (Array.isArray(ctx.clues?.clues) ? ctx.clues.clues : [])
-      .map((clue: any) => String(clue?.id ?? "").trim())
+      .map((clue) => String(clue?.id ?? "").trim())
       .filter(Boolean),
   );
   const initialClueIds = listCurrentClueIds();
@@ -497,7 +498,7 @@ export const runDeterministicStructuralAudit = (
   cml: CaseData,
   clues: { clues?: Array<{ id?: string; placement?: string; criticality?: string; supportsInferenceStep?: number; description?: string; pointsTo?: string; evidenceType?: string }> },
 ): StructuralAuditResult => {
-  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
+  const caseBlock = caseOf(cml) ?? {};
   const clueList = Array.isArray(clues?.clues) ? clues.clues : [];
 
   const gaps: StructuralGap[] = [];
@@ -577,8 +578,8 @@ export const runDeterministicStructuralAudit = (
   // eliminationMissing on every golden bundle. The same predicates Agent 9's computeEliminationSuspects uses,
   // so the audit and the elimination injector agree on WHO must be cleared (report-only: the gap is advisory).
   const nonCulprits = castList
-    .filter((c: any) => !roleTextsOf(c).some(isDetectiveArchetype) && !roleTextsOf(c).some(isVictimArchetype))
-    .map((c: any) => String(c?.name ?? "").trim())
+    .filter((c) => !roleTextsOf(c).some(isDetectiveArchetype) && !roleTextsOf(c).some(isVictimArchetype))
+    .map((c) => String(c?.name ?? "").trim())
     .filter((name: string) => name.length > 0 && !culprits.has(name.toLowerCase()));
 
   const eliminationPresent: string[] = [];
@@ -672,7 +673,7 @@ export const refreshCoverageOnContext = (ctx: OrchestratorContext): void => {
 };
 
 export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null => {
-  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
+  const caseBlock = caseOf(cml) ?? {};
   const discrimDesign = String(caseBlock?.discriminating_test?.design ?? "").trim();
   const discrimKnowledge = String(caseBlock?.discriminating_test?.knowledge_revealed ?? "").trim();
   if (!discrimDesign && !discrimKnowledge) return null;
@@ -797,11 +798,11 @@ export const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null
 };
 
 export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
+  const caseBlock = caseOf(cml) ?? {};
   const inferenceSteps = Array.isArray(caseBlock?.inference_path?.steps)
     ? caseBlock.inference_path.steps
     : [];
-  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  const clueList: Clue[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (inferenceSteps.length === 0 || clueList.length === 0) return [];
 
   const repairs: string[] = [];
@@ -814,8 +815,8 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
   // supportsInferenceStep ONCE, then keep it in sync as backstop clues are pushed — instead of two
   // O(clues) `clueList.some(...)` scans per step (O(steps×clues) every call, 5–8×/run on data that
   // only grows incrementally). The index is the source of truth for per-step membership below.
-  const earlyMidEssentialByStep = new Map<number, any[]>();
-  const indexClueForStep = (clue: any): void => {
+  const earlyMidEssentialByStep = new Map<number, Clue[]>();
+  const indexClueForStep = (clue: Clue): void => {
     const isEarlyMidEssential =
       clue?.criticality === "essential"
       && (clue?.placement === "early" || clue?.placement === "mid");
@@ -827,7 +828,7 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
     else earlyMidEssentialByStep.set(step, [clue]);
   };
   for (const clue of clueList) indexClueForStep(clue);
-  const isContradiction = (clue: any): boolean =>
+  const isContradiction = (clue: Clue): boolean =>
     String(clue?.evidenceType ?? "").toLowerCase() === "contradiction";
   /** Push a minted backstop clue, index it for its step, and file it under its placement. */
   const pushBackstopClue = (clue: any): void => {
@@ -847,7 +848,7 @@ export const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): 
     const correction = String(step?.correction ?? "").trim();
     const effect = String(step?.effect ?? "").trim();
     const requiredEvidence = Array.isArray(step?.required_evidence)
-      ? step.required_evidence.map((e: any) => String(e ?? "").trim()).filter(Boolean)
+      ? step.required_evidence.map((e) => String(e ?? "").trim()).filter(Boolean)
       : [];
     const firstRequiredEvidenceText = requiredEvidence.find(
       (entry: string) => !/^CASE\./.test(entry) && /[\s,.;:]/.test(entry),

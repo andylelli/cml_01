@@ -14,7 +14,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { PromptComponents } from "./types.js";
-import type { Clue, ClueDistributionResult } from "./types/clue-distribution.js";
+import type { Clue, ClueDistributionResult, RedHerring } from "./types/clue-distribution.js";
 import { deathMethodTellHints } from "./shared/clue-observable.js";
 import { extractKeyTerms } from "./agent5/key-terms.js";
 import { normalizeRetryFeedback, buildRetryModeBlock } from "./agent5/retry-feedback.js";
@@ -112,7 +112,9 @@ const inferStepFromSourcePath = (sourcePath: unknown): number | undefined => {
   return stepIndex + 1;
 };
 
-const inferEvidenceType = (clue: any): "observation" | "contradiction" | "elimination" => {
+type ParsedClueEvidenceFields = { evidenceType?: unknown; sourceInCML?: unknown; description?: unknown; pointsTo?: unknown };
+
+const inferEvidenceType = (clue: ParsedClueEvidenceFields | null | undefined): "observation" | "contradiction" | "elimination" => {
   const normalized = String(clue?.evidenceType ?? "").trim().toLowerCase();
   if (normalized === "observation" || normalized === "contradiction" || normalized === "elimination") {
     return normalized;
@@ -636,8 +638,8 @@ export const dropMalformedParsedClues = (
   const kept: any[] = [];
   const droppedWarnings: string[] = [];
   for (const clue of Array.isArray(rawClues) ? rawClues : []) {
-    const id = String((clue as any)?.id ?? "").trim();
-    const description = String((clue as any)?.description ?? "").trim();
+    const id = String((clue as { id?: unknown } | null | undefined)?.id ?? "").trim();
+    const description = String((clue as { description?: unknown } | null | undefined)?.description ?? "").trim();
     if (!CANONICAL_PARSED_CLUE_ID_RE.test(id)) {
       droppedWarnings.push(
         `dropped parsed clue with non-canonical id "${id || "(empty)"}" (likely truncation/jsonrepair artifact)`,
@@ -756,62 +758,15 @@ export async function extractClues(
     }
     const clueData: any = parsed.clueData;
 
-    const { kept: normalizedClues, droppedWarnings } = dropMalformedParsedClues(clueData?.clues);
+    const {
+      clues: normalizedClues,
+      redHerrings: normalizedRedHerrings,
+      droppedWarnings,
+      clueTimeline,
+      fairPlayChecks,
+      essentialClueCount,
+    } = normalizeParsedClueDistribution(clueData, inputs.redHerringBudget);
     parseWarnings.push(...droppedWarnings);
-    const normalizedRedHerrings = Array.isArray(clueData?.redHerrings) ? clueData.redHerrings : [];
-
-    // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
-    // Prefer inferred values from source paths over null/default model outputs.
-    for (const clue of normalizedClues) {
-      // A5-D10: the enum fields are compared exactly downstream (clueTimeline below, the worker's
-      // placement and criticality checks), so a capitalised "Early" was silently left out of the timeline.
-      for (const key of ["category", "placement", "criticality"] as const) {
-        if (typeof clue[key] === "string") clue[key] = clue[key].trim().toLowerCase();
-      }
-      // P1.2: normalize the additive restructure fields (inert when the model omits them).
-      if (typeof clue.observable === "string") clue.observable = clue.observable.trim();
-      if (typeof clue.inference === "string") clue.inference = clue.inference.trim();
-      const revealChapter = Number(clue.first_full_reveal_chapter);
-      clue.first_full_reveal_chapter =
-        Number.isInteger(revealChapter) && revealChapter > 0 ? revealChapter : undefined;
-
-      const inferredStep = inferStepFromSourcePath(clue?.sourceInCML);
-      const currentStep = Number(clue?.supportsInferenceStep);
-      if (Number.isInteger(currentStep) && currentStep > 0) {
-        clue.supportsInferenceStep = currentStep;
-      } else if (typeof inferredStep === "number") {
-        clue.supportsInferenceStep = inferredStep;
-      } else if (clue.criticality === "essential") {
-        clue.supportsInferenceStep = 0; // Flag as unmapped for guardrail to catch
-      }
-      clue.evidenceType = inferEvidenceType(clue);
-    }
-
-    // Organize clues by placement
-    const clueTimeline = {
-      early: normalizedClues
-        .filter((c: Clue) => c.placement === "early")
-        .map((c: Clue) => c.id),
-      mid: normalizedClues
-        .filter((c: Clue) => c.placement === "mid")
-        .map((c: Clue) => c.id),
-      late: normalizedClues
-        .filter((c: Clue) => c.placement === "late")
-        .map((c: Clue) => c.id),
-    };
-
-    // Fair play checks
-    const essentialClues = normalizedClues.filter((c: Clue) => c.criticality === "essential");
-    const fairPlayChecks = {
-      allEssentialCluesPresent: essentialClues.length >= 3, // Minimum viable
-      noNewFactsIntroduced: normalizedClues.every(
-        (c: Clue) => c.sourceInCML && c.sourceInCML.trim() !== "" && c.sourceInCML !== "N/A"
-      ),
-      redHerringsDontBreakLogic: normalizedRedHerrings.length <= inputs.redHerringBudget,
-      // A_71: a budget of N asked for N. Reporting only `<= N` made "returned none" indistinguishable
-      // from "returned exactly what was asked for".
-      redHerringBudgetMet: normalizedRedHerrings.length >= inputs.redHerringBudget,
-    };
 
     const latencyMs = Date.now() - startTime;
     const costTracker = client.getCostTracker();
@@ -830,7 +785,7 @@ export async function extractClues(
       metadata: {
         clueCount: normalizedClues.length,
         redHerringCount: normalizedRedHerrings.length,
-        essentialClueCount: essentialClues.length,
+        essentialClueCount,
         fairPlayPassed: Object.values(fairPlayChecks).every(Boolean),
       },
     });
@@ -858,4 +813,90 @@ export async function extractClues(
 
     throw error;
   }
+}
+
+/** What `normalizeParsedClueDistribution` derives from one parsed Agent-5 payload. */
+export interface NormalizedParsedClueDistribution {
+  clues: Clue[];
+  redHerrings: RedHerring[];
+  /** One entry per clue `dropMalformedParsedClues` removed. */
+  droppedWarnings: string[];
+  clueTimeline: ClueDistributionResult["clueTimeline"];
+  fairPlayChecks: ClueDistributionResult["fairPlayChecks"];
+  essentialClueCount: number;
+}
+
+/**
+ * A5-04 — the parse-boundary normaliser `extractClues` applies to the parsed JSON, as one pure,
+ * exported function (moved verbatim out of `extractClues`; same order, same mutations of the parsed
+ * clue objects). `status` and `audit` stay with the caller, which reads them after logging.
+ */
+export function normalizeParsedClueDistribution(
+  clueData: any,
+  redHerringBudget: number,
+): NormalizedParsedClueDistribution {
+  const { kept: normalizedClues, droppedWarnings } = dropMalformedParsedClues(clueData?.clues);
+  const normalizedRedHerrings = Array.isArray(clueData?.redHerrings) ? clueData.redHerrings : [];
+
+  // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
+  // Prefer inferred values from source paths over null/default model outputs.
+  for (const clue of normalizedClues) {
+    // A5-D10: the enum fields are compared exactly downstream (clueTimeline below, the worker's
+    // placement and criticality checks), so a capitalised "Early" was silently left out of the timeline.
+    for (const key of ["category", "placement", "criticality"] as const) {
+      if (typeof clue[key] === "string") clue[key] = clue[key].trim().toLowerCase();
+    }
+    // P1.2: normalize the additive restructure fields (inert when the model omits them).
+    if (typeof clue.observable === "string") clue.observable = clue.observable.trim();
+    if (typeof clue.inference === "string") clue.inference = clue.inference.trim();
+    const revealChapter = Number(clue.first_full_reveal_chapter);
+    clue.first_full_reveal_chapter =
+      Number.isInteger(revealChapter) && revealChapter > 0 ? revealChapter : undefined;
+
+    const inferredStep = inferStepFromSourcePath(clue?.sourceInCML);
+    const currentStep = Number(clue?.supportsInferenceStep);
+    if (Number.isInteger(currentStep) && currentStep > 0) {
+      clue.supportsInferenceStep = currentStep;
+    } else if (typeof inferredStep === "number") {
+      clue.supportsInferenceStep = inferredStep;
+    } else if (clue.criticality === "essential") {
+      clue.supportsInferenceStep = 0; // Flag as unmapped for guardrail to catch
+    }
+    clue.evidenceType = inferEvidenceType(clue);
+  }
+
+  // Organize clues by placement
+  const clueTimeline = {
+    early: normalizedClues
+      .filter((c: Clue) => c.placement === "early")
+      .map((c: Clue) => c.id),
+    mid: normalizedClues
+      .filter((c: Clue) => c.placement === "mid")
+      .map((c: Clue) => c.id),
+    late: normalizedClues
+      .filter((c: Clue) => c.placement === "late")
+      .map((c: Clue) => c.id),
+  };
+
+  // Fair play checks
+  const essentialClues = normalizedClues.filter((c: Clue) => c.criticality === "essential");
+  const fairPlayChecks = {
+    allEssentialCluesPresent: essentialClues.length >= 3, // Minimum viable
+    noNewFactsIntroduced: normalizedClues.every(
+      (c: Clue) => c.sourceInCML && c.sourceInCML.trim() !== "" && c.sourceInCML !== "N/A"
+    ),
+    redHerringsDontBreakLogic: normalizedRedHerrings.length <= redHerringBudget,
+    // A_71: a budget of N asked for N. Reporting only `<= N` made "returned none" indistinguishable
+    // from "returned exactly what was asked for".
+    redHerringBudgetMet: normalizedRedHerrings.length >= redHerringBudget,
+  };
+
+  return {
+    clues: normalizedClues,
+    redHerrings: normalizedRedHerrings,
+    droppedWarnings,
+    clueTimeline,
+    fairPlayChecks,
+    essentialClueCount: essentialClues.length,
+  };
 }

@@ -41,7 +41,7 @@ export function findRedHerringOverlapDetails(cml: CaseData, clues: ClueDistribut
     return [];
   }
 
-  const stepCorrectionWords = steps.map((step: any, idx: number) => ({
+  const stepCorrectionWords = steps.map((step, idx: number) => ({
     stepIndex: idx + 1,
     words: (typeof step?.correction === "string" ? step.correction : "")
       .toLowerCase()
@@ -64,7 +64,7 @@ export function findRedHerringOverlapDetails(cml: CaseData, clues: ClueDistribut
 
   const overlaps: RedHerringOverlapDetail[] = [];
   for (let i = 0; i < clues.redHerrings.length; i++) {
-    const rh = clues.redHerrings[i] as any;
+    const rh = clues.redHerrings[i];
     const rhId = String(rh?.id ?? `rh_${i + 1}`).trim() || `rh_${i + 1}`;
     // Do not score supportsAssumption for overlap: it is expected to echo the false assumption.
     const text = `${String(rh?.description ?? "")} ${String(rh?.misdirection ?? "")}`.toLowerCase();

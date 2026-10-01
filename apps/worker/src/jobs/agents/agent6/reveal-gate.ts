@@ -45,7 +45,7 @@ export async function runRevealGate(ctx: OrchestratorContext, run: Agent6Run, st
           ctx.clues!,
           falseAssumptionStatement,
           castNamesForBlind,
-          { runId: ctx.runId, projectId: ctx.projectId || "", placementFilter: ["early", "mid"] }
+          { runId: ctx.runId, projectId: ctx.projectId || "", placementFilter: ["early", "mid"], caseCast: caseBlockForBlind?.cast }
         );
         // cost from byAgent is cumulative across the run → overwrite; durationMs is per-call → add.
         ctx.agentCosts["agent6_blind_reader"] = earlyMidReader.cost;
@@ -56,6 +56,7 @@ export async function runRevealGate(ctx: OrchestratorContext, run: Agent6Run, st
           earlyMidGuess: earlyMidReader.suspectedCulprit,
           culprit: actualCulpritName,
           falseSolutionSuspect: caseBlockForBlind?.false_solution?.accused_suspect,
+          castNames: castNamesForBlind, // A6-D07: surname matches need the cast (used only with CML_VERIFIED_FIXES on)
         });
         if (verdict.verdict === "too_obvious") revealIssues.push(...verdict.reasons);
         else verdict.reasons.forEach((r) => run.emitAgent6Warning(`[agent6-reveal-gate][${revealGateMode}] ${r}`, "transient-diagnostic"));

@@ -11,6 +11,7 @@
   "functions": {
     "apps/api/src/server.ts::createServer": 1293,
     "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 545,
+    "apps/worker/src/jobs/agents/agent6/structural-retry.ts::retryCmlOnStructuralFailure": 414,
     "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 502,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
     "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 642,

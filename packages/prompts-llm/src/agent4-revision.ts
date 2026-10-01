@@ -37,7 +37,7 @@ function mysteryAxisLine(inputs: RevisionInputs): string {
   return `${inputs.originalPrompt.user.substring(0, 200)}...`;
 }
 
-export interface RevisionResult {
+interface RevisionResultBase {
   cml: Record<string, unknown>;      // Revised CML object
   validation: {
     valid: boolean;
@@ -47,11 +47,26 @@ export interface RevisionResult {
   attempt: number;                   // Final attempt number
   latencyMs: number;                 // Time taken for revision
   cost: number;                      // Estimated cost
-  /** True when the budget was exhausted and we returned best-so-far instead of throwing. */
-  degraded?: boolean;
-  /** The unresolved validation errors when degraded (carried forward as warnings). */
-  unresolvedLogicWarnings?: string[];
 }
+
+/**
+ * A34-11 (R1): the revision result is a discriminated union on a REQUIRED `degraded`, so a caller cannot read
+ * `cml` without the type naming the degraded arm. It was `degraded?: boolean`, and the Agent 6 caller installed
+ * the CML without reading it. Values are unchanged: `degraded` was absent on a clean success (now `false`, which
+ * every reader already treated the same) and `stillInvalid` on the exhaustion path.
+ */
+export type RevisionResult =
+  | (RevisionResultBase & {
+      /** A clean success, or a best-so-far that turned out valid after exhaustion. */
+      degraded: false;
+      unresolvedLogicWarnings?: undefined;
+    })
+  | (RevisionResultBase & {
+      /** The budget was exhausted and best-so-far was returned instead of throwing; `validation` is invalid. */
+      degraded: true;
+      /** The unresolved validation errors (carried forward as warnings). */
+      unresolvedLogicWarnings: string[];
+    });
 
 function hasRequiredEvidenceMissingSignal(error: string): boolean {
   const lowered = error.toLowerCase();
@@ -637,6 +652,7 @@ export async function reviseCml(
           attempt,
           latencyMs,
           cost,
+          degraded: false, // A34-11: was absent; every reader treats absent and false alike
         };
       }
 
@@ -831,15 +847,10 @@ async function degradeRevision({ attempt, bestNormalized, bestValidation, client
     latencyMs,
     metadata: { reason, unresolvedErrorCount: unresolvedWarnings?.length ?? 0 },
   });
-  return {
-    cml: fallbackCml,
-    validation: fallbackValidation,
-    revisionsApplied,
-    attempt,
-    latencyMs,
-    cost,
-    degraded: stillInvalid,
-    unresolvedLogicWarnings: unresolvedWarnings,
-  };
+  const base = { cml: fallbackCml, validation: fallbackValidation, revisionsApplied, attempt, latencyMs, cost };
+  // A34-11: the same two values as before (`degraded: stillInvalid`, warnings only when degraded), split by arm.
+  return stillInvalid
+    ? { ...base, degraded: true as const, unresolvedLogicWarnings: unresolvedWarnings! }
+    : { ...base, degraded: false as const, unresolvedLogicWarnings: undefined };
 }
 

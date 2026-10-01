@@ -3,7 +3,8 @@
  * A5-05), which re-exports what it exported.
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
-import type { CaseData } from "@cml/cml";
+import type { CaseCastMember, CaseData } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
 } from "../agents/shared.js";
@@ -45,14 +46,14 @@ function buildSuspectCoverage(
   cml: CaseData,
   clues: ClueDistributionResult,
 ): SuspectCoverageRecord[] {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const castArr = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   const culprits = Array.isArray(caseBlock?.culpability?.culprits)
-    ? caseBlock.culpability.culprits.map((n: any) => String(n ?? "").trim())
+    ? caseBlock.culpability.culprits.map((n) => String(n ?? "").trim())
     : [];
   const suspects = castArr
-    .filter((c: any) => String(c?.culprit_eligibility ?? "").toLowerCase() === "eligible" && !culprits.includes(String(c?.name ?? "").trim())) // A5-D10: the other two bodies lower-case
-    .map((c: any) => String(c?.name ?? "").trim())
+    .filter((c) => String(c?.culprit_eligibility ?? "").toLowerCase() === "eligible" && !culprits.includes(String(c?.name ?? "").trim())) // A5-D10: the other two bodies lower-case
+    .map((c) => String(c?.name ?? "").trim())
     .filter(Boolean);
 
   // A_53 P10 (a5-suspect-coverage-recomputed-every-recheck): the cast-name token frequency depends
@@ -67,21 +68,21 @@ function buildSuspectCoverage(
     const eliminationClueIds: string[] = [];
     const alibiClueIds: string[] = [];
     for (const clue of clues.clues) {
-      const clueText = `${String(clue.description ?? "")} ${String((clue as any).pointsTo ?? "")}`;
+      const clueText = `${String(clue.description ?? "")} ${String(clue.pointsTo ?? "")}`;
       if (!nameAppearsForSuspectCoverage(suspect, clueText, castTokenFrequency)) continue;
       directReferences += 1;
-      referencedClueIds.push(String((clue as any).id ?? "").trim() || "(unknown-id)");
-      const evidenceType = String((clue as any).evidenceType ?? "").toLowerCase();
+      referencedClueIds.push(String(clue.id ?? "").trim() || "(unknown-id)");
+      const evidenceType = String(clue.evidenceType ?? "").toLowerCase();
       const eliminationSignal = isEliminationLike(clueText) || evidenceType === "elimination";
       const alibiSignal = isAlibiLike(clueText)
         || (evidenceType === "elimination" && hasTimeWindow(clueText) && hasCorroborator(clueText));
       if (eliminationSignal) {
         eliminationLike += 1;
-        eliminationClueIds.push(String((clue as any).id ?? "").trim() || "(unknown-id)");
+        eliminationClueIds.push(String(clue.id ?? "").trim() || "(unknown-id)");
       }
       if (alibiSignal) {
         alibiLike += 1;
-        alibiClueIds.push(String((clue as any).id ?? "").trim() || "(unknown-id)");
+        alibiClueIds.push(String(clue.id ?? "").trim() || "(unknown-id)");
       }
     }
     return {
@@ -96,7 +97,7 @@ function buildSuspectCoverage(
   });
 }
 
-function buildCastNameTokenFrequency(castArr: any[]): Map<string, number> {
+function buildCastNameTokenFrequency(castArr: CaseCastMember[]): Map<string, number> {
   const frequency = new Map<string, number>();
   for (const castMember of castArr) {
     const tokens = normalizeTokens(String(castMember?.name ?? "")).filter((t) => t.length > 2);
@@ -111,7 +112,7 @@ function buildCastNameTokenFrequency(castArr: any[]): Map<string, number> {
 // the cast-array object identity (immutable for a run) so it isn't re-tokenized on every recheck.
 const castNameTokenFrequencyCache = new WeakMap<object, Map<string, number>>();
 
-function getCastNameTokenFrequencyCached(castArr: any[]): Map<string, number> {
+function getCastNameTokenFrequencyCached(castArr: CaseCastMember[]): Map<string, number> {
   if (!Array.isArray(castArr)) return buildCastNameTokenFrequency(castArr);
   const cached = castNameTokenFrequencyCache.get(castArr);
   if (cached) return cached;
@@ -153,7 +154,7 @@ const suspectCoverageCache = new WeakMap<object, { signature: string; cml: CaseD
 
 const buildSuspectCoverageSignature = (clues: ClueDistributionResult): string => {
   const parts: string[] = [];
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     parts.push(
       `${String(clue?.id ?? "")}${String(clue?.description ?? "")}${String(clue?.pointsTo ?? "")}${String(clue?.evidenceType ?? "")}`,
     );

@@ -13,6 +13,7 @@ import type { FairPlayAuditResult, StructuralAuditResult } from "@cml/prompts-ll
 import {
   type OrchestratorContext,
 } from "../shared.js";
+import { isCriticalFairPlayViolation } from "../context.js";
 import {
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,
@@ -61,12 +62,11 @@ const normalizeDifficultyMode = (value: unknown): "standard" | "increase" | "ext
 
 export const hasCriticalFairPlayViolations = (
   fairPlayAudit: FairPlayAuditResult,
-  criticalFairPlayRules: Set<string>,
+  criticalFairPlayRules: ReadonlySet<string>,
 ): boolean => {
   const violations = Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [];
-  return violations.some(
-    (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
-  );
+  // A6-08 (R1): the one predicate; case-sensitive exactly as `.has(v.rule)` was.
+  return violations.some((v) => isCriticalFairPlayViolation(v, criticalFairPlayRules));
 };
 
 export const deriveEffectiveCastNamesForStructuralRevision = (ctx: OrchestratorContext): string[] => {
@@ -81,7 +81,7 @@ export const deriveEffectiveCastNamesForStructuralRevision = (ctx: OrchestratorC
     .filter((name: string) => name.length > 0);
 };
 
-export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run: Agent6Run, state: Agent6State, preAuditStructuralResult: StructuralAuditResult | undefined, hasCriticalFairPlayFailure: boolean, MAX_FAIR_PLAY_RETRY_COST: number, criticalFairPlayRules: Set<string>, recordFairPlayScore: () => Promise<void>) {
+export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run: Agent6Run, state: Agent6State, preAuditStructuralResult: StructuralAuditResult | undefined, hasCriticalFairPlayFailure: boolean, MAX_FAIR_PLAY_RETRY_COST: number, criticalFairPlayRules: ReadonlySet<string>, recordFairPlayScore: () => Promise<void>) {
   const hasRealStructuralGaps = preAuditStructuralResult
     ? !preAuditStructuralResult.passed
     : (state.fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure);
@@ -302,7 +302,23 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
       run.retryBudget.consume(run.perCallCostDelta("Agent4-Revision", revisedResult.cost), "structural CML revision");
 
       const revisedSteps = ((revisedResult.cml as any)?.CASE ?? revisedResult.cml)?.inference_path?.steps ?? [];
-      if (revisedSteps.length >= 3) {
+      // A34-11 (R1): an explicit read of the revision's verdict. `degraded` is required on the result now;
+      // `=== true` also reads a pre-A34-11 dist, where it was optional.
+      const revisionDegraded = revisedResult.degraded === true;
+      const revisionValid = revisedResult.validation?.valid === true;
+      // A34-D09 (X60 reopened): this caller installed `revisedResult.cml` whenever it had >= 3 steps, so a
+      // degraded or schema-invalid revision replaced a CML Agent 9's preflight would later reject — a waived
+      // defect, failed at the expensive end. Refuse it and keep the prior CML. UNFLAGGED on purpose: this whole
+      // arm runs only under AGENT_PRE9_ENABLE_LLM_RETRIES, which is OFF by default, so no default run changes.
+      if (revisionDegraded || !revisionValid) {
+        const unresolved = revisionDegraded ? (revisedResult.unresolvedLogicWarnings ?? []) : (revisedResult.validation?.errors ?? []);
+        run.emitAgent6Warning(
+          `Agent 6 structural CML revision refused (${revisionDegraded ? "degraded" : "invalid"}, ` +
+            `${unresolved.length} unresolved error(s)${unresolved.length ? `: ${unresolved.slice(0, 3).join("; ")}` : ""}); ` +
+            "keeping the prior CML (A34-D09).",
+          "persistent-risk",
+        );
+      } else if (revisedSteps.length >= 3) {
         ctx.cml = revisedResult.cml as any;
         ctx.revisedByAgent4FairPlay = true;
         ctx.fairPlayRevisionAttempts = (ctx.fairPlayRevisionAttempts ?? 0) + 1;
@@ -463,7 +479,7 @@ export async function retryCmlOnStructuralFailure(ctx: OrchestratorContext, run:
     // WP8A: log remaining failures
     if (state.fairPlayAudit!.overallStatus === "fail") {
       const criticalViolations = state.fairPlayAudit!.violations
-        .filter((v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule))
+        .filter((v) => isCriticalFairPlayViolation(v, criticalFairPlayRules)) // A6-08 (R1)
         .map((v) => `${v.rule}: ${v.description}`)
         .join("; ");
       if (criticalViolations) {

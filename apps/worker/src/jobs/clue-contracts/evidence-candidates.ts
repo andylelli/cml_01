@@ -7,9 +7,11 @@
  * now share this; each keeps its weights, its filter and its sort, so no verdict moved (R1). One policy for
  * how many ids the test carries, applied once, is the owner's (A5-03 step 2).
  */
+import type { CaseDiscriminatingTest } from "@cml/cml";
+import type { Clue } from "@cml/prompts-llm";
 
 /** The test's design + knowledge_revealed, lower-cased, as the set of words of five letters or more. */
-export const discriminatingTestTokens = (discriminatingTest: any): Set<string> => {
+export const discriminatingTestTokens = (discriminatingTest: CaseDiscriminatingTest | undefined): Set<string> => {
   const text = `${String(discriminatingTest?.design ?? "")} ${String(discriminatingTest?.knowledge_revealed ?? "")}`
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ");
@@ -28,7 +30,7 @@ export const BACKFILL_WEIGHTS: EvidenceCandidateWeights = { essential: 0, earlyO
 export const SELECTION_WEIGHTS: EvidenceCandidateWeights = { essential: 2, earlyOrMid: 1, observationOrContradiction: 1 };
 
 /** One point per test word the clue's description or pointsTo contains, plus the weighted traits. */
-export const scoreEvidenceCandidate = (clue: any, tokens: Set<string>, weights: EvidenceCandidateWeights): number => {
+export const scoreEvidenceCandidate = (clue: Clue | undefined, tokens: Set<string>, weights: EvidenceCandidateWeights): number => {
   const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
   let score = 0;
   for (const token of tokens) {

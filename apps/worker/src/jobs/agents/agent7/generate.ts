@@ -15,8 +15,8 @@ runStage,
 } from "../shared.js";
 import { honestScore } from "../stage-runner.js";
 import {
+adoptOutlineCandidate,
 coerceNarrativeSceneBeats,
-fillMissingActPurposes,
 hoistMisplacedSceneFields,
 recordAgent7Coercion,
 recordOutlineCoercions,
@@ -117,22 +117,26 @@ export async function ensureSchemaValid(ctx: OrchestratorContext, run: Agent7Run
       );
     }
 
-    const retryBeatCoercion = coerceNarrativeSceneBeats(retriedNarrative);
-    recordAgent7Coercion(ctx, {
-      beatsCoerced: retryBeatCoercion.coerced,
-      beatsDropped: retryBeatCoercion.dropped,
-    });
-    if (retryBeatCoercion.coerced > 0 || retryBeatCoercion.dropped > 0) {
-      ctx.warnings.push(
-        `Narrative beat coercion (retry): mapped ${retryBeatCoercion.coerced} synonym beat(s), dropped ${retryBeatCoercion.dropped} unrecognised beat(s) before schema validation.`
-      );
+    // A7-02 (owner decision 12, CML_VERIFIED_FIXES): ON, the retry goes through the one adoption pipeline —
+    // attempt 1's full normalisation (which includes A7-D02's act-purpose fill) — and its validation result
+    // is the hard gate below. OFF: the three passes the retry always ran.
+    let retryValidation: ReturnType<typeof validateArtifact>;
+    if (verifiedFixesEnabled()) {
+      retryValidation = adoptOutlineCandidate(ctx, retriedNarrative, "schema-repair");
+    } else {
+      const retryBeatCoercion = coerceNarrativeSceneBeats(retriedNarrative);
+      recordAgent7Coercion(ctx, {
+        beatsCoerced: retryBeatCoercion.coerced,
+        beatsDropped: retryBeatCoercion.dropped,
+      });
+      if (retryBeatCoercion.coerced > 0 || retryBeatCoercion.dropped > 0) {
+        ctx.warnings.push(
+          `Narrative beat coercion (retry): mapped ${retryBeatCoercion.coerced} synonym beat(s), dropped ${retryBeatCoercion.dropped} unrecognised beat(s) before schema validation.`
+        );
+      }
+      recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(retriedNarrative).hoisted });
+      retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     }
-    recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(retriedNarrative).hoisted });
-    // A7-D02 (owner decision 12, CML_VERIFIED_FIXES): attempt 1 fills a missing act purpose in
-    // normalizeRawOutline; the retry did not, so a retry omitting one hard-aborted below.
-    if (verifiedFixesEnabled()) fillMissingActPurposes(ctx, retriedNarrative);
-
-    const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     if (!retryValidation.valid) {
       retryValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
       ctx.failedNarrative = retriedNarrative; // capture the failing retry candidate for the partial-artifact snapshot

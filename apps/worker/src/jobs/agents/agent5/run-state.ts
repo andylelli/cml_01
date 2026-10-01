@@ -22,8 +22,8 @@ export const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
 
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   const eligibleNonCulprits = cast
-    .filter((entry: any) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
-    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((entry) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
+    .map((entry) => String(entry?.name ?? "").trim())
     .filter((name: string) => Boolean(name) && !culpritNames.includes(name));
 
   const requiredCluePhrases = eligibleNonCulprits
@@ -35,7 +35,7 @@ export const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
   const correctionTerms = Array.isArray(caseBlock?.inference_path?.steps)
     ? [...new Set(
       caseBlock.inference_path.steps
-        .flatMap((step: any) => normalizeTokens(String(step?.correction ?? "")))
+        .flatMap((step) => normalizeTokens(String(step?.correction ?? "")))
         .filter(isOverlapCandidateToken),
     )].slice(0, 12)
     : [];

@@ -9,6 +9,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
+import { validateArtifact, verifiedFixesEnabled } from "@cml/cml";
 import { buildEraConstraints, buildLocationConstraints } from "./shared/constraints.js";
 
 export interface SettingInputs {
@@ -67,6 +68,8 @@ export interface SettingRefinementResult {
   attempt: number;
   latencyMs: number;
   cost: number;
+  /** A1X-10: the top-level keys a deterministic backfill supplied instead of a re-roll (flag ON only). */
+  structuralBackfill?: string[];
 }
 
 // Simple hash function to generate variation seeds.
@@ -225,6 +228,86 @@ Do not include markdown or commentary.`;
   };
 }
 
+/** What `backfillSetting` derives its neutral defaults from — the same brief the prompt was built from. */
+export interface SettingBackfillContext {
+  decade: string;
+  location: string;
+  institution?: string;
+}
+
+/**
+ * A1X-10 — A_53 P2's deterministic schema backfill, as a pure function. Fills every missing top-level block
+ * and every missing array/string field with generic, parameter-derived neutrals (no story content); never
+ * overwrites a value the model authored. Mutates and returns `raw` when it is an object.
+ *
+ * The worker's `backfillSettingArtifact` closure (agent1-run.ts) is the same algorithm over the same three
+ * inputs (`decade` = eraPreference || "1930s", `location`/`institution` = locationSpec); it can import this
+ * once the package dist is rebuilt.
+ */
+export function backfillSetting(raw: unknown, context: SettingBackfillContext): SettingRefinement {
+  const s: any = raw && typeof raw === "object" ? raw : {};
+  const ensureStr = (v: unknown, fallback: string) =>
+    typeof v === "string" && v.trim().length > 0 ? v : fallback;
+  const ensureArr = (v: unknown) => (Array.isArray(v) ? v : []);
+
+  const era: any = s.era && typeof s.era === "object" ? s.era : {};
+  era.decade = ensureStr(era.decade, context.decade || "1930s");
+  era.technology = ensureArr(era.technology);
+  era.forensics = ensureArr(era.forensics);
+  era.transportation = ensureArr(era.transportation);
+  era.communication = ensureArr(era.communication);
+  era.socialNorms = ensureArr(era.socialNorms);
+  era.policing = ensureArr(era.policing);
+  s.era = era;
+
+  const location: any = s.location && typeof s.location === "object" ? s.location : {};
+  location.type = ensureStr(location.type, context.institution || "institution");
+  location.description = ensureStr(location.description, `${context.location} — ${context.institution}`.trim());
+  location.physicalConstraints = ensureArr(location.physicalConstraints);
+  location.geographicIsolation = ensureStr(location.geographicIsolation, "moderate");
+  location.accessControl = ensureArr(location.accessControl);
+  s.location = location;
+
+  const atmosphere: any = s.atmosphere && typeof s.atmosphere === "object" ? s.atmosphere : {};
+  atmosphere.weather = ensureStr(atmosphere.weather, "overcast");
+  atmosphere.timeOfDay = ensureStr(atmosphere.timeOfDay, "evening");
+  atmosphere.mood = ensureStr(atmosphere.mood, "tense");
+  atmosphere.visualDescription = ensureStr(atmosphere.visualDescription, "Dim, shadowed period interiors.");
+  s.atmosphere = atmosphere;
+
+  const realism: any = s.realism && typeof s.realism === "object" ? s.realism : {};
+  realism.anachronisms = ensureArr(realism.anachronisms);
+  realism.implausibilities = ensureArr(realism.implausibilities);
+  realism.recommendations = ensureArr(realism.recommendations);
+  s.realism = realism;
+
+  return s as SettingRefinement;
+}
+
+const SETTING_TOP_LEVEL_KEYS = ["era", "location", "atmosphere", "realism"] as const;
+
+/**
+ * A1X-10 (owner decision 12, CML_VERIFIED_FIXES): repair a response that is MISSING a top-level key before
+ * spending an LLM re-roll on it. Returns the backfilled setting and the keys it supplied, or null when the
+ * re-roll should stand: the response is not an object, carries none of the four blocks (junk, not a partial
+ * setting — backfilling it would ship a setting of pure neutrals), or still fails the setting schema.
+ */
+export function backfillPartialSetting(
+  parsed: unknown,
+  context: SettingBackfillContext,
+): { setting: SettingRefinement; backfilledKeys: string[] } | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as Record<string, unknown>;
+  const present = SETTING_TOP_LEVEL_KEYS.filter((k) => obj[k] && typeof obj[k] === "object");
+  if (present.length === 0) return null;
+  const backfilledKeys = SETTING_TOP_LEVEL_KEYS.filter((k) => !obj[k]);
+  // A clone: backfillSetting mutates, and a refused backfill must leave the response exactly as parsed, so the
+  // structural check below still sees the missing key and re-rolls.
+  const setting = backfillSetting(structuredClone(obj), context);
+  if (!validateArtifact("setting_refinement", setting).valid) return null;
+  return { setting, backfilledKeys };
+}
+
 /**
  * Refine setting with Agent 1
  */
@@ -280,6 +363,25 @@ export async function refineSetting(
           continue; // Retry
         } else {
           throw new Error(`JSON parsing failed after ${resolvedMaxAttempts} attempts: ${(parseError as Error).message}`);
+        }
+      }
+
+      // A1X-10 (owner decision 12, CML_VERIFIED_FIXES): a missing top-level key cost an LLM re-roll here before
+      // the runner's free deterministic backfill got a chance. ON: backfill first, and re-roll only when the
+      // backfilled artifact still fails (see backfillPartialSetting). OFF: the structural check re-rolls.
+      let structuralBackfill: string[] | undefined;
+      if (
+        verifiedFixesEnabled() &&
+        (!setting || !setting.era || !setting.location || !setting.atmosphere || !setting.realism)
+      ) {
+        const repaired = backfillPartialSetting(setting, {
+          decade: inputs.decade,
+          location: inputs.location,
+          institution: inputs.institution,
+        });
+        if (repaired) {
+          setting = repaired.setting;
+          structuralBackfill = repaired.backfilledKeys;
         }
       }
 
@@ -358,6 +460,7 @@ export async function refineSetting(
         attempt,
         latencyMs,
         cost,
+        ...(structuralBackfill ? { structuralBackfill } : {}),
       };
     } catch (error) {
       lastError = error as Error;

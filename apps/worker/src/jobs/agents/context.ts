@@ -40,6 +40,24 @@ import type { CmlPrimaryAxis,HardLogicDirectives } from "./premise.js";
 /** Agent 6 treats a violation of any of these as critical, whatever severity the auditor gave it. */
 export const CRITICAL_FAIR_PLAY_RULES = ["Clue Visibility", "No Withholding", "Logical Deducibility"] as const;
 
+/** A6-08 (R1): the rule names Agent 6 treats as critical, as a type. */
+export type CriticalFairPlayRule = (typeof CRITICAL_FAIR_PLAY_RULES)[number];
+
+/**
+ * A6-08 (R1): the one predicate for "this violation is critical" — the two inline copies in
+ * agent6/structural-retry.ts used `v.severity === "critical" || rules.has(v.rule)`, and this keeps that exactly.
+ *
+ * KNOWN DEFECT, preserved on purpose (R1 changes nothing observable): the match is CASE-SENSITIVE and exact, so
+ * an auditor that writes "clue visibility" or "Clue visibility" is not critical by rule. And the full-mode audit
+ * prompt (packages/prompts-llm/src/agent6-fairplay.ts, the 9-point checklist then the 8 answered checks) asks
+ * for differently named checks ("Clue Coverage", "Inference Chain", "No New Information", ...) — only the
+ * checklist header mentions these three names — so a rule-name match depends on which list the model copies.
+ */
+export const isCriticalFairPlayViolation = (
+  violation: { severity?: string; rule?: string },
+  rules: ReadonlySet<string> = new Set<string>(CRITICAL_FAIR_PLAY_RULES),
+): boolean => violation.severity === "critical" || rules.has(violation.rule as string);
+
 /** Counters and accumulators every run starts from. */
 type RunStateKey =
   | "criticalFairPlayRules"

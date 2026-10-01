@@ -3,9 +3,10 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { recordOutlineCoercions } from "./normalize.js";
+import { adoptOutlineCandidate, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { computeActSceneCounts } from "@cml/prompts-llm";
+import { verifiedFixesEnabled } from "@cml/cml";
 import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
 import { getSceneTarget, getChapterTargetTolerance, getStoryLengthTarget } from "@cml/story-validation";
@@ -227,6 +228,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
       ).length;
 
       if (Math.abs(retriedActualCount - expectedScenes) <= sceneTolerance) {
+        if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, sceneCountRetried, "scene-count"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
         narrative = sceneCountRetried;
         ctx.warnings.push(`Scene count final gate: retry produced ${retriedActualCount} scenes — within ±${sceneTolerance} of target ${expectedScenes}, accepted.`);
         await rescoreNarrative(ctx, narrative);
@@ -240,6 +242,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
         const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
         ).length;
         if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
+          if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, sceneCountRetried, "scene-count-repair"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
           narrative = sceneCountRetried;
           ctx.warnings.push(
             `Scene count final gate: deterministic repair applied (${deterministicRepair.summary}) and recovered count ${repairedCount} for target ${expectedScenes}.`

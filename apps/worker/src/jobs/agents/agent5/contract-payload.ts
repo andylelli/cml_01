@@ -7,6 +7,7 @@
  */
 import { buildStrictPromptFeedback } from "../../clue-contracts/contracts.js";
 import { verifiedFixesEnabled } from "@cml/cml";
+import type { CaseLockedFact } from "@cml/cml";
 import type { OrchestratorContext } from "../shared.js";
 
 type StrictPromptFeedbackBase = ReturnType<typeof buildStrictPromptFeedback>;
@@ -51,9 +52,9 @@ export function buildAgent5LockedFactsPayload(ctx: OrchestratorContext) {
  * sent (`buildAgent5LockedFactsPayload`). When the prompt sent none — registry disabled or empty —
  * the gates keep the raw device facts rather than checking nothing.
  */
-export function agent5GateLockedFacts(ctx: OrchestratorContext): any[] | undefined {
-  const raw = Array.isArray((ctx as any).hardLogicDevices?.devices)
-    ? (ctx as any).hardLogicDevices.devices.flatMap((d: any) => Array.isArray(d?.lockedFacts) ? d.lockedFacts : [])
+export function agent5GateLockedFacts(ctx: OrchestratorContext): CaseLockedFact[] | undefined {
+  const raw = Array.isArray(ctx.hardLogicDevices?.devices)
+    ? ctx.hardLogicDevices.devices.flatMap((d) => Array.isArray(d?.lockedFacts) ? d.lockedFacts : [])
     : undefined;
   if (!verifiedFixesEnabled()) return raw;
   return buildAgent5LockedFactsPayload(ctx).lockedFacts ?? raw;

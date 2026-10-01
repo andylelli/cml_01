@@ -108,12 +108,14 @@ describe("A7-D04 — clue pacing re-scores the outline it adopts", () => {
     expect(upserts).toHaveLength(0);
   });
 
-  it("flag ON: the adopted retry is re-scored, and the adopted outline is unchanged", async () => {
+  it("flag ON: the adopted retry is re-scored, and its scenes are the retry's (A7-02 normalises the act fields)", async () => {
     setFlag(true);
     llm.next = outline(12, 12);
     const upserts: any[] = [];
     const adopted = await enforceCluePacing(ctxWith(upserts), run, outline(12, 1));
-    expect(adopted).toEqual({ ...outline(12, 12), cost: 0.01 });
+    // A7-02 (same flag) runs attempt 1's normalisation on every adopted candidate, which fills act-level fields such
+    // as estimatedWordCount; the scenes the retry wrote are what must survive unchanged.
+    expect(adopted.acts.map((a: any) => a.scenes)).toEqual(outline(12, 12).acts.map((a: any) => a.scenes));
     expect(upserts).toHaveLength(1);
     expect(upserts[0][0]).toBe("agent7_narrative");
   });

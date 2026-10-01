@@ -2,8 +2,9 @@
  * Agent 5 clue contracts — inference-path coverage, step bounds, contradiction pairs, the false assumption and
  * discriminating-test reachability. Split from agent5-contracts.ts (code review A5-05), which re-exports what it exported.
  */
-import type { ClueDistributionResult } from "@cml/prompts-llm";
+import type { Clue, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
   type InferenceCoverageResult,
@@ -36,7 +37,7 @@ export const checkInferenceStepBounds = (cml: CaseData, clues: ClueDistributionR
     : 0;
   if (stepCount === 0) return issues;
 
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const step = Number(clue?.supportsInferenceStep);
     if (!Number.isFinite(step) || step === 0) continue;
     if (step < 1 || step > stepCount) {
@@ -55,7 +56,7 @@ export function checkInferencePathCoverage(
   clues: ClueDistributionResult
 ): InferenceCoverageResult {
   const issues: ClueGuardrailIssue[] = [];
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const steps = caseBlock?.inference_path?.steps ?? [];
 
   if (!Array.isArray(steps) || steps.length === 0) {
@@ -69,11 +70,11 @@ export function checkInferencePathCoverage(
   }
 
   for (const clue of clues.clues) {
-    const stepNum = (clue as any).supportsInferenceStep;
+    const stepNum = clue.supportsInferenceStep;
     if (stepNum && coverageMap.has(stepNum)) {
       const coverage = coverageMap.get(stepNum)!;
-      const evidenceType = (clue as any).evidenceType || "observation";
-      if (evidenceType in coverage) (coverage as any)[evidenceType] = true;
+      const evidenceType = clue.evidenceType || "observation";
+      if (evidenceType in coverage) coverage[evidenceType] = true;
     }
   }
 
@@ -83,7 +84,7 @@ export function checkInferencePathCoverage(
       const step = steps[i];
       const stepNum = i + 1;
       const coverage = coverageMap.get(stepNum)!;
-      const clueText = (String(clue.description ?? "") + " " + String((clue as any).sourceInCML ?? "")).toLowerCase();
+      const clueText = (String(clue.description ?? "") + " " + String(clue.sourceInCML ?? "")).toLowerCase();
       const obsText = (typeof step.observation === "string" ? step.observation : "").toLowerCase();
       const obsWords = obsText.split(/\s+/).filter((w: string) => w.length > 4);
       // A_53 P5 (a5-fuzzy-coverage-04-threshold-and-evidence-key): the fuzzy fallback now requires not
@@ -134,13 +135,13 @@ export function checkInferencePathCoverage(
 
 export function checkContradictionPairs(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
   const issues: ClueGuardrailIssue[] = [];
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const steps = caseBlock?.inference_path?.steps ?? [];
   for (let i = 0; i < steps.length; i++) {
     const stepNum = i + 1;
     const step = steps[i];
-    const stepClues = clues.clues.filter((c: any) => c.supportsInferenceStep === stepNum);
-    const evidenceTypes = new Set(stepClues.map((c: any) => c.evidenceType || "observation"));
+    const stepClues = clues.clues.filter((c) => c.supportsInferenceStep === stepNum);
+    const evidenceTypes = new Set(stepClues.map((c) => c.evidenceType || "observation"));
     if (
       stepClues.length >= 2 &&
       evidenceTypes.has("observation") &&
@@ -160,13 +161,13 @@ export function checkContradictionPairs(cml: CaseData, clues: ClueDistributionRe
 
 export function checkFalseAssumptionContradiction(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
   const issues: ClueGuardrailIssue[] = [];
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const falseAssumption = caseBlock?.false_assumption?.statement || "";
   if (!falseAssumption) {
     issues.push({ severity: "critical", message: "No false_assumption.statement in CML" });
     return issues;
   }
-  const contradictionClues = clues.clues.filter((c: any) => c.evidenceType === "contradiction");
+  const contradictionClues = clues.clues.filter((c) => c.evidenceType === "contradiction");
   if (contradictionClues.length === 0) {
     issues.push({
       severity: "critical",
@@ -190,26 +191,26 @@ export function checkFalseAssumptionContradiction(cml: CaseData, clues: ClueDist
  * through this one body, so the repair promotes exactly what the check judges.
  */
 export type DiscriminatingTestSelection =
-  | { byIds: true; missing: string[]; clues: any[] }
-  | { byIds: false; clues: any[] };
+  | { byIds: true; missing: string[]; clues: Clue[] }
+  | { byIds: false; clues: Clue[] };
 
 export function selectDiscriminatingTestClues(cml: CaseData, clues: ClueDistributionResult): DiscriminatingTestSelection {
   const evidenceIds = getCanonicalEvidenceClueIds(cml);
   if (evidenceIds.length > 0) {
-    const clueById = new Map(clues.clues.map((c: any) => [String(c.id), c]));
+    const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
     return {
       byIds: true,
       missing: evidenceIds.filter((id: string) => !clueById.has(id)),
-      clues: evidenceIds.map((id: string) => clueById.get(id)).filter(Boolean) as any[],
+      clues: evidenceIds.map((id: string) => clueById.get(id)).filter(Boolean) as Clue[],
     };
   }
-  const discrimTest = ((cml as any)?.CASE ?? cml)?.discriminating_test;
+  const discrimTest = caseOf(cml)?.discriminating_test;
   const combined = `${String(discrimTest?.design ?? "")} ${String(discrimTest?.knowledge_revealed ?? "")}`.toLowerCase();
   const testWords = combined.split(/\s+/).filter((w: string) => w.length > 4);
   if (testWords.length === 0) return { byIds: false, clues: [] };
   return {
     byIds: false,
-    clues: clues.clues.filter((c: any) => {
+    clues: clues.clues.filter((c) => {
       const clueText = `${String(c?.description ?? "")} ${String(c?.pointsTo ?? "")} ${String(c?.sourceInCML ?? "")}`.toLowerCase();
       return testWords.filter((w: string) => clueText.includes(w)).length >= Math.ceil(testWords.length * 0.2);
     }),
@@ -218,7 +219,7 @@ export function selectDiscriminatingTestClues(cml: CaseData, clues: ClueDistribu
 
 export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
   const issues: ClueGuardrailIssue[] = [];
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const discrimTest = caseBlock?.discriminating_test;
   if (!discrimTest?.design) {
     issues.push({ severity: "critical", message: "No discriminating_test.design in CML" });
@@ -242,12 +243,12 @@ export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDi
       return issues;
     }
 
-    const lateMapped = mappedClues.filter((c: any) => c.placement !== "early" && c.placement !== "mid");
+    const lateMapped = mappedClues.filter((c) => c.placement !== "early" && c.placement !== "mid");
     if (lateMapped.length > 0) {
       issues.push({
         severity: "critical",
         message: `Discriminating test evidence clue(s) must be early/mid, found non-compliant placement on: ${lateMapped
-          .map((c: any) => String(c?.id ?? "(unknown-id)"))
+          .map((c) => String(c?.id ?? "(unknown-id)"))
           .join(", ")}`,
       });
     }
@@ -258,7 +259,7 @@ export function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDi
   if (relevantClues.length === 0) {
     issues.push({ severity: "critical", message: "Discriminating test references no evidence found in the clue set" });
   }
-  const earlyMidRelevant = relevantClues.filter((c: any) => c.placement === "early" || c.placement === "mid");
+  const earlyMidRelevant = relevantClues.filter((c) => c.placement === "early" || c.placement === "mid");
   if (relevantClues.length > 0 && earlyMidRelevant.length === 0) {
     issues.push({ severity: "critical", message: "All clues related to the discriminating test are in late placement" });
   }

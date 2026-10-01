@@ -6,7 +6,7 @@ import { appendToClueTimeline } from "../../clue-contracts/synthesis.js";
 import { ensureDiscriminatingEvidenceFloor } from "../../clue-contracts/evidence-floor.js";
 import type { CoverageSnapshot } from "../../clue-contracts/contracts.js";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
-import type { CaseData } from "@cml/cml";
+import type { CaseData, CaseLockedFact } from "@cml/cml";
 import { verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
@@ -77,7 +77,7 @@ export const remapMissingDiscriminatingEvidenceIdsToExistingClues = (
   const clueList = Array.isArray(clues?.clues) ? clues.clues : [];
   const existingClueIds = new Set<string>(
     clueList
-      .map((clue: any) => String(clue?.id ?? "").trim())
+      .map((clue) => String(clue?.id ?? "").trim())
       .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id)),
   );
   if (existingClueIds.size === 0) {
@@ -106,7 +106,7 @@ export const remapMissingDiscriminatingEvidenceIdsToExistingClues = (
         }
       | undefined;
 
-    for (const clue of clueList as any[]) {
+    for (const clue of clueList) {
       const candidateId = String(clue?.id ?? "").trim();
       if (!candidateId || !CANONICAL_CLUE_ID_RE.test(candidateId) || usedIds.has(candidateId)) continue;
 
@@ -211,7 +211,7 @@ export function purgeUnmappableDiscriminatingEvidenceIds(
   }
 
   const distributedClueIds = new Set(
-    clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean),
+    clues.clues.map((c) => String(c?.id ?? "").trim()).filter(Boolean),
   );
   const original = discrimTest.evidence_clues.slice();
   const kept = original.filter((id: unknown) => distributedClueIds.has(String(id ?? "").trim()));
@@ -255,11 +255,11 @@ export function synthesizeInferenceStepCoverageClues(
   const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
   if (steps.length === 0) return [];
 
-  const existingIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
+  const existingIds = new Set(clues.clues.map((c) => String(c?.id ?? "").trim()).filter(Boolean));
   // Field template: prefer an essential observation clue so required schema fields are preserved.
   const template =
-    clues.clues.find((c: any) => c?.criticality === "essential" && ((c as any)?.evidenceType ?? "observation") === "observation") ||
-    clues.clues.find((c: any) => c?.criticality === "essential") ||
+    clues.clues.find((c) => c?.criticality === "essential" && (c?.evidenceType ?? "observation") === "observation") ||
+    clues.clues.find((c) => c?.criticality === "essential") ||
     clues.clues[0];
 
   const repairs: string[] = [];
@@ -273,10 +273,10 @@ export function synthesizeInferenceStepCoverageClues(
     while (existingIds.has(id)) id = `clue_inference_cover_step_${stepNum}_${suffix++}`;
 
     const requiredEvidence = Array.isArray(step?.required_evidence)
-      ? step.required_evidence.filter((e: any) => typeof e === "string" && e.trim()).join("; ")
+      ? step.required_evidence.filter((e) => typeof e === "string" && e.trim()).join("; ")
       : "";
     const description = requiredEvidence ? `${observation} (${requiredEvidence})` : observation;
-    const placement = (template as any)?.placement === "late" ? "mid" : ((template as any)?.placement || "mid");
+    const placement = template?.placement === "late" ? "mid" : (template?.placement || "mid");
 
     clues.clues.push({
       ...(template ?? {}),
@@ -444,7 +444,7 @@ export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, 
   return { clues, finalCoverage };
 }
 
-export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: Agent5Run, clues: ClueDistributionResult, finalCoverage: CoverageSnapshot, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => CoverageSnapshot, hardLogicLockedFacts: any) {
+export function applyFinalCoverageRepairAndGate(ctx: OrchestratorContext, run: Agent5Run, clues: ClueDistributionResult, finalCoverage: CoverageSnapshot, buildCoverageSnapshot: (activeClues: ClueDistributionResult) => CoverageSnapshot, hardLogicLockedFacts: CaseLockedFact[] | undefined) {
   finalCoverage = buildCoverageSnapshot(clues);
   if (finalCoverage.coverageResult.uncoveredSteps.length > 0) {
     const coverageRepairs = synthesizeInferenceStepCoverageClues(

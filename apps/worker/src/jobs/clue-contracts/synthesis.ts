@@ -8,7 +8,7 @@
  */
 
 /** Normalise `clues.clueTimeline` (creating it if absent) and return it with an id minter. */
-export function openClueSynthesis(clues: object, clueList: any[]) {
+export function openClueSynthesis(clues: object, clueList: ReadonlyArray<{ id?: unknown } | null | undefined>) {
   const holder = clues as { clueTimeline?: any };
   const timeline = holder.clueTimeline ?? { early: [], mid: [], late: [] };
   timeline.early = Array.isArray(timeline.early) ? timeline.early : [];

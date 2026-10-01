@@ -2,6 +2,7 @@
  * Agent 6 phase: the primary blind-reader read (and its refusal retry). Moved from agent6-run.ts
  * (code review A6-01 / CR-25).
  */
+import { caseOf } from "@cml/cml";
 import { envOn } from "../../env-flags.js";
 import {
   blindReaderSimulation,
@@ -16,7 +17,7 @@ import {
 const isBlindReaderRefusalRetryEnabled = () =>
   envOn("AGENT6_BLIND_READER_REFUSAL_RETRY");
 
-export async function runPrimaryBlindReadPhase(ctx: OrchestratorContext, blindReadEligible: boolean, primaryBlindRead: BlindReaderResult | null, runPrimaryBlindRead: () => Promise<BlindReaderResult>, falseAssumptionStatement: any, castNamesForBlind: any) {
+export async function runPrimaryBlindReadPhase(ctx: OrchestratorContext, blindReadEligible: boolean, primaryBlindRead: BlindReaderResult | null, runPrimaryBlindRead: () => Promise<BlindReaderResult>, falseAssumptionStatement: string, castNamesForBlind: string[]) {
   if (blindReadEligible) {
     ctx.reportProgress("fairplay", "Running blind reader simulation...", 73);
     try {
@@ -52,7 +53,7 @@ export async function runPrimaryBlindReadPhase(ctx: OrchestratorContext, blindRe
             ctx.clues!,
             falseAssumptionStatement,
             castNamesForBlind,
-            { runId: ctx.runId, projectId: ctx.projectId || "", analysisFraming: true }
+            { runId: ctx.runId, projectId: ctx.projectId || "", analysisFraming: true, caseCast: caseOf(ctx.cml)?.cast }
           );
           ctx.warnings.push(
             `[Agent 6] blind reader RECOVERED on retry — the first prompt was refused by the content ` +

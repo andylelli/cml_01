@@ -2,7 +2,7 @@
  * Agent 5 clue contracts — mechanism visibility. Split from agent5-contracts.ts (code review A5-05), which
  * re-exports what it exported.
  */
-import type { ClueDistributionResult } from "@cml/prompts-llm";
+import type { Clue, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
@@ -43,14 +43,14 @@ export const extractMechanismVisibilityPhrases = (text: string): string[] => {
  * than three terms (nothing to judge). A5-07: the check below and the late-placement repair
  * (promoteLateGateCluesToMid) select through this one body.
  */
-export function selectMechanismVisibleClues(cml: CaseData, clues: ClueDistributionResult): any[] | null {
+export function selectMechanismVisibleClues(cml: CaseData, clues: ClueDistributionResult): Clue[] | null {
   const caseBlock = getCaseBlock(cml);
   const mechanismText = `${String(caseBlock?.hidden_model?.mechanism?.description ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`.trim();
   const terms = extractMechanismVisibilityTerms(mechanismText);
   if (terms.length < 3) return null;
 
   const phrases = extractMechanismVisibilityPhrases(mechanismText);
-  return clues.clues.filter((clue: any) => {
+  return clues.clues.filter((clue) => {
     const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
     const tokenSet = new Set(normalizeTokens(text));
     const termMatches = terms.filter((term) => tokenSet.has(term)).length;
@@ -76,11 +76,11 @@ export function checkMechanismVisibility(cml: CaseData, clues: ClueDistributionR
     return issues;
   }
 
-  const earlyMidMatches = matchingClues.filter((clue: any) => clue?.placement === "early" || clue?.placement === "mid");
+  const earlyMidMatches = matchingClues.filter((clue) => clue?.placement === "early" || clue?.placement === "mid");
   if (earlyMidMatches.length === 0) {
     issues.push({
       severity: "critical",
-      message: `Mechanism-visible clue(s) are late-only: ${matchingClues.map((clue: any) => String(clue?.id ?? "(unknown-id)")).join(", ")}`,
+      message: `Mechanism-visible clue(s) are late-only: ${matchingClues.map((clue) => String(clue?.id ?? "(unknown-id)")).join(", ")}`,
     });
   }
 

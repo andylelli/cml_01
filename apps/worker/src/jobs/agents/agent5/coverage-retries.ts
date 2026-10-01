@@ -5,7 +5,7 @@
  */
 import { escapeRegExp as escapeRegex } from "@cml/cml";
 import { openClueSynthesis } from "../../clue-contracts/synthesis.js";
-import type { ClueDistributionResult } from "@cml/prompts-llm";
+import type { Clue, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type OrchestratorContext,
@@ -124,7 +124,7 @@ export function sanitizeRedHerringOverlap(
   const caseBlock = getCaseBlock(cml);
   const protectedNameTokens = new Set<string>();
   const castEntries = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  castEntries.forEach((entry: any) => {
+  castEntries.forEach((entry) => {
     normalizeTokens(String(entry?.name ?? ""))
       .filter((token) => token.length > 2)
       .forEach((token) => protectedNameTokens.add(token));
@@ -165,7 +165,7 @@ export function sanitizeRedHerringOverlap(
 
   let replacementIndex = 0;
   for (const detail of overlapDetails) {
-    const target = clues.redHerrings.find((rh: any) => String(rh?.id ?? "").trim() === detail.redHerringId) as any;
+    const target = clues.redHerrings.find((rh) => String(rh?.id ?? "").trim() === detail.redHerringId);
     if (!target) continue;
 
     const originalDescription = String(target.description ?? "");
@@ -204,7 +204,7 @@ export function pruneOverlappingRedHerrings(
   if (toDrop.size === 0) return [];
 
   const removed: string[] = [];
-  clues.redHerrings = clues.redHerrings.filter((rh: any) => {
+  clues.redHerrings = clues.redHerrings.filter((rh) => {
     const id = String(rh?.id ?? "").trim();
     const keep = !toDrop.has(id);
     if (!keep && id) removed.push(id);
@@ -224,7 +224,7 @@ function synthesizeSuspectCoverageBackstopClues(
 
   const caseBlock = getCaseBlock(cml);
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  const clueList: Clue[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (clueList.length === 0) return [];
 
   const { timeline, nextId } = openClueSynthesis(clues, clueList);
@@ -235,7 +235,7 @@ function synthesizeSuspectCoverageBackstopClues(
   const repairs: string[] = [];
 
   for (const suspectName of targetSuspects) {
-    const suspectIndex = cast.findIndex((entry: any) => String(entry?.name ?? "").trim() === suspectName);
+    const suspectIndex = cast.findIndex((entry) => String(entry?.name ?? "").trim() === suspectName);
     const suspect = suspectIndex >= 0 ? cast[suspectIndex] : undefined;
 
     const sourceCandidates = [

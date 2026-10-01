@@ -3,7 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { recordAgent7Coercion, recordOutlineCoercions } from "./normalize.js";
+import { adoptOutlineCandidate, recordAgent7Coercion, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs, rescoreNarrative } from "./generate.js";
 import { verifiedFixesEnabled } from "@cml/cml";
 import { formatNarrative } from "@cml/prompts-llm";
@@ -278,14 +278,31 @@ export function buildCluePacingGuardrails(expectedScenes: number, minRatio: numb
   ];
 }
 
+/**
+ * A7-D07 (owner decision 12, CML_VERIFIED_FIXES): how many scenes the pacing gate counts as clue-bearing.
+ * OFF: any non-empty `cluesRevealed`, so a scene carrying only hallucinated ids (absent from the clue
+ * distribution) counted, and the pre-assignment that strips them (above) only ran on the fill path. ON:
+ * only ids the distribution contains count. When the distribution has no ids at all there is nothing to
+ * check against, so the raw count stands.
+ */
+export function countClueBearingScenes(scenes: any[], clues: ClueDistributionResult | undefined): number {
+  const raw = (s: any) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.length > 0;
+  if (!verifiedFixesEnabled()) return scenes.filter(raw).length;
+  const known = new Set(
+    (clues?.clues ?? []).map((c) => c?.id).filter((id): id is string => typeof id === "string" && id.length > 0),
+  );
+  if (known.size === 0) return scenes.filter(raw).length;
+  return scenes.filter(
+    (s: any) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.some((id: unknown) => typeof id === "string" && known.has(id)),
+  ).length;
+}
+
 export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run, narrative: NarrativeOutline) {
   const incoming = narrative; // A7-D04
   {
     const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
     const totalOutlineSceneCount = allOutlineScenes.length;
-    const clueSceneCount = allOutlineScenes.filter(
-      (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
-    ).length;
+    const clueSceneCount = countClueBearingScenes(allOutlineScenes, ctx.clues); // A7-D07
     const minClueScenes = Math.ceil(totalOutlineSceneCount * run.minClueSceneRatio);
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
 
@@ -313,9 +330,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
           (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
 
         const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a: any) => a.scenes || []);
-        const retriedClueCount = retriedOutlineScenes.filter(
-          (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
-        ).length;
+        const retriedClueCount = countClueBearingScenes(retriedOutlineScenes, ctx.clues); // A7-D07
         const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * run.minClueSceneRatio);
         const pacingRetryCountCheck = checkNarrativeSceneCountFloor(pacingRetried, sceneCountLock);
 
@@ -324,6 +339,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
             `Outline pacing retry rejected due to scene-count lock violation (${pacingRetryCountCheck.message}); keeping current outline and deterministic clue assignments.`
           );
         } else if (retriedClueCount >= retriedMinClueScenes) {
+          if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, pacingRetried, "clue-pacing"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
           narrative = pacingRetried;
           ctx.warnings.push(
             `Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`
@@ -353,13 +369,12 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
             ctx.agentDurations["agent7_narrative"] =
               (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - secondStart);
             const secondScenes = (secondRetry.acts ?? []).flatMap((a: any) => a.scenes || []);
-            const secondClueCount = secondScenes.filter(
-              (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
-            ).length;
+            const secondClueCount = countClueBearingScenes(secondScenes, ctx.clues); // A7-D07
             const secondMin = Math.ceil(secondScenes.length * run.minClueSceneRatio);
             const secondCountCheck = checkNarrativeSceneCountFloor(secondRetry, sceneCountLock);
             const secondCap = computeDeterministicGapFillCap(secondScenes.length);
             if (secondCountCheck.ok && secondClueCount >= secondMin) {
+              if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, secondRetry, "clue-pacing-second"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
               narrative = secondRetry;
               secondRetryResolved = true;
               ctx.warnings.push(
@@ -375,6 +390,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
               );
               recordDroppedClueIds(ctx, fill); // A7-11
               if (fill.after >= fill.minRequired) {
+                if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, secondRetry, "clue-pacing-second-fill"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
                 narrative = secondRetry;
                 secondRetryResolved = true;
                 ctx.warnings.push(
@@ -401,6 +417,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
             );
             recordDroppedClueIds(ctx, deterministicOnRetry); // A7-11
             if (deterministicOnRetry.after >= deterministicOnRetry.minRequired) {
+              if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, pacingRetried, "clue-pacing-fill"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)
               narrative = pacingRetried;
               ctx.warnings.push(
                 `Outline pacing retry remained below threshold (${retriedClueCount}/${retriedOutlineScenes.length}), but deterministic post-retry anchoring recovered coverage to ${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}.`

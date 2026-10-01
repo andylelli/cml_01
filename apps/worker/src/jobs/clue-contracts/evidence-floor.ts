@@ -27,7 +27,7 @@ export function selectDiscriminatingEvidenceCandidateIds(
   const discrimTokens = discriminatingTestTokens(caseBlock?.discriminating_test); // CR-16 (A5-03)
 
   const scored = clues.clues
-    .map((c: any) => {
+    .map((c) => {
       const score = scoreEvidenceCandidate(c, discrimTokens, SELECTION_WEIGHTS); // CR-16 (A5-03)
       return {
         id: String(c?.id ?? "").trim(),

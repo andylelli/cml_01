@@ -10,8 +10,9 @@ import { escapeRegExp as escapeRegexNameLiteral } from "@cml/cml";
 import { appendToClueTimeline, openClueSynthesis } from "./synthesis.js";
 import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } from "./evidence-candidates.js";
 import { provesTheAct } from "@cml/prompts-llm";
-import type { ClueDistributionResult } from "@cml/prompts-llm";
-import type { CaseData } from "@cml/cml";
+import type { Clue, ClueDistributionResult } from "@cml/prompts-llm";
+import type { CaseData, CaseLockedFact, CaseView } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
   type InferenceCoverageResult,
@@ -159,7 +160,7 @@ const buildStrictStepCoverageFloors = (cml: CaseData): Array<{ step: number; req
   const hasTimeContradictions =
     Array.isArray(caseBlock?.constraint_space?.time?.contradictions) &&
     caseBlock.constraint_space.time.contradictions.length > 0;
-  return steps.map((step: any, index: number) => {
+  return steps.map((step, index: number) => {
     const hasOwnCorrection = String(step?.correction ?? "").trim().length > 0;
     return {
       step: index + 1,
@@ -186,13 +187,13 @@ const buildStrictDirectCulpritClue = (
 ): StrictDirectCulpritClue | undefined => {
   const caseBlock = getCaseBlock(cml);
   const culprits = Array.isArray(caseBlock?.culpability?.culprits)
-    ? caseBlock.culpability.culprits.map((name: any) => String(name ?? "").trim()).filter(Boolean)
+    ? caseBlock.culpability.culprits.map((name) => String(name ?? "").trim()).filter(Boolean)
     : [];
   const culpritName = culprits[0];
   if (!culpritName) return undefined;
 
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  const castIndex = cast.findIndex((entry: any) => String(entry?.name ?? "").trim() === culpritName);
+  const castIndex = cast.findIndex((entry) => String(entry?.name ?? "").trim() === culpritName);
   const allowedSourcePaths: string[] = [];
 
   // A_102 §10.2: the slot used to source from cast[].evidence_sensitivity — bare nouns — and the
@@ -200,7 +201,7 @@ const buildStrictDirectCulpritClue = (
   // culprit, that trace is the FIRST allowed source and its weapon is a required phrase.
   const link = provesTheAct(caseBlock);
   const traces: string[] = Array.isArray(caseBlock?.constraint_space?.physical?.traces)
-    ? caseBlock.constraint_space.physical.traces.map((t: any) => String(t ?? ""))
+    ? caseBlock.constraint_space.physical.traces.map((t) => String(t ?? ""))
     : [];
   const weaponTrace = link.linkingTraces[0];
   const weaponTraceIndex = weaponTrace ? traces.indexOf(weaponTrace) : -1;
@@ -267,7 +268,7 @@ const buildStrictIdToSourceMappings = (
   const clueSceneMap = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
     ? caseBlock.prose_requirements.clue_to_scene_mapping
     : [];
-  clueSceneMap.forEach((entry: any, index: number) => {
+  clueSceneMap.forEach((entry, index: number) => {
     const clueId = String(entry?.clue_id ?? "").trim();
     if (!clueId || !CANONICAL_CLUE_ID_RE.test(clueId)) return;
     const sourceInCML = `CASE.prose_requirements.clue_to_scene_mapping[${index}].clue_id`;
@@ -339,7 +340,7 @@ export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPa
 
 const rebuildClueTimelineFromPlacements = (clues: ClueDistributionResult): void => {
   const timeline = { early: [] as string[], mid: [] as string[], late: [] as string[] };
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const clueId = String(clue?.id ?? "").trim();
     if (!clueId) continue;
     const placement = String(clue?.placement ?? "").toLowerCase();
@@ -347,7 +348,7 @@ const rebuildClueTimelineFromPlacements = (clues: ClueDistributionResult): void 
     else if (placement === "late") timeline.late.push(clueId);
     else timeline.mid.push(clueId);
   }
-  (clues as any).clueTimeline = timeline;
+  clues.clueTimeline = timeline;
 };
 
 const inferClueCategoryFromSourcePath = (sourceInCML: string): "temporal" | "spatial" | "physical" | "behavioral" | "testimonial" => {
@@ -378,14 +379,14 @@ const findPreferredCulpritStep = (cml: CaseData, culpritName: string): number =>
 };
 
 /** Early or mid, case-insensitively — what every strict slot but the late one requires. */
-const isEarlyOrMidPlacement = (clue: any): boolean => {
+const isEarlyOrMidPlacement = (clue: Clue | undefined): boolean => {
   const placement = String(clue?.placement ?? "").toLowerCase();
   return placement === "early" || placement === "mid";
 };
 
 /** A strict slot's clue, by trimmed id (A5-07: the slot checks and their repairs look up the same way). */
-const findClueById = (clues: ClueDistributionResult, id: string): any =>
-  clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === id);
+const findClueById = (clues: ClueDistributionResult, id: string): Clue | undefined =>
+  clues.clues.find((entry) => String(entry?.id ?? "").trim() === id);
 
 const applyStrictIdToSourceMappingRepairs = (
   clues: ClueDistributionResult,
@@ -434,11 +435,11 @@ const ensureStrictDirectCulpritClue = (
   let clue = findClueById(clues, requiredDirectCulpritClue.id);
 
   if (!clue) {
-    clue = clues.clues.find((entry: any) => {
+    clue = clues.clues.find((entry) => {
       const clueId = String(entry?.id ?? "").trim();
       const clueText = `${String(entry?.description ?? "")} ${String(entry?.pointsTo ?? "")}`;
       return clueId.startsWith("clue_culprit_direct_") && nameAppearsInText(culpritName, clueText);
-    }) as any;
+    });
     if (clue) {
       clue.id = requiredDirectCulpritClue.id;
       repairs.push(`strict direct culprit slot repair: renamed donor clue to ${requiredDirectCulpritClue.id}`);
@@ -550,14 +551,14 @@ const ensureStrictLateClueSlot = (
   let clue = findClueById(clues, requiredLateClueSlot.id);
 
   if (!clue) {
-    clue = clues.clues.find((entry: any) => {
+    clue = clues.clues.find((entry) => {
       const clueId = String(entry?.id ?? "").trim();
       const placement = String(entry?.placement ?? "").toLowerCase();
       const criticality = String(entry?.criticality ?? "").toLowerCase();
       return !protectedIdSet.has(clueId)
         && placement === "late"
         && (criticality === "optional" || criticality === "supporting");
-    }) as any;
+    });
     if (clue) {
       clue.id = requiredLateClueSlot.id;
       repairs.push(`strict late clue slot repair: renamed donor clue to ${requiredLateClueSlot.id}`);
@@ -574,7 +575,7 @@ const ensureStrictLateClueSlot = (
     const sourceText = String(sourceValue ?? "background timing detail").trim() || "background timing detail";
     const supportsInferenceStep = inferSupportsInferenceStepFromSourcePath(
       sourceInCML,
-      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path.steps.length : 1),
+      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path!.steps!.length : 1),
     );
     clue = {
       id: requiredLateClueSlot.id,
@@ -609,7 +610,7 @@ const ensureStrictLateClueSlot = (
   if (!Number.isInteger(Number(clue?.supportsInferenceStep)) || Number(clue?.supportsInferenceStep) <= 0) {
     clue.supportsInferenceStep = inferSupportsInferenceStepFromSourcePath(
       String(clue?.sourceInCML ?? ""),
-      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path.steps.length : 1),
+      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path!.steps!.length : 1),
     );
     repairs.push(`strict late clue slot supportsInferenceStep repair: ${requiredLateClueSlot.id} -> ${clue.supportsInferenceStep}`);
   }
@@ -634,7 +635,7 @@ const applyStrictPromptContractRepairs = (
         .map((entry) => String(entry?.id ?? "").trim())
         .filter((id) => id.length > 0)
         .filter((id) => !discriminatingEvidenceIds.has(id))
-        .filter((id) => !clues.clues.some((clue: any) => String(clue?.id ?? "").trim() === id)),
+        .filter((id) => !clues.clues.some((clue) => String(clue?.id ?? "").trim() === id)),
     ).map((repair) => `strict mapping contract synthesis: ${repair}`),
     ...ensureStrictDirectCulpritClue(cml, clues, strictPromptFeedback.requiredDirectCulpritClue),
     ...ensureStrictLateClueSlot(
@@ -744,11 +745,11 @@ const checkStrictStepCoverageFloors = (
 ): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
   for (const floor of requiredStepCoverageFloors) {
-    const stepClues = clues.clues.filter((entry: any) => Number(entry?.supportsInferenceStep) === floor.step);
+    const stepClues = clues.clues.filter((entry) => Number(entry?.supportsInferenceStep) === floor.step);
     if (floor.requireMapped && stepClues.length === 0) {
       issues.push({ severity: "critical", message: `Strict step coverage floor failed: step ${floor.step} has no mapped clue` });
     }
-    if (floor.requireContradiction && !stepClues.some((entry: any) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction")) {
+    if (floor.requireContradiction && !stepClues.some((entry) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction")) {
       issues.push({ severity: "critical", message: `Strict step coverage floor failed: step ${floor.step} has no contradiction clue` });
     }
   }
@@ -757,7 +758,7 @@ const checkStrictStepCoverageFloors = (
 
 const checkMetaAuditClueText = (clues: ClueDistributionResult): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
     const matched = META_AUDIT_CLUE_PATTERNS.find(({ pattern }) => pattern.test(clueText));
@@ -793,10 +794,10 @@ function* castPathBindings(cml: CaseData, clues: ClueDistributionResult) {
   const caseBlock = getCaseBlock(cml);
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   const castNames = cast
-    .map((entry: any) => String(entry?.name ?? "").trim())
+    .map((entry) => String(entry?.name ?? "").trim())
     .filter((name: string) => Boolean(name));
 
-  for (const clue of clues.clues as any[]) {
+  for (const clue of clues.clues) {
     const sourcePath = String(clue?.sourceInCML ?? "").trim();
     const castPathMatch = sourcePath.match(/^CASE\.cast\[(\d+)\]\./);
     if (!castPathMatch) continue;
@@ -880,7 +881,7 @@ export const repairCastNamePathConsistency = (cml: CaseData, clues: ClueDistribu
 export const getMissingDiscriminatingEvidenceIds = (cml: CaseData, clues: ClueDistributionResult): string[] => {
   const evidenceIds = getCanonicalEvidenceClueIds(cml);
   if (evidenceIds.length === 0) return [];
-  const clueIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
+  const clueIds = new Set(clues.clues.map((c) => String(c?.id ?? "").trim()).filter(Boolean));
   return evidenceIds.filter((id: string) => !clueIds.has(id));
 };
 
@@ -893,7 +894,7 @@ const expectedModelAudit = (cml: CaseData, clues: ClueDistributionResult) => ({
 
 export const checkModelAuditConsistency = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
   const issues: ClueGuardrailIssue[] = [];
-  const modelAudit: any = (clues as any).audit;
+  const modelAudit: any = clues.audit;
   if (!modelAudit || typeof modelAudit !== "object") return issues;
 
   const { missing: expectedMissing, invalid: expectedInvalidSources, weak: expectedWeak } = expectedModelAudit(cml, clues);
@@ -927,21 +928,21 @@ export const checkModelAuditConsistency = (cml: CaseData, clues: ClueDistributio
 export const reconcileModelAudit = (cml: CaseData, clues: ClueDistributionResult): void => {
   const { missing: expectedMissing, invalid: expectedInvalid, weak: expectedWeak } = expectedModelAudit(cml, clues);
 
-  const audit: any = (clues as any).audit && typeof (clues as any).audit === "object"
-    ? (clues as any).audit
+  const audit: any = clues.audit && typeof clues.audit === "object"
+    ? clues.audit
     : {};
 
   audit.missingDiscriminatingEvidenceIds = expectedMissing;
   audit.invalidSourcePaths = expectedInvalid;
   audit.weakEliminationSuspects = expectedWeak;
-  (clues as any).audit = audit;
+  clues.audit = audit;
 };
 
-function getEligibleNonCulpritNames(caseBlock: any, culpritName: string): string[] {
+function getEligibleNonCulpritNames(caseBlock: CaseView, culpritName: string): string[] {
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   return cast
-    .filter((entry: any) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
-    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((entry) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
+    .map((entry) => String(entry?.name ?? "").trim())
     .filter((name: string) => name.length > 0 && name.toLowerCase() !== culpritName.toLowerCase());
 }
 
@@ -954,9 +955,9 @@ function usesWeakOpportunityOnlySourcePath(sourceInCML: string): boolean {
 }
 
 export function findCulpritDiscriminatingGaps(cml: CaseData, clues: ClueDistributionResult): string[] {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const culprits = Array.isArray(caseBlock?.culpability?.culprits)
-    ? caseBlock.culpability.culprits.map((n: any) => String(n ?? "").trim()).filter(Boolean)
+    ? caseBlock.culpability.culprits.map((n) => String(n ?? "").trim()).filter(Boolean)
     : [];
   if (culprits.length === 0) return [];
 
@@ -965,7 +966,7 @@ export function findCulpritDiscriminatingGaps(cml: CaseData, clues: ClueDistribu
 
   for (const culprit of culprits) {
     const eligibleNonCulprits = getEligibleNonCulpritNames(caseBlock, culprit);
-    const hasDiscriminating = clues.clues.some((clue: any) => {
+    const hasDiscriminating = clues.clues.some((clue) => {
       const text = `${String(clue.description ?? "")} ${String(clue.pointsTo ?? "")}`;
       if (!nameAppearsInText(culprit, text)) return false;
       if (!incriminatingPattern.test(text)) return false;
@@ -995,7 +996,7 @@ export function synthesizeMissingCulpritDiscriminatingClues(
 
   const caseBlock = getCaseBlock(cml);
   const inferenceSteps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
-  const template = clues.clues.find((clue: any) => clue?.criticality === "essential") ?? clues.clues[0];
+  const template = clues.clues.find((clue) => clue?.criticality === "essential") ?? clues.clues[0];
   if (!template) return [];
 
   const { timeline, nextId } = openClueSynthesis(clues, clues.clues);
@@ -1031,7 +1032,7 @@ export function synthesizeMissingCulpritDiscriminatingClues(
     // If no inference step available, fall back to the culprit's cast slot (access_plausibility preferred).
     if (!sourceInCML) {
       const castArr = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-      const culpritCastIdx = castArr.findIndex((c: any) => String(c?.name ?? "").trim() === normalizedCulprit);
+      const culpritCastIdx = castArr.findIndex((c) => String(c?.name ?? "").trim() === normalizedCulprit);
       if (culpritCastIdx >= 0) {
         sourceInCML = castArr[culpritCastIdx]?.access_plausibility !== undefined
           ? `CASE.cast[${culpritCastIdx}].access_plausibility`
@@ -1072,10 +1073,10 @@ export function synthesizeMissingDiscriminatingEvidenceClues(
   const caseBlock = getCaseBlock(cml);
   const discrimTokens = discriminatingTestTokens(caseBlock?.discriminating_test); // CR-16 (A5-03)
 
-  const existingIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
+  const existingIds = new Set(clues.clues.map((c) => String(c?.id ?? "").trim()).filter(Boolean));
   const candidates = clues.clues
-    .filter((c: any) => c?.criticality === "essential")
-    .map((c: any) => ({ clue: c, score: scoreEvidenceCandidate(c, discrimTokens, BACKFILL_WEIGHTS) }))
+    .filter((c) => c?.criticality === "essential")
+    .map((c) => ({ clue: c, score: scoreEvidenceCandidate(c, discrimTokens, BACKFILL_WEIGHTS) }))
     .sort((a, b) => b.score - a.score);
 
   if (candidates.length === 0) return [];
@@ -1117,7 +1118,7 @@ function synthesizeStrictStepCoverageBackstopClues(
   const steps = Array.isArray(caseBlock?.inference_path?.steps)
     ? caseBlock.inference_path.steps
     : [];
-  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  const clueList: Clue[] = Array.isArray(clues?.clues) ? clues.clues : [];
   if (steps.length === 0 || clueList.length === 0) return [];
 
   const { timeline, nextId } = openClueSynthesis(clues, clueList);
@@ -1139,10 +1140,10 @@ function synthesizeStrictStepCoverageBackstopClues(
     if (!Number.isInteger(stepNumber) || stepNumber <= 0 || stepNumber > steps.length) continue;
 
     const stepIndex = stepNumber - 1;
-    const stepClues = clueList.filter((entry: any) => Number(entry?.supportsInferenceStep) === stepNumber);
+    const stepClues = clueList.filter((entry) => Number(entry?.supportsInferenceStep) === stepNumber);
     const hasMapped = stepClues.length > 0;
     const hasContradiction = stepClues.some(
-      (entry: any) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction",
+      (entry) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction",
     );
 
     const needsMapped = Boolean(floor.requireMapped) && !hasMapped;
@@ -1151,7 +1152,7 @@ function synthesizeStrictStepCoverageBackstopClues(
 
     const step = steps[stepIndex] ?? {};
     const requiredEvidence = Array.isArray(step?.required_evidence)
-      ? step.required_evidence.map((entry: any) => String(entry ?? "").trim()).filter(Boolean)
+      ? step.required_evidence.map((entry) => String(entry ?? "").trim()).filter(Boolean)
       : [];
 
     const preferredRequiredEvidencePath = requiredEvidence.find((entry: string) => /^CASE\./.test(entry));
@@ -1221,7 +1222,7 @@ function synthesizeStrictStepCoverageBackstopClues(
  */
 const promoteLateGateCluesToMid = (cml: CaseData, clues: ClueDistributionResult): string[] => {
   const promoted: string[] = [];
-  const promote = (clue: any) => {
+  const promote = (clue: Clue | undefined) => {
     if (!clue) return;
     if (!isEarlyOrMidPlacement(clue)) {
       clue.placement = "mid";
@@ -1239,7 +1240,7 @@ const promoteLateGateCluesToMid = (cml: CaseData, clues: ClueDistributionResult)
 export function enforceAgent5DeterministicContracts(
   cml: CaseData,
   clues: ClueDistributionResult,
-  options?: { hardLogicLockedFacts?: string[] },
+  options?: { hardLogicLockedFacts?: CaseLockedFact[] },
 ): { warnings: string[] } {
   const warnings: string[] = [];
   const strictPromptFeedback = buildStrictPromptFeedback(cml);

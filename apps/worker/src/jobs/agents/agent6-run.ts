@@ -15,8 +15,9 @@ import {
   extractClues,
   blindReaderSimulation,
 } from "@cml/prompts-llm";
-import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult } from "@cml/prompts-llm";
+import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult, Clue } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import { verifiedFixesEnabled } from "@cml/cml";
 import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "./agent5/contract-payload.js";
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
@@ -145,7 +146,7 @@ const canonicalizeClueId = (value: unknown): string => {
   return CANONICAL_CLUE_ID_RE.test(normalized) ? normalized : "";
 };
 
-const deriveClueDeliveryMethod = (clue: any): string => {
+const deriveClueDeliveryMethod = (clue: Clue | undefined): string => {
   const evidenceType = String(clue?.evidenceType ?? "").trim().toLowerCase();
   if (evidenceType === "contradiction") return "Cross-check contradiction";
   if (evidenceType === "elimination") return "Corroborated elimination";
@@ -164,7 +165,7 @@ const placementRank = (placement: string): number => {
 
 const buildClueTimelineOrderMap = (clues: any): Map<string, number> => {
   const order = new Map<string, number>();
-  const timeline = (clues as any)?.clueTimeline ?? {};
+  const timeline = clues?.clueTimeline ?? {};
   let index = 0;
   for (const bucket of [timeline.early, timeline.mid, timeline.late]) {
     if (!Array.isArray(bucket)) continue;
@@ -205,8 +206,8 @@ const derivePreTestSceneTarget = (
  * absent from clues.clues (the Agent-5 soft-repair gap). Default OFF; N≥4 before default-on. */
 const isDtEvidenceCompletenessEnabled = () => envOn("AGENT6_DT_EVIDENCE_COMPLETENESS");
 const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any): string[] => {
-  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
-  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  const caseBlock = caseOf(cml) ?? {};
+  const clueList: Clue[] = Array.isArray(clues?.clues) ? clues.clues : [];
   // RC3.4: the completeness backstop must run even with zero generated clue objects (the Agent-5
   // soft-repair gap plants no object but the evidence id still needs a pre-test mapping).
   const hasEvidenceForCompleteness =
@@ -215,8 +216,8 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
     caseBlock.discriminating_test.evidence_clues.length > 0;
   if (clueList.length === 0 && !hasEvidenceForCompleteness) return [];
 
-  const proseRequirements = ((caseBlock as any).prose_requirements ??= {});
-  const discriminatingScene = ((proseRequirements as any).discriminating_test_scene ??= {});
+  const proseRequirements = (caseBlock.prose_requirements ??= {});
+  const discriminatingScene = (proseRequirements.discriminating_test_scene ??= {});
   const discriminatingAct = Number.isInteger(Number(discriminatingScene.act_number)) && Number(discriminatingScene.act_number) > 0
     ? Number(discriminatingScene.act_number)
     : 3;
@@ -600,7 +601,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   await recordFairPlayScore();
 
   // ── WP5B: Blind Reader Simulation ─────────────────────────────────────────
-  const caseBlockForBlind = (ctx.cml as any)?.CASE ?? ctx.cml;
+  const caseBlockForBlind = caseOf(ctx.cml);
   const castNamesForBlind = (caseBlockForBlind?.cast ?? []).map((c: any) => c.name).filter(Boolean);
   const falseAssumptionStatement = caseBlockForBlind?.false_assumption?.statement || "";
   const actualCulpritName = caseBlockForBlind?.culpability?.culprits?.[0] || "";
@@ -628,7 +629,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const runPrimaryBlindRead = async (): Promise<BlindReaderResult> => {
     const first = await blindReaderSimulation(
       ctx.client, ctx.clues!, falseAssumptionStatement, castNamesForBlind,
-      { runId: ctx.runId, projectId: ctx.projectId || "" }
+      { runId: ctx.runId, projectId: ctx.projectId || "", caseCast: caseBlockForBlind?.cast }
     );
     if (blindMajorityK <= 1) return first;
     const samples = [first];
@@ -636,7 +637,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       samples.push(
         await blindReaderSimulation(
           ctx.client, ctx.clues!, falseAssumptionStatement, castNamesForBlind,
-          { runId: ctx.runId, projectId: ctx.projectId || "" }
+          { runId: ctx.runId, projectId: ctx.projectId || "", caseCast: caseBlockForBlind?.cast }
         ),
       );
     }
@@ -703,7 +704,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       }
 
       let latestBlind = blindResult;
-      let latestReaderPass = blindPasses;
+      let latestReaderPass: boolean = blindPasses;
 
       for (let cycle = 1; !latestReaderPass && cycle <= run.maxBlindRemediationCycles; cycle++) {
         state.agent6RetryInvoked = true;
@@ -789,7 +790,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
             ctx.clues as any,
             falseAssumptionStatement,
             castNamesForBlind,
-            { runId: ctx.runId, projectId: ctx.projectId || "" }
+            { runId: ctx.runId, projectId: ctx.projectId || "", caseCast: caseBlockForBlind?.cast }
           );
         } catch (err) {
           if (!isContentFilterRefusal(err)) throw err;
@@ -846,7 +847,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
             ctx.clues as any,
             falseAssumptionStatement,
             castNamesForBlind,
-            { runId: ctx.runId, projectId: ctx.projectId || "" }
+            { runId: ctx.runId, projectId: ctx.projectId || "", caseCast: caseBlockForBlind?.cast }
           );
           // Inside the try on purpose: a refused call has no cost and no duration to record, and
           // re-adding the previous read's numbers would inflate both.
