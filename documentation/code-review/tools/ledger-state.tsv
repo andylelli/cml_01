@@ -366,7 +366,7 @@ ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2
 ORC-Q04	CR-17	todo		
 ORC-Q05	CR-22	done	7cb43ad0	DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1|true|yes|on / 0|false|no|off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted
 ORC-Q06	CR-33	done	a52a1365	DECIDED (owner decision 11): POST /run refuses a second concurrent run with 409; the slot is freed when the pipeline settles (a timed-out run keeps it)
-ORC-Q07	CR-32	todo		
+ORC-Q07	CR-32	done	69ed426b	DECIDED (decision 12, CR-32): yes — a set AGENTn_MODEL outranks the explicit tier (client.ts)
 SCO-01	CR-30	done	51f0d14a	DECIDED (owner decision 8): the vanity family is retired for phases 1/2/2c/2e/3/3b/7 and ProseScorer; 2b/2d/6.5 keep theirs until honest tables exist (SCO-Q07)
 SCO-02	CR-18	done	6cd2bdae	8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done)
 SCO-03	CR-27	todo		

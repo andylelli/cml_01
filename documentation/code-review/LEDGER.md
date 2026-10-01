@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 135 | 103 | 52 | 290 |
-| open | 55 | 36 | 20 | 111 |
+| closed | 135 | 103 | 53 | 291 |
+| open | 55 | 36 | 19 | 110 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -48,7 +48,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-29 | 20 | 9 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
 | CR-30 | 21 | 19 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
-| CR-32 | 10 | 9 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
+| CR-32 | 10 | 10 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
 | CR-33 | 13 | 12 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
 | CR-34 | 3 | 1 | A9W-17 A6-16 A6-Q03 |
 
@@ -75,7 +75,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? | REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path |
 | CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
 | CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| CR-32 | ORC-Q07 | ORC-14: should a per-agent model override outrank the design tier? |  |
 | CR-33 | A7-Q02 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the floor. |  |
 | CR-34 | A6-Q03 | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-02 shows is mostly discarded? |  |
 
@@ -500,7 +499,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-Q04 |  |  | CR-17 | todo |  | ORC-08: which arc-position formula is canonical? |  |
 | ORC-Q05 |  |  | CR-22 | done | 7cb43ad0 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis… | DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1/true/yes/on / 0/false/no/off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted |
 | ORC-Q06 |  |  | CR-33 | done | a52a1365 | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? | DECIDED (owner decision 11): POST /run refuses a second concurrent run with 409; the slot is freed when the pipeline settles (a timed-out run keeps it) |
-| ORC-Q07 |  |  | CR-32 | todo |  | ORC-14: should a per-agent model override outrank the design tier? |  |
+| ORC-Q07 |  |  | CR-32 | done | 69ed426b | ORC-14: should a per-agent model override outrank the design tier? | DECIDED (decision 12, CR-32): yes — a set AGENTn_MODEL outranks the explicit tier (client.ts) |
 
 ## 12-scoring-layer
 
