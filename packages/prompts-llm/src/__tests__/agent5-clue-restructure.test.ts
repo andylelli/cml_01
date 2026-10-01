@@ -4,7 +4,8 @@ import {
   checkPointsToDistinctness,
   type Clue,
 } from "../agent5-clues.js";
-import { chapterMentionsRequiredClue } from "../agent9-prose/clue-validation.js";
+import { chapterMentionsRequiredClue } from "../prose-contract/clue-obligations.js";
+
 
 function clue(partial: Partial<Clue>): Clue {
   return {

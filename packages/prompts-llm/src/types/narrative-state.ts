@@ -42,8 +42,6 @@ export interface NarrativeState {
   /** Optional chapter-level quality steering values for next-batch prompt shaping. */
   lastChapterQualityScore?: number;
   lastChapterDeficits?: string[];
-  /** [PHASE 4] Beat fingerprints from all committed chapters — injected as FORBIDDEN REPEATS in NSD. */
-  beatHistory?: import('../agent9-prose.js').BeatFingerprint[];
   /** Optional NSD parity checkpoint emitted at every commit. */
   lastNSDCheckpoint?: {
     chapter: number;
@@ -117,7 +115,6 @@ export function initNarrativeState(
     deployedAssets: {},
     lastUsedSensoryVariant: {},
     recurringPhraseWarnings: [],
-    beatHistory: [],
     // victimConfirmedDeadChapter and previousChapterArcPosition default to undefined
   };
 }

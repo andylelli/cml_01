@@ -10,12 +10,8 @@
  */
 
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  chapterClueAppearsEarly,
-  chapterMentionsRequiredClue,
-  earlyObservationOnPage,
-  isCluePresenceObservablePoolEnabled,
-} from "../agent9-prose/clue-validation.js";
+import { chapterMentionsRequiredClue, earlyObservationOnPage, isCluePresenceObservablePoolEnabled } from "../prose-contract/clue-obligations.js";
+
 
 // verbatim from data/store.json, artifact 759, run 24901
 const CLUE = {
@@ -63,18 +59,6 @@ describe("AGENT9_CLUE_PRESENCE_OBSERVABLE_POOL — run 24901's chapter-1 clue", 
     withEnv("true", () => {
       expect(isCluePresenceObservablePoolEnabled()).toBe(true);
       expect(chapterMentionsRequiredClue(OBSERVATION, CLUE.id, clueDistribution, CAST)).toBe(true);
-    });
-  });
-
-  it("flag ON: the early-enough check agrees when the observation opens the chapter", () => {
-    const paragraphs = [OBSERVATION, "Rain again.", "The tide turned.", "Nobody spoke.", "Gulls."];
-    // union: ON is never stricter than OFF, and the observation in the first quarter is enough
-    let off = false;
-    withEnv(undefined, () => { off = chapterClueAppearsEarly(paragraphs, CLUE.id, clueDistribution, CAST); });
-    withEnv("true", () => {
-      const on = chapterClueAppearsEarly(paragraphs, CLUE.id, clueDistribution, CAST);
-      expect(on).toBe(true);
-      if (off) expect(on).toBe(true);
     });
   });
 

@@ -10,14 +10,8 @@ vi.mock("@cml/story-validation", async () => {
     getGenerationParams: () => ({ agent9_prose: { rollout_flags: { tiered_phrase_contract_enabled: false } } }),
   };
 });
+import { getRequiredClueIdsForScene, resolveClueOwnership, measureClueObligationLoad, summariseClueObligationLoad } from "../prose-contract/clue-obligations.js";
 
-import { buildChapterObligationBlock } from "../agent9-prose/obligation-block.ts";
-import {
-  getRequiredClueIdsForScene,
-  resolveClueOwnership,
-  measureClueObligationLoad,
-  summariseClueObligationLoad,
-} from "../agent9-prose/clue-validation.ts";
 
 /**
  * A_89 B1/B2 — one owning chapter per clue, and the obligation load counted.
@@ -52,19 +46,6 @@ const clueDistribution: any = {
     criticality: "supporting", sourceInCML: "x",
   })),
 };
-const render = (sceneIndex: number, on: boolean): string => {
-  const prior = process.env.AGENT9_CLUE_OWNERSHIP;
-  if (on) process.env.AGENT9_CLUE_OWNERSHIP = "1"; else delete process.env.AGENT9_CLUE_OWNERSHIP;
-  try {
-    return buildChapterObligationBlock(
-      [scenes[sceneIndex]], sceneIndex + 1, cmlCase, [] as any, undefined, clueDistribution,
-      undefined, undefined, undefined, undefined, undefined, undefined, scenes, undefined,
-    );
-  } finally {
-    if (prior === undefined) delete process.env.AGENT9_CLUE_OWNERSHIP;
-    else process.env.AGENT9_CLUE_OWNERSHIP = prior;
-  }
-};
 
 describe("A_89 B1 — one owning chapter per clue", () => {
   it("ownership is the FIRST scene that requires the clue", () => {
@@ -72,27 +53,6 @@ describe("A_89 B1 — one owning chapter per clue", () => {
     expect(owner.get("c1")).toBe(1);
     expect(owner.get("c2")).toBe(2);
     expect(owner.get("c3")).toBe(3);
-  });
-
-  it("THE DEFECT, flag OFF: chapter 3 is told to dramatize all three clues", () => {
-    const block = render(2, false);
-    expect(block).toContain("CLUE OBLIGATIONS");
-    expect(block).not.toContain("ALREADY ON THE PAGE");
-    for (const id of ["c1", "c2", "c3"]) expect(block).toContain(`[${id}]`);
-  });
-
-  it("THE FIX, flag ON: chapter 3 dramatizes only what it owns and refers to the rest", () => {
-    const block = render(2, true);
-    expect(block).toContain("[c3]");            // owned — still dramatized
-    expect(block).not.toContain("[c1]");        // owned by chapter 1
-    expect(block).not.toContain("[c2]");        // owned by chapter 2
-    expect(block).toContain("ALREADY ON THE PAGE");
-    expect(block).toContain("do NOT re-stage");
-  });
-
-  it("the owning chapter is unaffected", () => {
-    expect(render(0, true)).toContain("[c1]");
-    expect(render(0, true)).not.toContain("ALREADY ON THE PAGE");
   });
 
   it("VALIDATION IS UNCHANGED: the clue is still REQUIRED in the later chapter", () => {

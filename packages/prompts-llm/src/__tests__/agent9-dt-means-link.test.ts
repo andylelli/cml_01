@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildNameAndReasonLines, splitMeansLinkTrace } from "../agent9-prose/discriminating.ts";
+import { splitMeansLinkTrace } from "../prose-contract/means-link-trace.js";
+
 
 // A_107 — the confrontation must connect the culprit to the weapon. On the 86-read book the only
 // reveal-time sentence doing so was item eight of a proof list in the chapter AFTER the confession.
@@ -24,38 +25,6 @@ describe("splitMeansLinkTrace", () => {
     expect(splitMeansLinkTrace(undefined)).toBeUndefined();
     expect(splitMeansLinkTrace("Fingerprints on dagger trace to Gwendolyn")).toBeUndefined();
     expect(splitMeansLinkTrace("knife: no dash here")).toBeUndefined();
-  });
-});
-
-// A_107 — seed 18179: after the injector line and chapter 9's list were removed, no sentence in the
-// book named the killer. The confrontation carries v2's reveal operation.
-describe("buildNameAndReasonLines", () => {
-  const cmlCase = {
-    culpability: { culprits: ["Gerald Thorne"] },
-    cast: [
-      { name: "Dr. Ivor Jardine", role_archetype: "victim" },
-      { name: "Gerald Thorne", role_archetype: "Steward" },
-    ],
-  };
-
-  it("names the culprit, a verb of killing and the victim in one required sentence, then the reason", () => {
-    const text = buildNameAndReasonLines(cmlCase);
-    expect(text).toContain("states as settled fact that Gerald Thorne killed Dr. Ivor Jardine");
-    expect(text).toContain("what Gerald Thorne says is the reason");
-  });
-
-  it("is empty when the case names no culprit", () => {
-    expect(buildNameAndReasonLines({ culpability: { culprits: [] }, cast: [] })).toBe("");
-  });
-});
-
-// A_107 — the DT-validity gate needs a competing-reading word and a proof word; the injector fired when
-// the draft had neither. The checklist asks for both as the scene's own operation.
-import { buildDiscriminatingTestChecklist } from "../agent9-prose/discriminating.ts";
-describe("the confrontation checklist asks for the theory and the result", () => {
-  it("names both words in one operation", () => {
-    const text = buildDiscriminatingTestChecklist.toString();
-    expect(text).toContain('Say "theory" and "result" in those lines.');
   });
 });
 

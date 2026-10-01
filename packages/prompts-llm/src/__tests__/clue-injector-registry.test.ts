@@ -17,8 +17,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { isInjectedSentence } from "../prose-contract/injected-sentences.js";
 
-import { isInjectedSentence } from '../agent9-prose/injection-templates.js';
 
 describe('the clue injector is recognised as machine text', () => {
   const shipped = [
@@ -56,7 +56,7 @@ describe('no pattern carries a control character', () => {
   it('every registered pattern is free of invisible characters', async () => {
     // The defect that motivated this test: /\x08The record now held:/ can never match, and reads as
     // /The record now held:/ in any terminal. Assert on the source, not on appearance.
-    const { INJECTED_SENTENCE_PATTERNS } = await import('../agent9-prose/injection-templates.js');
+    const { INJECTED_SENTENCE_PATTERNS } = await import('../prose-contract/injected-sentences.js');
     for (const re of INJECTED_SENTENCE_PATTERNS) {
       // eslint-disable-next-line no-control-regex
       expect(/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(re.source), re.source).toBe(false);
