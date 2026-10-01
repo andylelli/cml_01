@@ -1016,3 +1016,13 @@ default. The reader is `readBooleanFlag(name, default)` in `@cml/cml` (`packages
 the same on-list inline (llm-client has no `@cml/cml` dependency). MEASURED: `.env.local` sets only canonical values
 for these flags, so no current configuration changes. `flags:check` and `flags:runtime` recognise `readBooleanFlag("X"`
 as a read of X (known positive: a planted unregistered read is reported by both).
+
+## Addendum — owner decision 12, CR-30: three dead arms retired (2026-10-01)
+
+Each was unset in `.env` and `.env.local` and its retired arm never ran at default; the default arm is what remains.
+
+| Flag | Retired arm | Evidence |
+|---|---|---|
+| `AGENT5_ENABLE_LLM_RETRIES` | six Agent 5 LLM-regeneration branches (`agent5/extraction.ts` ×3, `coverage-retries.ts` ×2, `evidence-remediation.ts` ×1), −368 lines | default OFF since the deterministic mode (A5-Q06); the default-ON red-herring floor is not under it and stays |
+| `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` | the OFF ("fail-fast") arm at seven sites (Agents 1, 2, 3, 7 ×4) | default ON, any unrecognised value read ON (A7-Q01) |
+| `CML_REPAIR_MODE` | the node-scoped patch engine (`agent4-patch.ts`, its test and shadow script) | default `rewrite`, never run in a pipeline; offline (heuristic proposer) it fixed 0 of 2 errors on the corpus's one real failing CML (A34-Q03) |

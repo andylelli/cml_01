@@ -165,47 +165,42 @@ export async function enforceOutlineQuality(ctx: OrchestratorContext, run: Agent
 
   const outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
   if (outlineCoverageIssues.length > 0) {
-    if (!run.contractRecoveryEnabled) {
-      outlineCoverageIssues.forEach((issue) => ctx.warnings.push(`Outline coverage gap (contract recovery disabled): ${issue.message}`)
+    const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
+    const outlineGuardrails = buildOutlineRepairGuardrails(outlineCoverageIssues, ctx.cml!);
+    const countGuardrails = buildNarrativeSceneCountGuardrails(sceneCountLock, "coverage repair");
+    outlineCoverageIssues.forEach((issue) => ctx.warnings.push(`Outline coverage gap: ${issue.message}`)
+    );
+    ctx.warnings.push("Regenerating outline with targeted quality guardrails");
+    ctx.reportProgress("narrative", "Regenerating outline to address coverage gaps", 80);
+
+    const narrativeRetryStart = Date.now();
+    const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [...outlineGuardrails, ...countGuardrails]));
+    recordOutlineCoercions(ctx, retriedNarrative); // A7-11
+
+    ctx.agentCosts["agent7_narrative"] =
+      retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
+    ctx.agentDurations["agent7_narrative"] =
+      (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeRetryStart);
+
+    const retryOutlineIssues = evaluateOutlineCoverage(retriedNarrative, ctx.cml!);
+    const retryCountCheck = checkNarrativeSceneCountFloor(retriedNarrative, sceneCountLock);
+
+    if (retryOutlineIssues.length < outlineCoverageIssues.length && retryCountCheck.ok) {
+      narrative = retriedNarrative;
+      ctx.warnings.push("Outline retry improved coverage");
+      await rescoreNarrative(ctx, narrative);
+      ctx.reportProgress(
+        "narrative",
+        `Outline retry: ${retriedNarrative.totalScenes} scenes (${retriedNarrative.estimatedTotalWords} words)`,
+        85
       );
     } else {
-      const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
-      const outlineGuardrails = buildOutlineRepairGuardrails(outlineCoverageIssues, ctx.cml!);
-      const countGuardrails = buildNarrativeSceneCountGuardrails(sceneCountLock, "coverage repair");
-      outlineCoverageIssues.forEach((issue) => ctx.warnings.push(`Outline coverage gap: ${issue.message}`)
-      );
-      ctx.warnings.push("Regenerating outline with targeted quality guardrails");
-      ctx.reportProgress("narrative", "Regenerating outline to address coverage gaps", 80);
-
-      const narrativeRetryStart = Date.now();
-      const retriedNarrative = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [...outlineGuardrails, ...countGuardrails]));
-      recordOutlineCoercions(ctx, retriedNarrative); // A7-11
-
-      ctx.agentCosts["agent7_narrative"] =
-        retriedNarrative.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-      ctx.agentDurations["agent7_narrative"] =
-        (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeRetryStart);
-
-      const retryOutlineIssues = evaluateOutlineCoverage(retriedNarrative, ctx.cml!);
-      const retryCountCheck = checkNarrativeSceneCountFloor(retriedNarrative, sceneCountLock);
-
-      if (retryOutlineIssues.length < outlineCoverageIssues.length && retryCountCheck.ok) {
-        narrative = retriedNarrative;
-        ctx.warnings.push("Outline retry improved coverage");
-        await rescoreNarrative(ctx, narrative);
-        ctx.reportProgress(
-          "narrative",
-          `Outline retry: ${retriedNarrative.totalScenes} scenes (${retriedNarrative.estimatedTotalWords} words)`,
-          85
+      if (!retryCountCheck.ok) {
+        ctx.warnings.push(
+          `Outline retry rejected due to scene-count lock violation (${retryCountCheck.message}); keeping baseline outline and passing quality guardrails to prose generation.`
         );
       } else {
-        if (!retryCountCheck.ok) {
-          ctx.warnings.push(
-            `Outline retry rejected due to scene-count lock violation (${retryCountCheck.message}); keeping baseline outline and passing quality guardrails to prose generation.`
-          );
-        } else {
-          ctx.warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
-        }
+        ctx.warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
       }
     }
   }

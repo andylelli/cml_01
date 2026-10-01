@@ -44,34 +44,16 @@ const minimalInputs = () =>
   }) as any;
 
 describe("Agent 2c location profiles without a narrative", () => {
-  it("builds a usable prompt when narrative is undefined — the state of EVERY real run", () => {
-    const prompt = buildLocationProfilesPrompt({ ...minimalInputs(), narrative: undefined });
+  it("builds a usable prompt — Agent 2c never has a narrative (A1X-15: the input is retired)", () => {
+    const prompt = buildLocationProfilesPrompt(minimalInputs());
 
     expect(typeof prompt.user).toBe("string");
     expect(prompt.user.length).toBeGreaterThan(200);
-    // The setting still reaches the prompt: degrading on narrative must not degrade the rest.
     expect(`${prompt.system}${prompt.user}`).toContain("Thornfield Manor");
   });
 
-  it("does not throw on the shapes an absent narrative can take", () => {
-    for (const narrative of [undefined, null, {}, { acts: undefined }, { acts: [] }] as any[]) {
-      expect(() => buildLocationProfilesPrompt({ ...minimalInputs(), narrative })).not.toThrow();
-    }
-  });
-
-  it("still uses a narrative when one IS supplied, so the parameter is not vestigial", () => {
-    // The other half of the fix's premise: if this produced identical output either way, the right
-    // change would have been to delete the parameter instead of making it optional.
-    const withNarrative = buildLocationProfilesPrompt({
-      ...minimalInputs(),
-      narrative: {
-        acts: [{ scenes: [{ setting: "The Observatory Tower" }, { setting: "The Boathouse" }] }],
-      },
-    } as any);
-    const without = buildLocationProfilesPrompt({ ...minimalInputs(), narrative: undefined });
-
-    expect(withNarrative.user).toContain("Observatory Tower");
-    expect(without.user).not.toContain("Observatory Tower");
+  it("keeps the empty scene-location header byte-for-byte (the list it introduced was always empty)", () => {
+    expect(buildLocationProfilesPrompt(minimalInputs()).user).toContain("Key locations mentioned in narrative:\n\n\nSetting constraints:");
   });
 });
 

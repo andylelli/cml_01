@@ -42,7 +42,6 @@ export async function rescoreNarrative(ctx: OrchestratorContext, narrative: Narr
  * below is `(ctx, run, narrative) => narrative`, extracted from the one 1,000-line function it was.
  */
 export interface Agent7Run {
-  contractRecoveryEnabled: boolean;
   minClueSceneRatio: number;
   pacingGuardrails: string[];
   lockedFactsSpread: { lockedFacts?: LockedFactRegistry };
@@ -86,11 +85,6 @@ export async function generateInitialOutline(ctx: OrchestratorContext, run: Agen
 export async function ensureSchemaValid(ctx: OrchestratorContext, run: Agent7Run, narrative: NarrativeOutline) {
   let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
   if (!narrativeSchemaValidation.valid) {
-    if (!run.contractRecoveryEnabled) {
-      narrativeSchemaValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
-      ctx.failedNarrative = narrative; // capture the failing candidate for the partial-artifact snapshot
-      throw new Error("Narrative outline artifact failed schema validation (contract recovery disabled)");
-    }
     ctx.warnings.push(
       "Narrative outline failed schema validation on first attempt; retrying outline generation with schema repair guardrails"
     );

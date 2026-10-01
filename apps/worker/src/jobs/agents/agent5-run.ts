@@ -100,14 +100,6 @@ const strictPromptContractsEnabled = (): boolean => {
   return true;
 };
 
-const agent5LlmRetriesEnabled = (): boolean => {
-  // Prevention-first default: keep Agent5 on a deterministic remediation path.
-  // Enable legacy LLM retry loops only when explicitly opted in.
-  const value = String(process.env.AGENT5_ENABLE_LLM_RETRIES ?? "").trim().toLowerCase();
-  if (value === "1" || value === "true" || value === "yes" || value === "on") return true;
-  return false;
-};
-
 const sanitizeDiscriminatingEvidenceClueIds = (cml: CaseData): { removed: string[]; kept: string[] } => {
   const caseBlock = getCaseBlock(cml);
   const discrimTest = caseBlock?.discriminating_test;
@@ -196,10 +188,6 @@ const alignDiscriminatingEvidenceIdsWithSceneMapping = (
 
 export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("clues", "Extracting and organizing clues...", 50);
-  const llmRetriesEnabled = agent5LlmRetriesEnabled();
-  if (!llmRetriesEnabled) {
-    ctx.warnings.push("Agent 5: deterministic remediation mode active (LLM retry loops disabled by default)");
-  }
 
   const evidenceIdNormalization = sanitizeDiscriminatingEvidenceClueIds(ctx.cml!);
   if (evidenceIdNormalization.removed.length > 0) {
@@ -324,7 +312,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     });
 
   // A5-01: what every phase below reads besides ctx and the clues — resolved once, read-only.
-  const run: Agent5Run = { llmRetriesEnabled, clueDensity, strictPromptFeedbackBase, proactiveFirstPassFeedback, mergeStrictPromptFeedback, cluesStart, recordHardFailPhaseScore, failAgent5, extractWithAttempt };
+  const run: Agent5Run = { clueDensity, strictPromptFeedbackBase, proactiveFirstPassFeedback, mergeStrictPromptFeedback, cluesStart, recordHardFailPhaseScore, failAgent5, extractWithAttempt };
   let clues = await extractInitialClues(ctx, run, state);
 
   // Surface parse-boundary anomalies (truncated payload, dropped jsonrepair artifacts — the

@@ -10,23 +10,6 @@ export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
 export { provesTheAct } from "./agent3-means-link.js";
 export type { MeansLinkVerdict } from "./agent3-means-link.js";
 export { reviseCml } from "./agent4-revision.js";
-export {
-  patchCmlNode,
-  pathToString,
-  makeLlmPatchProposer,
-} from "./agent4-patch.js";
-export type {
-  PathSegment,
-  CmlDoc,
-  Validator,
-  PatchRequest,
-  PatchProposer,
-  PatchRunResult,
-  PatchRunOptions,
-  AppliedPatch,
-  RejectedPatch,
-  ContractResult,
-} from "./agent4-patch.js";
 export { buildCluePrompt, extractClues, deriveClueObservable, checkPointsToDistinctness } from "./agent5-clues.js";
 export { auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { computeActSceneCounts } from "./agent7-act-counts.js";

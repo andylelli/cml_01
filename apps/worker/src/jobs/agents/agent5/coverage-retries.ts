@@ -304,87 +304,10 @@ export async function enforceSuspectCoverage(ctx: OrchestratorContext, run: Agen
         });
     }
 
-    const suspectViolations = suspectsNeedingCoverage.map((suspect) => {
-      const issueType = initialSuspectCoverage.uncovered.includes(suspect)
-        ? "not referenced in any clue"
-        : "referenced but lacks elimination/alibi evidence";
-      return {
-        severity: "critical" as const,
-        rule: "Suspect Clue Coverage",
-        description: `${suspect} is ${issueType}.`,
-        suggestion: "Add at least one clue that names this suspect and provides elimination/alibi evidence so the reader can logically rule them out.",
-      };
-    });
 
-    if (run.llmRetriesEnabled) {
-      state.performedSuspectRetry = true;
-      const suspectRetryStart = Date.now();
-      state.agent5RetryInvoked = true;
-      const suspectCoverageFeedback = {
-        overallStatus: "fail" as const,
-        violations: suspectViolations,
-        warnings: [],
-        recommendations: [
-          "Every eligible non-culprit suspect must appear in at least one clue",
-          "Every eligible non-culprit suspect should include elimination/alibi support, not only name mentions",
-          "Clues can reference a suspect via their alibi, observed behaviour, or elimination evidence",
-          "Adding elimination clues for uncovered suspects does not require extra inference steps",
-        ],
-      };
-      ctx.reportProgress("clues", "Regenerating clues to address suspect coverage gaps...", 60);
-      clues = await run.extractWithAttempt({
-        cml: ctx.cml!,
-        clueDensity: run.clueDensity,
-        redHerringBudget: RED_HERRING_BUDGET,
-        fairPlayFeedback: run.mergeStrictPromptFeedback(suspectCoverageFeedback),
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
-      ctx.agentCosts["agent5_clues"] =
-        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-      ctx.agentDurations["agent5_clues"] =
-        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - suspectRetryStart);
-
-      const postSuspectGuardrails = applyClueGuardrails(ctx.cml!, clues);
-      postSuspectGuardrails.fixes.forEach((fix) => ctx.warnings.push(`Post-suspect-coverage guardrail auto-fix: ${fix}`)
-      );
-
-      // Re-check; if suspects are still uncovered after retry, log a warning only
-      // (do not hard-fail — the story can still be generated, just with a gap).
-      const postRetryCoverage = analyzeSuspectCoverage(ctx.cml!, clues);
-      const stillUncovered = postRetryCoverage.uncovered;
-      const stillWeak = postRetryCoverage.weakElimination;
-      if (stillUncovered.length > 0 || stillWeak.length > 0) {
-        const summaryParts: string[] = [];
-        if (stillUncovered.length > 0) {
-          summaryParts.push(`Uncovered suspects: ${stillUncovered.join(", ")}`);
-        }
-        if (stillWeak.length > 0) {
-          summaryParts.push(`Weak elimination/alibi evidence: ${stillWeak.join(", ")}`);
-        }
-        ctx.warnings.push(
-          `Agent 5 suspect-coverage gate still has gaps after retry (continuing): ${summaryParts.join("; ")}`
-        );
-
-        // Preserve per-suspect diagnostics so downstream auditing can still act on gaps.
-        postRetryCoverage.records
-          .filter(
-            (r) => stillUncovered.includes(r.suspect) || stillWeak.includes(r.suspect)
-          )
-          .forEach((r) => {
-            const refs = r.referencedClueIds.length > 0 ? r.referencedClueIds.join(", ") : "(none)";
-            const elim = r.eliminationClueIds.length > 0 ? r.eliminationClueIds.join(", ") : "(none)";
-            const alibi = r.alibiClueIds.length > 0 ? r.alibiClueIds.join(", ") : "(none)";
-            ctx.warnings.push(
-              `  - ${r.suspect}: referenced clues=${refs}; elimination clues=${elim}; alibi clues=${alibi}`
-            );
-          });
-      }
-    } else {
-      const suspectBackstopRepairs = synthesizeSuspectCoverageBackstopClues(ctx.cml!, clues, suspectsNeedingCoverage);
-      suspectBackstopRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 suspect-coverage deterministic synthesis: ${repair}`)
-      );
-    }
+    const suspectBackstopRepairs = synthesizeSuspectCoverageBackstopClues(ctx.cml!, clues, suspectsNeedingCoverage);
+    suspectBackstopRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 suspect-coverage deterministic synthesis: ${repair}`)
+    );
   }
   return clues;
 }
@@ -490,133 +413,38 @@ export async function separateRedHerringsFromSolution(ctx: OrchestratorContext, 
       }
     }
 
-    if (run.llmRetriesEnabled) {
-      state.performedRedHerringRetry = true;
-      const redHerringRetryStart = Date.now();
-      state.agent5RetryInvoked = true;
-      const overlapTerms = [...new Set(initialRedHerringOverlapDetails.flatMap((d) => d.matchedCorrectionWords || []))]
-        .map((t) => String(t).trim().toLowerCase())
-        .filter(Boolean);
-      const explicitForbiddenTerms = [...new Set([
-        ...overlapTerms,
-        ...(temporalCollision.detected ? temporalCollision.forbiddenTerms : []),
-      ])];
-      const replacementTargets = explicitForbiddenTerms.slice(0, 12).map((term, idx) => {
-        const replacement = temporalCollision.allowedTerms[idx % Math.max(temporalCollision.allowedTerms.length, 1)] || "assumed time";
-        return `${term} -> ${replacement}`;
-      });
+    const overlapRepairs = sanitizeRedHerringOverlap(
+      ctx.cml!,
+      clues,
+      initialRedHerringOverlapDetails,
+      temporalCollision.allowedTerms
+    );
+    overlapRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 red-herring deterministic sanitizer: ${repair}`)
+    );
 
-      clues = await run.extractWithAttempt({
-        cml: ctx.cml!,
-        clueDensity: run.clueDensity,
-        redHerringBudget: RED_HERRING_BUDGET,
-        fairPlayFeedback: run.mergeStrictPromptFeedback({
-          overallStatus: "fail",
-          violations: initialRedHerringOverlapIds.map((id: string) => ({
-            severity: "critical" as const,
-            rule: "Red Herring Separation",
-            description: (() => {
-              const detail = initialRedHerringOverlapDetails.find((d) => d.redHerringId === id);
-              const words = detail?.matchedCorrectionWords?.slice(0, 8).join(", ") || "(no terms captured)";
-              const steps = detail?.matchedStepIndexes?.join(", ") || "(none)";
-              return `Red herring ${id} overlaps inference corrections (steps: ${steps}; words: ${words}) and may support the true solution.`;
-            })(),
-            suggestion: "Rewrite this red herring to reinforce only the false assumption and avoid terms tied to true-solution corrections.",
-          })),
-          warnings: [],
-          recommendations: [
-            "Red herrings must support the false assumption only",
-            "Do not reuse correction-language terms from inference_path.steps[].correction in red herring text",
-            "Preserve misdirection without reinforcing culprit-identifying logic",
-            ...(temporalCollision.detected
-              ? [
-                `Forbidden terms for red-herring rewrite: ${temporalCollision.forbiddenTerms.join(", ") || "(none)"}`,
-                `Prefer these temporal assumption terms instead: ${temporalCollision.allowedTerms.join(", ") || "(none)"}`,
-              ]
-              : []),
-          ],
-          forbiddenTerms: explicitForbiddenTerms,
-          preferredTerms: temporalCollision.allowedTerms,
-          requiredReplacements: replacementTargets,
-          redHerringIdsToRewrite: initialRedHerringOverlapIds,
-        }),
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
-
-      ctx.agentCosts["agent5_clues"] =
-        clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-      ctx.agentDurations["agent5_clues"] =
-        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringRetryStart);
-
-      const postRedHerringGuardrails = applyClueGuardrails(ctx.cml!, clues);
-      postRedHerringGuardrails.fixes.forEach((fix) => ctx.warnings.push(`Post-red-herring guardrail auto-fix: ${fix}`)
-      );
-
-      const postRetryRedHerringOverlapDetails = findRedHerringOverlapDetails(ctx.cml!, clues);
-      if (postRetryRedHerringOverlapDetails.length > 0) {
-        const severeOverlap = postRetryRedHerringOverlapDetails.filter((d) => d.overlapScore >= 4);
-        if (severeOverlap.length > 0) {
-          const overlapRepairs = sanitizeRedHerringOverlap(ctx.cml!, clues, severeOverlap, temporalCollision.allowedTerms);
-          overlapRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 red-herring deterministic sanitizer: ${repair}`)
-          );
-
-          const postSanitizeOverlap = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
-          if (postSanitizeOverlap.length > 0) {
-            const postRetryRedHerringOverlapIds = postSanitizeOverlap.map((d) => d.redHerringId);
-            const pruned = pruneOverlappingRedHerrings(clues, postRetryRedHerringOverlapIds);
-            if (pruned.length > 0) {
-              ctx.warnings.push(
-                `Agent 5 red-herring overlap hardening: pruned persistently overlapping red herring(s) after retry (${pruned.join(", ")})`
-              );
-            }
-
-            const remainingSevereOverlap = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
-            if (remainingSevereOverlap.length > 0) {
-              run.failAgent5(
-                `Agent 5 red-herring overlap gate failed after retry. Overlapping red herring(s): ${remainingSevereOverlap.map((d) => d.redHerringId).join(", ")}`
-              );
-            }
-          }
-        }
+    const severePostSanitize = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
+    if (severePostSanitize.length > 0) {
+      const overlapIds = severePostSanitize.map((d) => d.redHerringId);
+      const pruned = pruneOverlappingRedHerrings(clues, overlapIds);
+      if (pruned.length > 0) {
         ctx.warnings.push(
-          `Agent 5: minor red-herring overlap remains after retry (${postRetryRedHerringOverlapDetails.map((d) => d.redHerringId).join(", ")}); continuing with warning`
+          `Agent 5 red-herring overlap hardening: pruned persistently overlapping red herring(s) (${pruned.join(", ")})`
         );
       }
-    } else {
-      const overlapRepairs = sanitizeRedHerringOverlap(
-        ctx.cml!,
-        clues,
-        initialRedHerringOverlapDetails,
-        temporalCollision.allowedTerms
-      );
-      overlapRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 red-herring deterministic sanitizer: ${repair}`)
-      );
 
-      const severePostSanitize = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
-      if (severePostSanitize.length > 0) {
-        const overlapIds = severePostSanitize.map((d) => d.redHerringId);
-        const pruned = pruneOverlappingRedHerrings(clues, overlapIds);
-        if (pruned.length > 0) {
-          ctx.warnings.push(
-            `Agent 5 red-herring overlap hardening: pruned persistently overlapping red herring(s) (${pruned.join(", ")})`
-          );
-        }
-
-        const remainingSevere = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
-        if (remainingSevere.length > 0) {
-          run.failAgent5(
-            `Agent 5 red-herring overlap gate failed after deterministic sanitization. Overlapping red herring(s): ${remainingSevere.map((d) => d.redHerringId).join(", ")}`
-          );
-        }
-      }
-
-      const remainingMinor = findRedHerringOverlapDetails(ctx.cml!, clues);
-      if (remainingMinor.length > 0) {
-        ctx.warnings.push(
-          `Agent 5: minor red-herring overlap remains after deterministic sanitization (${remainingMinor.map((d) => d.redHerringId).join(", ")}); continuing with warning`
+      const remainingSevere = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
+      if (remainingSevere.length > 0) {
+        run.failAgent5(
+          `Agent 5 red-herring overlap gate failed after deterministic sanitization. Overlapping red herring(s): ${remainingSevere.map((d) => d.redHerringId).join(", ")}`
         );
       }
+    }
+
+    const remainingMinor = findRedHerringOverlapDetails(ctx.cml!, clues);
+    if (remainingMinor.length > 0) {
+      ctx.warnings.push(
+        `Agent 5: minor red-herring overlap remains after deterministic sanitization (${remainingMinor.map((d) => d.redHerringId).join(", ")}); continuing with warning`
+      );
     }
   }
   return clues;

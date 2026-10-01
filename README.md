@@ -145,7 +145,6 @@ Scene-grounding validation now enforces opening-block requirements in `@cml/stor
 Character consistency validation now resolves cast aliases to canonical names, extends pronoun agreement checks into immediate follow-up sentence context, and flags titled out-of-cast named walk-ons (`illegal_named_walk_on`).
 Known-bad report contradictions are replay-tested in the story-validation suite to prevent regression.
 Fixed-seed prose benchmarks are now replay-tested in `@cml/story-validation` using deterministic run fixtures, with chapter-level expected outcome assertions (prose total + per-chapter score signatures) to catch scoring regressions early.
-A/B prompt harness support is now available in `@cml/story-validation` (`comparePromptVariants`), with statistical winner selection gated by paired-seed sample size, minimum effect size, and a two-sided paired sign-test p-value threshold.
 Quality dashboard prose chapter tables now include component-level chapter metrics (`V`, `Q`, `C`, `Co`) sourced from per-chapter scoring traces, including second-run repair series when present.
 
 ### API Endpoints

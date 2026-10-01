@@ -12,7 +12,6 @@ import { auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSce
 import { getSceneTarget, getGenerationParams } from "@cml/story-validation";
 import {
   type OrchestratorContext,
-  preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 import {
   normalizeRawOutline,
@@ -105,7 +104,6 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // pass it directly), repair identity_rules in place so every one sees the same corrected data.
   applyIdentityRuleCollisionRepair(ctx);
 
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
   const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;
   const minClueSceneRatio = narrativePacingConfig.min_clue_scene_ratio;
@@ -124,7 +122,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     : {};
 
   // A7-01: what every phase below reads besides ctx and the outline — resolved once, read-only.
-  const run: Agent7Run = { contractRecoveryEnabled, minClueSceneRatio, pacingGuardrails, lockedFactsSpread, completenessSpread };
+  const run: Agent7Run = { minClueSceneRatio, pacingGuardrails, lockedFactsSpread, completenessSpread };
 
   let narrative = await generateInitialOutline(ctx, run);
 

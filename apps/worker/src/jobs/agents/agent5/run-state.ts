@@ -63,7 +63,6 @@ export const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
  * a function of `(ctx, run, state, clues, …)`, extracted from the 1,130-line function it was.
  */
 export interface Agent5Run {
-  llmRetriesEnabled: boolean;
   clueDensity: "minimal" | "moderate" | "dense";
   strictPromptFeedbackBase: ReturnType<typeof buildStrictPromptFeedback> | undefined;
   proactiveFirstPassFeedback: ReturnType<typeof buildAgent5ProactiveFirstPassFeedback>;

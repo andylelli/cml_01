@@ -15,7 +15,7 @@ import { parseClockTime, buildCaseScopedLockedFacts,
 } from "@cml/cml";
 import type { PhaseScore } from "@cml/story-validation";
 import { scoreRealCml } from "@cml/story-validation";
-import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, honestScore } from "./shared.js";
+import { type OrchestratorContext, preAgent9LlmRetriesEnabled, honestScore } from "./shared.js";
 // A_74 §8 DE3 — the bridge from the cross-run ledger into the structural judge's corpus.
 import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
 import {
@@ -109,14 +109,13 @@ export function checkLockedFactTimeAlignment(ctx: OrchestratorContext): string[]
 
 export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
 
   // ── Agent 3: CML generation ────────────────────────────────────────────────
   let cmlResult = await generateAcceptedCml(ctx);
 
   // F1b: Victim/culprit collision check — retry once with explicit exclusions before failing.
-  cmlResult = await retryOnVictimCulpritCollision(ctx, contractRecoveryEnabled, cmlResult);
+  cmlResult = await retryOnVictimCulpritCollision(ctx, cmlResult);
 
   ctx.reportProgress("cml", "Mystery structure generated and validated", 50);
 
@@ -256,13 +255,9 @@ async function generateAcceptedCml(ctx: OrchestratorContext) {
   return cmlResult;
 }
 
-async function retryOnVictimCulpritCollision(ctx: OrchestratorContext, contractRecoveryEnabled: boolean, cmlResult: CMLGenerationResult) {
+async function retryOnVictimCulpritCollision(ctx: OrchestratorContext, cmlResult: CMLGenerationResult) {
   const initialCollisions = checkVictimCulpritCollision(ctx.cml);
   if (initialCollisions.length > 0) {
-    if (!contractRecoveryEnabled) {
-      initialCollisions.forEach((msg) => ctx.errors.push(`Agent 3: ${msg}`));
-      throw new Error("CML generation produced a victim/culprit collision (contract recovery disabled)");
-    }
     const victimNames: string[] = ((ctx.cast as any)?.cast?.crimeDynamics?.victimCandidates ?? []).map(String).filter(Boolean);
     const detectiveNames: string[] = ((ctx.cast as any)?.cast?.crimeDynamics?.detectiveCandidates ?? []).map(String).filter(Boolean);
     const exclusionNames = [...new Set([...victimNames, ...detectiveNames])];

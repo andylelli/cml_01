@@ -12,11 +12,9 @@ import {
   type OrchestratorContext,
   runStage,
   appendRetryFeedbackOptional,
-  preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 
   // CR-21 (ORC-02): the one refineSetting input — the first attempt and the schema-repair re-roll.
@@ -39,28 +37,6 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     },
     score: async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
   });
-
-  if (
-    ctx.setting.setting.realism.anachronisms.length > 0 ||
-    ctx.setting.setting.realism.implausibilities.length > 0
-  ) {
-    // A_53 P2 (repair-not-abort): refineSetting already folds residual realism notes on its final
-    // attempt; this is a defensive belt — fold + warn here too, never throw away ~30 agents of work.
-    const realism = ctx.setting.setting.realism;
-    const anachronismCount = realism.anachronisms.length;
-    const implausibilityCount = realism.implausibilities.length;
-    realism.recommendations = [
-      ...(realism.recommendations ?? []),
-      ...realism.anachronisms.map((a) => `Anachronism to avoid: ${a}`),
-      ...realism.implausibilities.map((i) => `Implausibility to avoid: ${i}`),
-    ];
-    realism.anachronisms = [];
-    realism.implausibilities = [];
-    ctx.warnings.push(
-      `Agent 1: folded ${anachronismCount + implausibilityCount} residual realism note(s) ` +
-      `(anachronisms=${anachronismCount}, implausibilities=${implausibilityCount}) into recommendations instead of aborting.`,
-    );
-  }
 
   // A_53 P2 (repair-not-abort): deterministic schema backfill from context — runs FREE before any
   // LLM re-roll or throw. Most setting-schema failures are a single missing array/string field;
@@ -118,10 +94,6 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     }
   }
   if (!settingSchemaValidation.valid) {
-    if (!contractRecoveryEnabled) {
-      settingSchemaValidation.errors.forEach((error) => ctx.errors.push(`Setting schema failure: ${error}`));
-      throw new Error("Setting artifact failed schema validation (contract recovery disabled)");
-    }
     ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation with schema repair guardrails");
     const settingSchemaRetryStart = Date.now();
     const retriedSetting = await refineSetting(ctx.client, settingInputs(), 2);

@@ -12,7 +12,7 @@ import { generateCML } from "../agent3-cml.js";
  * rewrites it, Agent 4 failing (graceful degrade on, then off). Per scenario: each call's agent and a digest
  * of its messages, and a digest of the result (or the thrown message).
  */
-const FLAGS = ["AGENT4_GRACEFUL_DEGRADE", "CML_REPAIR_MODE"];
+const FLAGS = ["AGENT4_GRACEFUL_DEGRADE"];
 const saved: Record<string, string | undefined> = {};
 afterEach(() => { for (const f of FLAGS) { if (saved[f] === undefined) delete process.env[f]; else process.env[f] = saved[f]; } vi.restoreAllMocks(); });
 

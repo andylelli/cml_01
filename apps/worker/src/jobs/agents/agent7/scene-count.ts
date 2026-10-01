@@ -199,79 +199,59 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
     ).length;
 
     if (Math.abs(actualSceneCount - expectedScenes) > sceneTolerance) {
-      if (!run.contractRecoveryEnabled) {
+      // Compute exact act targets using the SAME ratios as buildUserRequest() so the
+      // retry message is always consistent with what the prompt already asked for.
+      const { act1: actI, act2: actII, act3: actIII } = computeActSceneCounts(expectedScenes); // A7-05
+
+      ctx.warnings.push(
+        `Scene count final gate: narrative has ${actualSceneCount} scenes but target is ${expectedScenes} — regenerating.`
+      );
+      ctx.reportProgress("narrative", `Scene count fix: need ${expectedScenes} scenes, got ${actualSceneCount}`, 80);
+
+      const sceneCountRetryStart = Date.now();
+      const sceneCountRetried = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
+        `SCENE COUNT VIOLATION: Your previous outline had ${actualSceneCount} scenes. ` +
+        `The target is EXACTLY ${expectedScenes} scenes — no more, no fewer. ` +
+        `You MUST generate EXACTLY: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
+        `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
+        `Count your scenes carefully before returning. ` +
+        `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
+      ]));
+      recordOutlineCoercions(ctx, sceneCountRetried); // A7-11
+      ctx.agentCosts["agent7_narrative"] =
+        sceneCountRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
+      ctx.agentDurations["agent7_narrative"] =
+        (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
+
+      const retriedActualCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
+      ).length;
+
+      if (Math.abs(retriedActualCount - expectedScenes) <= sceneTolerance) {
+        narrative = sceneCountRetried;
+        ctx.warnings.push(`Scene count final gate: retry produced ${retriedActualCount} scenes — within ±${sceneTolerance} of target ${expectedScenes}, accepted.`);
+        await rescoreNarrative(ctx, narrative);
+      } else {
+        // Last-resort deterministic repair to prevent hard failure on scene-count drift.
         const deterministicRepair = rebalanceNarrativeSceneCountsDeterministically(
-          narrative,
+          sceneCountRetried,
           expectedScenes,
           ctx.clues
         );
-        const repairedCount = (narrative.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
+        const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
         ).length;
         if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
-          ctx.warnings.push(
-            `Scene count final gate: deterministic repair applied without retry (${deterministicRepair.summary}); accepted ${repairedCount} scenes for target ${expectedScenes}.`
-          );
-          await rescoreNarrative(ctx, narrative);
-        } else {
-          throw new Error(
-            `Scene count enforcement failed with contract recovery disabled: narrative has ${repairedCount} scenes but requires ${expectedScenes} ±${sceneTolerance}.`
-          );
-        }
-      } else {
-        // Compute exact act targets using the SAME ratios as buildUserRequest() so the
-        // retry message is always consistent with what the prompt already asked for.
-        const { act1: actI, act2: actII, act3: actIII } = computeActSceneCounts(expectedScenes); // A7-05
-
-        ctx.warnings.push(
-          `Scene count final gate: narrative has ${actualSceneCount} scenes but target is ${expectedScenes} — regenerating.`
-        );
-        ctx.reportProgress("narrative", `Scene count fix: need ${expectedScenes} scenes, got ${actualSceneCount}`, 80);
-
-        const sceneCountRetryStart = Date.now();
-        const sceneCountRetried = await formatNarrative(ctx.client, narrativeInputs(ctx, run, [
-          `SCENE COUNT VIOLATION: Your previous outline had ${actualSceneCount} scenes. ` +
-          `The target is EXACTLY ${expectedScenes} scenes — no more, no fewer. ` +
-          `You MUST generate EXACTLY: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
-          `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
-          `Count your scenes carefully before returning. ` +
-          `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
-        ]));
-        recordOutlineCoercions(ctx, sceneCountRetried); // A7-11
-        ctx.agentCosts["agent7_narrative"] =
-          sceneCountRetried.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-        ctx.agentDurations["agent7_narrative"] =
-          (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
-
-        const retriedActualCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
-        ).length;
-
-        if (Math.abs(retriedActualCount - expectedScenes) <= sceneTolerance) {
           narrative = sceneCountRetried;
-          ctx.warnings.push(`Scene count final gate: retry produced ${retriedActualCount} scenes — within ±${sceneTolerance} of target ${expectedScenes}, accepted.`);
+          ctx.warnings.push(
+            `Scene count final gate: deterministic repair applied (${deterministicRepair.summary}) and recovered count ${repairedCount} for target ${expectedScenes}.`
+          );
           await rescoreNarrative(ctx, narrative);
         } else {
-          // Last-resort deterministic repair to prevent hard failure on scene-count drift.
-          const deterministicRepair = rebalanceNarrativeSceneCountsDeterministically(
-            sceneCountRetried,
-            expectedScenes,
-            ctx.clues
+          // Both LLM retries and deterministic repair failed; abort.
+          throw new Error(
+            `Scene count enforcement failed: after retries and deterministic repair, narrative has ${repairedCount} scenes ` +
+            `but the pipeline requires ${expectedScenes} ±${sceneTolerance}. ` +
+            `Aborting — cannot continue to prose generation with wrong scene count.`
           );
-          const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
-          ).length;
-          if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
-            narrative = sceneCountRetried;
-            ctx.warnings.push(
-              `Scene count final gate: deterministic repair applied (${deterministicRepair.summary}) and recovered count ${repairedCount} for target ${expectedScenes}.`
-            );
-            await rescoreNarrative(ctx, narrative);
-          } else {
-            // Both LLM retries and deterministic repair failed; abort.
-            throw new Error(
-              `Scene count enforcement failed: after retries and deterministic repair, narrative has ${repairedCount} scenes ` +
-              `but the pipeline requires ${expectedScenes} ±${sceneTolerance}. ` +
-              `Aborting — cannot continue to prose generation with wrong scene count.`
-            );
-          }
         }
       }
     }

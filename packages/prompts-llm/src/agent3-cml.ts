@@ -15,7 +15,6 @@ import {
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
-import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
@@ -33,7 +32,6 @@ import {
   CML_2_0_SCHEMA_SUMMARY,
   AXIS_TYPE_DESCRIPTIONS,
 } from "./shared/schemas.js";
-import { groundDiscriminatingKnowledgeRevealed } from "./shared/grounding.js";
 import {
   loadSeedCMLFiles,
   extractStructuralPatterns,
@@ -1257,99 +1255,18 @@ async function parseCmlReply(response: Awaited<ReturnType<AzureOpenAIClient["cha
  * A34-07 — Agent 3's last attempt failed validation: repair the CML with Agent 4 and return the result.
  * Moved out of generateCML's attempt loop; its caller logs and rethrows whatever this throws.
  *
- * CML_REPAIR_MODE = patch | rewrite | shadow.
- *  - patch:  node-scoped targeted patches first (redesign §4.2/§9.2); avoids re-emitting the
- *            whole 8000-token doc to fix one field. On full resolution returns immediately.
- *  - rewrite: legacy whole-CML revision (the default — preserves prior score behavior).
- *  - shadow: run patching for telemetry only and ALWAYS use the legacy rewrite result.
- * A_53 P9 (full-rewrite-resends-entire-cml-each-pass): the patch engine is the efficiency
- * win, but it is a SCORE-SENSITIVE default change (it produces a different CML revision path),
- * so A_53 integration keeps the default at "rewrite" until an A/B validates patch quality —
- * set CML_REPAIR_MODE=patch to opt in. (See ANALYSIS_53 integration note.)
+ * A34-Q03 (owner decision 12, CR-30): the node-scoped patch engine (CML_REPAIR_MODE=patch|shadow, never the
+ * default, never run in a pipeline) is retired; Agent 4 rewrites. Offline verdict before deletion: on the one real
+ * failing CML in the corpus it fixed 0 of 2 errors (both A_90 chronology errors that span two nodes).
  */
 async function escalateToRevision({ attempt, client, cml, inputs, logger, modelName, normalizationNotes, prompt, resolvedMaxAttempts, startTime, validation }: { attempt: number; client: AzureOpenAIClient; cml: any; inputs: CMLPromptInputs; logger: ReturnType<AzureOpenAIClient["getLogger"]>; modelName: string; normalizationNotes: string[]; prompt: PromptMessages; resolvedMaxAttempts: number; startTime: number; validation: ReturnType<typeof validateCml> }) {
-  const repairMode = (process.env.CML_REPAIR_MODE ?? "rewrite").trim().toLowerCase();
-  // A_53 P9 (patch-then-rewrite-double-spend): hold the partially-repaired CML from a
-  // non-resolving patch pass so the legacy rewrite continues from patch progress instead of
-  // discarding it and re-revising the ORIGINAL cml. Null when patch didn't run/produce output.
-  let patchedSoFar: Record<string, unknown> | undefined;
-  if (repairMode === "patch" || repairMode === "shadow") {
-    try {
-      const patchResult = await patchCmlNode({
-        cml: cml as Record<string, unknown>,
-        propose: makeLlmPatchProposer(client, { runId: inputs.runId, projectId: inputs.projectId }),
-        maxPatches: 16,
-      });
-      // A_53 P9 (patch-then-rewrite-double-spend): remember the (partially) repaired doc; it is
-      // used below as the rewrite seed when patch couldn't fully resolve, so applied patches are
-      // not thrown away. (shadow mode intentionally ignores this and rewrites from original.)
-      if (repairMode === "patch") {
-        patchedSoFar = patchResult.cml as Record<string, unknown>;
-      }
-      await logger.logResponse({
-        runId: inputs.runId,
-        projectId: inputs.projectId,
-        agent: "Agent3-CMLGenerator",
-        operation: "cml_targeted_patch",
-        model: modelName,
-        success: patchResult.validation.valid,
-        validationStatus: patchResult.validation.valid ? "pass" : "fail",
-        retryAttempt: attempt,
-        latencyMs: Date.now() - startTime,
-        metadata: {
-          mode: repairMode,
-          errorsBefore: validation.errors.length,
-          errorsAfter: patchResult.validation.errors.length,
-          patchesApplied: patchResult.applied.length,
-          contractRejections: patchResult.rejected.length,
-        },
-      });
-      if (repairMode === "patch" && patchResult.validation.valid) {
-        // A_53 P6 (grounding-mutation-after-validation): the patch may have re-mutated
-        // discriminating_test / inference_path — re-ground knowledge_revealed then re-validate
-        // ONCE so grounding never ships stale after a mutation. (required_evidence is repaired
-        // downstream by applyCmlRepairAndRevalidate in agent3-run.) Keep the patched validation
-        // if re-grounding somehow regresses it.
-        const patchedCaseBlock = (patchResult.cml as any)?.CASE ?? patchResult.cml;
-        groundDiscriminatingKnowledgeRevealed(patchedCaseBlock as Record<string, unknown>);
-        const regrounded = validateCml(patchResult.cml as any);
-        return {
-          cml: patchResult.cml,
-          validation: regrounded.valid ? regrounded : patchResult.validation,
-          normalizationNotes: [...normalizationNotes],
-          attempt: resolvedMaxAttempts + 1,
-          latencyMs: Date.now() - startTime,
-          cost: (client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0) + (client.getCostTracker().getSummary().byAgent["Agent4-Patch"] || 0), // A34-D15: the patch call's own label, as the revision path adds Agent4-Revision
-          revisedByAgent4: true,
-          revisionDetails: {
-            attempts: patchResult.applied.length,
-            revisionsApplied: patchResult.applied.map((a) => `patched ${a.path} (${a.nodeBytes}b)`),
-          },
-        };
-      }
-      // shadow mode, or patch mode that didn't fully resolve → fall through to legacy rewrite.
-    } catch (patchErr) {
-      await logger.logError({
-        runId: inputs.runId,
-        projectId: inputs.projectId,
-        agent: "Agent3-CMLGenerator",
-        operation: "cml_targeted_patch_error",
-        errorMessage: (patchErr as Error).message,
-      });
-      // fall through to legacy rewrite on any patch-path error
-    }
-  }
-
   const revisionResult = await reviseCml(client, {
     originalPrompt: {
       system: prompt.system, 
       developer: prompt.developer || "", 
       user: prompt.user 
     },
-    // A_53 P9 (patch-then-rewrite-double-spend): seed the rewrite with patch progress when a
-    // patch pass ran but didn't fully resolve; else the original parse. Preserves applied
-    // patches instead of re-revising from scratch.
-    invalidCml: yaml.dump(patchedSoFar ?? cml),
+    invalidCml: yaml.dump(cml),
     validationErrors: validation.errors,
     attempt: 1,
     runId: inputs.runId,

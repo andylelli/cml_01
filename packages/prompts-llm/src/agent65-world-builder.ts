@@ -230,7 +230,6 @@ export interface WorldBuilderInputs {
   model?: string;
   runId?: string;
   projectId?: string;
-  retryFeedback?: string;   // Scoring feedback from a previous failed attempt
   onProgress?: (phase: string, message: string) => void;
 }
 
@@ -951,19 +950,6 @@ export async function generateWorldDocument(
   const messages: Message[] = [
     { role: 'system', content: WORLD_BUILDER_SYSTEM },
   ];
-
-  // If a previous attempt failed, prepend scoring feedback as a multi-turn preamble so
-  // the model enters the generation phase already aware of what needs correcting.
-  if (inputs.retryFeedback) {
-    messages.push({
-      role: 'user',
-      content: `PREVIOUS_ATTEMPT_FAILED — Retry guidance:\n\n${inputs.retryFeedback}`,
-    });
-    messages.push({
-      role: 'assistant',
-      content: 'Understood. I will review the scoring feedback and regenerate the World Document, correcting all identified issues.',
-    });
-  }
 
   messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
 

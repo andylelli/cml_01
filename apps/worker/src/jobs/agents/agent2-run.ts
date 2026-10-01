@@ -22,7 +22,6 @@ import {
   type OrchestratorContext,
   runStage,
   appendRetryFeedback,
-  preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 import { isDetectiveArchetype } from "./identity-match.js";
 
@@ -750,7 +749,6 @@ function repairCastSchemaFields(castRaw: Record<string, unknown>): number {
 }
 
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 
   const setting = ctx.setting!;
@@ -813,11 +811,6 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   let castSchemaValidation = validateArtifact("cast_design", castValidationPayload);
   if (!castSchemaValidation.valid) {
-    if (!contractRecoveryEnabled) {
-      castSchemaValidation.errors.forEach((error) => ctx.errors.push(`Cast schema failure: ${error}`));
-      const errorSummary = castSchemaValidation.errors.slice(0, 3).join("; ");
-      throw new Error(`Cast artifact failed schema validation (contract recovery disabled): ${errorSummary}`);
-    }
     // A_53 P9 (cast-schema-repair-full-regen): before paying for a whole second designCast (itself
     // ≤3 internal attempts → doubles ~6k-token spend + latency on the critical path), try a
     // deterministic repair of the SPECIFIC residual fields and re-validate. normaliseCastOutput

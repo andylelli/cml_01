@@ -42,16 +42,6 @@ export function honestScore(score: () => PhaseScore | null | undefined, label: s
   return result;
 }
 
-export function preAgent9ContractRecoveryEnabled(): boolean {
-  // Contract recovery is enabled by default so schema/structural near-misses
-  // are repaired consistently across all story parameter combinations.
-  const raw = String(process.env.AGENT_PRE9_ENABLE_CONTRACT_RECOVERY ?? "").trim().toLowerCase();
-  if (!raw) return true;
-  if (raw === "0" || raw === "false" || raw === "no" || raw === "off") return false;
-  if (raw === "1" || raw === "true" || raw === "yes" || raw === "on") return true;
-  return true;
-}
-
 /**
  * Generate once, score once, record the score. Owner decision 7 (2026-10-01, SCO-Q02 / ORC-Q01, ADR-0003 and
  * ADR-0006): the phase-score retry loop and its abort-on-exhaustion are deleted. The loop ran only under

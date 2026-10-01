@@ -163,13 +163,6 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   const locationInputs = (feedback?: string): Parameters<typeof generateLocationProfiles>[1] => ({
     settingRefinement: ctx.setting!.setting,
     caseData: ctx.cml!,
-    // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
-    // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
-    // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
-    // generateLocationProfiles declares the field optional and degrades cleanly (it derives
-    // scene locations only when acts are present). This used to carry a `!` assertion, which
-    // was a no-op at runtime but told every reader the value was available. It is not.
-    narrative: ctx.narrative,
     tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
     targetWordCount: 1000,
     runId: ctx.runId,
@@ -194,33 +187,6 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     validation.errors.forEach((e) => ctx.warnings.push(`  - ${e}`));
   }
   validation.warnings.forEach((w) => ctx.warnings.push(`  - Schema warning: ${w}`));
-
-  // F5b: Warn if any sensoryDetails entry contains a conjugated verb — indicates the model
-  // wrote a full sentence instead of a noun phrase, which bleeds into Agent 9 as prose.
-  const sensoryBleedWarnings: string[] = [];
-  for (const loc of (ctx.locationProfiles?.keyLocations ?? [])) {
-    const details = (loc as any).sensoryDetails ?? {};
-    for (const field of ['sights', 'sounds', 'smells', 'tactile'] as const) {
-      for (const entry of (details[field] ?? []) as string[]) {
-        if (isFullSentenceBleed(entry)) {
-          sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryDetails.${field}: "${entry}" (full-sentence bleed — should be noun phrase)`);
-        }
-      }
-    }
-    for (const variant of (loc as any).sensoryVariants ?? []) {
-      for (const field of ['sights', 'sounds', 'smells'] as const) {
-        for (const entry of (variant[field] ?? []) as string[]) {
-          if (isFullSentenceBleed(entry)) {
-            sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryVariants[${variant.id ?? '?'}].${field}: "${entry}" (full-sentence bleed)`);
-          }
-        }
-      }
-    }
-  }
-  if (sensoryBleedWarnings.length > 0) {
-    console.warn('[Agent 2c] F5b: sensoryDetails full-sentence bleed detected — these will be copied verbatim by Agent 9:');
-    sensoryBleedWarnings.forEach((w) => { console.warn(w); ctx.warnings.push(w); });
-  }
 
   // Phase-1 shadow: project the eager location "spine" and run its deterministic sanity check
   // for telemetry only. Default OFF; when AGENT2C_SPINE_CHECK is set (shadow/on) it LOGS findings

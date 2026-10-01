@@ -9,7 +9,6 @@ import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type OrchestratorContext,
-  applyClueGuardrails,
 } from "../shared.js";
 import {
   CANONICAL_CLUE_ID_RE,
@@ -37,7 +36,6 @@ import {
   Agent5State,
 } from "./run-state.js";
 import {
-  RED_HERRING_BUDGET,
 } from "./extraction.js";
 
 const DISCRIMINATING_ID_TOKEN_STOP_WORDS = new Set([
@@ -391,59 +389,6 @@ export async function remediateDiscriminatingEvidence(ctx: OrchestratorContext, 
     finalCoverage = buildCoverageSnapshot(clues);
   }
 
-  // Final targeted remediation: if discriminating-test evidence_clues IDs are still
-  // missing, run one bounded retry with exact ID contract feedback before hard-fail.
-  const missingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
-  if (missingEvidenceIds.length > 0 && run.llmRetriesEnabled) {
-    ctx.warnings.push(
-      `Agent 5: ${missingEvidenceIds.length} discriminating-test evidence clue ID(s) still missing after retries; running targeted ID-contract retry`
-    );
-    ctx.reportProgress("clues", "Regenerating clues to satisfy discriminating evidence ID contract...", 61);
-
-    const idContractRetryStart = Date.now();
-    state.agent5RetryInvoked = true;
-    clues = await run.extractWithAttempt({
-      cml: ctx.cml!,
-      clueDensity: run.clueDensity,
-      redHerringBudget: RED_HERRING_BUDGET,
-      fairPlayFeedback: run.mergeStrictPromptFeedback({
-        overallStatus: "fail",
-        violations: [
-          {
-            severity: "critical" as const,
-            rule: "Discriminating Test ID Contract",
-            description: `Missing clue id(s): ${missingEvidenceIds.join(", ")}`,
-            suggestion: "Add clues using these exact IDs and place them as essential early/mid evidence.",
-          },
-        ],
-        warnings: [],
-        recommendations: [
-          `Every CASE.discriminating_test.evidence_clues ID must exist exactly in clues[].id: ${missingEvidenceIds.join(", ")}`,
-          "Set these required IDs to criticality=essential and placement=early|mid.",
-          "Preserve unaffected clue IDs and wording unless dependency requires change.",
-          "Keep sourceInCML paths legal and in-range.",
-        ],
-      }),
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-
-    ctx.agentCosts["agent5_clues"] =
-      clues.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
-    ctx.agentDurations["agent5_clues"] =
-      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - idContractRetryStart);
-
-    const postIdContractGuardrails = applyClueGuardrails(ctx.cml!, clues);
-    postIdContractGuardrails.fixes.forEach((fix) => ctx.warnings.push(`Post-discriminating-id guardrail auto-fix: ${fix}`)
-    );
-    if (postIdContractGuardrails.hasCriticalIssues) {
-      postIdContractGuardrails.issues.forEach((issue) => ctx.errors.push(`Agent 5 guardrail failure after discriminating-id retry: ${issue.message}`)
-      );
-      run.failAgent5("Agent 5 guardrail failure after discriminating evidence ID retry");
-    }
-
-    finalCoverage = buildCoverageSnapshot(clues);
-  }
 
   if (state.performedCoverageRetry) {
     finalCoverage.allCoverageIssues.forEach((issue) => ctx.warnings.push(`Inference coverage final: [${issue.severity}] ${issue.message}`)

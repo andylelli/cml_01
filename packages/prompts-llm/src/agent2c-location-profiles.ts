@@ -10,7 +10,6 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { SettingRefinement } from "./agent1-setting.js";
-import type { NarrativeOutline } from "./agent7-narrative.js";
 import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface SensoryDetails {
@@ -81,7 +80,6 @@ export interface LocationProfilesResult {
 export interface LocationProfilesInputs {
   settingRefinement: SettingRefinement;
   caseData: CaseData;
-  narrative?: NarrativeOutline; // optional — agent2c runs before agent7 so narrative may not exist yet
   tone?: string;
   targetWordCount?: number;
   runId?: string;
@@ -89,12 +87,10 @@ export interface LocationProfilesInputs {
 }
 
 /**
- * R2 (architecture/REVIEW_01.md) — exported so the `narrative`-absent path is testable.
- *
- * `narrative` is undefined on EVERY production run: Agent 2c runs long before Agent 7, which is the
- * only writer of `ctx.narrative`, and the order cannot reverse because Agent 7 consumes these
- * profiles. The degradation path below (empty `narrativeActs` → no scene-derived locations) is
- * therefore the only path that has ever executed, and nothing asserted it until now.
+ * Exported so the prompt is testable. A1X-15 (owner decision 12, CR-30): the `narrative` input is gone — Agent 2c
+ * runs long before Agent 7, the only writer of `ctx.narrative`, so it was undefined on every run and its
+ * scene-location list always rendered empty. The empty "Key locations mentioned in narrative:" line is kept so the
+ * prompt stays byte-identical.
  */
 export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
@@ -109,20 +105,6 @@ export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, prev
   const crimeScene = cmlCase.meta?.setting?.location ?? "Unknown";
   const tone = inputs.tone ?? "Classic";
   const targetWordCount = inputs.targetWordCount ?? 1000;
-
-  // Extract key locations from narrative scenes (narrative is optional — may not exist yet)
-  const narrativeActs = inputs.narrative && Array.isArray(inputs.narrative.acts) ? inputs.narrative.acts : [];
-  const allScenes = narrativeActs.flatMap((act) => Array.isArray(act.scenes) ? act.scenes : []);
-  const sceneLocations = allScenes
-    .map((scene: any) => {
-      const raw = scene.setting || scene.location;
-      if (typeof raw === 'string') return raw;
-      // Support both { name: "..." } and { location: "..." } object shapes
-      if (raw && typeof raw === 'object') return raw.name || raw.location || raw.id || null;
-      return null;
-    })
-    .filter((loc): loc is string => Boolean(loc));
-  const uniqueLocations = Array.from(new Set(sceneLocations)).slice(0, 5);
 
   // Era markers from setting
   const eraMarkers = [
@@ -319,7 +301,7 @@ IMPORTANT - Geographic Specificity:
 - Make the choice contextually appropriate to the era (${era}) and setting type
 
 Key locations mentioned in narrative:
-${uniqueLocations.map((loc, idx) => `${idx + 1}. ${loc}`).join('\n')}
+
 
 Setting constraints:
 - Physical constraints: ${(inputs.settingRefinement.location.physicalConstraints || []).join(', ')}
