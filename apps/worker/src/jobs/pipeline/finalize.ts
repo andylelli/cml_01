@@ -40,7 +40,7 @@ export async function runRubricAndContentFilter(ctx: OrchestratorContext) {
     warnings: ctx.warnings,
     runId: ctx.runId,
     projectId: ctx.projectId,
-    discriminatingPair: ctx.discriminatingContradiction ?? null,
+    discriminatingPair: null, // v1's Agent 9 found this pair; v1 is deleted (owner decision 1)
   });
 
   // A_71 (A_70 §5) — surface the content-filter refusal tally. Measured on the 07-27 run: 10

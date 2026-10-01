@@ -65,48 +65,8 @@ export function assertFlagCapabilities(env: NodeJS.ProcessEnv = process.env): st
     );
   }
 
-  // FLAG-AUDIT documents a hard limit of 2 (a chapter is ~1,913 completion tokens against a 4,000
-  // maxTokens). The generator clamps; say so rather than silently honouring a different number than
-  // the operator typed.
-  const batch = Number(env.AGENT9_PROSE_BATCH_SIZE);
-  if (Number.isFinite(batch) && batch > 2) {
-    warnings.push(
-      `[REVIEW_02] AGENT9_PROSE_BATCH_SIZE=${env.AGENT9_PROSE_BATCH_SIZE} exceeds the documented ` +
-        "hard limit of 2 and will be clamped to 2 — a larger batch truncates mid-chapter against the " +
-        "4,000-token reply ceiling.",
-    );
-  }
-
-  // ── Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md) ─────────────
-  // Three levers with a dependency the flag names do not show. Each of these combinations produces a
-  // run that READS as an enabled arm and silently executes the control — the precise defect class
-  // this preflight exists for, and the reason it throws rather than degrading.
-  const geometryStage = String(env.AGENT75_GEOMETRY ?? "").trim().toLowerCase();
-  const geometryStageOff = ["off", "0", "false", "no"].includes(geometryStage);
-  const acceptance = String(env.AGENT9_GEOMETRY_ACCEPTANCE ?? "").trim().toLowerCase();
-
-  if (geometryStageOff && isOn(env.AGENT9_GEOMETRY_CONTRACT)) {
-    throw new FlagCapabilityError(
-      "AGENT9_GEOMETRY_CONTRACT=true requires AGENT75_GEOMETRY to be on (shadow or gate). With the " +
-        "stage off there is no contract on ctx, so the prose prompt would silently omit every " +
-        "geometry block and the run would report as the treatment arm while executing the control.",
-    );
-  }
-
-  if (geometryStageOff && acceptance === "apply") {
-    throw new FlagCapabilityError(
-      "AGENT9_GEOMETRY_ACCEPTANCE=apply requires AGENT75_GEOMETRY to be on (shadow or gate). Without " +
-        "a derived contract there is nothing to accept against, and the repair ladder would never fire.",
-    );
-  }
-
-  if (isOn(env.AGENT9_REGEN_AFTERMATH_REPEAT) && acceptance !== "apply") {
-    throw new FlagCapabilityError(
-      "AGENT9_REGEN_AFTERMATH_REPEAT=true requires AGENT9_GEOMETRY_ACCEPTANCE=apply. The pass is " +
-        "driven by the acceptance test's paragraph indices; in shadow the violation is recorded and " +
-        "no repair is attempted, so the flag would gate a branch that cannot be reached.",
-    );
-  }
+  // Owner decision 1 (2026-09-30): the AGENT9_PROSE_BATCH_SIZE clamp and the three AGENT9_GEOMETRY_* /
+  // AGENT9_REGEN_AFTERMATH_REPEAT dependency checks guarded levers only the deleted v1 engine read.
 
   return warnings;
 }

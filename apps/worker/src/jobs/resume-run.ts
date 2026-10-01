@@ -196,7 +196,12 @@ async function main(): Promise<void> {
   // seeds the story DATE from it (generateSpecificDate), so `resume-${Date.now()}` re-dates every resumed
   // run that re-runs Agent 2d (MEASURED: 1935 May recorded, 1933 April on the next replay).
   const runId = (process.env.RESUME_RUN_ID ?? "").trim() || `resume-${Date.now()}`;
-  const redoChapter = Number(process.env.AGENT9_REDO_CHAPTER ?? "") || 0;
+  // A_106's one-chapter redo (AGENT9_REDO_CHAPTER) was implemented by v1's generate.ts, deleted by owner
+  // decision 1. v2 has no per-chapter redo, so refuse the flag here — before any LLM call — rather than
+  // spend a run that silently rewrites the whole book.
+  if ((process.env.AGENT9_REDO_CHAPTER ?? "").trim()) {
+    throw new Error("AGENT9_REDO_CHAPTER is not supported: the one-chapter redo was a v1 feature (owner decision 1). Unset it; RESUME_REDO=prose rewrites the whole book.");
+  }
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),
     theme: (spec.theme as string) || "A classic murder mystery",
@@ -206,15 +211,6 @@ async function main(): Promise<void> {
     projectId,
     resumeFromRunId: originalRunId || projectId,
     resumeArtifacts: bundle,
-    // A_106 — ONE-CHAPTER REDO. With AGENT9_REDO_CHAPTER=N, the run is handed the project's Agent 9
-    // checkpoint (the resume never passed one, so a resumed prose stage always started from scratch);
-    // generate.ts then keeps chapters 1..N-1 and N+1..end and writes N again.
-    ...(redoChapter
-      ? {
-          agent9CheckpointPath: join(workspaceRoot, "apps", "worker", "logs", `agent9-checkpoint-${projectId}.json`),
-          resumeAgent9FromCheckpoint: true,
-        }
-      : {}),
     // CR-03 — a replay keeps its checkpoint in its sandbox. Without this the v2 engine writes (and on
     // the next run REUSES) apps/worker/logs/agent9v2-checkpoint-<project>.json, so one replay would
     // silently make a later paid resume skip the writer.
@@ -222,9 +218,6 @@ async function main(): Promise<void> {
       ? { agent9CheckpointPath: (process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim() }
       : {}),
   };
-  if (redoChapter) {
-    console.log(`[resume-run] REDO CHAPTER: ${redoChapter} — chapters before it stand, chapters after it are kept from the checkpoint, only chapter ${redoChapter} is written again.`);
-  }
 
   if (dry) {
     console.log(

@@ -99,7 +99,8 @@ const FLAG_PATTERN = new RegExp(
     // police them — CML_REPAIR_MODE among them. Named one by one, for the reason LOGGING_KEYS gives.
     String.raw`CML_REPAIR_MODE|ENABLE_SCORING|ENABLE_PROSE_BLIND_READER|HONEST_SCORERS|ALLOW_MULTIPLE_RETRY_GATES|` +
     String.raw`LLM_RETRY_TEMP_ESCALATION|SEED_SELECTION_RANKED|STORY_GEOMETRY_ROLE_FIELD_FIX|VALIDATION_DOCUMENTARY_MONTHS|` +
-    // CR-22 (A9W-13): read by agent9-run.ts, set only by the replay harness; no prefix above matched it.
+    // CR-22 (A9W-13): was read by v1's agent9-run.ts, set only by the replay harness. Retired with v1 (owner
+    // decision 1); still matched here so a config line setting it is reported as "read by no code".
     String.raw`CANARY_REPLAY_FAIRPLAY_ADVISORY|` +
     `${LOGGING_KEYS.join("|")})\\b`,
   "g",

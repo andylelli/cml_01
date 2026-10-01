@@ -7,10 +7,10 @@
  * different contract than the one its chapters were written against.
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe,expect,it,vi } from "vitest";
 
-import { resolveGeometryStageMode, runAgent75 } from "../jobs/agents/agent75-run.js";
-import { assertFlagCapabilities, FlagCapabilityError } from "../jobs/flag-preflight.js";
+import { resolveGeometryStageMode,runAgent75 } from "../jobs/agents/agent75-run.js";
+import { assertFlagCapabilities } from "../jobs/flag-preflight.js";
 import { RESUME_FIELD_BY_ARTIFACT } from "../jobs/resume-hydration.js";
 
 const makeCtx = (overrides: Record<string, unknown> = {}): any => ({
@@ -156,23 +156,6 @@ describe("resume", () => {
 });
 
 describe("flag preflight — combinations that would silently run the control arm", () => {
-  it("refuses a prose contract with the stage off", () => {
-    expect(() =>
-      assertFlagCapabilities({ AGENT75_GEOMETRY: "off", AGENT9_GEOMETRY_CONTRACT: "true" } as NodeJS.ProcessEnv),
-    ).toThrow(FlagCapabilityError);
-  });
-
-  it("refuses acceptance=apply with the stage off", () => {
-    expect(() =>
-      assertFlagCapabilities({ AGENT75_GEOMETRY: "off", AGENT9_GEOMETRY_ACCEPTANCE: "apply" } as NodeJS.ProcessEnv),
-    ).toThrow(FlagCapabilityError);
-  });
-
-  it("refuses the aftermath-repeat pass when the acceptance test is not in apply", () => {
-    expect(() =>
-      assertFlagCapabilities({ AGENT9_REGEN_AFTERMATH_REPEAT: "true" } as NodeJS.ProcessEnv),
-    ).toThrow(FlagCapabilityError);
-  });
 
   it("permits the default configuration", () => {
     expect(() => assertFlagCapabilities({} as NodeJS.ProcessEnv)).not.toThrow();

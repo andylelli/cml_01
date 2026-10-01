@@ -6,38 +6,36 @@
  * silently missing in the other (its `criticalFairPlayRules` was already an empty set). Callers now pass
  * what differs per caller; the initial run state lives here once, and the compiler checks the rest.
  */
-import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import type { AzureOpenAIClient } from "@cml/llm-client";
 import type {
-  SettingRefinementResult,
-  CastDesignResult,
-  BackgroundContextArtifact,
-  HardLogicDeviceResult,
-  ClueDistributionResult,
-  FairPlayAuditResult,
-  NarrativeOutline,
-  CharacterProfilesResult,
-  LocationProfilesResult,
-  TemporalContextResult,
-  ProseGenerationResult,
-  NoveltyAuditResult,
-  NarrativeState,
-  WorldDocumentResult,
+BackgroundContextArtifact,
+CastDesignResult,
+CharacterProfilesResult,
+ClueDistributionResult,
+FairPlayAuditResult,
+HardLogicDeviceResult,
+LocationProfilesResult,
+NarrativeOutline,
+NoveltyAuditResult,
+ProseGenerationResult,
+SettingRefinementResult,
+TemporalContextResult,
+WorldDocumentResult
 } from "@cml/prompts-llm";
 import type { StoryGeometry } from "@cml/story-geometry";
 import type {
-  ScoreAggregator,
-  RetryManager,
-  FileReportRepository,
-  PhaseScore,
-  ValidationReport,
+FileReportRepository,
+RetryManager,
+ScoreAggregator,
+ValidationReport
 } from "@cml/story-validation";
-import type { ScoringLogger } from "../scoring-logger.js";
-import type { RunLogger } from "../run-logger.js";
 import type { MysteryGenerationInputs } from "../run-contract.js";
-import type { CmlPrimaryAxis, HardLogicDirectives } from "./premise.js";
-import type { ClueGuardrailIssue, InferenceCoverageResult } from "./clue-guardrails.js";
+import type { RunLogger } from "../run-logger.js";
+import type { ScoringLogger } from "../scoring-logger.js";
+import type { ClueGuardrailIssue,InferenceCoverageResult } from "./clue-guardrails.js";
 import type { OutlineCoverageIssue } from "./outline-guardrails.js";
+import type { CmlPrimaryAxis,HardLogicDirectives } from "./premise.js";
 
 /** Agent 6 treats a violation of any of these as critical, whatever severity the auditor gave it. */
 export const CRITICAL_FAIR_PLAY_RULES = ["Clue Visibility", "No Withholding", "Logical Deducibility"] as const;
@@ -50,14 +48,7 @@ type RunStateKey =
   | "revisionAttempts"
   | "revisedByAgent4FairPlay"
   | "fairPlayRevisionAttempts"
-  | "proseScoringSnapshot"
-  | "proseChapterScores"
-  | "proseSecondRunChapterScores"
-  | "prosePassAccounting"
-  | "proseRewritePassCount"
-  | "proseRepairPassCount"
-  | "latestProseScore"
-  | "nsdTransferTrace";
+  | "proseScoringSnapshot";
 
 type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T];
 
@@ -84,13 +75,6 @@ export function createOrchestratorContext(base: OrchestratorContextBase): Orches
     revisedByAgent4FairPlay: false,
     fairPlayRevisionAttempts: 0,
     proseScoringSnapshot: newProseScoringSnapshot(),
-    proseChapterScores: [],
-    proseSecondRunChapterScores: [],
-    prosePassAccounting: [],
-    proseRewritePassCount: 0,
-    proseRepairPassCount: 0,
-    latestProseScore: null,
-    nsdTransferTrace: [],
   };
   return { ...initial, ...base };
 }
@@ -316,7 +300,6 @@ export interface OrchestratorContext {
 
   // ── A_57 §9.1/D2: the discriminating staged/true contradiction pair, computed once by the Agent 9
   //    world-state ledger and read by the final rubric scorer (single source of truth). ───────────────
-  discriminatingContradiction?: { values: [string, string]; descriptions: [string, string] } | null;
 
   // ── Pillar 1: Locked Fact Registry (populated by Agent 3b when enableLockedFactRegistry) ─
   lockedFactRegistry?: LockedFactRegistry;
@@ -331,15 +314,7 @@ export interface OrchestratorContext {
   fairPlayRevisionAttempts: number;
 
   // ── Prose-specific state (initialised before Agent 9) ───────────────────
-  narrativeState?: NarrativeState;
   characterGenderMap?: Record<string, string>;
   baselineProseGuardrails?: string[];
   proseScoringSnapshot: ProseScoringSnapshot;
-  proseChapterScores: ProseChapterScorePoint[];
-  proseSecondRunChapterScores: ProseChapterScorePoint[];
-  prosePassAccounting: ProsePassAccounting[];
-  proseRewritePassCount: number;
-  proseRepairPassCount: number;
-  latestProseScore: PhaseScore | null;
-  nsdTransferTrace: any[];
 }

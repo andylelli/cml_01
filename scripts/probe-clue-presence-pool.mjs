@@ -3,7 +3,7 @@
 // where the clue is on the page without its conclusion words — the placement early clues are FOR — and
 // where the floor pastes the label. Measured across every stored book with prose + clues.
 import { readFileSync } from "node:fs";
-import { tokenizeForClueObligation, tokenMatchesText } from "file:///C:/CML/packages/prompts-llm/dist/agent9-prose/clue-validation.js";
+import { tokenizeForClueObligation, tokenMatchesText } from "file:///C:/CML/packages/prompts-llm/dist/prose-contract/clue-obligations.js";
 
 const store = JSON.parse(readFileSync("data/store.json", "utf8"));
 const byProject = new Map();
