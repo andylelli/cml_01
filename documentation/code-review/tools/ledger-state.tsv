@@ -235,7 +235,7 @@ A6-Q04	CR-32	done	69ed426b	AGENT6_MODEL now effective for both Agent 6 calls (ov
 A7-01	CR-24	done	c5423dfd	runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/
 A7-02	CR-23	done	0ca80a5f	behind CML_VERIFIED_FIXES: adoptOutlineCandidate at all 10 adoption points (normalise + warn-only schema)
 A7-03	CR-13	done	ecb12773	CaseBrief = projectCaseForPrompt (with A6-10); the A7-D01 fix is behind CML_VERIFIED_FIXES
-A7-04	CR-13	todo		
+A7-04	CR-13	done	87ae5547	any 151→14; stamps typed; caseOf at 7 unwraps; JS identical but for those. Found: case-read fallbacks disagree; keyTerms/isDeathMethodTell read off clues lacking them
 A7-05	CR-24	done	109d271b	computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic)
 A7-06	CR-16	done	11384aaf	R1: one GENERIC_CONTRACT_VALUE_RE. R2 (owner, A7-Q04): one placement->act default; the raw clue-bearing count (A7-D07)
 A7-07	CR-18	done	ecb12773	behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate)
@@ -304,7 +304,7 @@ A1X-05	CR-21	done	f57dae47	CAST_STEPS table, designCast 96 lines; characterisati
 A1X-06	CR-21	done	cbe9e58a	runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests
 A1X-07	CR-31	done	ecb12773	unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept
 A1X-08	CR-17	done	55448eb5	one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall"
-A1X-09	CR-19	todo		= ORC-03 for Agents 1/2/8; waits with it
+A1X-09	CR-19	done	87ae5547	with ORC-03: per-call cost exists; Agents 1/2/8 keep the cumulative read (charged more than once per run); Agent 2's always-0 was fixed earlier
 A1X-10	CR-29	done	0ca80a5f	behind CML_VERIFIED_FIXES: backfill before a paid re-roll; the runner delegates to the one backfillSetting
 A1X-11	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
 A1X-12	CR-18	done	ecb12773	one resolveNoveltyPolicy (identical under fail_delta 0.1); summariser fix is A1X-D03 behind the flag. Remaining clamp/rounding differences recorded
@@ -333,7 +333,7 @@ A1X-Q06	CR-30	done	55448eb5	DECIDED (decision 12): fix, not freeze — Agent 8's
 A1X-Q07	CR-29	done	55448eb5	DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll
 ORC-01	CR-25	done	a5f9adb0	generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move
 ORC-02	CR-21	done	aeb90610	runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit `characterGenders: undefined` for the owner
-ORC-03	CR-19	todo		waits on A6-D01. CORRECTED 2026-09-30: the note said per-agent costs were correct since dff49644 — false for 2b/2c/2d/2e/3b, whose withValidationRetry still summed running totals; fixed 07898bd0
+ORC-03	CR-19	done	87ae5547	ChatResponse.cost = the tracker's own per-call value (3 clients, pinned); Agent 6.5 sums its calls; the 18 other byAgent reads stay (labels charged by several calls per run — the cumulative read is correct)
 ORC-04	CR-20	done	8054d8a6	parseLlmJson(raw, {guard, extract}) replaces the ten repair ladders, pinned against verbatim copies over a 21-payload corpus. Not built: a callLlmJson that also owns chat + finishReason + cost — refusing on finishReason at the other sites is R2 (ORC-Q03) and per-call cost waits on CR-19 (A6-D01)
 ORC-05	CR-22	done	2d009a33	a run records the RAW flag environment it saw (logs/run-config-<runId>.json + report run_config diagnostic), names generated from what the code reads and checked by flags:check; the worker's two boolean idioms are envOn/envNotOff (50b73fa7), both checks taught the form. DEFERRED, with reason: a typed RunConfig of PARSED values would be a second copy of every flag's parse unless all ~230 reads go through it, and ~45 of them are in the v1 engine (bug fixes only); raw values + the build fingerprint reconstruct a run exactly. Vocabulary unification is ORC-Q05 (owner)
 ORC-06	CR-10	done	9232c483	shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles)

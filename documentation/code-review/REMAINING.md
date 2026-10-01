@@ -40,7 +40,7 @@ withdrawn with their evidence in the ledger.
 | A7-09 | a | done | ecb12773 | section builders, text moved verbatim; the duplicated prose-requirements / pacing rules left (prompt changes) |
 | A5-04 | a | done | 0ca80a5f | caseOf/CaseView in @cml/cml; any 241→80 in Agent 5/6 + clue-contracts. Harness normaliser NOT unified: matches production on 0/101 archived  |
 | A6-18 | a | done | 0ca80a5f | typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client |
-| A7-04 | a | todo | | |
+| A7-04 | a | done | 87ae5547 | any 151→14; stamps typed; caseOf at 7 unwraps; JS identical but for those. Found: case-read fallbacks disagree; keyTerms/isDeathMethodTell r |
 | A9V-04 | a | done | ecb12773 | keyTermHits names the selector's stemmed and the gate's substring rule; thresholds unchanged. Found: tokenMatchesText is not word-bounded |
 | A5-06 | a | done | ecb12773 | typed Agent5GateError at 11 sites; every label pinned unchanged (regex fallback for untyped) |
 | A34-03 | a | done | ecb12773 | pure locked-fact helpers in @cml/cml; numberToWordsSmall vs spellMinuteCount differ on 0 and 100-999 (not unified) |

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 170 | 134 | 60 | 364 |
-| open | 20 | 5 | 12 | 37 |
+| closed | 173 | 134 | 60 | 367 |
+| open | 17 | 5 | 12 | 34 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -29,13 +29,13 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 3 | A9G-15 A9G-Q03 ORC-10 |
 | CR-12 | 17 | 14 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
-| CR-13 | 12 | 11 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
+| CR-13 | 12 | 12 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 11 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 19 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 27 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 19 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
-| CR-19 | 7 | 5 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
+| CR-19 | 7 | 7 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 9 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 8 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
@@ -346,7 +346,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-01 | P1 | R0 (+R1 helper) | CR-24 | done | c5423dfd | Decompose runAgent7 (978 LOC, cc 159) into a coordinator over 14 phases in agent7/; real shared state is 8 locals | runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/ |
 | A7-02 | P1 | R1 + R2 | CR-23 | done | 0ca80a5f | One outline-candidate pipeline for 8 call sites (inputs, accounting, normalise, validate, rescore) | behind CML_VERIFIED_FIXES: adoptOutlineCandidate at all 10 adoption points (normalise + warn-only schema) |
 | A7-03 | P1 | R1 then R2 | CR-13 | done | ecb12773 | One typed CaseBrief accessor for the CML-to-prompt summary shared by Agents 6/7/8 | CaseBrief = projectCaseForPrompt (with A6-10); the A7-D01 fix is behind CML_VERIFIED_FIXES |
-| A7-04 | P2 | R0 | CR-13 | todo |  | 126 any: CaseData = any, SceneRef.scene: any, untyped lambdas over a typed outline, stamps missing from Scene |  |
+| A7-04 | P2 | R0 | CR-13 | done | 87ae5547 | 126 any: CaseData = any, SceneRef.scene: any, untyped lambdas over a typed outline, stamps missing from Scene | any 151→14; stamps typed; caseOf at 7 unwraps; JS identical but for those. Found: case-read fallbacks disagree; keyTerms/isDeathMethodTell read off clues lacking them |
 | A7-05 | P2 | R1 | CR-24 | done | 109d271b | Outline-geometry primitives duplicated: act split ×4, tolerance check ×5, scene flatten ×13 + 4 flatteners | computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic) |
 | A7-06 | P2 | R1 | CR-16 | done | 11384aaf | Two clue-coverage force-assigners, placement→act ×4 with divergent defaults, "clue-bearing" defined twice, GENERIC regex ×2 | R1: one GENERIC_CONTRACT_VALUE_RE. R2 (owner, A7-Q04): one placement->act default; the raw clue-bearing count (A7-D07) |
 | A7-07 | P2 | R1 | CR-18 | done | ecb12773 | Scoring twice: retry-scorer closure vs rescoreNarrative diverge; pacing path never rescores | behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate) |
@@ -425,7 +425,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-06 | P2 | R1 | CR-21 | done | cbe9e58a | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting | runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests |
 | A1X-07 | P2 | R1 (R2 F5b) | CR-31 | done | ecb12773 | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire | unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept |
 | A1X-08 | P2 | R1 (R2 pin) | CR-17 | done | 55448eb5 | Second month→season "single source of truth" in 2d; mandated date not enforced | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
-| A1X-09 | P2 | R1 | CR-19 | todo |  | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 | = ORC-03 for Agents 1/2/8; waits with it |
+| A1X-09 | P2 | R1 | CR-19 | done | 87ae5547 | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 | with ORC-03: per-call cost exists; Agents 1/2/8 keep the cumulative read (charged more than once per run); Agent 2's always-0 was fixed earlier |
 | A1X-10 | P2 | R2 (R1 fold) | CR-29 | done | 0ca80a5f | Agent 1 repair ladder runs in the wrong order; blind re-roll; duplicated realism fold | behind CML_VERIFIED_FIXES: backfill before a paid re-roll; the runner delegates to the one backfillSetting |
 | A1X-11 | P2 | R2 | CR-28 | deferred |  | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields | DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built |
 | A1X-12 | P2 | R1 (R2 edges) | CR-18 | done | ecb12773 | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") | one resolveNoveltyPolicy (identical under fail_delta 0.1); summariser fix is A1X-D03 behind the flag. Remaining clamp/rounding differences recorded |
@@ -459,7 +459,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | ORC-01 | P1 | R1 | CR-25 | done | a5f9adb0 | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules | generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move |
 | ORC-02 | P1 | R1 | CR-21 | done | aeb90610 | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry | runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit characterGenders: undefined for the owner |
-| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | waits on A6-D01. CORRECTED 2026-09-30: the note said per-agent costs were correct since dff49644 — false for 2b/2c/2d/2e/3b, whose withValidationRetry still summed running totals; fixed 07898bd0 |
+| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | done | 87ae5547 | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | ChatResponse.cost = the tracker's own per-call value (3 clients, pinned); Agent 6.5 sums its calls; the 18 other byAgent reads stay (labels charged by several calls per run — the cumulative read is correct) |
 | ORC-04 | P1 | R1 | CR-20 | done | 8054d8a6 | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() | parseLlmJson(raw, {guard, extract}) replaces the ten repair ladders, pinned against verbatim copies over a 21-payload corpus. Not built: a callLlmJson that also owns chat + finishReason + cost — refusing on finishReason at the other sites is R2 (ORC-Q03) and per-call cost waits on CR-19 (A6-D01) |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | done | 2d009a33 | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report | a run records the RAW flag environment it saw (logs/run-config-<runId>.json + report run_config diagnostic), names generated from what the code reads and checked by flags:check; the worker's two boolean idioms are envOn/envNotOff (50b73fa7), both checks taught the form. DEFERRED, with reason: a typed RunConfig of PARSED values would be a second copy of every flag's parse unless all ~230 reads go through it, and ~45 of them are in the v1 engine (bug fixes only); raw values + the build fingerprint reconstruct a run exactly. Vocabulary unification is ORC-Q05 (owner) |
 | ORC-06 | P2 | R0 | CR-10 | done | 9232c483 | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split | shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles) |
