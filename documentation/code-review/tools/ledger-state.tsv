@@ -314,7 +314,7 @@ A1X-15	CR-30	todo
 A1X-D01	CR-07	todo		
 A1X-D02	CR-06	done	ec237e5a	
 A1X-D03	CR-07	todo		
-A1X-D04	CR-07	todo		
+A1X-D04	CR-07	done	2ad12d6c	the re-roll still carries no genders in its prompt; applyCastGenders enforces castGenders on the finished cast (owner decision 10)
 A1X-D05	CR-18	done	3d63527f	memo deleted; the shadow check reads the normalised cast
 A1X-D06	CR-32	todo		
 A1X-D07	CR-06	dup		= A34-D14 (flag register)
@@ -326,7 +326,7 @@ A1X-D12	CR-33	done	ba1b5496	2e derive line names mismatches; Agent 8 duration ad
 A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
 A1X-Q01	CR-12	done	5aeaf992	DECIDED (owner decision 2): @cml/cml with the explicit role winning; shipped behind CML_IDENTITY_ROLE_WINS (OFF) with the [identity-disagree] counter
 A1X-Q02	CR-18	todo		
-A1X-Q03	CR-07	todo		
+A1X-Q03	CR-07	done	2ad12d6c	DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed
 A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)
 A1X-Q05	CR-30	todo		
 A1X-Q06	CR-30	todo		
@@ -342,12 +342,12 @@ ORC-08	CR-17	todo
 ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
 ORC-10	CR-11	done	92aba0fe	111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn)
 ORC-11	CR-07	done	03c4f5d3	the swallowed abort and the scoring retry layer are deleted (owner decision 7)
-ORC-12	CR-33	todo	ba1b5496	process-guards flush keyed by run (ba1b5496). Waits (v1): the repair counters (deterministic-repair.ts, repair-efficacy.ts) are module stores in agent9-prose. OWNER: refuse concurrent runs at the API (ORC-Q06)
+ORC-12	CR-33	done	a52a1365	process-guards flush keyed by run (ba1b5496); the module-state repair counters went with v1 (decision 1); concurrent runs refused at the API (decision 11)
 ORC-13	CR-31	todo		
 ORC-14	CR-32	todo		
 ORC-15	CR-13	todo		
 ORC-16	CR-26	withdrawn	fd058f16	MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1)
-ORC-D01	CR-07	todo		
+ORC-D01	CR-07	withdrawn	03c4f5d3	MOOT: executeAgentWithRetry and abortCritical were deleted with the phase-score retry path (owner decision 7)
 ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
 ORC-D03	CR-06	done	dff49644	
 ORC-D04	CR-06	done	faeb6755	
@@ -364,10 +364,10 @@ ORC-Q01	CR-07	done	03c4f5d3	DECIDED (owner decision 7): the dead abort is delete
 ORC-Q02	CR-03	todo		
 ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest
 ORC-Q04	CR-17	todo		
-ORC-Q05	CR-22	todo		
-ORC-Q06	CR-33	todo		
+ORC-Q05	CR-22	done	7cb43ad0	DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1|true|yes|on / 0|false|no|off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted
+ORC-Q06	CR-33	done	a52a1365	DECIDED (owner decision 11): POST /run refuses a second concurrent run with 409; the slot is freed when the pipeline settles (a timed-out run keeps it)
 ORC-Q07	CR-32	todo		
-SCO-01	CR-30	todo		
+SCO-01	CR-30	done	51f0d14a	DECIDED (owner decision 8): the vanity family is retired for phases 1/2/2c/2e/3/3b/7 and ProseScorer; 2b/2d/6.5 keep theirs until honest tables exist (SCO-Q07)
 SCO-02	CR-18	done	6cd2bdae	8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done)
 SCO-03	CR-27	todo		
 SCO-04	CR-18	done	d860f265	displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned)

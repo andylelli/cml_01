@@ -29,9 +29,9 @@ first; the v1 retirement needs one paid recording, so it waits for its parameter
 | 2 | One role predicate, `role` wins, shadow counter first | shadow | 5aeaf992 | `[identity-disagree]` at 8 sites, CML_IDENTITY_ROLE_WINS OFF; flip after N runs |
 | 7 | A6-D01 true cost; delete the phase-score retry path | done | 03c4f5d3 | createRetryCostMeter; executeAndScore scores once |
 | 8 | `HONEST_SCORERS=enforce`, retire vanity scorers, 35/35/15/15, scorer owns caps, report when scoring off | done | 51f0d14a | honest = old enforce on 4 bundles x 10 phases; weights/caps moot (both copies deleted); 2b/2d/6.5 vanity until SCO-Q07 |
-| 9 | One flag vocabulary, warn on anything else | todo | | |
-| 10 | `castGenders` applied after Agent 2; one binary vocabulary | todo | | |
-| 11 | Refuse a second concurrent run at the API | todo | | |
+| 9 | One flag vocabulary, warn on anything else | done | 7cb43ad0 | readBooleanFlag (@cml/cml); 11 reads converted; .env.local unaffected |
+| 10 | `castGenders` applied after Agent 2; one binary vocabulary | done | 2ad12d6c | applyCastGenders; 25/25 already obeyed, 0/689 non-binary |
+| 11 | Refuse a second concurrent run at the API | done | a52a1365 | 409 from run-route.ts; slot freed when the pipeline settles |
 | 12 | Owner CRs per §12 | todo | | CR-07 batch behind one flag, then CR-28/29/30/32/34 |
 | 1 | Retire v1 | done | d0f5b078 · 7be508d2 · 43b44336 · fd058f16 · 8631e31b | paid v2 recording (£0.95), fixtures re-based (0 synthetic), engine deleted in three verified stages; 145 v1 ledger items withdrawn as moot, 6 that review moved code stay open |
 
