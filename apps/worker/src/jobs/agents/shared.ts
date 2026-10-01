@@ -2,7 +2,7 @@
  * Orchestrator shared context, types, and utility functions.
  *
  * All runAgentN() functions accept OrchestratorContext and mutate it in place.
- * Shared low-level utilities (delay, executeAgentWithRetry, etc.) live here
+ * Shared low-level utilities (delay, describeError, etc.) live here
  * so they are importable by every agent run file without creating circular
  * dependencies with mystery-orchestrator.ts.
  */

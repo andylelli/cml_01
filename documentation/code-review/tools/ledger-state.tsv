@@ -228,7 +228,7 @@ A6-D06	CR-16	done	11384aaf	the post-revision backstop's repairs are persistent-r
 A6-D07	CR-12	todo		OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate
 A6-D08	CR-07	todo		
 A6-D09	CR-16	deferred		MEASURED 0/103 archived CMLs lack prose_requirements.discriminating_test_scene, so the empty stub is never created in the corpus. When it is, Agent 7's prompt prints 'Act undefined, Scene undefined' (agent7-narrative.ts:468 tests the object for truthiness) and the schema's required fields fail. The fix (read without creating; create prose_requirements only on a write) changes Agent 7's prompt on that path: R2, owner (CR-07 class)
-A6-Q01	CR-29	withdrawn	03c4f5d3	MOOT: A6-02/A6-03 changed retry prompts only on the phase-score retry arm, deleted by owner decision 7
+A6-Q01	CR-29	todo	03c4f5d3	REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path
 A6-Q02	CR-29	todo		
 A6-Q03	CR-34	todo		
 A6-Q04	CR-32	todo		
