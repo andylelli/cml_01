@@ -23,34 +23,34 @@ withdrawn with their evidence in the ledger.
 | Item | Class | Status | Commit | Note |
 |---|---|---|---|---|
 | A6-19 | a | done | 55448eb5 | Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy) |
-| A5-14 | a | todo | | one CLUE_ID_RE + escape helper |
-| ORC-13 | a | todo | | clue-id ×5, grade ladder ×3, simpleHash ×4 |
+| A5-14 | a | done | ecb12773 | CANONICAL_CLUE_ID_RE and escapeRegExp once in @cml/cml |
+| ORC-13 | a | done | ecb12773 | clue-id ×5 and escape ×2 → @cml/cml; grade ladder ×3 → calculateGrade; simpleHash ×2 → temporal-anchor (agent1's differs: kept, renamed simp |
 | ORC-15 | a | done | 55448eb5 | reportProgress stage, initialHardLogicDirectives and noveltyConstraints typed |
-| A7-14 | a | todo | | drop three casts in agent75-run |
+| A7-14 | a | done | ecb12773 | three casts removed |
 | ORC-08 | a | done | 55448eb5 | the two importer-less arc/obligation modules deleted; one live formula remains (agent7/world-first.ts) |
 | A1X-08 | a | done | 55448eb5 | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
 | SCO-D10 | a | done | 55448eb5 | web report type mirrors in_progress, scoring_enabled, phase_thresholds_met |
 | A34-11 | a | todo | | discriminated revision result |
 | SCO-Q03 | a/c | todo | | stale threshold keys (a); modes (c) |
-| A1X-07 | a | todo | | unreachable fallback |
-| A6-10 | a | todo | | with A7-03 |
-| A7-03 | a | todo | | CaseBrief, byte-equal |
-| A6-11 | a | todo | | |
-| A5-09 | a | todo | | |
-| A7-09 | a | todo | | |
+| A1X-07 | a | done | ecb12773 | unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept |
+| A6-10 | a | done | ecb12773 | one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320 |
+| A7-03 | a | done | ecb12773 | CaseBrief = projectCaseForPrompt (with A6-10); the A7-D01 fix is behind CML_VERIFIED_FIXES |
+| A6-11 | a | done | ecb12773 | derive + render, one formatClueLine; duplicate "Essential Clues" listing left (prompt change) |
+| A5-09 | a | done | ecb12773 | buildCluePrompt split into section builders + retry-feedback normaliser; MEASURED 0 diffs / 9,240 comparisons, flag off and on |
+| A7-09 | a | done | ecb12773 | section builders, text moved verbatim; the duplicated prose-requirements / pacing rules left (prompt changes) |
 | A5-04 | a | todo | | |
 | A6-18 | a | todo | | |
 | A7-04 | a | todo | | |
-| A9V-04 | a | todo | | |
-| A5-06 | a | todo | | |
-| A34-03 | a | todo | | |
+| A9V-04 | a | done | ecb12773 | keyTermHits names the selector's stemmed and the gate's substring rule; thresholds unchanged. Found: tokenMatchesText is not word-bounded |
+| A5-06 | a | done | ecb12773 | typed Agent5GateError at 11 sites; every label pinned unchanged (regex fallback for untyped) |
+| A34-03 | a | done | ecb12773 | pure locked-fact helpers in @cml/cml; numberToWordsSmall vs spellMinuteCount differ on 0 and 100-999 (not unified) |
 | A1X-09 | a | todo | | with ORC-03 |
 | ORC-03 | a | todo | | |
-| A1X-12 | a | todo | | |
+| A1X-12 | a | done | ecb12773 | one resolveNoveltyPolicy (identical under fail_delta 0.1); summariser fix is A1X-D03 behind the flag. Remaining clamp/rounding differences r |
 | SCO-03 | a | withdrawn | 51f0d14a | MOOT in substance: the 129 pass/partial ternaries were in the vanity scorers deleted by decision 8; the seven honest scorers (~1,000 lines)  |
-| A5-D06 | b | todo | | batch candidate |
-| A5-D07 | b | todo | | batch candidate |
-| A7-07 | b | todo | | reported number only |
-| A7-D04 | b | todo | | reported number only |
+| A5-D06 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: memo caches invalidated after the remap |
+| A5-D07 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: gates read the facts the prompt sent (raw device facts when it sent none) |
+| A7-07 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate) |
+| A7-D04 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: clue-pacing rescoring on adoption |
 | A7-02 | b | todo | | step 2 |
 | A34-D09 | b | todo | | waits on A6-Q01 |

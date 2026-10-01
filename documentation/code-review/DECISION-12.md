@@ -51,7 +51,7 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A7-Q03 | CR-30 | moot | c5423dfd | A7-01 done; scheduler unwired |
 | A7-Q05 | CR-07 | todo | | |
 | A34-05 | CR-30 | done | 4bd53121 | patch engine deleted |
-| A34-08 | CR-07 | todo | | |
+| A34-08 | CR-07 | done | ecb12773 | behind CML_VERIFIED_FIXES: Agent 4's Mystery Axis line prints primaryAxis (R0 step skipped: it saves no tokens) |
 | A34-09 | CR-29 | done | 55448eb5 | theme families ignore appended retry feedback (themeWithoutRetryFeedback); byte-identical without feedback |
 | A34-14 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A34-D03 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: gender by the member's own name |
