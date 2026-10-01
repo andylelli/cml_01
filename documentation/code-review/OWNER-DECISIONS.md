@@ -26,9 +26,9 @@ first; the v1 retirement needs one paid recording, so it waits for its parameter
 | 3 | JSON guard at 2b, 2c, 4 | done | 79e6d803 | and the YAML fallback made lossless (loadYamlReply) — found applying it |
 | 5 | Normaliser convergence, one section at a time | done | d5121540 · c7506ca7 · 37a248bf · 51664c31 | one commit per section; characterisation movement 133 / 167 / 6 / 26+1 rows |
 | 6 | Discriminating evidence: ≥2, once, before Agent 6 | done | ec9904b2 | one floor in clue-contracts; the pre-prose gate reads only (it back-filled after the audit in 4/18 run logs) |
-| 2 | One role predicate, `role` wins, shadow counter first | todo | | `[identity-disagree]`; flip after N runs |
-| 7 | A6-D01 true cost; delete the phase-score retry path | todo | | |
-| 8 | `HONEST_SCORERS=enforce`, retire vanity scorers, 35/35/15/15, scorer owns caps, report when scoring off | todo | | |
+| 2 | One role predicate, `role` wins, shadow counter first | shadow | 5aeaf992 | `[identity-disagree]` at 8 sites, CML_IDENTITY_ROLE_WINS OFF; flip after N runs |
+| 7 | A6-D01 true cost; delete the phase-score retry path | done | 03c4f5d3 | createRetryCostMeter; executeAndScore scores once |
+| 8 | `HONEST_SCORERS=enforce`, retire vanity scorers, 35/35/15/15, scorer owns caps, report when scoring off | done | 51f0d14a | honest = old enforce on 4 bundles x 10 phases; weights/caps moot (both copies deleted); 2b/2d/6.5 vanity until SCO-Q07 |
 | 9 | One flag vocabulary, warn on anything else | todo | | |
 | 10 | `castGenders` applied after Agent 2; one binary vocabulary | todo | | |
 | 11 | Refuse a second concurrent run at the API | todo | | |

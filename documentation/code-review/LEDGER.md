@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 130 | 97 | 39 | 266 |
-| open | 60 | 42 | 33 | 135 |
+| closed | 131 | 98 | 42 | 271 |
+| open | 59 | 41 | 30 | 130 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -22,7 +22,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-02 | 1 | 1 | A9W-19 |
 | CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
-| CR-06 | 22 | 20 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
+| CR-06 | 22 | 22 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 22 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 1 | A9W-12 |
@@ -34,7 +34,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-15 | 11 | 9 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 17 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 17 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
-| CR-18 | 23 | 10 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
+| CR-18 | 23 | 12 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 5 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 9 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
@@ -46,7 +46,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-27 | 14 | 9 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
 | CR-29 | 20 | 10 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
-| CR-30 | 21 | 10 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
+| CR-30 | 21 | 11 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
 | CR-32 | 10 | 4 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
 | CR-33 | 13 | 10 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
@@ -59,7 +59,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR | Key | Question | Answer |
 |---|---|---|---|
 | CR-03 | ORC-Q02 | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
-| CR-06 | SCO-Q06 | Canonical fair-play weighting for the diagnostic: 35/35/15/15? |  |
 | CR-07 | A1X-Q03 | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
 | CR-07 | A5-Q02 | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
 | CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
@@ -72,7 +71,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-18 | A1X-Q02 | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | CR-18 | SCO-Q03 | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
-| CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
 | CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
 | CR-29 | A1X-Q07 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
@@ -83,7 +81,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-30 | A5-Q06 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
 | CR-30 | A7-Q01 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, and it costs about 70 lines of forks. |  |
 | CR-30 | A7-Q03 | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Should A7-01 wait for that decision, or proceed? This report recommends proceeding: the split makes a later delet… |  |
-| CR-30 | SCO-Q01 | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
 | CR-30 | SCO-Q05 | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
 | CR-32 | A34-Q05 | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
 | CR-32 | A6-Q04 | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
@@ -525,14 +522,14 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-04 | P1 | R1 | CR-18 | done | d860f265 | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored | displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned) |
 | SCO-05 | P1 | R1 | CR-18 | done | 2050362e 52cc50ad | generateReport (324 LOC, cc 59) and five writers of run outcome | deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change) |
 | SCO-06 | P1 | R0/R1 | CR-16 | done | 5107cbf3 | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites | move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9) |
-| SCO-07 | P2 | R1/R2 | CR-18 | todo | a422bd65 | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | OWNER: normalizeClueIdForMatch deduped (a422bd65). Remaining pairs have drifted and move reported numbers: fair-play weights (waits SCO-Q06), trust cap 88 vs 85, three expected-clue sets, keyword vs CML discriminating-scene resolver |
+| SCO-07 | P2 | R1/R2 | CR-18 | withdrawn | 51f0d14a | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | MOOT: every drifted pair had a copy in v1 agent9-run or ProseScorer, both deleted |
 | SCO-08 | P2 | R0/R2 | CR-18 | done | 52cc50ad | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 | R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006 |
 | SCO-09 | P2 | R0 | CR-18 | done | 52cc50ad | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field | 9 identical interface pairs declared once; prose pair differs and stays |
 | SCO-10 | P2 | R1 | CR-18 | done | 1db19ec1 | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read | 5 unreachable branches + 5 helpers deleted (-192 lines); ScoringContext.cml optional, threshold_config dropped; SCO-12 snapshots identical. The v1 buildProseScoreArgs still builds threshold_config (harmless, v1 rule) |
 | SCO-11 | P2 | R0 | CR-08 | done | 094de134 | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals | scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30) |
 | SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
-| SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. | waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner |
+| SCO-D01 |  |  | CR-06 | withdrawn | 51f0d14a | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. | MOOT: neither copy survives (v1 agent9-run deleted, ProseScorer deleted by owner decision 8) |
 | SCO-D02 |  |  | CR-06 | done | ec237e5a | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
 | SCO-D03 |  |  | CR-18 | done | 52cc50ad | Scorer-local pass rules are silently overridden: agent65 at 72 passes by its own rule (≥70), then fails in the report at 75 | failed phases carry a reason |
 | SCO-D04 |  |  | CR-18 | todo |  | retry-feedback.ts:54 "partial successes" compares score (0–100) to weight (≤3), so it never renders. :45 hides all minor | OWNER: retry-feedback 'partial successes' never renders (score vs weight) — fixing it changes retry prompt text (retries are off by default) |
@@ -544,11 +541,11 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-D10 |  |  | CR-13 | todo |  | apps/web/src/components/types.ts:295 mirrors report types by hand: missing in_progress, shipped and |  |
 | SCO-D11 |  |  | CR-06 | dup |  | FLAG-AUDIT Addendum 5 misstates the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY default (§6). High. | = A34-D14 (flag register) |
 | SCO-D12 |  |  | CR-18 | todo |  | Novelty "skipped" is recorded as 100/A and averaged into overall_score (agent3-run.ts ~700); the headline cap mitigates. | OWNER: novelty 'skipped' recorded as 100/A in the mean — a report-number policy |
-| SCO-Q01 |  |  | CR-30 | todo |  | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
+| SCO-Q01 |  |  | CR-30 | done | 51f0d14a | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the | DECIDED (owner decision 8): HONEST_SCORERS promoted and retired; vanity scorers for 1/2/2c/2e/4/7/9 deleted. 2b/2d/6.5 keep theirs until an honest table exists (SCO-Q07) |
 | SCO-Q02 |  |  | CR-18 | done | 03c4f5d3 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? | DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once |
 | SCO-Q03 |  |  | CR-18 | todo |  | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | SCO-Q04 |  |  | CR-16 | withdrawn | 8631e31b | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? | MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose |
 | SCO-Q05 |  |  | CR-30 | todo |  | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
-| SCO-Q06 |  |  | CR-06 | todo |  | Canonical fair-play weighting for the diagnostic: 35/35/15/15? |  |
+| SCO-Q06 |  |  | CR-06 | withdrawn | 51f0d14a | Canonical fair-play weighting for the diagnostic: 35/35/15/15? | MOOT: both weightings deleted (40/40/20 with v1 agent9-run, 35/35/15/15 with ProseScorer) |
 | SCO-Q07 |  |  | CR-18 | todo |  | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
-| SCO-Q08 |  |  | CR-18 | todo |  | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
+| SCO-Q08 |  |  | CR-18 | done | 51f0d14a | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional | DECIDED (owner decision 8): report written with ENABLE_SCORING off, scoring_enabled=false, graded N/A |
