@@ -22,14 +22,14 @@ withdrawn with their evidence in the ledger.
 
 | Item | Class | Status | Commit | Note |
 |---|---|---|---|---|
-| A6-19 | a | todo | | rubric-score's DEATH_METHOD_TOKENS imported, not copied |
+| A6-19 | a | done | 55448eb5 | Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy) |
 | A5-14 | a | todo | | one CLUE_ID_RE + escape helper |
 | ORC-13 | a | todo | | clue-id ×5, grade ladder ×3, simpleHash ×4 |
-| ORC-15 | a | todo | | type three context fields |
+| ORC-15 | a | done | 55448eb5 | reportProgress stage, initialHardLogicDirectives and noveltyConstraints typed |
 | A7-14 | a | todo | | drop three casts in agent75-run |
-| ORC-08 | a | todo | | delete two importer-less modules |
-| A1X-08 | a | todo | | one month→season body |
-| SCO-D10 | a | todo | | web report type mirrors the real one |
+| ORC-08 | a | done | 55448eb5 | the two importer-less arc/obligation modules deleted; one live formula remains (agent7/world-first.ts) |
+| A1X-08 | a | done | 55448eb5 | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
+| SCO-D10 | a | done | 55448eb5 | web report type mirrors in_progress, scoring_enabled, phase_thresholds_met |
 | A34-11 | a | todo | | discriminated revision result |
 | SCO-Q03 | a/c | todo | | stale threshold keys (a); modes (c) |
 | A1X-07 | a | todo | | unreachable fallback |

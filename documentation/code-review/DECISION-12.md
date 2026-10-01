@@ -27,54 +27,54 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | Item | CR | Status | Commit | Note |
 |---|---|---|---|---|
 | A5-10 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
-| A5-11 | CR-29 | todo | | |
+| A5-11 | CR-29 | done | 55448eb5 | behind CML_VERIFIED_FIXES: every Agent 5 regeneration carries strictContract + lockedFacts (agent5/contract-payload.ts). Only the red-herrin |
 | A5-16 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
-| A5-D04 | CR-29 | todo | | |
-| A5-D05 | CR-07 | todo | | |
-| A5-Q02 | CR-07 | todo | | |
+| A5-D04 | CR-29 | done | 55448eb5 | behind CML_VERIFIED_FIXES (as A5-11) |
+| A5-D05 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: suspect coverage re-runs after a floor regeneration |
+| A5-Q02 | CR-07 | done | 55448eb5 | DECIDED (decision 12, review's R2 recommendation): meridiem needs a clock number; also fixed 'a.m.' never matching; still behind AGENT5_MERI |
 | A5-Q03 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A5-Q06 | CR-30 | done | 4bd53121 | flag + 6 branches retired |
-| A6-02 | CR-29 | todo | | |
-| A6-03 | CR-29 | wip | 4bd53121 | dead outer branch deleted; inner retry text in the CR-29 batch |
+| A6-02 | CR-29 | done | 55448eb5 | failure-derived phrases first (≤8), then the contract lines, cap 16 — on the retries-on arm only |
+| A6-03 | CR-29 | done | 55448eb5 | outer half moot (decision 7) and dead branch deleted (4bd53121); inner retry text classified behind CML_VERIFIED_FIXES |
 | A6-16 | CR-34 | deferred |  | k=1 default; audit→read data dependency; provisional audit waits on A6-Q01 |
 | A6-17 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
-| A6-D02 | CR-07 | todo | | |
-| A6-D08 | CR-07 | todo | | |
-| A6-Q02 | CR-29 | todo | | |
+| A6-D02 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: break-moment default via the role predicates |
+| A6-D08 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: no duplicate contradiction backstop clue |
+| A6-Q02 | CR-29 | done | 55448eb5 | DECIDED (decision 12, review's recommendation): behind CML_VERIFIED_FIXES a World Builder failure degrades to degradedWorldDocument with an  |
 | A6-Q03 | CR-34 | deferred |  | waits on A6-Q01 |
 | A6-Q04 | CR-32 | done | 69ed426b | AGENT6_MODEL effective; separate labels not built |
-| A7-D01 | CR-07 | todo | | |
-| A7-D02 | CR-07 | todo | | |
-| A7-D05 | CR-07 | todo | | |
-| A7-D09 | CR-07 | todo | | |
+| A7-D01 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES (OFF): Agent 7's case summary reads CML 2.0 — victim via isVictimMember, motive = culprit's motive_seed, culprit a |
+| A7-D02 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: retry fills missing act purposes (fillMissingActPurposes) |
+| A7-D05 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: committed outline schema-validated, warn-only |
+| A7-D09 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: gate-mode repairs re-persist the outline |
 | A7-Q01 | CR-30 | done | 4bd53121 | OFF arm retired at 7 sites |
 | A7-Q03 | CR-30 | moot | c5423dfd | A7-01 done; scheduler unwired |
 | A7-Q05 | CR-07 | todo | | |
 | A34-05 | CR-30 | done | 4bd53121 | patch engine deleted |
 | A34-08 | CR-07 | todo | | |
-| A34-09 | CR-29 | todo | | |
+| A34-09 | CR-29 | done | 55448eb5 | theme families ignore appended retry feedback (themeWithoutRetryFeedback); byte-identical without feedback |
 | A34-14 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
-| A34-D03 | CR-07 | todo | | |
-| A34-D04 | CR-07 | todo | | |
-| A34-D10 | CR-07 | todo | | |
-| A34-D11 | CR-07 | todo | | |
-| A34-D12 | CR-29 | todo | | |
+| A34-D03 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: gender by the member's own name |
+| A34-D04 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: cast paired by name; extras kept with a note (unnamed extras dropped with a note) |
+| A34-D10 | CR-07 | wip | 5aeaf992 | the normaliser's victim test is a decision-2 site (resolveIdentity, shadow); fixed when CML_IDENTITY_ROLE_WINS flips |
+| A34-D11 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: the two contradicting rules now say Agent 5 back-fills evidence_clues (known positive: flag-on replay diverges he |
+| A34-D12 | CR-29 | done | 55448eb5 | behind CML_VERIFIED_FIXES: post-repair validation returned with the repaired CML |
 | A34-D13 | CR-32 | done | 69ed426b | override outranks tier |
 | A34-Q03 | CR-30 | done | 4bd53121 | offline 0/2 fixed; retired |
 | A34-Q05 | CR-32 | done | 69ed426b | override outranks tier |
 | A1X-10 | CR-29 | todo | | |
 | A1X-11 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A1X-15 | CR-30 | wip | 4bd53121 | 2 of 3 parts; no-names branch deferred (public input, 14 test calls) |
-| A1X-D01 | CR-07 | todo | | |
-| A1X-D03 | CR-07 | todo | | |
+| A1X-D01 | CR-07 | done | 55448eb5 | Agent 2's victim fallback through resolveIdentity("agent2.victim") — shadow until CML_IDENTITY_ROLE_WINS flips |
+| A1X-D03 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: Agent 8 summariser reads CML 2.0 |
 | A1X-D04 | CR-07 | done | 2ad12d6c | owner decision 10 |
 | A1X-D06 | CR-32 | done | 69ed426b | override outranks tier |
-| A1X-D10 | CR-29 | todo | | |
-| A1X-D11 | CR-07 | todo | | |
+| A1X-D10 | CR-29 | done | 55448eb5 | the re-roll warning says what it does (same prompt) |
+| A1X-D11 | CR-07 | done | 55448eb5 | behind CML_VERIFIED_FIXES: 2b pairs profile and cast member by name |
 | A1X-Q03 | CR-07 | done | 2ad12d6c | owner decision 10 |
 | A1X-Q05 | CR-30 | done | 4bd53121 | F5b + realism belt deleted |
 | A1X-Q06 | CR-30 | todo | | |
-| A1X-Q07 | CR-29 | todo | | |
+| A1X-Q07 | CR-29 | done | 55448eb5 | DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll |
 | ORC-14 | CR-32 | done | 69ed426b | override outranks tier |
 | ORC-D01 | CR-07 | moot | 03c4f5d3 | executeAgentWithRetry and abortCritical deleted (decision 7) |
 | ORC-D11 | CR-07 | done | 4bd53121 | byte-identical |
