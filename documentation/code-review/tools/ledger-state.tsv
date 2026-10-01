@@ -257,7 +257,7 @@ A7-D08	CR-17	withdrawn	fd058f16	MOOT: the second register source was v1
 A7-D09	CR-07	done	55448eb5	behind CML_VERIFIED_FIXES: gate-mode repairs re-persist the outline
 A7-D10	CR-06	done	9801b481	fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields
 A7-Q01	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites
-A7-Q02	CR-33	todo		
+A7-Q02	CR-33	done	6f233c91	DECIDED (decision 12, the review's recommendation): "consolidate plus per-site counters" — what A7-11 shipped (6f233c91)
 A7-Q03	CR-30	withdrawn		MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-scheduler stays unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF
 A7-Q04	CR-16	todo		
 A7-Q05	CR-07	todo		
@@ -329,7 +329,7 @@ A1X-Q02	CR-18	todo
 A1X-Q03	CR-07	done	2ad12d6c	DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed
 A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)
 A1X-Q05	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): F5b and the Agent 1 runner realism fold deleted
-A1X-Q06	CR-30	todo		
+A1X-Q06	CR-30	done	55448eb5	DECIDED (decision 12): fix, not freeze — Agent 8's summariser reads CML 2.0 behind CML_VERIFIED_FIXES (A1X-D03); it still runs whenever NOVELTY_SIMILARITY_THRESHOLD < 1 (the API default is 0.9)
 A1X-Q07	CR-29	done	55448eb5	DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll
 ORC-01	CR-25	done	a5f9adb0	generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move
 ORC-02	CR-21	done	aeb90610	runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit `characterGenders: undefined` for the owner

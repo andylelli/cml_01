@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 164 | 130 | 58 | 352 |
-| open | 26 | 9 | 14 | 49 |
+| closed | 164 | 130 | 60 | 354 |
+| open | 26 | 9 | 12 | 47 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -46,10 +46,10 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-27 | 14 | 14 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
 | CR-29 | 20 | 18 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
-| CR-30 | 21 | 19 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
+| CR-30 | 21 | 20 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 26 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
 | CR-32 | 10 | 10 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
-| CR-33 | 13 | 12 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
+| CR-33 | 13 | 13 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
 | CR-34 | 3 | 1 | A9W-17 A6-16 A6-Q03 |
 
 ## Decision sheet — open owner questions by CR
@@ -69,8 +69,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed | DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built |
 | CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? | REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path |
-| CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| CR-33 | A7-Q02 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the floor. |  |
 | CR-34 | A6-Q03 | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-02 shows is mostly discarded? | DEFERRED: the provisional audit is on the AGENT_PRE9_ENABLE_LLM_RETRIES arm (OFF); whether that arm is probed or retired is A6-Q01 (owner) |
 
 ## 01-agent9-worker
@@ -370,7 +368,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-D09 |  |  | CR-07 | done | 55448eb5 | Gate-mode geometry repair may not persist or resume. In AGENT75_GEOMETRY=gate, the outline artifact is persisted (mystery-orchestrator.ts:1563) befor… | behind CML_VERIFIED_FIXES: gate-mode repairs re-persist the outline |
 | A7-D10 |  |  | CR-06 | done | 9801b481 | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… | fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields |
 | A7-Q01 |  |  | CR-30 | done | 4bd53121 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… | DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites |
-| A7-Q02 |  |  | CR-33 | todo |  | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… |  |
+| A7-Q02 |  |  | CR-33 | done | 6f233c91 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… | DECIDED (decision 12, the review's recommendation): "consolidate plus per-site counters" — what A7-11 shipped (6f233c91) |
 | A7-Q03 |  |  | CR-30 | withdrawn |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… | MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-scheduler stays unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF |
 | A7-Q04 |  |  | CR-16 | todo |  | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
 | A7-Q05 |  |  | CR-07 | todo |  | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
@@ -452,7 +450,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-Q03 |  |  | CR-07 | done | 2ad12d6c | Enforce the user's castGenders deterministically in Agent 2 (D4)? | DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed |
 | A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
 | A1X-Q05 |  |  | CR-30 | done | 4bd53121 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? | DECIDED (decision 12, CR-30): F5b and the Agent 1 runner realism fold deleted |
-| A1X-Q06 |  |  | CR-30 | todo |  | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
+| A1X-Q06 |  |  | CR-30 | done | 55448eb5 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. | DECIDED (decision 12): fix, not freeze — Agent 8's summariser reads CML 2.0 behind CML_VERIFIED_FIXES (A1X-D03); it still runs whenever NOVELTY_SIMILARITY_THRESHOLD < 1 (the API default is 0.9) |
 | A1X-Q07 |  |  | CR-29 | done | 55448eb5 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? | DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll |
 
 ## 11-orchestration-shared
