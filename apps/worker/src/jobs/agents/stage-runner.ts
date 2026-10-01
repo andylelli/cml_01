@@ -7,7 +7,6 @@ import type {
 PhaseScore,
 ScoreAggregator
 } from "@cml/story-validation";
-import { parseHonestScorerMode } from "@cml/story-validation";
 import type { ScoringLogger } from "../scoring-logger.js";
 import type { OrchestratorContext } from "./context.js";
 import { describeError } from "./run-utils.js";
@@ -33,33 +32,14 @@ export function preAgent9LlmRetriesEnabled(): boolean {
 }
 
 /**
- * ANALYSIS_50 Phase 3 — honest-scorer selector. Reads the umbrella `HONEST_SCORERS` flag
- * (off/shadow/enforce, default OFF). `off` returns the vanity score unchanged (byte-identical).
- * `shadow` computes the honest score, logs the vanity↔honest delta, but RETURNS the vanity score.
- * `enforce` returns the honest score. Never throws — a scorer error keeps the vanity score.
+ * The phase's score, from its honest scorer (content assertions on the real artifact). Owner decision 8
+ * (2026-10-01, SCO-Q01): HONEST_SCORERS is promoted to enforce and retired with the vanity (length/constant)
+ * scorers it shadowed. A missing score throws, so the stage reports "Scoring failed" instead of falling back.
  */
-export function applyHonestScorer(
-  vanity: PhaseScore,
-  honest: () => PhaseScore | null | undefined,
-  warnings: string[],
-  label: string,
-): PhaseScore {
-  const mode = parseHonestScorerMode(process.env.HONEST_SCORERS);
-  if (mode === "off") return vanity;
-  let h: PhaseScore | null | undefined;
-  try {
-    h = honest();
-  } catch (err) {
-    warnings.push(`[honest-scorer][${mode}] ${label} error: ${(err as Error).message}; keeping vanity score`);
-    return vanity;
-  }
-  if (!h) return vanity;
-  warnings.push(
-    `[honest-scorer][${mode}] ${label} vanity=${vanity.total}/${vanity.grade} ` +
-      `honest=${h.total}/${h.grade} passed=${h.passed}` +
-      (h.component_failures && h.component_failures.length ? ` weak=${h.component_failures.join(",")}` : ""),
-  );
-  return mode === "enforce" ? h : vanity;
+export function honestScore(score: () => PhaseScore | null | undefined, label: string): PhaseScore {
+  const result = score();
+  if (!result) throw new Error(`${label}: the honest scorer returned no score`);
+  return result;
 }
 
 export function preAgent9ContractRecoveryEnabled(): boolean {

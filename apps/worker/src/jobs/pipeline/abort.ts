@@ -158,13 +158,14 @@ export async function recordAbortedRun(enableScoring: boolean, scoreAggregator: 
     );
   }
 
-  if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
+  if (scoreAggregator && reportRepository && scoringLogger) { // SCO-Q08: an aborted run's record too
     try {
       const partialReport = scoreAggregator.generateReport({
         story_id: runId,
         started_at: new Date(startTime),
         completed_at: new Date(),
         user_id: projectId,
+        scoring_enabled: enableScoring,
       });
       applyAbortedRunMetadata(partialReport, errorMessage);
       await reportRepository.save(partialReport);

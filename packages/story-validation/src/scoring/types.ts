@@ -176,6 +176,8 @@ export interface GenerationReport {
   // "failed" in every scan) now lives honestly in `phase_thresholds_met`.
   run_outcome?: RunOutcome;
   run_outcome_reason?: string;
+  /** SCO-Q08 (owner decision 8): false when phase scoring was off; the grades then read 'N/A'. Absent = scored. */
+  scoring_enabled?: boolean;
   /** A_65b Ph1.3 — the old phase-threshold verdict, demoted to its own field: true when every
    *  phase met its threshold. Advisory quality signal; NEVER a run-failure signal. */
   phase_thresholds_met?: boolean;

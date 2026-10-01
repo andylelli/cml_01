@@ -15,7 +15,7 @@ describe("captureRunEnvironment", () => {
   });
 
   it("the generated names are the pipeline's levers and carry no credential or endpoint", () => {
-    for (const name of ["ENABLE_SCORING", "PROSE_V2_WRITER", "AGENT_PRE9_ENABLE_LLM_RETRIES", "HONEST_SCORERS"]) {
+    for (const name of ["ENABLE_SCORING", "PROSE_V2_WRITER", "AGENT_PRE9_ENABLE_LLM_RETRIES", "AGENT3_CASE_LOGIC"]) {
       expect(RUN_ENV_NAMES).toContain(name);
     }
     expect(RUN_ENV_NAMES.filter((n) => /KEY|SECRET|TOKEN|PASSWORD|CONNECTION|ENDPOINT|^AZURE_/i.test(n))).toEqual([]);

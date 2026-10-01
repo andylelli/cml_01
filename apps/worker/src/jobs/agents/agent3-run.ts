@@ -15,7 +15,7 @@ import { parseClockTime, buildCaseScopedLockedFacts,
 } from "@cml/cml";
 import type { PhaseScore } from "@cml/story-validation";
 import { scoreRealCml } from "@cml/story-validation";
-import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
+import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, honestScore } from "./shared.js";
 // A_74 §8 DE3 — the bridge from the cross-run ledger into the structural judge's corpus.
 import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
 import {
@@ -297,57 +297,16 @@ async function retryOnVictimCulpritCollision(ctx: OrchestratorContext, contractR
 
 async function scoreCmlPhase(ctx: OrchestratorContext, cmlResult: CMLGenerationResult) {
   if (ctx.enableScoring && ctx.scoreAggregator) {
-    const cmlRevisedByAgent4 = cmlResult.revisedByAgent4 ?? false;
-    const cmlDegraded = cmlResult.degraded ?? false;
-    const cmlAttemptCount = cmlResult.attempt ?? 1;
-    const cmlRepairCount = cmlResult.revisionDetails?.attempts ?? (cmlRevisedByAgent4 ? 1 : 0);
-    // GRADED quality (redesign §6/§9.2): replace the binary 60-vs-100 penalty with a score derived
-    // from how much repair was actually needed — each targeted patch/revision costs points (floored),
-    // and a degraded CML (shipped with unresolved validation warnings) takes an honest deeper cut.
-    let cmlQualityScore = 100;
-    if (cmlRevisedByAgent4) {
-      cmlQualityScore = Math.max(55, 100 - Math.min(40, Math.max(1, cmlRepairCount) * 12));
+    void cmlResult;
+    // Owner decision 8 (SCO-Q01): scoreRealCml alone. The vanity score hardcoded validation, completeness
+    // and consistency to 100 and took quality from the Agent-4 repair count; the count stays in the warnings.
+    let cmlScore: PhaseScore;
+    try {
+      cmlScore = honestScore(() => scoreRealCml(ctx.cml), "agent3-cml");
+    } catch (error) {
+      ctx.warnings.push(`CML Generation: Scoring failed - ${(error as Error).message} - continuing without retry`);
+      return;
     }
-    if (cmlDegraded) {
-      cmlQualityScore = Math.min(cmlQualityScore, 45);
-    }
-    const cmlTotal = Math.round(100 * 0.5 + cmlQualityScore * 0.3 + 100 * 0.2);
-    // T3.5: the vanity score hardcodes validation/completeness/consistency = 100 and derives quality
-    // only from the Agent-4 repair COUNT. applyHonestScorer swaps in scoreRealCml (content assertions
-    // on the CASE block) when HONEST_SCORERS=enforce; default OFF keeps this byte-identical.
-    const vanityCmlScore: PhaseScore = {
-      agent: "agent3-cml-generation",
-      validation_score: 100,
-      quality_score: cmlQualityScore,
-      completeness_score: 100,
-      consistency_score: 100,
-      total: cmlTotal,
-      grade: (cmlTotal >= 90 ? "A" : cmlTotal >= 80 ? "B" : cmlTotal >= 70 ? "C" : cmlTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
-      passed: true,
-      tests: [
-        {
-          name: "Schema validation",
-          category: "validation" as const,
-          passed: true,
-          score: 100,
-          weight: 2,
-          message: `Valid after ${cmlAttemptCount} attempt(s)`,
-        },
-        {
-          name: "Structural revision (Agent 4)",
-          category: "quality" as const,
-          passed: !cmlRevisedByAgent4 && !cmlDegraded,
-          score: cmlQualityScore,
-          weight: 1,
-          message: cmlDegraded
-            ? `Shipped with ${cmlResult.unresolvedLogicWarnings?.length ?? 0} unresolved validation warning(s) after ${cmlRepairCount} repair(s)`
-            : cmlRevisedByAgent4
-              ? `Required ${cmlRepairCount} targeted repair(s)/revision(s)`
-              : "No structural revision needed",
-        },
-      ],
-    };
-    const cmlScore = applyHonestScorer(vanityCmlScore, () => scoreRealCml(ctx.cml), ctx.warnings, "agent3-cml");
     ctx.scoreAggregator.upsertPhaseScore(
       "agent3_cml",
       "CML Generation",

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 129 | 96 | 35 | 260 |
-| open | 61 | 43 | 37 | 141 |
+| closed | 130 | 97 | 39 | 266 |
+| open | 60 | 42 | 33 | 135 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -23,19 +23,19 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 20 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
-| CR-07 | 43 | 20 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
+| CR-07 | 43 | 22 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 1 | A9W-12 |
 | CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 3 | A9G-15 A9G-Q03 ORC-10 |
-| CR-12 | 17 | 11 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
+| CR-12 | 17 | 12 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 3 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 9 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
 | CR-16 | 25 | 17 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 17 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
-| CR-18 | 23 | 9 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
-| CR-19 | 7 | 4 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
+| CR-18 | 23 | 10 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
+| CR-19 | 7 | 5 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
 | CR-20 | 10 | 9 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
 | CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
 | CR-22 | 8 | 7 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
@@ -45,7 +45,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-26 | 7 | 7 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
 | CR-27 | 14 | 9 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
-| CR-29 | 20 | 9 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
+| CR-29 | 20 | 10 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
 | CR-30 | 21 | 10 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
 | CR-32 | 10 | 4 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
@@ -63,8 +63,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-07 | A1X-Q03 | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
 | CR-07 | A5-Q02 | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
 | CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
-| CR-07 | ORC-Q01 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
-| CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site) |
 | CR-16 | A5-Q04 | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
 | CR-16 | A5-Q07 | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
 | CR-16 | A7-Q04 | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
@@ -72,14 +70,12 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-17 | A34-Q02 | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
 | CR-17 | ORC-Q04 | ORC-08: which arc-position formula is canonical? |  |
 | CR-18 | A1X-Q02 | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
-| CR-18 | SCO-Q02 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
 | CR-18 | SCO-Q03 | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
 | CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
 | CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
 | CR-29 | A1X-Q07 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
-| CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? |  |
 | CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
 | CR-30 | A1X-Q05 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
 | CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
@@ -350,7 +346,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-17 | P3 | R2 | CR-28 | todo |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it |  |
 | A6-18 | P3 | R0/R1 | CR-13 | todo |  | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade |  |
 | A6-19 | P3 | R0/R2 | CR-31 | todo |  | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge |  |
-| A6-D01 |  |  | CR-19 | todo |  | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29 |
+| A6-D01 |  |  | CR-19 | done | 03c4f5d3 | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts |
 | A6-D02 |  |  | CR-07 | todo |  | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… |  |
 | A6-D03 |  |  | CR-12 | done | 75a049ca | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… | the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing |
 | A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. | OWNER (R2): the blind-reader prompt lists the detective and victim as suspects; removing them changes the prompt |
@@ -359,7 +355,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-D07 |  |  | CR-12 | todo |  | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. | OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate |
 | A6-D08 |  |  | CR-07 | todo |  | The backstop can emit a "contradiction" clue with the same text as its observation clue when a step has no correction (:1057–1111). Low severity. |  |
 | A6-D09 |  |  | CR-16 | deferred |  | synchronizeClueTraceabilityFromCurrentClues creates empty prose_requirements / discriminating_test_scene objects even on a no-op (:1227–1228). Low se… | MEASURED 0/103 archived CMLs lack prose_requirements.discriminating_test_scene, so the empty stub is never created in the corpus. When it is, Agent 7's prompt prints 'Act undefined, Scene undefined' (agent7-narrative.ts:468 tests the object for truthiness) and the schema's required fields fail. The fix (read without creating; create prose_requirements only on a write) changes Agent 7's prompt on that path: R2, owner (CR-07 class) |
-| A6-Q01 |  |  | CR-29 | todo |  | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… |  |
+| A6-Q01 |  |  | CR-29 | withdrawn | 03c4f5d3 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… | MOOT: A6-02/A6-03 changed retry prompts only on the phase-score retry arm, deleted by owner decision 7 |
 | A6-Q02 |  |  | CR-29 | todo |  | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already… |  |
 | A6-Q03 |  |  | CR-34 | todo |  | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-0… |  |
 | A6-Q04 |  |  | CR-32 | todo |  | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
@@ -403,7 +399,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A34-01 | P1 | R1 then R2 | CR-14 | done | ac0c76d4 | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge | step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner) |
-| A34-02 | P1 | R2 | CR-12 | todo | 8f86016c | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | MEASURED by the item's own rule: 577 old-vs-new disagreements over the archive, so R2 (owner, A1X-Q01). The new predicate fixes 'Actress and victim's former mentee' as victim, but marks some role:suspect members ('Outsider Investigator', 'police inspector, official authority') as detectives |
+| A34-02 | P1 | R2 | CR-12 | wip | 5aeaf992 | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | Owner decision 2: unified predicate (explicit role wins) shipped in SHADOW at 8 sites (resolveIdentity, [identity-disagree]); flip CML_IDENTITY_ROLE_WINS after N runs of the counter. MEASURED before: 577 archive disagreements |
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
@@ -442,7 +438,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo | 8f86016c | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | R0 done (8f86016c): surname/namesMatch/nameAppearsAsWord moved to @cml/cml, re-exported; roleArchetypeIncludesWord deleted. OWNER (A1X-Q01): unifying the detective/victim predicates — 577 disagreements over 2,502 archived cast members (scripts/role-predicate-disagreement.mjs) |
+| A1X-01 | P1 | R0 move · R2 unify | CR-12 | wip | 5aeaf992 | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | R0 done (8f86016c). Unify step: shadow shipped (owner decision 2, 5aeaf992); flip after N runs |
 | A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
 | A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | done | 5c6f6f9d | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) | generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0) |
 | A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | done | 4890dff0 | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies | R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers |
@@ -470,7 +466,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
 | A1X-D12 |  |  | CR-33 | done | ba1b5496 | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… | 2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected |
 | A1X-D13 |  |  | CR-04 | done | fc6f52c7 | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) | declared; deps:check guards it (7 violations found, 0 left) |
-| A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site) |
+| A1X-Q01 |  |  | CR-12 | done | 5aeaf992 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | DECIDED (owner decision 2): @cml/cml with the explicit role winning; shipped behind CML_IDENTITY_ROLE_WINS (OFF) with the [identity-disagree] counter |
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | A1X-Q03 |  |  | CR-07 | todo |  | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
 | A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
@@ -492,7 +488,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
 | ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |
 | ORC-10 | P2 | R0 | CR-11 | done | 92aba0fe | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports | 111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn) |
-| ORC-11 | P2 | R2 | CR-07 | todo |  | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers |  |
+| ORC-11 | P2 | R2 | CR-07 | done | 03c4f5d3 | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers | the swallowed abort and the scoring retry layer are deleted (owner decision 7) |
 | ORC-12 | P2 | R1 | CR-33 | todo | ba1b5496 | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry | process-guards flush keyed by run (ba1b5496). Waits (v1): the repair counters (deterministic-repair.ts, repair-efficacy.ts) are module stores in agent9-prose. OWNER: refuse concurrent runs at the API (ORC-Q06) |
 | ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
 | ORC-14 | P2 | R2 | CR-32 | todo |  | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites |  |
@@ -511,7 +507,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-D11 |  |  | CR-07 | todo |  | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique |  |
 | ORC-D12 |  |  | CR-19 | dup |  | Agent 6 perCallCostDelta takes its baseline *after* the first retry call, so the first retry is never charged to the $ retry budget | = A6-D01 |
 | ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
-| ORC-Q01 |  |  | CR-07 | todo |  | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
+| ORC-Q01 |  |  | CR-07 | done | 03c4f5d3 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? | DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003) |
 | ORC-Q02 |  |  | CR-03 | todo |  | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
 | ORC-Q03 |  |  | CR-20 | done | 79e6d803 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest |
 | ORC-Q04 |  |  | CR-17 | todo |  | ORC-08: which arc-position formula is canonical? |  |
@@ -549,7 +545,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-D11 |  |  | CR-06 | dup |  | FLAG-AUDIT Addendum 5 misstates the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY default (§6). High. | = A34-D14 (flag register) |
 | SCO-D12 |  |  | CR-18 | todo |  | Novelty "skipped" is recorded as 100/A and averaged into overall_score (agent3-run.ts ~700); the headline cap mitigates. | OWNER: novelty 'skipped' recorded as 100/A in the mean — a report-number policy |
 | SCO-Q01 |  |  | CR-30 | todo |  | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
-| SCO-Q02 |  |  | CR-18 | todo |  | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
+| SCO-Q02 |  |  | CR-18 | done | 03c4f5d3 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? | DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once |
 | SCO-Q03 |  |  | CR-18 | todo |  | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | SCO-Q04 |  |  | CR-16 | withdrawn | 8631e31b | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? | MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose |
 | SCO-Q05 |  |  | CR-30 | todo |  | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |

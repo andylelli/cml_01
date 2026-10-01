@@ -87,20 +87,12 @@ export {
 } from './scorer-utils.js';
 
 // Phase scorers
-export { BackgroundContextScorer } from './phase-scorers/agent2e-background-scorer.js';
-export { CastDesignScorer } from './phase-scorers/agent2-cast-scorer.js';
 export { CharacterProfilesScorer } from './phase-scorers/agent2b-character-profiles-scorer.js';
-export { LocationProfilesScorer } from './phase-scorers/agent2c-location-profiles-scorer.js';
 export { TemporalContextScorer } from './phase-scorers/agent2d-temporal-context-scorer.js';
-export { HardLogicScorer } from './phase-scorers/agent4-hard-logic-scorer.js';
-export { NarrativeScorer } from './phase-scorers/agent7-narrative-scorer.js';
-export { SettingRefinementScorer } from './phase-scorers/agent1-setting-refinement-scorer.js';
-export { ProseScorer } from './phase-scorers/agent9-prose-scorer.js';
 export { Agent65WorldBuilderScorer } from './phase-scorers/agent65-world-builder-scorer.js';
 
 // Honest scorers (ANALYSIS_50 Phase 3 — grade the REAL artifact; default OFF, off/shadow/enforce)
-export { parseHonestScorerMode, assembleHonestScore, normalizeAtom } from './honest-scorer.js';
-export type { HonestScorerMode } from './honest-scorer.js';
+export { assembleHonestScore, normalizeAtom } from './honest-scorer.js';
 export { scoreRealCast } from './phase-scorers/agent2-cast-real-scorer.js';
 export { scoreRealSetting } from './phase-scorers/agent1-setting-real-scorer.js';
 export { scoreRealLocations } from './phase-scorers/agent2c-location-real-scorer.js';
@@ -125,9 +117,4 @@ export type { ReportInvariantViolation } from './report-invariants.js';
 export { deriveRunOutcome, INFRA_SIGNAL_PATTERN } from './run-outcome.js';
 
 // SCO-09 — the scorers' input types, so the worker's adapters do not re-declare them.
-export type { SettingRefinementOutput } from './phase-scorers/agent1-setting-refinement-scorer.js';
-export type { CastMember, CastDesignOutput } from './phase-scorers/agent2-cast-scorer.js';
 export type { CharacterProfile, CharacterProfilesOutput } from './phase-scorers/agent2b-character-profiles-scorer.js';
-export type { LocationProfile, LocationProfilesOutput } from './phase-scorers/agent2c-location-profiles-scorer.js';
-export type { HardLogicDevice, HardLogicOutput } from './phase-scorers/agent4-hard-logic-scorer.js';
-export { normalizeClueIdForMatch } from './phase-scorers/agent9-prose-scorer.js';

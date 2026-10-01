@@ -995,3 +995,11 @@ they govern nothing.
 | Flag | State | Default | Notes |
 |---|---|---|---|
 | `CML_IDENTITY_ROLE_WINS` | unset → **off** | OFF | **Owner decision 2 (A1X-Q01 / A34-02).** `@cml/cml` `resolveIdentity`: at eight sites (validator culprit check, lifecycle and chapter-validator victim, rubric-score victim, Agent 7.5 suspects, Agent 7 victim, the normaliser's victim-ineligible and suspect lists, Agent 2 detective) each old detective/victim verdict is compared with the unified predicate — the explicit `role` enum wins, else the archetype predicates — and every disagreement is logged `[identity-disagree] site=… kind=… member=… old=… unified=…`. OFF keeps every old verdict (byte-identical); ON uses the unified one. MEASURED before shipping: 577 disagreements over 2,502 archived cast members. Flip after N runs of the shadow counter, per the decision. Not covered: `story-geometry` derive.ts (no `@cml/cml` dependency; its own `STORY_GEOMETRY_ROLE_FIELD_FIX`). |
+
+## Addendum — owner decision 8: honest scorers only (2026-10-01)
+
+`HONEST_SCORERS` is **retired**. Phases 1, 2, 2c, 2e, 3, 3b and 7 are scored by their honest scorer alone (`honestScore` in
+`stage-runner.ts`; a missing score is reported as "Scoring failed", never replaced by a vanity score); the vanity scorers
+for those phases (setting, cast, locations, background, hard-logic, narrative) and their worker adapters are deleted,
+with `ProseScorer` (its last caller was v1). Phases 2b, 2d and 6.5 keep their vanity scorer until they get honest
+tables (SCO-Q07). MEASURED: on the 4 golden bundles the honest-only scores equal the old `enforce` arm exactly.

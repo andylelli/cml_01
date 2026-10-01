@@ -77,7 +77,7 @@ export async function runRubricAndContentFilter(ctx: OrchestratorContext) {
 }
 
 export async function buildScoringReport(enableScoring: boolean, scoreAggregator: ScoreAggregator | undefined, reportRepository: FileReportRepository | undefined, scoringLogger: ScoringLogger | undefined, resumeApplication: ResumeApplication | null, inputs: MysteryGenerationInputs, skippedStages: ResumeStageField[], skipTracker: ResumeSkipTracker, warnings: string[], scoringReport: GenerationReport | undefined, runId: string, startTime: number, projectId: string | undefined, markStaleInProgressReport: (reason: string) => Promise<void>) {
-  if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
+  if (scoreAggregator && reportRepository && scoringLogger) { // SCO-Q08: written whether or not phases were scored
     try {
       // A_64 §2 F5 — the run's FULL warnings array must reach the artifact. The 7.5-pool autopsy
       // found 67 scaffold-regen calls with zero artifact trace (the #12/#13 forensic-blindness
@@ -117,6 +117,7 @@ export async function buildScoringReport(enableScoring: boolean, scoreAggregator
         started_at: new Date(startTime),
         completed_at: new Date(),
         user_id: projectId,
+        scoring_enabled: enableScoring,
       });
       await reportRepository.save(scoringReport);
       scoringLogger.logReportGenerated(scoringReport, runId, projectId);

@@ -10,8 +10,8 @@
   },
   "functions": {
     "apps/api/src/server.ts::createServer": 1339,
-    "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 549,
-    "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 518,
+    "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 542,
+    "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 502,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
     "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 632,
     "packages/prompts-llm/src/agent5-clues.ts::buildCluePrompt": 595,

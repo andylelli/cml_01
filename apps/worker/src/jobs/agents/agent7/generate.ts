@@ -3,43 +3,30 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { scoreNarrativePhase } from "../phase-scoring.js";
-import { formatNarrative } from "@cml/prompts-llm";
-import type { NarrativeOutline } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { NarrativeScorer } from "@cml/story-validation";
+import type { NarrativeOutline } from "@cml/prompts-llm";
+import { formatNarrative } from "@cml/prompts-llm";
+import { scoreRealNarrative } from "@cml/story-validation";
+import { scoreNarrativePhase } from "../phase-scoring.js";
 import {
-  type OrchestratorContext,
-  type LockedFactRegistry,
-  runStage,
+type LockedFactRegistry,
+type OrchestratorContext,
+runStage,
 } from "../shared.js";
-import { adaptNarrativeForScoring, type ClueRef } from "../../scoring-adapters/index.js";
+import { honestScore } from "../stage-runner.js";
 import {
-  coerceNarrativeSceneBeats,
-  hoistMisplacedSceneFields,
-  recordAgent7Coercion,
-  recordOutlineCoercions,
+coerceNarrativeSceneBeats,
+hoistMisplacedSceneFields,
+recordAgent7Coercion,
+recordOutlineCoercions,
 } from "./normalize.js";
 
 export async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOutline) {
   if (!ctx.enableScoring || !ctx.scoreAggregator) return;
   try {
-    const rescorer = new NarrativeScorer();
-    const adapted = adaptNarrativeForScoring(
-      narrative,
-      (ctx.cml as any)?.CASE?.cast ?? [],
-      ((ctx.cml as any)?.CASE?.prose_requirements?.clue_to_scene_mapping ?? [])
-        .map((m: any): ClueRef => ({
-          id: String(m.clue_id || ""),
-          placement: m.act_number === 1 ? "early" : m.act_number === 2 ? "mid" : "late",
-        }))
-        .filter((c: ClueRef) => c.id)
-    );
-    const score = await rescorer.score({}, adapted, {
-      previous_phases: { agent2_cast: ctx.cast!.cast },
-      cml: ctx.cml!,
-      targetLength: ctx.inputs.targetLength ?? "medium",
-    });
+    // Owner decision 8: the honest scorer. This re-score used the vanity NarrativeScorer, so after a repair it
+    // overwrote the phase's honest score even under HONEST_SCORERS=enforce.
+    const score = honestScore(() => scoreRealNarrative(narrative, ctx.inputs.targetLength ?? "medium"), "agent7-narrative");
     ctx.scoreAggregator.upsertPhaseScore(
       "agent7_narrative",
       "Narrative Outline",

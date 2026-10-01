@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { checkCast } from "@cml/prompts-llm";
 import { scoreRealCml } from "@cml/story-validation";
@@ -20,8 +20,9 @@ import {
 /**
  * SCO-12 (code review CR-03) — characterise every wired upstream phase score on the committed golden
  * bundles, so a refactor of an adapter, a vanity scorer or an honest scorer (SCO-02/03/04/05/09/10/11)
- * is proven byte-for-byte or shows as a snapshot diff. Both HONEST_SCORERS arms: `off` returns the
- * vanity score (production default), `enforce` returns the honest one.
+ * is proven byte-for-byte or shows as a snapshot diff. Since owner decision 8 (2026-10-01) phases 1, 2, 2c, 2e,
+ * 3b and 7 are scored by their honest scorer alone (HONEST_SCORERS retired); 2b, 2d and 6.5 keep their vanity
+ * scorer (no honest table yet, SCO-Q07).
  *
  * The phase functions are the runners' own scoring bodies (`phase-scoring.ts`), called with the
  * bundle's stored artifacts the way each runner passes them. `adapted` is pinned by digest: its full
@@ -64,30 +65,13 @@ async function scoreBundle(file: string) {
 }
 
 describe("phase scoring on the golden bundles (SCO-12)", () => {
-  const prev = process.env.HONEST_SCORERS;
-  afterEach(() => {
-    if (prev === undefined) delete process.env.HONEST_SCORERS;
-    else process.env.HONEST_SCORERS = prev;
-  });
-
   it("finds the committed bundles", () => {
     expect(bundles.length).toBeGreaterThanOrEqual(4);
   });
 
   for (const file of bundles) {
-    for (const mode of ["off", "enforce"] as const) {
-      it(`${file} · HONEST_SCORERS=${mode}`, async () => {
-        process.env.HONEST_SCORERS = mode;
-        expect(await scoreBundle(file)).toMatchSnapshot();
-      });
-    }
+    it(file, async () => {
+      expect(await scoreBundle(file)).toMatchSnapshot();
+    });
   }
-
-  it("the two arms differ somewhere (the honest scorers are reached)", async () => {
-    process.env.HONEST_SCORERS = "off";
-    const off = await scoreBundle(bundles[0]);
-    process.env.HONEST_SCORERS = "enforce";
-    const on = await scoreBundle(bundles[0]);
-    expect(JSON.stringify(on)).not.toBe(JSON.stringify(off));
-  });
 });

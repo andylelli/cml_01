@@ -219,7 +219,7 @@ A6-16	CR-34	todo
 A6-17	CR-28	todo		
 A6-18	CR-13	todo		
 A6-19	CR-31	todo		
-A6-D01	CR-19	todo		OWNER: charging the first retry of each cost source can newly trip the $0.15 Agent 6 retry budget, which THROWS (aborts the run); calls cost $0.002-0.008, up to ~$0.03 uncharged today. A run-outcome change, so it goes with CR-29
+A6-D01	CR-19	done	03c4f5d3	DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts
 A6-D02	CR-07	todo		
 A6-D03	CR-12	done	75a049ca	the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing
 A6-D04	CR-12	todo		OWNER (R2): the blind-reader prompt lists the detective and victim as suspects; removing them changes the prompt
@@ -228,7 +228,7 @@ A6-D06	CR-16	done	11384aaf	the post-revision backstop's repairs are persistent-r
 A6-D07	CR-12	todo		OWNER (R2): T2.1's same-surname match can block in enforce mode; changing the matcher changes a gate
 A6-D08	CR-07	todo		
 A6-D09	CR-16	deferred		MEASURED 0/103 archived CMLs lack prose_requirements.discriminating_test_scene, so the empty stub is never created in the corpus. When it is, Agent 7's prompt prints 'Act undefined, Scene undefined' (agent7-narrative.ts:468 tests the object for truthiness) and the schema's required fields fail. The fix (read without creating; create prose_requirements only on a write) changes Agent 7's prompt on that path: R2, owner (CR-07 class)
-A6-Q01	CR-29	todo		
+A6-Q01	CR-29	withdrawn	03c4f5d3	MOOT: A6-02/A6-03 changed retry prompts only on the phase-score retry arm, deleted by owner decision 7
 A6-Q02	CR-29	todo		
 A6-Q03	CR-34	todo		
 A6-Q04	CR-32	todo		
@@ -262,7 +262,7 @@ A7-Q03	CR-30	todo
 A7-Q04	CR-16	todo		
 A7-Q05	CR-07	todo		
 A34-01	CR-14	done	ac0c76d4	step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner)
-A34-02	CR-12	todo	8f86016c	MEASURED by the item's own rule: 577 old-vs-new disagreements over the archive, so R2 (owner, A1X-Q01). The new predicate fixes 'Actress and victim's former mentee' as victim, but marks some role:suspect members ('Outsider Investigator', 'police inspector, official authority') as detectives
+A34-02	CR-12	wip	5aeaf992	Owner decision 2: unified predicate (explicit role wins) shipped in SHADOW at 8 sites (resolveIdentity, [identity-disagree]); flip CML_IDENTITY_ROLE_WINS after N runs of the counter. MEASURED before: 577 archive disagreements
 A34-03	CR-17	todo		
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	todo		
@@ -296,7 +296,7 @@ A34-Q02	CR-17	todo
 A34-Q03	CR-30	todo		
 A34-Q04	CR-16	withdrawn	fd058f16	MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1)
 A34-Q05	CR-32	todo		
-A1X-01	CR-12	todo	8f86016c	R0 done (8f86016c): surname/namesMatch/nameAppearsAsWord moved to @cml/cml, re-exported; roleArchetypeIncludesWord deleted. OWNER (A1X-Q01): unifying the detective/victim predicates — 577 disagreements over 2,502 archived cast members (scripts/role-predicate-disagreement.mjs)
+A1X-01	CR-12	wip	5aeaf992	R0 done (8f86016c). Unify step: shadow shipped (owner decision 2, 5aeaf992); flip after N runs
 A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
 A1X-03	CR-20	done	5c6f6f9d	generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0)
 A1X-04	CR-12	done	4890dff0	R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers
@@ -324,7 +324,7 @@ A1X-D10	CR-29	todo
 A1X-D11	CR-07	todo		
 A1X-D12	CR-33	done	ba1b5496	2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected
 A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
-A1X-Q01	CR-12	todo		OWNER. Evidence: scripts/role-predicate-disagreement.mjs --examples (577 disagreements; examples per site)
+A1X-Q01	CR-12	done	5aeaf992	DECIDED (owner decision 2): @cml/cml with the explicit role winning; shipped behind CML_IDENTITY_ROLE_WINS (OFF) with the [identity-disagree] counter
 A1X-Q02	CR-18	todo		
 A1X-Q03	CR-07	todo		
 A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)
@@ -341,7 +341,7 @@ ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to asse
 ORC-08	CR-17	todo		
 ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
 ORC-10	CR-11	done	92aba0fe	111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn)
-ORC-11	CR-07	todo		
+ORC-11	CR-07	done	03c4f5d3	the swallowed abort and the scoring retry layer are deleted (owner decision 7)
 ORC-12	CR-33	todo	ba1b5496	process-guards flush keyed by run (ba1b5496). Waits (v1): the repair counters (deterministic-repair.ts, repair-efficacy.ts) are module stores in agent9-prose. OWNER: refuse concurrent runs at the API (ORC-Q06)
 ORC-13	CR-31	todo		
 ORC-14	CR-32	todo		
@@ -360,7 +360,7 @@ ORC-D10	CR-06	done	faeb6755
 ORC-D11	CR-07	todo		
 ORC-D12	CR-19	dup		= A6-D01
 ORC-D13	CR-06	done	ec237e5a	
-ORC-Q01	CR-07	todo		
+ORC-Q01	CR-07	done	03c4f5d3	DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003)
 ORC-Q02	CR-03	todo		
 ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest
 ORC-Q04	CR-17	todo		
@@ -393,7 +393,7 @@ SCO-D10	CR-13	todo
 SCO-D11	CR-06	dup		= A34-D14 (flag register)
 SCO-D12	CR-18	todo		OWNER: novelty 'skipped' recorded as 100/A in the mean — a report-number policy
 SCO-Q01	CR-30	todo		
-SCO-Q02	CR-18	todo		
+SCO-Q02	CR-18	done	03c4f5d3	DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once
 SCO-Q03	CR-18	todo		
 SCO-Q04	CR-16	withdrawn	8631e31b	MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose
 SCO-Q05	CR-30	todo		

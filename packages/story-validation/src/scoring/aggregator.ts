@@ -18,6 +18,8 @@ export interface GenerationMetadata {
   completed_at?: Date;
   user_id?: string;
   seed_mystery?: string;
+  /** SCO-Q08 (owner decision 8): false when ENABLE_SCORING is off — the report is still written, marked unscored. */
+  scoring_enabled?: boolean;
 }
 
 /**
@@ -379,6 +381,13 @@ export class ScoreAggregator {
       threshold_config: this.thresholdConfig,
     };
 
+    if (metadata.scoring_enabled === false) {
+      // SCO-Q08: no phase was scored, so a 0 average would read as an F. Say so instead.
+      report.scoring_enabled = false;
+      report.overall_grade = 'N/A';
+      if (report.scoring_outcome) report.scoring_outcome.grade = 'N/A';
+      report.run_outcome_reason = `Phase scoring off (ENABLE_SCORING); ${report.run_outcome_reason ?? ''}`.trim();
+    }
     return report;
   }
 

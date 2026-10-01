@@ -12,17 +12,6 @@ import { scoreRealCml } from '../phase-scorers/agent3-cml-real-scorer.js';
 import { scoreRealHardLogic } from '../phase-scorers/agent3b-device-real-scorer.js';
 import { scoreRealNarrative } from '../phase-scorers/agent7-narrative-real-scorer.js';
 
-describe('parseHonestScorerMode', () => {
-  it('defaults OFF; maps enforce / other-truthy→shadow', () => {
-    expect(parseHonestScorerMode(undefined)).toBe('off');
-    expect(parseHonestScorerMode('off')).toBe('off');
-    expect(parseHonestScorerMode('0')).toBe('off');
-    expect(parseHonestScorerMode('enforce')).toBe('enforce');
-    expect(parseHonestScorerMode('shadow')).toBe('shadow');
-    expect(parseHonestScorerMode('on')).toBe('shadow');
-  });
-});
-
 describe('scoreRealSetting (T3.1)', () => {
   it('scores a real setting with atmosphere highly', () => {
     const s = scoreRealSetting({

@@ -4,23 +4,13 @@
  * The "honest" scorers grade the REAL agent artifact with content assertions instead of the vanity
  * (length/constant) scorers, so a future regression FAILS instead of scoring A. Each lives in this
  * package (no `@cml/prompts-llm` dependency — see agent2-cast-real-scorer.ts) and takes the real
- * artifact via a local structural-mirror type. The worker reads the flag and decides off/shadow/
- * enforce; these functions are pure graders.
+ * artifact via a local structural-mirror type. Since owner decision 8 (2026-10-01) they are the only scorers for
+ * their phases (HONEST_SCORERS retired); these functions are pure graders.
  */
 
 import { PhaseScore, TestResult } from './types.js';
 import { calculateCategoryScore, getCriticalFailures } from './scorer-utils.js';
 import { calculateGrade } from './thresholds.js';
-
-export type HonestScorerMode = 'off' | 'shadow' | 'enforce';
-
-/** Mirror of the off/shadow/enforce parsing used by the A_50 gates. Default OFF. */
-export const parseHonestScorerMode = (raw: string | undefined): HonestScorerMode => {
-  const v = String(raw ?? '').trim().toLowerCase();
-  if (!v || v === 'off' || v === 'false' || v === '0') return 'off';
-  if (v === 'enforce') return 'enforce';
-  return 'shadow';
-};
 
 /**
  * Assemble a PhaseScore from category-tagged tests using the canonical 40/30/20/10 weighting

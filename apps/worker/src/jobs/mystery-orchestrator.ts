@@ -177,6 +177,29 @@ export {
 // to a derived slot — the §9.1 coverage signal — without changing the live clue set. Never throws.
 // Set AGENT5_DERIVE_SHADOW=0 to silence.
 
+/**
+ * SCO-Q08 (owner decision 8): the report is the durable record of every run (ADR-0010), so its machinery always
+ * exists; ENABLE_SCORING decides only whether phases are scored (every phase-score write checks it).
+ */
+function createRunReporting(enableScoring: boolean, logsDir: string, warnings: string[]) {
+  let retryManager: RetryManager | undefined;
+  let scoreAggregator: ScoreAggregator | undefined;
+  let reportRepository: FileReportRepository | undefined;
+  let scoringLogger: ScoringLogger | undefined;
+  try {
+    retryManager = new RetryManager(join(WORKER_APP_ROOT, "config", "retry-limits.yaml"));
+    scoreAggregator = new ScoreAggregator({ mode: "standard" }, retryManager);
+    reportRepository = new FileReportRepository(join(WORKSPACE_ROOT, "apps", "api", "data", "reports"));
+    scoringLogger = new ScoringLogger(logsDir);
+    warnings.push(enableScoring
+      ? "Scoring system enabled - tracking quality metrics and retries"
+      : "Phase scoring off (ENABLE_SCORING) - the run report is still written");
+  } catch (error) {
+    warnings.push(`Scoring system initialization failed: ${describeError(error)} - continuing without scoring`);
+  }
+  return { retryManager, scoreAggregator, reportRepository, scoringLogger };
+}
+
 function runClueSpecShadow(args: { cml: unknown; clues: unknown; warnings: string[] }): void {
   if (/^(0|false|no|off)$/i.test(process.env.AGENT5_DERIVE_SHADOW ?? "")) return; // default on
   try {
@@ -231,10 +254,6 @@ export async function generateMystery(
   warnings.push(...assertFlagCapabilities());
 
   const enableScoring = parseBooleanEnv(process.env.ENABLE_SCORING, false); // ORC-D07: `=1` read as off
-  let scoreAggregator: ScoreAggregator | undefined;
-  let retryManager: RetryManager | undefined;
-  let reportRepository: FileReportRepository | undefined;
-  let scoringLogger: ScoringLogger | undefined;
 
   const logsDir = join(WORKER_APP_ROOT, "logs");
   const runLogger = new RunLogger(logsDir, runId, projectId);
@@ -244,21 +263,7 @@ export async function generateMystery(
   // than at the end because the runs worth resuming are precisely the ones that never reach the end.
   writeRunFingerprint(WORKER_APP_ROOT, runId, computeBuildFingerprint(WORKSPACE_ROOT));
 
-  if (enableScoring) {
-    try {
-      const retryConfigPath = join(WORKER_APP_ROOT, "config", "retry-limits.yaml");
-      retryManager = new RetryManager(retryConfigPath);
-      scoreAggregator = new ScoreAggregator({ mode: "standard" }, retryManager);
-      const resolvedReportsDir = join(WORKSPACE_ROOT, "apps", "api", "data", "reports");
-      reportRepository = new FileReportRepository(resolvedReportsDir);
-      scoringLogger = new ScoringLogger(logsDir);
-      warnings.push("Scoring system enabled - tracking quality metrics and retries");
-    } catch (error) {
-      warnings.push(
-        `Scoring system initialization failed: ${describeError(error)} - continuing without scoring`
-      );
-    }
-  }
+  const { retryManager, scoreAggregator, reportRepository, scoringLogger } = createRunReporting(enableScoring, logsDir, warnings);
 
   recordRunEnvironment(WORKER_APP_ROOT, runId, scoreAggregator); // CR-22: the flag environment this run saw
   const reportProgress = (
@@ -293,6 +298,7 @@ export async function generateMystery(
         started_at: new Date(startTime),
         completed_at: new Date(),
         user_id: projectId,
+        scoring_enabled: enableScoring,
       });
       Object.assign(partial as any, {
         in_progress: true,
@@ -340,6 +346,7 @@ export async function generateMystery(
         started_at: new Date(startTime),
         completed_at: new Date(),
         user_id: projectId,
+        scoring_enabled: enableScoring,
       });
       Object.assign(partial as any, {
         in_progress: true,

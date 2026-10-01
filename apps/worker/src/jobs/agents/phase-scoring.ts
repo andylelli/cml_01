@@ -9,40 +9,27 @@
  * Agent 3's vanity score is built from run counters (attempts, repairs) and stays in its runner; its
  * honest scorer `scoreRealCml` is characterised directly.
  */
-import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { CastCheckResult } from "@cml/prompts-llm";
-import {
-  Agent65WorldBuilderScorer,
-  BackgroundContextScorer,
-  CastDesignScorer,
-  CharacterProfilesScorer,
-  HardLogicScorer,
-  LocationProfilesScorer,
-  NarrativeScorer,
-  SettingRefinementScorer,
-  TemporalContextScorer,
-  getChapterTargetTolerance,
-  getSceneTarget,
-  scoreRealBackground,
-  scoreRealCast,
-  scoreRealHardLogic,
-  scoreRealLocations,
-  scoreRealNarrative,
-  scoreRealSetting,
-} from "@cml/story-validation";
+import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { PhaseScore } from "@cml/story-validation";
 import {
-  adaptBackgroundContextForScoring,
-  adaptCastForScoring,
-  adaptCharacterProfilesForScoring,
-  adaptHardLogicForScoring,
-  adaptLocationsForScoring,
-  adaptNarrativeForScoring,
-  adaptSettingForScoring,
-  adaptTemporalContextForScoring,
-  type ClueRef,
+Agent65WorldBuilderScorer,
+CharacterProfilesScorer,
+TemporalContextScorer,
+getChapterTargetTolerance,
+getSceneTarget,
+scoreRealBackground,
+scoreRealCast,
+scoreRealHardLogic,
+scoreRealLocations,
+scoreRealNarrative,
+scoreRealSetting
+} from "@cml/story-validation";
+import {
+adaptCharacterProfilesForScoring,
+adaptTemporalContextForScoring
 } from "../scoring-adapters/index.js";
-import { applyHonestScorer } from "./shared.js";
+import { honestScore } from "./shared.js";
 
 export interface ScoredPhase<A> {
   adapted: A;
@@ -52,13 +39,8 @@ export interface ScoredPhase<A> {
 type AnyObj = any;
 
 /** Agent 1 — setting refinement. */
-export async function scoreSettingPhase(setting: AnyObj, warnings: string[]): Promise<ScoredPhase<unknown>> {
-  const scorer = new SettingRefinementScorer();
-  const adapted = adaptSettingForScoring(setting);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: {},
-  });
-  return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(setting), warnings, "agent1-setting") };
+export async function scoreSettingPhase(setting: AnyObj, _warnings: string[]): Promise<ScoredPhase<unknown>> {
+  return { adapted: setting, score: honestScore(() => scoreRealSetting(setting), "agent1-setting") };
 }
 
 /** Agent 2 — cast design. `check` is `checkCast` (injected so a test can stub it). */
@@ -69,22 +51,10 @@ export async function scoreCastPhase(
   check: (cast: AnyObj, opts: { expectedCount: number }) => CastCheckResult,
   warnings: string[],
 ): Promise<ScoredPhase<unknown>> {
-  const scorer = new CastDesignScorer();
-  const adapted = adaptCastForScoring(cast);
-  const scorerInput = {
-    cast_size: castSize,
-  };
-  const score = await scorer.score(scorerInput, adapted, {
-    previous_phases: { agent1_setting: setting },
-  });
+  void setting; void warnings;
   return {
-    adapted,
-    score: applyHonestScorer(
-      score,
-      () => scoreRealCast(cast, check(cast, { expectedCount: scorerInput.cast_size }), { expectedCount: scorerInput.cast_size }),
-      warnings,
-      "agent2-cast",
-    ),
+    adapted: cast,
+    score: honestScore(() => scoreRealCast(cast, check(cast, { expectedCount: castSize }), { expectedCount: castSize }), "agent2-cast"),
   };
 }
 
@@ -106,15 +76,8 @@ export async function scoreLocationsPhase(
   backgroundContext: AnyObj,
   warnings: string[],
 ): Promise<ScoredPhase<unknown>> {
-  const scorer = new LocationProfilesScorer();
-  const adapted = adaptLocationsForScoring(locResult);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: {
-      agent1_setting: setting,
-      agent2e_background_context: backgroundContext,
-    },
-  });
-  return { adapted, score: applyHonestScorer(score, () => scoreRealLocations(locResult), warnings, "agent2c-location") };
+  void setting; void backgroundContext; void warnings;
+  return { adapted: locResult, score: honestScore(() => scoreRealLocations(locResult), "agent2c-location") };
 }
 
 /** Agent 2d — temporal context (no honest scorer). */
@@ -137,18 +100,10 @@ export async function scoreBackgroundPhase(
   cast: AnyObj,
   warnings: string[],
 ): Promise<ScoredPhase<unknown>> {
-  const scorer = new BackgroundContextScorer();
-  const adapted = adaptBackgroundContextForScoring(backgroundContext, setting);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: {
-      agent1_setting: setting,
-      agent2_cast: cast,
-    },
-  });
+  void warnings;
   return {
-    adapted,
-    score: applyHonestScorer(
-      score,
+    adapted: backgroundContext,
+    score: honestScore(
       () => scoreRealBackground(backgroundContext, {
         castRoster: (((cast as any)?.characters ?? []) as any[]).map((c) => String(c?.name ?? "")).filter(Boolean),
         agent1Echo: [
@@ -157,7 +112,6 @@ export async function scoreBackgroundPhase(
           setting.atmosphere?.visualDescription,
         ].filter((x): x is string => Boolean(x)),
       }),
-      warnings,
       "agent2e-background",
     ),
   };
@@ -171,16 +125,8 @@ export async function scoreHardLogicPhase(
   backgroundContext: AnyObj,
   warnings: string[],
 ): Promise<ScoredPhase<unknown>> {
-  const scorer = new HardLogicScorer();
-  const adapted = adaptHardLogicForScoring(devices);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: {
-      agent1_setting: setting,
-      agent2_cast: cast,
-      agent2e_background_context: backgroundContext,
-    },
-  });
-  return { adapted, score: applyHonestScorer(score, () => scoreRealHardLogic(devices), warnings, "agent3b-hard-logic") };
+  void setting; void cast; void backgroundContext; void warnings;
+  return { adapted: devices, score: honestScore(() => scoreRealHardLogic(devices), "agent3b-hard-logic") };
 }
 
 /** Agent 6.5 — world document (no adapter, no honest scorer). */
@@ -203,25 +149,11 @@ export async function scoreNarrativePhase(
   targetLength: "short" | "medium" | "long" | undefined,
   warnings: string[],
 ): Promise<ScoredPhase<unknown>> {
-  const scorer = new NarrativeScorer();
-  const clueMappings: ClueRef[] = (
-    (cml as any)?.CASE?.prose_requirements?.clue_to_scene_mapping ?? []
-  )
-    .map((m: any): ClueRef => ({
-      id: String(m.clue_id || ""),
-      placement: m.act_number === 1 ? "early" : m.act_number === 2 ? "mid" : m.act_number === 3 ? "late" : undefined,
-    }))
-    .filter((c: ClueRef) => c.id);
-  const adapted = adaptNarrativeForScoring(
-    narrativeResult,
-    (cml as any)?.CASE?.cast ?? [],
-    clueMappings
-  );
-  const score = await scorer.score({}, adapted, {
-    previous_phases: { agent2_cast: cast },
-    cml,
-    targetLength: targetLength ?? "medium",
-  });
+  void cml; void cast;
+  // Owner decision 8: the honest score, with the scene-count gate applied ON TOP of it. The gate used to run
+  // before the honest swap, so an out-of-tolerance outline was recorded with vanity numbers even under enforce.
+  const adapted = narrativeResult;
+  const score = honestScore(() => scoreRealNarrative(narrativeResult, targetLength ?? "medium"), "agent7-narrative");
 
   // Scene-count gate inside the scoring path: force F only when the deviation
   // exceeds the configured tolerance (±getChapterTargetTolerance()).  Counts within
@@ -257,13 +189,6 @@ export async function scoreNarrativePhase(
     };
   }
 
-  return {
-    adapted,
-    score: applyHonestScorer(
-      score,
-      () => scoreRealNarrative(narrativeResult, targetLength ?? "medium"),
-      warnings,
-      "agent7-narrative",
-    ),
-  };
+  void warnings;
+  return { adapted, score };
 }
