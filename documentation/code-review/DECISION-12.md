@@ -33,9 +33,9 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A5-D05 | CR-07 | todo | | |
 | A5-Q02 | CR-07 | todo | | |
 | A5-Q03 | CR-28 | todo | | |
-| A5-Q06 | CR-30 | todo | | |
+| A5-Q06 | CR-30 | done | 4bd53121 | flag + 6 branches retired |
 | A6-02 | CR-29 | todo | | |
-| A6-03 | CR-29 | todo | | |
+| A6-03 | CR-29 | wip | 4bd53121 | dead outer branch deleted; inner retry text in the CR-29 batch |
 | A6-16 | CR-34 | todo | | |
 | A6-17 | CR-28 | todo | | |
 | A6-D02 | CR-07 | todo | | |
@@ -47,10 +47,10 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A7-D02 | CR-07 | todo | | |
 | A7-D05 | CR-07 | todo | | |
 | A7-D09 | CR-07 | todo | | |
-| A7-Q01 | CR-30 | todo | | |
-| A7-Q03 | CR-30 | moot | c5423dfd | A7-01 decomposed runAgent7 into 12 phases (agent7-run.ts 272 lines); beat-scheduler still unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF |
+| A7-Q01 | CR-30 | done | 4bd53121 | OFF arm retired at 7 sites |
+| A7-Q03 | CR-30 | moot | c5423dfd | A7-01 done; scheduler unwired |
 | A7-Q05 | CR-07 | todo | | |
-| A34-05 | CR-30 | todo | | |
+| A34-05 | CR-30 | done | 4bd53121 | patch engine deleted |
 | A34-08 | CR-07 | todo | | |
 | A34-09 | CR-29 | todo | | |
 | A34-14 | CR-28 | todo | | |
@@ -60,11 +60,11 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A34-D11 | CR-07 | todo | | |
 | A34-D12 | CR-29 | todo | | |
 | A34-D13 | CR-32 | todo | | |
-| A34-Q03 | CR-30 | todo | | |
+| A34-Q03 | CR-30 | done | 4bd53121 | offline 0/2 fixed; retired |
 | A34-Q05 | CR-32 | todo | | |
 | A1X-10 | CR-29 | todo | | |
 | A1X-11 | CR-28 | todo | | |
-| A1X-15 | CR-30 | todo | | |
+| A1X-15 | CR-30 | wip | 4bd53121 | 2 of 3 parts; no-names branch deferred (public input, 14 test calls) |
 | A1X-D01 | CR-07 | todo | | |
 | A1X-D03 | CR-07 | todo | | |
 | A1X-D04 | CR-07 | done | 2ad12d6c | owner decision 10 |
@@ -72,15 +72,15 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A1X-D10 | CR-29 | todo | | |
 | A1X-D11 | CR-07 | todo | | |
 | A1X-Q03 | CR-07 | done | 2ad12d6c | owner decision 10 |
-| A1X-Q05 | CR-30 | todo | | |
+| A1X-Q05 | CR-30 | done | 4bd53121 | F5b + realism belt deleted |
 | A1X-Q06 | CR-30 | todo | | |
 | A1X-Q07 | CR-29 | todo | | |
 | ORC-14 | CR-32 | todo | | |
 | ORC-D01 | CR-07 | moot | 03c4f5d3 | executeAgentWithRetry and abortCritical deleted (decision 7) |
-| ORC-D11 | CR-07 | todo | | |
+| ORC-D11 | CR-07 | done | 4bd53121 | byte-identical |
 | ORC-Q07 | CR-32 | todo | | |
 | SCO-01 | CR-30 | done | 51f0d14a | owner decision 8 |
-| SCO-Q05 | CR-30 | todo | | |
+| SCO-Q05 | CR-30 | done | 4bd53121 | deleted |
 | A6-Q01 | CR-29 | todo | | reopened: the withdrawal was wrong (see Agents 5/6 audit) |
 
 ## Audit — Agents 3, 4, 7 (read-only agent, 2026-10-01, ~153k tokens, 57 tool uses)

@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 133 | 100 | 44 | 277 |
-| open | 57 | 39 | 28 | 124 |
+| closed | 134 | 101 | 50 | 285 |
+| open | 56 | 38 | 22 | 116 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -23,7 +23,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 22 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
-| CR-07 | 43 | 25 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
+| CR-07 | 43 | 26 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 1 | A9W-12 |
 | CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
@@ -46,7 +46,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-27 | 14 | 9 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
 | CR-28 | 19 | 13 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
 | CR-29 | 20 | 9 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
-| CR-30 | 21 | 12 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
+| CR-30 | 21 | 19 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
 | CR-32 | 10 | 4 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
 | CR-33 | 13 | 12 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
@@ -74,13 +74,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-29 | A1X-Q07 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
 | CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? | REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path |
 | CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
-| CR-30 | A1X-Q05 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
 | CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| CR-30 | A34-Q03 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
-| CR-30 | A5-Q06 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
-| CR-30 | A7-Q01 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, and it costs about 70 lines of forks. |  |
-| CR-30 | A7-Q03 | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Should A7-01 wait for that decision, or proceed? This report recommends proceeding: the split makes a later delet… |  |
-| CR-30 | SCO-Q05 | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
 | CR-32 | A34-Q05 | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
 | CR-32 | A6-Q04 | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
 | CR-32 | ORC-Q07 | ORC-14: should a per-agent model override outrank the design tier? |  |
@@ -315,7 +309,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-Q03 |  |  | CR-28 | todo |  | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
 | A5-Q04 |  |  | CR-16 | todo |  | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
 | A5-Q05 |  |  | CR-16 | done | ec9904b2 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? | DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs) |
-| A5-Q06 |  |  | CR-30 | todo |  | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
+| A5-Q06 |  |  | CR-30 | done | 4bd53121 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode | DECIDED (decision 12, CR-30): AGENT5_ENABLE_LLM_RETRIES and its six branches retired (-368 lines); red-herring floor stays |
 | A5-Q07 |  |  | CR-16 | todo |  | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
 
 ## 07-agent6-fairplay-worldbuilder
@@ -324,7 +318,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 |---|---|---|---|---|---|---|---|
 | A6-01 | P1 | R0→R1 | CR-25 | done | 71c3fdab | runAgent6 → coordinator plus 7 phase modules over explicit state (30 shared bindings, 9 mutable) | runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue) |
 | A6-02 | P1 | R2 | CR-29 | todo |  | Fair-play retry feedback is failure-agnostic: 0 of 12 violation-derived lines reach Agent 5 |  |
-| A6-03 | P1 | R2 | CR-29 | todo |  | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable |  |
+| A6-03 | P1 | R2 | CR-29 | wip | 4bd53121 | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable | outer half moot (decision 7) and its dead retryFeedback branch deleted; inner World Builder retry text: CR-29 batch |
 | A6-04 | P1 | R1 | CR-16 | deferred | 9af9b5fd | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently | R1 done: refreshCoverageOnContext (4 copies). MEASURED: pre-LLM and post-revision orderings agree in 65/65 planted cases; WP8A (backstop first) differs in 65/65, so one ordering at all four sites is R2 — OWNER |
 | A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
 | A6-06 | P2 | R0/R1 | CR-25 | deferred |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) | blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass |
@@ -383,9 +377,9 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-D08 |  |  | CR-17 | todo |  | Emotional-register conflict. A7-13: 97/358 prose prompts carry two different registers for the same chapter. |  |
 | A7-D09 |  |  | CR-07 | todo |  | Gate-mode geometry repair may not persist or resume. In AGENT75_GEOMETRY=gate, the outline artifact is persisted (mystery-orchestrator.ts:1563) befor… |  |
 | A7-D10 |  |  | CR-06 | done | 9801b481 | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… | fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields |
-| A7-Q01 |  |  | CR-30 | todo |  | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… |  |
+| A7-Q01 |  |  | CR-30 | done | 4bd53121 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… | DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites |
 | A7-Q02 |  |  | CR-33 | todo |  | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… |  |
-| A7-Q03 |  |  | CR-30 | todo |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… |  |
+| A7-Q03 |  |  | CR-30 | withdrawn |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… | MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-scheduler stays unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF |
 | A7-Q04 |  |  | CR-16 | todo |  | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
 | A7-Q05 |  |  | CR-07 | todo |  | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
 
@@ -397,7 +391,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-02 | P1 | R2 | CR-12 | wip | 5aeaf992 | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | Owner decision 2: unified predicate (explicit role wins) shipped in SHADOW at 8 sites (resolveIdentity, [identity-disagree]); flip CML_IDENTITY_ROLE_WINS after N runs of the counter. MEASURED before: 577 archive disagreements |
 | A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
-| A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
+| A34-05 | P2 | R2 | CR-30 | done | 4bd53121 | Patch engine never run in a pipeline; unregistered flag; dead result fields | patch engine retired (decision 12, CR-30): agent4-patch.ts, test, shadow script, CML_REPAIR_MODE |
 | A34-06 | P2 | R1 (+R2) | CR-20 | done | 8054d8a6 | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs | Agents 3/4 on the one ladder; sanitizeYaml (byte-identical) moved to shared/llm-json.ts. Not changed: Agent 3's YAML fallback parses with yaml, Agent 4's with js-yaml (js-yaml is declared now) — one library changes what a YAML payload parses to (R2) |
 | A34-07 | P2 | R1 | CR-21 | done | 9cc72b98 | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes leak fixed (fe4372dd); both loops characterised (13 scenarios) then escalation, reply parsing and degrade moved out: generateCML 440 -> 242, reviseCml 419 -> 329, snapshots unchanged. Not done: reviseCml's loop body mutates six locals (current CML, errors, streak, attempt...); a shared runCmlAttemptLoop needs those as a state object — deferred, the target sizes are within reach of that one step |
 | A34-08 | P2 | R0 (+R2) | CR-07 | todo |  | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" |  |
@@ -425,7 +419,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D16 |  |  | CR-14 | done | c7506ca7 | A3 normaliser drops the schema's canonical role/moral_complexity on every run | Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2) |
 | A34-Q01 |  |  | CR-14 | done | 51664c31 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH |
 | A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
-| A34-Q03 |  |  | CR-30 | todo |  | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
+| A34-Q03 |  |  | CR-30 | done | 4bd53121 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B | DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran |
 | A34-Q04 |  |  | CR-16 | withdrawn | fd058f16 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML | MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1) |
 | A34-Q05 |  |  | CR-32 | todo |  | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
 
@@ -447,7 +441,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-12 | P2 | R1 (R2 edges) | CR-18 | todo |  | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") |  |
 | A1X-13 | P2 | R0 | CR-10 | done | 9232c483 | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× | leaf agent2-cast-types.ts; checker imports it; cycle gone. BackgroundContextInput alias not done (3 bodies of the background type = CR-13 typed case view) |
 | A1X-14 | P3 | R0/R1 | CR-08 | done | 5662ca4c 3d63527f | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo | TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12) |
-| A1X-15 | P3 | R2 | CR-30 | todo |  | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) |  |
+| A1X-15 | P3 | R2 | CR-30 | wip | 4bd53121 | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) | realism belt + 2c narrative path deleted (2c prompt byte-identical on 68 inputs). DEFERRED part: Agent 2's no-names branch is reachable from designCast's public input and pinned by 14 test calls incl. the CR-21 characterisation |
 | A1X-D01 |  |  | CR-07 | todo |  | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) |  |
 | A1X-D02 |  |  | CR-06 | done | ec237e5a | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
 | A1X-D03 |  |  | CR-07 | todo |  | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" |  |
@@ -465,7 +459,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | A1X-Q03 |  |  | CR-07 | done | 2ad12d6c | Enforce the user's castGenders deterministically in Agent 2 (D4)? | DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed |
 | A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md) |
-| A1X-Q05 |  |  | CR-30 | todo |  | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
+| A1X-Q05 |  |  | CR-30 | done | 4bd53121 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? | DECIDED (decision 12, CR-30): F5b and the Agent 1 runner realism fold deleted |
 | A1X-Q06 |  |  | CR-30 | todo |  | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
 | A1X-Q07 |  |  | CR-29 | todo |  | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
 
@@ -499,7 +493,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-D08 |  |  | CR-32 | dup |  | Explicit design model silences AGENT3/5/6/7_MODEL and RUBRIC_SCORER_MODEL | = ORC-14 |
 | ORC-D09 |  |  | CR-33 | done | ba1b5496 | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing | concurrent runs keep their own shutdown flush; shutdown flushes every run (allSettled). The timed-out run that keeps executing is ORC-Q06 (owner) |
 | ORC-D10 |  |  | CR-06 | done | faeb6755 | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
-| ORC-D11 |  |  | CR-07 | todo |  | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique |  |
+| ORC-D11 |  |  | CR-07 | done | 4bd53121 | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique | no-op 2x spread removed; names and order unchanged |
 | ORC-D12 |  |  | CR-19 | dup |  | Agent 6 perCallCostDelta takes its baseline *after* the first retry call, so the first retry is never charged to the $ retry budget | = A6-D01 |
 | ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
 | ORC-Q01 |  |  | CR-07 | done | 03c4f5d3 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? | DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003) |
@@ -543,7 +537,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-Q02 |  |  | CR-18 | done | 03c4f5d3 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? | DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once |
 | SCO-Q03 |  |  | CR-18 | todo |  | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
 | SCO-Q04 |  |  | CR-16 | withdrawn | 8631e31b | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? | MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose |
-| SCO-Q05 |  |  | CR-30 | todo |  | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
+| SCO-Q05 |  |  | CR-30 | done | 4bd53121 | Keep comparePromptVariants for the R6 eval harness, or delete it? | DECIDED (decision 12, CR-30): comparePromptVariants deleted (no importer) |
 | SCO-Q06 |  |  | CR-06 | withdrawn | 51f0d14a | Canonical fair-play weighting for the diagnostic: 35/35/15/15? | MOOT: both weightings deleted (40/40/20 with v1 agent9-run, 35/35/15/15 with ProseScorer) |
 | SCO-Q07 |  |  | CR-18 | todo |  | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
 | SCO-Q08 |  |  | CR-18 | done | 51f0d14a | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional | DECIDED (owner decision 8): report written with ENABLE_SCORING off, scoring_enabled=false, graded N/A |
