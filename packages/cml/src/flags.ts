@@ -23,3 +23,13 @@ export function readBooleanFlag(name: string, defaultValue: boolean, env: Record
   }
   return defaultValue;
 }
+
+/**
+ * Owner decision 12 (CR-07 / CR-29, 2026-10-01): ONE flag for the batch of verified-bug fixes that change a prompt or
+ * a run outcome on the default path, so a single matched pair can read them together (OWNER-DECISIONS §12). Each
+ * gated site names its ledger item; the list is documentation/code-review/DECISION-12.md. Default OFF: with it
+ * unset every prompt and outcome is byte-identical (the replay fixtures pin this).
+ */
+export function verifiedFixesEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("CML_VERIFIED_FIXES", false, env);
+}

@@ -1026,3 +1026,9 @@ Each was unset in `.env` and `.env.local` and its retired arm never ran at defau
 | `AGENT5_ENABLE_LLM_RETRIES` | six Agent 5 LLM-regeneration branches (`agent5/extraction.ts` ×3, `coverage-retries.ts` ×2, `evidence-remediation.ts` ×1), −368 lines | default OFF since the deterministic mode (A5-Q06); the default-ON red-herring floor is not under it and stays |
 | `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` | the OFF ("fail-fast") arm at seven sites (Agents 1, 2, 3, 7 ×4) | default ON, any unrecognised value read ON (A7-Q01) |
 | `CML_REPAIR_MODE` | the node-scoped patch engine (`agent4-patch.ts`, its test and shadow script) | default `rewrite`, never run in a pipeline; offline (heuristic proposer) it fixed 0 of 2 errors on the corpus's one real failing CML (A34-Q03) |
+
+## Addendum — owner decision 12: the verified-fix batch (2026-10-01)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `CML_VERIFIED_FIXES` | unset → **off** | OFF | **Owner decision 12 (CR-07 / CR-29).** One switch for every verified-bug fix that changes a prompt or a run outcome on the default path, so ONE matched pair reads the batch (OWNER-DECISIONS §12). `verifiedFixesEnabled()` in `@cml/cml`; each gated site names its ledger item, and documentation/code-review/DECISION-12.md lists them. OFF is byte-identical (replay fixtures). The read needs owner approval of a paid matched pair. |
