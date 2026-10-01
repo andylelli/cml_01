@@ -391,6 +391,8 @@ export interface V2Result {
   telemetry: string[];
   ship: boolean;
   stops: string[];
+  /** The gate's warnings (everything that is not one of the two fair-play stops). */
+  gateWarnings: string[];
 }
 
 /**
@@ -758,7 +760,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   checkpoint = { ...checkpoint, findings: { anchored, discarded }, edits: editOutcomes };
   writeCheckpoint(checkpointPath, checkpoint);
 
-  return { chapters: written, contract, telemetry, ship: verdict.ship, stops: verdict.stops };
+  return { chapters: written, contract, telemetry, ship: verdict.ship, stops: verdict.stops, gateWarnings: verdict.warnings };
 };
 
 /**
@@ -789,4 +791,25 @@ export const runProseEngineV2 = async (ctx: OrchestratorContext): Promise<void> 
     // The two fair-play stops. Everything else shipped with a warning, which is L4.
     ctx.errors.push(...result.stops.map((s) => `[Agent 9 v2] ${s}`));
   }
+  recordV2ReleaseGate(ctx, result);
 };
+
+/**
+ * The run report's release gate, from v2's own gate. Only v1 ever wrote the `release_gate_summary` diagnostic, and
+ * it went with v1 (owner decision 1, 43b44336) — so every v2 run's gate read "unknown" and its run_outcome fell back
+ * to phase thresholds, the rule A_65b retired. MEASURED on run mystery-1790896091454 (seed 5670, 2026-10-02): a
+ * 10-chapter book with no fair-play stop reported run_outcome "failed — One or more phases failed threshold".
+ * The same three fields v1 wrote: a stop is a hard stop (as v1's were), warnings make it shipped-needs-review.
+ */
+export function recordV2ReleaseGate(ctx: OrchestratorContext, result: Pick<V2Result, "ship" | "stops" | "gateWarnings">): void {
+  const details: Record<string, unknown> = {
+    engine: "v2",
+    validation_status: !result.ship ? "failed" : result.gateWarnings.length > 0 ? "needs_review" : "passed",
+    release_gate_hard_stop_count: result.ship ? 0 : result.stops.length,
+    release_gate_warning_count: result.gateWarnings.length,
+    release_gate_stops: result.stops,
+    release_gate_warnings: result.gateWarnings,
+  };
+  ctx.scoreAggregator?.upsertDiagnostic("agent9_prose_release_gate_summary", "agent9_prose", "Release Gate", "release_gate_summary", details);
+  ctx.scoringLogger?.logPhaseDiagnostic("agent9_prose", "Release Gate", "release_gate_summary", details, ctx.runId, ctx.projectId || "");
+}
