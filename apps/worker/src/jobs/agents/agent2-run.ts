@@ -6,6 +6,7 @@
  */
 
 // CR-12 (A1X-04): the coercers designCast also uses, under the names this file's body reads.
+import { resolveIdentity } from "@cml/cml";
 import { coerceMotiveStrength as normaliseMotiveStrength, coerceAccessPlausibility as normaliseAccessPlausibility, coerceRelationshipTension as normaliseRelationshipTension } from "@cml/prompts-llm";
 import { readModeFlag } from "./mode-flag.js";
 import { scoreCastPhase } from "./phase-scoring.js";
@@ -235,7 +236,7 @@ function fillCrimeDynamicsDefaults(cd: Record<string, unknown>, characters: Reco
   );
   const looksDetective = (c: Record<string, unknown>): boolean => String((c as Record<string, unknown>).role ?? "").trim().toLowerCase() === "detective" ||
     detectiveCandidateSet.has(String(c.name ?? "").trim().toLowerCase()) ||
-    isDetectiveArchetype(String(c.roleArchetype ?? ""));
+    resolveIdentity("agent2.detective", "detective", c, isDetectiveArchetype(String(c.roleArchetype ?? "")));
   const nonDetectiveNames = characters
     .filter((c) => !looksDetective(c) && c.name)
     .map((c) => String(c.name));
@@ -476,7 +477,7 @@ export function enforceVictimRoleInvariant(
   const roleOf = (c: Record<string, unknown>): string => String(c?.role ?? "").trim().toLowerCase();
   // A_53 P4 (Pattern D): word-boundary archetype test that excludes non-police "building inspector".
   const archetypeDetective = (c: Record<string, unknown>): boolean =>
-    isDetectiveArchetype(archetypeOf(c));
+    resolveIdentity("agent2.detective", "detective", c, isDetectiveArchetype(archetypeOf(c)));
 
   const detectiveCandidateKeys = Array.isArray(cd.detectiveCandidates)
     ? (cd.detectiveCandidates as unknown[]).map((n) => String(n).trim().toLowerCase()).filter(Boolean)

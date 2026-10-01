@@ -1,3 +1,4 @@
+import { resolveIdentity } from "@cml/cml";
 import type { CMLData, Story, ValidationError, ValidationResult, Validator } from './types.js';
 import { isVictimArchetype } from '@cml/cml';
 
@@ -72,7 +73,7 @@ const getRole = (entry: any): string =>
 
 const getVictimNames = (cml?: CMLData): string[] =>
   ((cml as any)?.CASE?.cast ?? [])
-    .filter((entry: any) => isVictimArchetype(getRole(entry)))
+    .filter((entry: any) => resolveIdentity("lifecycle.victims", "victim", entry, isVictimArchetype(getRole(entry))))
     .map((entry: any) => String(entry?.name ?? '').trim())
     .filter(Boolean);
 

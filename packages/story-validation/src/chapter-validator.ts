@@ -4,6 +4,7 @@
  * Catches major issues early before full pipeline validation
  */
 
+import { resolveIdentity } from "@cml/cml";
 import type { CMLData, Story, ValidationError } from './types.js';
 import { OPENING_SENSORY_MARKERS, OPENING_ATMOSPHERE_MARKERS, countGroundingMarkers } from './opening-grounding-vocabulary.js';
 import { isVictimArchetype } from '@cml/cml';
@@ -549,7 +550,7 @@ export class ChapterValidator {
     const cast: any[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
     const victimChar = cast.find((c: any) => {
       const archetype: string = c.roleArchetype ?? c.role_archetype ?? '';
-      return typeof archetype === 'string' && isVictimArchetype(archetype);
+      return resolveIdentity("chapter-validator.victim", "victim", c, typeof archetype === 'string' && isVictimArchetype(archetype));
     });
     const victimName: string = victimChar?.name ?? '';
 

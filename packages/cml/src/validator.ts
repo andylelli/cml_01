@@ -1,3 +1,4 @@
+import { resolveIdentity } from "./roles.js";
 import fs from "fs";
 import { checkCaseTimelineDeception } from "./timeline-deception.js";
 import path from "path";
@@ -372,10 +373,10 @@ const validateCulpritIntegrity = (caseBlock: any, errors: string[]): void => {
       continue;
     }
     const role = roleOf(member);
-    if (role.includes("victim")) {
+    if (resolveIdentity("validator.culprit", "victim", member, role.includes("victim"))) {
       errors.push(`CASE.culpability.culprits names "${culprit}", who is the victim`);
     }
-    if (role.includes("detective")) {
+    if (resolveIdentity("validator.culprit", "detective", member, role.includes("detective"))) {
       errors.push(`CASE.culpability.culprits names "${culprit}", who is the detective`);
     }
     if (norm(member?.culprit_eligibility) === "ineligible") {

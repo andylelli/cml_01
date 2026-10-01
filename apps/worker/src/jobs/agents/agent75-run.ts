@@ -21,6 +21,7 @@
  */
 
 // X39 — the case's two temporal spines, checked while a repair is still cheap (REVIEW_09 §3).
+import { resolveIdentity } from "@cml/cml";
 import { checkCaseTimelineDeception, checkCaseTimeCoherence } from "@cml/prompts-llm";
 import {
   applyGeometryOutlineRepair,
@@ -77,7 +78,9 @@ const buildResolvePrompt = (caseData: any, clues: ReadonlyArray<GeometryClue>): 
   const suspects = ((caseData?.cast ?? []) as any[])
     .filter((c) => {
       const role = roleOf(c);
-      return !role.includes("detective") && !role.includes("victim") && String(c?.name ?? "") !== culprit;
+      return !resolveIdentity("agent75.suspects", "detective", c, role.includes("detective"))
+        && !resolveIdentity("agent75.suspects", "victim", c, role.includes("victim"))
+        && String(c?.name ?? "") !== culprit;
     })
     .map((c) => String(c?.name ?? "").trim())
     .filter(Boolean);

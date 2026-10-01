@@ -21,6 +21,7 @@
 // can import it without creating a cycle back through this file.
 export { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
 export type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
+import { resolveIdentity } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
 import type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
 import { isVictimArchetype } from "@cml/cml";
@@ -570,9 +571,8 @@ function buildUserRequest(
     Array.isArray(legacy.cast?.characters) ? legacy.cast.characters :
     Array.isArray(legacy.cast) ? legacy.cast : [];
   const victimFromCast: string | undefined = castCharactersForVictim.find((c: any) => {
-    if (c.role === 'victim') return true;
     const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
-    return typeof archetype === 'string' && isVictimArchetype(archetype);
+    return resolveIdentity("agent7.victim", "victim", c, c.role === 'victim' || (typeof archetype === 'string' && isVictimArchetype(archetype)));
   })?.name;
   const crimeVictim: string = victimFromCast ?? (typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim");
   const rawLocationValue = legacy.setup?.crime?.location;

@@ -989,3 +989,9 @@ Also retired with v1, never set in config: `AGENT9_PROSE_BATCH_SIZE`, `AGENT9_GE
 **Unwired, not retired:** `PROSE_ANTI_COPY_GATE` and `AGENT9_RETRY_REGRESSION_GUARD` are still read by their gates in
 `@cml/prose-guard`, but the gates' only caller was v1. Whether v2 should call them is a separate decision; until then
 they govern nothing.
+
+## Addendum — owner decision 2: one role predicate, shadowed (2026-10-01)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `CML_IDENTITY_ROLE_WINS` | unset → **off** | OFF | **Owner decision 2 (A1X-Q01 / A34-02).** `@cml/cml` `resolveIdentity`: at eight sites (validator culprit check, lifecycle and chapter-validator victim, rubric-score victim, Agent 7.5 suspects, Agent 7 victim, the normaliser's victim-ineligible and suspect lists, Agent 2 detective) each old detective/victim verdict is compared with the unified predicate — the explicit `role` enum wins, else the archetype predicates — and every disagreement is logged `[identity-disagree] site=… kind=… member=… old=… unified=…`. OFF keeps every old verdict (byte-identical); ON uses the unified one. MEASURED before shipping: 577 disagreements over 2,502 archived cast members. Flip after N runs of the shadow counter, per the decision. Not covered: `story-geometry` derive.ts (no `@cml/cml` dependency; its own `STORY_GEOMETRY_ROLE_FIELD_FIX`). |

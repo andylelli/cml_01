@@ -6,6 +6,7 @@
  * both bodies moved here verbatim as two profiles, sharing the sections that are identical.
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
+import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { isVictimArchetype } from "@cml/cml";
 import type { CMLPromptInputs } from "../types.js";
@@ -274,7 +275,7 @@ function normalizeCast(caseBlock: Record<string, unknown>, inputs: CMLPromptInpu
 
   // Any character explicitly marked victim in the cast must remain ineligible and innocent.
   for (const member of normalizedCast) {
-    if (roleIncludes(member.role_archetype, ["victim"])) {
+    if (resolveIdentity("normalize.victim-ineligible", "victim", member, roleIncludes(member.role_archetype, ["victim"]))) {
       member.culprit_eligibility = "ineligible";
       member.culpability = "innocent";
     }
@@ -444,7 +445,8 @@ function normalizeGenreStructures(caseBlock: Record<string, unknown>, falseAssum
     : [];
   const roleOf = (entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
   const suspectNamesForGenre: string[] = castEntries
-    .filter((e) => !roleOf(e).includes("detective") && !isVictimArchetype(roleOf(e)))
+    .filter((e) => !resolveIdentity("normalize.suspects", "detective", e, roleOf(e).includes("detective"))
+      && !resolveIdentity("normalize.suspects", "victim", e, isVictimArchetype(roleOf(e))))
     .map((e) => String(e?.name ?? "").trim())
     .filter(Boolean);
   const innocentSuspect = suspectNamesForGenre.find((n) => !culpritNamesForGenre.includes(n));

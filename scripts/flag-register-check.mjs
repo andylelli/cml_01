@@ -97,7 +97,8 @@ const FLAG_PATTERN = new RegExp(
     String.raw`PROSE_ENGINE|PROSE_V2_[A-Z0-9_]+|` +
     // Code review VERIFIED-BUGS #22 (2026-09-29): nine levers matched no prefix above, so the register could not
     // police them — CML_REPAIR_MODE among them. Named one by one, for the reason LOGGING_KEYS gives.
-    String.raw`CML_REPAIR_MODE|ENABLE_SCORING|ENABLE_PROSE_BLIND_READER|HONEST_SCORERS|ALLOW_MULTIPLE_RETRY_GATES|` +
+    // Owner decision 2 (2026-10-01): the role-predicate switch, shadowed by [identity-disagree].
+    String.raw`CML_IDENTITY_ROLE_WINS|CML_REPAIR_MODE|ENABLE_SCORING|ENABLE_PROSE_BLIND_READER|HONEST_SCORERS|ALLOW_MULTIPLE_RETRY_GATES|` +
     String.raw`LLM_RETRY_TEMP_ESCALATION|SEED_SELECTION_RANKED|STORY_GEOMETRY_ROLE_FIELD_FIX|VALIDATION_DOCUMENTARY_MONTHS|` +
     // CR-22 (A9W-13): was read by v1's agent9-run.ts, set only by the replay harness. Retired with v1 (owner
     // decision 1); still matched here so a config line setting it is reported as "read by no code".

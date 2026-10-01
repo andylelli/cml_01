@@ -6,6 +6,7 @@
  * the story's facts.
  */
 
+import { resolveIdentity } from "@cml/cml";
 import { applyHardCaps } from "./hard-caps.js";
 import { extractStoryFacts, mergeFacts, type ScoringCaseInput } from "./facts.js";
 import { buildRubricSystemPrompt, buildRubricUserMessage } from "./prompt.js";
@@ -88,7 +89,7 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
   const caseData = unwrapCase(input.cml);
 
   const chapters = input.chapters && input.chapters.length ? input.chapters : splitProseIntoChapters(input.prose);
-  const victimName = caseData.cast?.find((c) => /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`))?.name;
+  const victimName = caseData.cast?.find((c) => resolveIdentity("rubric.victim", "victim", c, /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`)))?.name;
 
   // Run the structural verifiers BEFORE the judge so the test-chapter context can be handed to it.
   const verdict = verifyStructure({
