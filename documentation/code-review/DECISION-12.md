@@ -26,22 +26,22 @@ in its row), **done** when built and verified, **deferred** with a reason.
 
 | Item | CR | Status | Commit | Note |
 |---|---|---|---|---|
-| A5-10 | CR-28 | todo | | |
+| A5-10 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A5-11 | CR-29 | todo | | |
-| A5-16 | CR-28 | todo | | |
+| A5-16 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A5-D04 | CR-29 | todo | | |
 | A5-D05 | CR-07 | todo | | |
 | A5-Q02 | CR-07 | todo | | |
-| A5-Q03 | CR-28 | todo | | |
+| A5-Q03 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A5-Q06 | CR-30 | done | 4bd53121 | flag + 6 branches retired |
 | A6-02 | CR-29 | todo | | |
 | A6-03 | CR-29 | wip | 4bd53121 | dead outer branch deleted; inner retry text in the CR-29 batch |
-| A6-16 | CR-34 | todo | | |
-| A6-17 | CR-28 | todo | | |
+| A6-16 | CR-34 | deferred |  | k=1 default; audit→read data dependency; provisional audit waits on A6-Q01 |
+| A6-17 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A6-D02 | CR-07 | todo | | |
 | A6-D08 | CR-07 | todo | | |
 | A6-Q02 | CR-29 | todo | | |
-| A6-Q03 | CR-34 | todo | | |
+| A6-Q03 | CR-34 | deferred |  | waits on A6-Q01 |
 | A6-Q04 | CR-32 | done | 69ed426b | AGENT6_MODEL effective; separate labels not built |
 | A7-D01 | CR-07 | todo | | |
 | A7-D02 | CR-07 | todo | | |
@@ -53,7 +53,7 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A34-05 | CR-30 | done | 4bd53121 | patch engine deleted |
 | A34-08 | CR-07 | todo | | |
 | A34-09 | CR-29 | todo | | |
-| A34-14 | CR-28 | todo | | |
+| A34-14 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A34-D03 | CR-07 | todo | | |
 | A34-D04 | CR-07 | todo | | |
 | A34-D10 | CR-07 | todo | | |
@@ -63,7 +63,7 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A34-Q03 | CR-30 | done | 4bd53121 | offline 0/2 fixed; retired |
 | A34-Q05 | CR-32 | done | 69ed426b | override outranks tier |
 | A1X-10 | CR-29 | todo | | |
-| A1X-11 | CR-28 | todo | | |
+| A1X-11 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A1X-15 | CR-30 | wip | 4bd53121 | 2 of 3 parts; no-names branch deferred (public input, 14 test calls) |
 | A1X-D01 | CR-07 | todo | | |
 | A1X-D03 | CR-07 | todo | | |
