@@ -400,6 +400,17 @@ export const dropSelfAndUnknownSeeds = <T extends { seedTitle?: string }>(
   return { kept, dropped };
 };
 
+/**
+ * A1X-D03 follow-up (owner decision 12, CML_VERIFIED_FIXES): with the flag on, every seed summary carries its real
+ * victim, motive and method instead of "Unknown", and the audit's reply grows with them. MEASURED on run
+ * mystery-1790895750302 (seed 5670, 2026-10-02): "Unknown" in the prompt 250 → 40, the prompt 160k → 206k chars,
+ * and the reply hit the 2,500-token cap (finishReason "length", unterminated JSON) where the five previous audits
+ * stopped at 891–1,020 tokens — so the run aborted. ON raises the cap to 8,000; OFF keeps the configured value.
+ */
+export function noveltyMaxTokens(configured: number): number {
+  return verifiedFixesEnabled() ? Math.max(configured, 8000) : configured;
+}
+
 export async function auditNovelty(
   client: AzureOpenAIClient,
   inputs: NoveltyAuditInputs
@@ -410,6 +421,7 @@ export async function auditNovelty(
   // Build the novelty prompt
   const prompt = buildNoveltyPrompt(inputs);
 
+
   // Call LLM with JSON mode
   const response = await client.chat({
     messages: [
@@ -418,7 +430,7 @@ export async function auditNovelty(
       { role: "user", content: prompt.user }
     ],
     temperature: config.model.temperature,
-    maxTokens: config.model.max_tokens,
+    maxTokens: noveltyMaxTokens(config.model.max_tokens),
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",
