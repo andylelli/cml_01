@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 134 | 101 | 50 | 285 |
-| open | 56 | 38 | 22 | 116 |
+| closed | 135 | 103 | 52 | 290 |
+| open | 55 | 36 | 20 | 111 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -48,7 +48,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-29 | 20 | 9 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
 | CR-30 | 21 | 19 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 20 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
-| CR-32 | 10 | 4 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
+| CR-32 | 10 | 9 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
 | CR-33 | 13 | 12 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
 | CR-34 | 3 | 1 | A9W-17 A6-16 A6-Q03 |
 
@@ -75,8 +75,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? | REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path |
 | CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
 | CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| CR-32 | A34-Q05 | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
-| CR-32 | A6-Q04 | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
 | CR-32 | ORC-Q07 | ORC-14: should a per-agent model override outrank the design tier? |  |
 | CR-33 | A7-Q02 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the floor. |  |
 | CR-34 | A6-Q03 | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-02 shows is mostly discarded? |  |
@@ -347,7 +345,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-Q01 |  |  | CR-29 | todo | 03c4f5d3 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… | REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path |
 | A6-Q02 |  |  | CR-29 | todo |  | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already… |  |
 | A6-Q03 |  |  | CR-34 | todo |  | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-0… |  |
-| A6-Q04 |  |  | CR-32 | todo |  | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
+| A6-Q04 |  |  | CR-32 | done | 69ed426b | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? | AGENT6_MODEL now effective for both Agent 6 calls (override outranks tier). Separate auditor/blind-reader labels: not built (no recommendation; one variable serves both) |
 
 ## 08-agent7-narrative-geometry
 
@@ -413,7 +411,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D10 |  |  | CR-07 | todo |  | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" |  |
 | A34-D11 |  |  | CR-07 | todo |  | A3 prompt contradicts itself on evidence_clues; normaliser defaults contradict the anti-trope list |  |
 | A34-D12 |  |  | CR-29 | todo |  | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) |  |
-| A34-D13 |  |  | CR-32 | todo |  | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" |  |
+| A34-D13 |  |  | CR-32 | done | 69ed426b | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 | A34-D14 |  |  | CR-06 | done | ec237e5a | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
 | A34-D15 |  |  | CR-19 | done | 50e05468 | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost | patch path adds the Agent4-Patch label |
 | A34-D16 |  |  | CR-14 | done | c7506ca7 | A3 normaliser drops the schema's canonical role/moral_complexity on every run | Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2) |
@@ -421,7 +419,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
 | A34-Q03 |  |  | CR-30 | done | 4bd53121 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B | DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran |
 | A34-Q04 |  |  | CR-16 | withdrawn | fd058f16 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML | MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1) |
-| A34-Q05 |  |  | CR-32 | todo |  | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
+| A34-Q05 |  |  | CR-32 | done | 69ed426b | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 
 ## 10-agents1-2-8-context
 
@@ -447,7 +445,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D03 |  |  | CR-07 | todo |  | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" |  |
 | A1X-D04 |  |  | CR-07 | done | 2ad12d6c | Agent 2 schema re-roll drops characterGenders (user gender lock); nothing enforces castGenders deterministically (comment at agent2-cast.ts:660-665 c… | the re-roll still carries no genders in its prompt; applyCastGenders enforces castGenders on the finished cast (owner decision 10) |
 | A1X-D05 |  |  | CR-18 | done | 3d63527f | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on | memo deleted; the shadow check reads the normalised cast |
-| A1X-D06 |  |  | CR-32 | todo |  | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) |  |
+| A1X-D06 |  |  | CR-32 | done | 69ed426b | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 | A1X-D07 |  |  | CR-06 | dup |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default OFF; code is default ON | = A34-D14 (flag register) |
 | A1X-D08 |  |  | CR-19 | done | dff49644 73b7e54c | Agent 2 cost always 0; retries over-count elsewhere | designCast reads its label from the tracker |
 | A1X-D09 |  |  | CR-20 | done | 21992344 | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 | auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run |
@@ -480,7 +478,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-11 | P2 | R2 | CR-07 | done | 03c4f5d3 | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers | the swallowed abort and the scoring retry layer are deleted (owner decision 7) |
 | ORC-12 | P2 | R1 | CR-33 | done | a52a1365 | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry | process-guards flush keyed by run (ba1b5496); the module-state repair counters went with v1 (decision 1); concurrent runs refused at the API (decision 11) |
 | ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
-| ORC-14 | P2 | R2 | CR-32 | todo |  | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites |  |
+| ORC-14 | P2 | R2 | CR-32 | done | 69ed426b | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 | ORC-15 | P3 | R0 | CR-13 | todo |  | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts |  |
 | ORC-16 | P3 | R1 | CR-26 | withdrawn | fd058f16 | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read | MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1) |
 | ORC-D01 |  |  | CR-07 | withdrawn | 03c4f5d3 | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert | MOOT: executeAgentWithRetry and abortCritical were deleted with the phase-score retry path (owner decision 7) |

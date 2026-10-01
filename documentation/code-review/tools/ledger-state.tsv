@@ -231,7 +231,7 @@ A6-D09	CR-16	deferred		MEASURED 0/103 archived CMLs lack prose_requirements.disc
 A6-Q01	CR-29	todo	03c4f5d3	REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path
 A6-Q02	CR-29	todo		
 A6-Q03	CR-34	todo		
-A6-Q04	CR-32	todo		
+A6-Q04	CR-32	done	69ed426b	AGENT6_MODEL now effective for both Agent 6 calls (override outranks tier). Separate auditor/blind-reader labels: not built (no recommendation; one variable serves both)
 A7-01	CR-24	done	c5423dfd	runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/
 A7-02	CR-23	todo		
 A7-03	CR-13	todo		
@@ -287,7 +287,7 @@ A34-D09	CR-18	todo
 A34-D10	CR-07	todo		
 A34-D11	CR-07	todo		
 A34-D12	CR-29	todo		
-A34-D13	CR-32	todo		
+A34-D13	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
 A34-D14	CR-06	done	ec237e5a	
 A34-D15	CR-19	done	50e05468	patch path adds the Agent4-Patch label
 A34-D16	CR-14	done	c7506ca7	Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2)
@@ -295,7 +295,7 @@ A34-Q01	CR-14	done	51664c31	DECIDED (owner decision 5): four sections, one commi
 A34-Q02	CR-17	todo		
 A34-Q03	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran
 A34-Q04	CR-16	withdrawn	fd058f16	MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1)
-A34-Q05	CR-32	todo		
+A34-Q05	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
 A1X-01	CR-12	wip	5aeaf992	R0 done (8f86016c). Unify step: shadow shipped (owner decision 2, 5aeaf992); flip after N runs
 A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
 A1X-03	CR-20	done	5c6f6f9d	generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0)
@@ -316,7 +316,7 @@ A1X-D02	CR-06	done	ec237e5a
 A1X-D03	CR-07	todo		
 A1X-D04	CR-07	done	2ad12d6c	the re-roll still carries no genders in its prompt; applyCastGenders enforces castGenders on the finished cast (owner decision 10)
 A1X-D05	CR-18	done	3d63527f	memo deleted; the shadow check reads the normalised cast
-A1X-D06	CR-32	todo		
+A1X-D06	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
 A1X-D07	CR-06	dup		= A34-D14 (flag register)
 A1X-D08	CR-19	done	dff49644 73b7e54c	designCast reads its label from the tracker
 A1X-D09	CR-20	done	21992344	auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run
@@ -344,7 +344,7 @@ ORC-10	CR-11	done	92aba0fe	111 unused value exports off the root (451 -> 153 run
 ORC-11	CR-07	done	03c4f5d3	the swallowed abort and the scoring retry layer are deleted (owner decision 7)
 ORC-12	CR-33	done	a52a1365	process-guards flush keyed by run (ba1b5496); the module-state repair counters went with v1 (decision 1); concurrent runs refused at the API (decision 11)
 ORC-13	CR-31	todo		
-ORC-14	CR-32	todo		
+ORC-14	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
 ORC-15	CR-13	todo		
 ORC-16	CR-26	withdrawn	fd058f16	MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1)
 ORC-D01	CR-07	withdrawn	03c4f5d3	MOOT: executeAgentWithRetry and abortCritical were deleted with the phase-score retry path (owner decision 7)
