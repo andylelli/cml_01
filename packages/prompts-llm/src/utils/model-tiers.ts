@@ -8,7 +8,8 @@
  * Tiers (env vars are Azure deployment names):
  *   - base     → AZURE_OPENAI_DEPLOYMENT_NAME            (mechanical: profiles, temporal, etc.)
  *   - design   → AZURE_OPENAI_DEPLOYMENT_NAME_DESIGN     (CML, clues, fair-play, outline)
- *   - prose    → AZURE_OPENAI_DEPLOYMENT_NAME_PROSE       (Agent 9 prose)
+ *   (the v1 prose tier, AZURE_OPENAI_DEPLOYMENT_NAME_PROSE, went with v1; v2 routes per role via PROSE_V2_*)
+ *   - a set AGENTn_MODEL outranks either tier for that agent (owner decision 12, ORC-Q07)
  *
  * Each premium tier falls back to the base deployment when its env var is unset, so the
  * default behaviour is unchanged until an operator opts in. This makes the model swap a

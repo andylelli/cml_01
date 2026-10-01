@@ -12,6 +12,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import yaml from "js-yaml";
 import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
 
@@ -519,6 +520,9 @@ export async function reviseCml(
           { role: "system", content: combinedSystem },
           { role: "user", content: prompt.user },
         ],
+        // A34-Q05 (owner decision 12, CR-32): the design tier, as Agents 3/3b/5/6/7 — the YAML's 5→3 attempt cut
+        // assumes "a capable design model". AGENT4_MODEL outranks it (ORC-Q07).
+        model: resolveDesignModel(),
         temperature: config.model.temperature,
         maxTokens: config.model.max_tokens,
         jsonMode: true,  // JSON output
