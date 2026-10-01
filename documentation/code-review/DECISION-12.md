@@ -62,7 +62,7 @@ in its row), **done** when built and verified, **deferred** with a reason.
 | A34-D13 | CR-32 | done | 69ed426b | override outranks tier |
 | A34-Q03 | CR-30 | done | 4bd53121 | offline 0/2 fixed; retired |
 | A34-Q05 | CR-32 | done | 69ed426b | override outranks tier |
-| A1X-10 | CR-29 | todo | | |
+| A1X-10 | CR-29 | done | 0ca80a5f | behind CML_VERIFIED_FIXES: backfill before a paid re-roll; the runner delegates to the one backfillSetting |
 | A1X-11 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |
 | A1X-15 | CR-30 | wip | 4bd53121 | 2 of 3 parts; no-names branch deferred (public input, 14 test calls) |
 | A1X-D01 | CR-07 | done | 55448eb5 | Agent 2's victim fallback through resolveIdentity("agent2.victim") — shadow until CML_IDENTITY_ROLE_WINS flips |

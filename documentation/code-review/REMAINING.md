@@ -30,7 +30,7 @@ withdrawn with their evidence in the ledger.
 | ORC-08 | a | done | 55448eb5 | the two importer-less arc/obligation modules deleted; one live formula remains (agent7/world-first.ts) |
 | A1X-08 | a | done | 55448eb5 | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
 | SCO-D10 | a | done | 55448eb5 | web report type mirrors in_progress, scoring_enabled, phase_thresholds_met |
-| A34-11 | a | todo | | discriminated revision result |
+| A34-11 | a | done | 0ca80a5f | discriminated RevisionResult on a required degraded |
 | SCO-Q03 | a/c | todo | | stale threshold keys (a); modes (c) |
 | A1X-07 | a | done | ecb12773 | unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept |
 | A6-10 | a | done | ecb12773 | one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320 |
@@ -38,8 +38,8 @@ withdrawn with their evidence in the ledger.
 | A6-11 | a | done | ecb12773 | derive + render, one formatClueLine; duplicate "Essential Clues" listing left (prompt change) |
 | A5-09 | a | done | ecb12773 | buildCluePrompt split into section builders + retry-feedback normaliser; MEASURED 0 diffs / 9,240 comparisons, flag off and on |
 | A7-09 | a | done | ecb12773 | section builders, text moved verbatim; the duplicated prose-requirements / pacing rules left (prompt changes) |
-| A5-04 | a | todo | | |
-| A6-18 | a | todo | | |
+| A5-04 | a | done | 0ca80a5f | caseOf/CaseView in @cml/cml; any 241→80 in Agent 5/6 + clue-contracts. Harness normaliser NOT unified: matches production on 0/101 archived  |
+| A6-18 | a | done | 0ca80a5f | typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client |
 | A7-04 | a | todo | | |
 | A9V-04 | a | done | ecb12773 | keyTermHits names the selector's stemmed and the gate's substring rule; thresholds unchanged. Found: tokenMatchesText is not word-bounded |
 | A5-06 | a | done | ecb12773 | typed Agent5GateError at 11 sites; every label pinned unchanged (regex fallback for untyped) |
@@ -52,5 +52,5 @@ withdrawn with their evidence in the ledger.
 | A5-D07 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: gates read the facts the prompt sent (raw device facts when it sent none) |
 | A7-07 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate) |
 | A7-D04 | b | done | ecb12773 | behind CML_VERIFIED_FIXES: clue-pacing rescoring on adoption |
-| A7-02 | b | todo | | step 2 |
-| A34-D09 | b | todo | | waits on A6-Q01 |
+| A7-02 | b | done | 0ca80a5f | behind CML_VERIFIED_FIXES: adoptOutlineCandidate at all 10 adoption points (normalise + warn-only schema) |
+| A34-D09 | b | done | 0ca80a5f | a degraded/invalid revision is refused in Agent 6's structural retry (an OFF-by-default arm) |
