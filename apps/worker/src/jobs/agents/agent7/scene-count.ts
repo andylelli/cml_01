@@ -8,7 +8,7 @@ import { narrativeInputs } from "./generate.js";
 import { computeActSceneCounts } from "@cml/prompts-llm";
 import { verifiedFixesEnabled } from "@cml/cml";
 import { formatNarrative } from "@cml/prompts-llm";
-import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
+import type { NarrativeOutline, ClueDistributionResult, Scene } from "@cml/prompts-llm";
 import { getSceneTarget, getChapterTargetTolerance, getStoryLengthTarget } from "@cml/story-validation";
 import {
   type OrchestratorContext,
@@ -31,9 +31,9 @@ type SceneCountRebalanceResult = {
 function makeBridgeScene(
   act: 1 | 2 | 3,
   actSceneNumber: number,
-  seedScene: any,
+  seedScene: Partial<Scene>,
   clueId?: string,
-): any {
+): Scene {
   const inferredLocation =
     typeof seedScene?.setting?.location === "string" && seedScene.setting.location.trim().length > 0
       ? seedScene.setting.location
@@ -124,7 +124,7 @@ export function rebalanceNarrativeSceneCountsDeterministically(
   if (!Array.isArray(narrative.acts)) narrative.acts = [];
 
   for (const act of [1, 2, 3] as const) {
-    let actBlock = narrative.acts.find((candidate: any) => Number(candidate?.actNumber) === act);
+    let actBlock = narrative.acts.find((candidate) => Number(candidate?.actNumber) === act);
     if (!actBlock) {
       actBlock = {
         actNumber: act,
@@ -161,7 +161,7 @@ export function rebalanceNarrativeSceneCountsDeterministically(
 
     while (actBlock.scenes.length > targetActs[act]) {
       const removableIndex = actBlock.scenes.findIndex(
-        (scene: any, index: number) =>
+        (scene, index: number) =>
           index > 0 &&
           index < actBlock.scenes.length - 1 &&
           (!Array.isArray(scene?.cluesRevealed) || scene.cluesRevealed.length === 0),
@@ -174,7 +174,7 @@ export function rebalanceNarrativeSceneCountsDeterministically(
     }
   }
 
-  narrative.acts.sort((a: any, b: any) => Number(a?.actNumber ?? 0) - Number(b?.actNumber ?? 0));
+  narrative.acts.sort((a, b) => Number(a?.actNumber ?? 0) - Number(b?.actNumber ?? 0));
   normalizeNarrativeSceneNumbersAndTotals(narrative);
 
   const after = captureNarrativeSceneCountSnapshot(narrative);
@@ -196,7 +196,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
     const expectedScenes = getSceneTarget(ctx.inputs.targetLength ?? "medium");
     const sceneTolerance = getChapterTargetTolerance();
     // Use act-traversal count, not the LLM-supplied totalScenes field (which can lag).
-    const actualSceneCount = (narrative.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
+    const actualSceneCount = (narrative.acts ?? []).flatMap((a) => Array.isArray(a.scenes) ? a.scenes : []
     ).length;
 
     if (Math.abs(actualSceneCount - expectedScenes) > sceneTolerance) {
@@ -224,7 +224,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
 
-      const retriedActualCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
+      const retriedActualCount = (sceneCountRetried.acts ?? []).flatMap((a) => Array.isArray(a.scenes) ? a.scenes : []
       ).length;
 
       if (Math.abs(retriedActualCount - expectedScenes) <= sceneTolerance) {
@@ -239,7 +239,7 @@ export async function enforceSceneCount(ctx: OrchestratorContext, run: Agent7Run
           expectedScenes,
           ctx.clues
         );
-        const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a: any) => Array.isArray(a.scenes) ? a.scenes : []
+        const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a) => Array.isArray(a.scenes) ? a.scenes : []
         ).length;
         if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
           if (verifiedFixesEnabled()) adoptOutlineCandidate(ctx, sceneCountRetried, "scene-count-repair"); // A7-02 (owner decision 12, CML_VERIFIED_FIXES)

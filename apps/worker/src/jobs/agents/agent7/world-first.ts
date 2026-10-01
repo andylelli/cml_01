@@ -4,6 +4,7 @@
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
 import type { NarrativeOutline, WorldDocumentResult } from "@cml/prompts-llm";
+import type { OutlineScene } from "./outline-types.js";
 
 /**
  * Maps a normalised scene position (0.0–1.0) to the nearest storyEmotionalArc
@@ -54,13 +55,13 @@ export function applyWorldFirstSceneEnrichment(
   world: WorldDocumentResult,
 ): void {
   const acts = Array.isArray(narrative.acts) ? narrative.acts : [];
-  const totalScenes = acts.reduce((n: number, a: any) =>
+  const totalScenes = acts.reduce((n: number, a) =>
     n + (Array.isArray(a?.scenes) ? a.scenes.length : 0), 0);
   let sceneIndex = 0;
 
   for (const actBlock of acts) {
     const actNumber = (Number(actBlock?.actNumber) || (acts.indexOf(actBlock) + 1)) as 1 | 2 | 3;
-    const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
+    const scenes: OutlineScene[] = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
 
     for (let si = 0; si < scenes.length; si++) {
       const scene = scenes[si];
@@ -70,31 +71,31 @@ export function applyWorldFirstSceneEnrichment(
       // ── emotionalRegister ──────────────────────────────────────────────
       const arcPos = toArcPosition(position);
       const turningPoints = world.storyEmotionalArc?.turningPoints ?? [];
-      const matchedTp = turningPoints.find((t: any) => t.position === arcPos)
+      const matchedTp = turningPoints.find((t) => t.position === arcPos)
         ?? turningPoints[Math.min(
           Math.floor(position * turningPoints.length),
           turningPoints.length - 1,
         )];
-      (scene as any).emotionalRegister =
+      scene.emotionalRegister =
         matchedTp?.emotionalDescription ?? world.storyEmotionalArc?.dominantRegister ?? '';
 
       // ── dominantCharacterNote ──────────────────────────────────────────
-      const sceneChars: string[] = Array.isArray((scene as any).characters)
-        ? (scene as any).characters
+      const sceneChars: string[] = Array.isArray(scene.characters)
+        ? scene.characters
         : [];
-      const voiceMatch = (world.characterVoiceSketches ?? []).find((v: any) =>
+      const voiceMatch = (world.characterVoiceSketches ?? []).find((v) =>
         sceneChars.some((c) => c.toLowerCase().includes(v.name.toLowerCase())),
       );
-      (scene as any).dominantCharacterNote = voiceMatch
+      scene.dominantCharacterNote = voiceMatch
         ? { name: voiceMatch.name, voiceRegister: voiceMatch.voiceDescription }
         : undefined;
 
       // ── humourGuidance ─────────────────────────────────────────────────
       const sceneType = toSceneType(actNumber, sceneInAct);
       const humourEntry = (world.humourPlacementMap ?? []).find(
-        (h: any) => h.scenePosition === sceneType,
+        (h) => h.scenePosition === sceneType,
       );
-      (scene as any).humourGuidance = humourEntry
+      scene.humourGuidance = humourEntry
         ? {
             permission: humourEntry.humourPermission,
             character: humourEntry.permittedCharacters?.[0] ?? undefined,
@@ -106,23 +107,23 @@ export function applyWorldFirstSceneEnrichment(
       // ── eraTextureNote ─────────────────────────────────────────────────
       const physicalConstraints: string[] =
         world.historicalMoment?.physicalConstraints ?? [];
-      (scene as any).eraTextureNote = physicalConstraints.join('; ');
+      scene.eraTextureNote = physicalConstraints.join('; ');
 
       // ── locationRegisterNote ───────────────────────────────────────────
       // Scene location lives at scene.setting.location (a name string);
       // scene.locationId does not exist in the narrative outline schema.
       const locationName: string =
-        (scene as any).locationId ??
-        (scene as any).setting?.location ??
+        scene.locationId ??
+        scene.setting?.location ??
         '';
       const locReg = (world.locationRegisters ?? []).find(
-        (l: any) =>
+        (l) =>
           locationName
             ? l.locationId === locationName ||
               l.name?.toLowerCase() === locationName.toLowerCase()
             : false,
       );
-      (scene as any).locationRegisterNote = locReg
+      scene.locationRegisterNote = locReg
         ? `${locReg.emotionalRegister} — ${locReg.cameraAngle}`
         : '';
 

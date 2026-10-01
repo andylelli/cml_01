@@ -119,7 +119,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
   // Pillar 4: propagate outline completeness opts to all formatNarrative calls
   const completenessSpread = ctx.inputs.enableOutlineCompleteness
-    ? { enableOutlineCompleteness: true as const, characterBundle: ctx.characterBundle as any }
+    ? { enableOutlineCompleteness: true as const, characterBundle: ctx.characterBundle }
     : {};
 
   // A7-01: what every phase below reads besides ctx and the outline — resolved once, read-only.
@@ -167,7 +167,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push(
       `World-First enrichment applied: emotionalRegister, humourGuidance, eraTextureNote, ` +
       `locationRegisterNote, dominantCharacterNote set on all ` +
-      `${narrative.acts?.flatMap((a: any) => a.scenes ?? []).length ?? 0} scenes.`,
+      `${narrative.acts?.flatMap((a) => a.scenes ?? []).length ?? 0} scenes.`,
     );
   }
 
@@ -223,7 +223,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
    * "Not recommended"). One line, unconditional, so the rate is on the record from now on.
    */
   try {
-    const auditScenes = ((narrative as any).acts ?? []).flatMap((a: any) => a?.scenes ?? []);
+    const auditScenes = (narrative.acts ?? []).flatMap((a) => a?.scenes ?? []);
 
     /**
      * A_87 P7 (flag-gated, default OFF) — rewrite the CML scene refs to coordinates that exist,
@@ -233,7 +233,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
      * resolves at 87%. Runs BEFORE the audit below so the line reports the reconciled state.
      */
     if (isSceneRefReconcileEnabled()) {
-      const rec = reconcileCmlSceneRefs(ctx.cml as any, auditScenes);
+      const rec = reconcileCmlSceneRefs(ctx.cml, auditScenes);
       if (rec.rewritten.length > 0 || rec.unplaced.length > 0) {
         ctx.warnings.push(
           `[A_87 scene-ref reconcile] rewritten: ${rec.rewritten.join("; ") || "none"}` +
@@ -242,7 +242,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       }
     }
 
-    const refAudit = auditCmlSceneRefs(ctx.cml as any, auditScenes);
+    const refAudit = auditCmlSceneRefs(ctx.cml, auditScenes);
     ctx.warnings.push(`[A_87 scene-ref join] ${summariseSceneRefAudit(refAudit)}`);
 
     /**
@@ -258,11 +258,11 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
      * threshold-fill passes add obligations after this point (artifact-level median re-mandate 14%,
      * prompt-level 41% over 47 logged runs). The heaviest-chapter figure is the actionable half.
      */
-    const clueLoad = measureClueObligationLoad(ctx.cml as any, auditScenes);
+    const clueLoad = measureClueObligationLoad(ctx.cml, auditScenes);
     ctx.warnings.push(`[A_89 clue load] ${summariseClueObligationLoad(clueLoad)}`);
     // A_90 Move 1 — does the outline introduce clock values the case never declared? Telemetry only.
     if (isA90ChronologyEnabled()) {
-      const chrono = deriveCaseChronology(ctx.cml, (ctx.lockedFactRegistry ?? []) as any[]);
+      const chrono = deriveCaseChronology(ctx.cml, (ctx.lockedFactRegistry ?? []));
       const anchoring = findUnanchoredClockValues(auditScenes, chrono, { skip: () => false });
       ctx.warnings.push(`[A_90 chronology] outline: ${summariseChronology(chrono, anchoring)}`);
     }

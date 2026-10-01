@@ -3,9 +3,10 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { readBooleanFlag, validateArtifact, verifiedFixesEnabled } from "@cml/cml";
+import { caseOf, readBooleanFlag, validateArtifact, verifiedFixesEnabled } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
+import type { LiveClue } from "./outline-types.js";
 import { resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
 import {
   type OrchestratorContext,
@@ -62,7 +63,7 @@ const deathMethodTellTokens = deathMethodSignatureTerms;
 export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isPlantBeforeRevealEnabled()) return;
   try {
-    const clues = (ctx.clues?.clues ?? []) as any[];
+    const clues = (ctx.clues?.clues ?? []) as LiveClue[];
     const essential = new Set(
       clues.filter((c) => c?.criticality === "essential").map((c) => String(c?.id ?? "")).filter(Boolean),
     );
@@ -72,7 +73,7 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
 
     const firstRevealIdx = new Map<string, number>();
     sceneRefs.forEach((r, i) => {
-      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
       for (const id of revealed.map(String)) {
         if (essential.has(id) && !firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
       }
@@ -83,11 +84,11 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
       if (revealIdx < 2) continue; // revealed early already — "introduced too late" cannot apply
       const poolIdxs = sceneRefs.map((_, i) => i).filter((i) => i <= revealIdx - 2);
       poolIdxs.sort((i, j) => {
-        const pi = (sceneRefs[i].scene as any).cluesPlanted?.length ?? 0;
-        const pj = (sceneRefs[j].scene as any).cluesPlanted?.length ?? 0;
+        const pi = sceneRefs[i].scene.cluesPlanted?.length ?? 0;
+        const pj = sceneRefs[j].scene.cluesPlanted?.length ?? 0;
         return pi - pj || i - j;
       });
-      const target = sceneRefs[poolIdxs[0]].scene as any;
+      const target = sceneRefs[poolIdxs[0]].scene;
       if (!Array.isArray(target.cluesPlanted)) target.cluesPlanted = [];
       if (!target.cluesPlanted.includes(id)) {
         target.cluesPlanted.push(id);
@@ -134,14 +135,14 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
 export function applyMotivePlantBeforeReveal(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isMotivePlantBeforeRevealEnabled()) return;
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const caseData = caseOf(ctx.cml);
     const rawCulprits: unknown[] = Array.isArray(caseData?.culpability?.culprits)
       ? caseData.culpability.culprits
       : [];
     const culpritName = rawCulprits.map((n) => String(n ?? "").trim()).filter(Boolean)[0];
     if (!culpritName) return; // no single named culprit — nothing to plant a motive beat FOR
 
-    const clues = (ctx.clues?.clues ?? []) as any[];
+    const clues = (ctx.clues?.clues ?? []) as LiveClue[];
     const essential = new Set(
       clues.filter((c) => c?.criticality === "essential").map((c) => String(c?.id ?? "")).filter(Boolean),
     );
@@ -151,7 +152,7 @@ export function applyMotivePlantBeforeReveal(ctx: OrchestratorContext, narrative
 
     let latestEssentialRevealIdx = -1;
     sceneRefs.forEach((r, i) => {
-      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
       if (revealed.map(String).some((id: string) => essential.has(id))) {
         latestEssentialRevealIdx = Math.max(latestEssentialRevealIdx, i);
       }
@@ -164,12 +165,12 @@ export function applyMotivePlantBeforeReveal(ctx: OrchestratorContext, narrative
       // Prefer a scene with fewer total obligations already stamped on it (clue plants AND any prior
       // motive beat), so the load spreads rather than piling every plant onto scene 1.
       const load = (i: number) => {
-        const s = sceneRefs[i].scene as any;
+        const s = sceneRefs[i].scene;
         return (s.cluesPlanted?.length ?? 0) + (s.motiveBeatCulprit ? 1 : 0);
       };
       return load(i) - load(j) || i - j;
     });
-    const target = sceneRefs[poolIdxs[0]].scene as any;
+    const target = sceneRefs[poolIdxs[0]].scene;
     if (target.motiveBeatCulprit) return; // this exact scene already carries a motive beat
     target.motiveBeatCulprit = culpritName;
     ctx.warnings.push(
@@ -208,10 +209,10 @@ export function applyMotivePlantBeforeReveal(ctx: OrchestratorContext, narrative
 export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isPlantBeforeRevealEnabled()) return;
   try {
-    const clues = (ctx.clues?.clues ?? []) as any[];
+    const clues = (ctx.clues?.clues ?? []) as LiveClue[];
     if (clues.length === 0) return;
 
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const caseData = caseOf(ctx.cml);
     const rawCulprits: unknown[] = Array.isArray(caseData?.culpability?.culprits)
       ? caseData.culpability.culprits
       : [];
@@ -236,7 +237,7 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
     const namesCulprit = (text: string): boolean => culpritMatchers.some((re) => re.test(text));
 
     /** A physical clue that places the CULPRIT at the scene — the thing a reveal produces as proof. */
-    const isDecisiveTrace = (c: any): boolean => {
+    const isDecisiveTrace = (c: LiveClue): boolean => {
       const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : ""}`;
       if (!namesCulprit(blob)) return false;
       // Physical, not testimonial: a witness saying "I saw Hugo" is not a trace that can be planted
@@ -251,12 +252,12 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
 
     const firstRevealIdx = new Map<string, number>();
     sceneRefs.forEach((r, i) => {
-      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
       for (const id of revealed.map(String)) if (!firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
     });
 
     const alreadyPlanted = new Set<string>(
-      sceneRefs.flatMap((r) => (Array.isArray((r.scene as any)?.cluesPlanted) ? (r.scene as any).cluesPlanted.map(String) : [])),
+      sceneRefs.flatMap((r) => (Array.isArray(r.scene?.cluesPlanted) ? r.scene.cluesPlanted.map(String) : [])),
     );
 
     const stamped: string[] = [];
@@ -269,7 +270,7 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
       // a plant. Never later than 2 scenes before the reveal: closer and it is not a plant either.
       const latest = revealIdx - 2;
       if (latest < 2) continue;
-      const target = sceneRefs[latest].scene as any;
+      const target = sceneRefs[latest].scene;
       if (!Array.isArray(target.cluesPlanted)) target.cluesPlanted = [];
       if (target.cluesPlanted.includes(id)) continue;
       target.cluesPlanted.push(id);
@@ -292,10 +293,10 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
 export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isDiscoveryTellEnabled()) return;
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const caseData = caseOf(ctx.cml);
     const deathMethod = caseData?.death_method;
     const tokens = deathMethodTellTokens(deathMethod);
-    const clues = (ctx.clues?.clues ?? []) as any[];
+    const clues = (ctx.clues?.clues ?? []) as LiveClue[];
     if (clues.length === 0) return;
 
     // A_61 RC3.5 (review fix): the isDeathMethodTell tag currently does not survive Agent-5's output
@@ -303,10 +304,10 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
     // best-effort fast path for when it is present). Guard the false-positive early-reveal risk: NEVER pin
     // a culprit-implicating clue to the Act-1 discovery scene — a generic token like "blood"/"wound" could
     // otherwise match a culprit-direct clue and reveal the solution too early.
-    const isCulpritImplicating = (c: any): boolean =>
+    const isCulpritImplicating = (c: LiveClue): boolean =>
       /culprit|direct|reveal|solution|guilt/i.test(String(c?.id ?? "")) ||
       /\bculprit\b|\bthe\s+killer\b|is\s+guilty/i.test(String(c?.pointsTo ?? ""));
-    const isTellClue = (c: any): boolean => {
+    const isTellClue = (c: LiveClue): boolean => {
       if (isCulpritImplicating(c)) return false;
       if (c?.isDeathMethodTell === true) return true;
       if (tokens.length === 0) return false;
@@ -342,9 +343,9 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
      */
     const discoveryRef =
       sceneRefs.find((r) => r.act === 1 && r.actSceneNumber === 1) ??
-      sceneRefs.find((r) => String((r.scene as any)?.beat ?? "").toLowerCase() === "crime") ??
+      sceneRefs.find((r) => String(r.scene?.beat ?? "").toLowerCase() === "crime") ??
       sceneRefs[0];
-    const discoveryScene = discoveryRef.scene as any;
+    const discoveryScene = discoveryRef.scene;
     if (!Array.isArray(discoveryScene.cluesRevealed)) discoveryScene.cluesRevealed = [];
     const already = new Set<string>(discoveryScene.cluesRevealed.map(String));
     if (tellClueIds.some((id) => already.has(id))) return; // discovery already shows a tell — done
@@ -372,7 +373,7 @@ function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: Narrative
   const sceneRefs = flattenNarrativeScenes(narrative);
   if (sceneRefs.length === 0) return;
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const caseData = caseOf(ctx.cml);
     const testScene = caseData?.prose_requirements?.discriminating_test_scene;
     const thresholdIndex = resolveDiscriminatingSceneIndex(
       sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
@@ -419,11 +420,11 @@ export function applySuspectClearanceGate(ctx: OrchestratorContext, narrative: N
     // The reveal, by the outline's own beat first and its act/scene shape second. Both can be absent —
     // `chooseClearanceKeeper` treats -1 as "keep the last", which is the same fold intent without
     // pretending to know where the reveal is.
-    let revealIndex = sceneRefs.findIndex((ref) => String((ref.scene as any)?.beat ?? "").trim() === "revelation");
+    let revealIndex = sceneRefs.findIndex((ref) => String(ref.scene?.beat ?? "").trim() === "revelation");
     if (revealIndex < 0) revealIndex = sceneRefs.findIndex((ref) => ref.act === 3 && ref.actSceneNumber === 2);
 
     const result = stampSuspectClearanceGate(
-      sceneRefs.map((r) => r.scene as any),
+      sceneRefs.map((r) => r.scene),
       { closureIndices, revealIndex },
     );
     if (result.suppressed > 0) {
@@ -448,7 +449,7 @@ export function applySuspectClearanceGate(ctx: OrchestratorContext, narrative: N
  * discriminating_test.evidence_clues + the located test scene, never from a specific story/character. */
 export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const caseData = caseOf(ctx.cml);
     const evidenceClues: string[] = Array.isArray(caseData?.discriminating_test?.evidence_clues)
       ? caseData.discriminating_test.evidence_clues.map(String).filter(Boolean)
       : [];
@@ -460,7 +461,7 @@ export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext
       caseData?.prose_requirements?.discriminating_test_scene,
     );
     if (dtIndex < 0) return;
-    const dtScene = sceneRefs[dtIndex].scene as any;
+    const dtScene = sceneRefs[dtIndex].scene;
     if (!Array.isArray(dtScene.cluesRevealed)) dtScene.cluesRevealed = [];
     const dtSceneClues = new Set<string>(dtScene.cluesRevealed.map(String));
     // Already references an evidence clue? The test scene can dramatize it — nothing to do.
@@ -468,7 +469,7 @@ export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext
     // Clues revealed strictly BEFORE the test scene — used to prefer a FRESH evidence clue.
     const revealedBefore = new Set<string>();
     for (let i = 0; i < dtIndex; i++) {
-      const s = sceneRefs[i].scene as any;
+      const s = sceneRefs[i].scene;
       if (Array.isArray(s.cluesRevealed)) for (const c of s.cluesRevealed) revealedBefore.add(String(c));
     }
     const freshChoice = evidenceClues.find((id) => !revealedBefore.has(id));
@@ -485,10 +486,10 @@ export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext
 
 export function warnBeatArcDrift(ctx: OrchestratorContext, narrative: NarrativeOutline) {
   {
-    const flatScenes = (narrative.acts ?? []).flatMap((act: any) => Array.isArray(act.scenes) ? act.scenes : []
+    const flatScenes = (narrative.acts ?? []).flatMap((act) => Array.isArray(act.scenes) ? act.scenes : []
     );
     if (flatScenes.length === GOLDEN_AGE_BEATS.length) {
-      const actualBeats = flatScenes.map((s: any) => String(s?.beat ?? "").trim());
+      const actualBeats = flatScenes.map((s) => String(s?.beat ?? "").trim());
       const missing = actualBeats.filter((b: string) => !b).length;
       if (missing > 0) {
         ctx.warnings.push(`Beat arc: ${missing} of ${GOLDEN_AGE_BEATS.length} chapters have no "beat" assigned.`);

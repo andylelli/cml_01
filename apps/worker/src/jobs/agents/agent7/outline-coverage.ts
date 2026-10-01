@@ -6,8 +6,8 @@
 import { adoptOutlineCandidate, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs } from "./generate.js";
 import { formatNarrative } from "@cml/prompts-llm";
-import type { NarrativeOutline } from "@cml/prompts-llm";
-import type { CaseData } from "@cml/cml";
+import type { NarrativeOutline, Scene } from "@cml/prompts-llm";
+import type { CaseCastMember, CaseData, CaseDiscriminatingTest, CaseView } from "@cml/cml";
 import { verifiedFixesEnabled } from "@cml/cml";
 import {
   type OrchestratorContext,
@@ -51,7 +51,7 @@ export const OUTLINE_EVIDENCE_TERMS_RE = /\b(because|therefore|proofs?|evidence|
 export const OUTLINE_ELIMINATION_TERMS_RE = /\b(clear(?:ed|s|ing)|clear\s+(?:the\s+)?(?:innocent\s+)?suspects?|rul(?:ed|es|ing)\s+out|eliminat\w*|exclud\w*|innocent|not\s+the\s+(?:culprit|killer|murderer)|alibis?\s+(?:hold|holds|confirmed|verified)|could\s*not\s+have)\b/i;
 
 /** The scene fields both closure checks read. One helper so the floor and the ceiling cannot drift. */
-export const sceneClosureText = (scene: any): string =>
+export const sceneClosureText = (scene: Partial<Pick<Scene, "title" | "purpose" | "summary" | "dramaticElements">> | null | undefined): string =>
   [scene?.title ?? "", scene?.purpose ?? "", scene?.summary ?? "", scene?.dramaticElements?.revelation ?? ""].join(" ");
 
 /**
@@ -73,7 +73,7 @@ export const countSuspectClosureScenes = (narrative: any): string[] =>
 
 export function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): OutlineCoverageIssue[] {
   const issues: OutlineCoverageIssue[] = [];
-  const cmlCase = (cml as any)?.CASE ?? {};
+  const cmlCase: CaseView = (cml as { CASE?: CaseView } | null | undefined)?.CASE ?? {};
   const allScenes = (narrative.acts ?? []).flatMap((act) =>
     Array.isArray(act.scenes) ? act.scenes : []
   );
@@ -106,13 +106,13 @@ export function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseDa
   }
 
   // --- Check 2: suspect closure / elimination coverage ---
-  const castRoster: any[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
+  const castRoster: CaseCastMember[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
   const culprits: string[] = Array.isArray(cmlCase.culpability?.culprits)
     ? (cmlCase.culpability.culprits as string[])
     : [];
   const suspects = castRoster
-    .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('suspect'))
-    .map((c: any) => (c.name ?? "").trim())
+    .filter((c) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('suspect'))
+    .map((c) => (c.name ?? "").trim())
     .filter((name: string) => name.length > 0 && !culprits.includes(name));
 
   if (suspects.length > 0) {
@@ -220,8 +220,8 @@ export function applyCoveragePatch(ctx: OrchestratorContext, narrative: Narrativ
     // "two suspects" into ANY mystery missing a discriminating-test scene — a false plot beat that
     // Agent 9 then honoured. We now parameterise the test method and the ruled-out count, and refer
     // to the mechanism only generically (so a poison/tide/acoustic case is never told it has a clock).
-    const patchCase = (ctx.cml as any)?.CASE ?? {};
-    const patchDiscrim = patchCase.discriminating_test ?? {};
+    const patchCase: CaseView = (ctx.cml as { CASE?: CaseView } | null | undefined)?.CASE ?? {};
+    const patchDiscrim: CaseDiscriminatingTest = patchCase.discriminating_test ?? {};
     const patchMethod = String(patchDiscrim.method ?? "constraint_proof").replace(/_/g, " ").trim() || "constraint proof";
     const patchDesign = String(patchDiscrim.design ?? "").trim();
     const patchDesignClause = patchDesign ? ` (${patchDesign})` : "";
@@ -229,8 +229,8 @@ export function applyCoveragePatch(ctx: OrchestratorContext, narrative: Narrativ
       ? (patchCase.culpability.culprits as string[])
       : [];
     const nonCulpritSuspectCount = (Array.isArray(patchCase.cast) ? patchCase.cast : [])
-      .filter((c: any) => String(c?.role_archetype ?? c?.role ?? "").toLowerCase().includes("suspect"))
-      .map((c: any) => String(c?.name ?? "").trim())
+      .filter((c) => String(c?.role_archetype ?? c?.role ?? "").toLowerCase().includes("suspect"))
+      .map((c) => String(c?.name ?? "").trim())
       .filter((name: string) => name.length > 0 && !patchCulprits.includes(name)).length;
     const numberWord = (n: number): string => ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][n] ?? String(n);
     const ruledOutPhrase = nonCulpritSuspectCount >= 1

@@ -5,9 +5,9 @@
  */
 import { adoptOutlineCandidate, recordAgent7Coercion, recordOutlineCoercions } from "./normalize.js";
 import { narrativeInputs, rescoreNarrative } from "./generate.js";
-import { verifiedFixesEnabled } from "@cml/cml";
+import { caseOf, verifiedFixesEnabled } from "@cml/cml";
 import { formatNarrative } from "@cml/prompts-llm";
-import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
+import type { NarrativeOutline, ClueDistributionResult, Scene } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import {
   type OrchestratorContext,
@@ -141,7 +141,7 @@ export function applyDeterministicCluePreAssignment(
   let thresholdFillAssignments = 0;
 
   // 1) Respect prose_requirements clue_to_scene_mapping
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = caseOf(cml);
   const mappingEntries = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
     ? caseBlock.prose_requirements.clue_to_scene_mapping
     : [];
@@ -285,22 +285,22 @@ export function buildCluePacingGuardrails(expectedScenes: number, minRatio: numb
  * only ids the distribution contains count. When the distribution has no ids at all there is nothing to
  * check against, so the raw count stands.
  */
-export function countClueBearingScenes(scenes: any[], clues: ClueDistributionResult | undefined): number {
-  const raw = (s: any) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.length > 0;
+export function countClueBearingScenes(scenes: Scene[], clues: ClueDistributionResult | undefined): number {
+  const raw = (s: Scene) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.length > 0;
   if (!verifiedFixesEnabled()) return scenes.filter(raw).length;
   const known = new Set(
     (clues?.clues ?? []).map((c) => c?.id).filter((id): id is string => typeof id === "string" && id.length > 0),
   );
   if (known.size === 0) return scenes.filter(raw).length;
   return scenes.filter(
-    (s: any) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.some((id: unknown) => typeof id === "string" && known.has(id)),
+    (s) => Array.isArray(s?.cluesRevealed) && s.cluesRevealed.some((id: unknown) => typeof id === "string" && known.has(id)),
   ).length;
 }
 
 export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run, narrative: NarrativeOutline) {
   const incoming = narrative; // A7-D04
   {
-    const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
+    const allOutlineScenes = (narrative.acts ?? []).flatMap((a) => a.scenes || []);
     const totalOutlineSceneCount = allOutlineScenes.length;
     const clueSceneCount = countClueBearingScenes(allOutlineScenes, ctx.clues); // A7-D07
     const minClueScenes = Math.ceil(totalOutlineSceneCount * run.minClueSceneRatio);
@@ -329,7 +329,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
         ctx.agentDurations["agent7_narrative"] =
           (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
 
-        const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a: any) => a.scenes || []);
+        const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a) => a.scenes || []);
         const retriedClueCount = countClueBearingScenes(retriedOutlineScenes, ctx.clues); // A7-D07
         const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * run.minClueSceneRatio);
         const pacingRetryCountCheck = checkNarrativeSceneCountFloor(pacingRetried, sceneCountLock);
@@ -368,7 +368,7 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
               secondRetry.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
             ctx.agentDurations["agent7_narrative"] =
               (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - secondStart);
-            const secondScenes = (secondRetry.acts ?? []).flatMap((a: any) => a.scenes || []);
+            const secondScenes = (secondRetry.acts ?? []).flatMap((a) => a.scenes || []);
             const secondClueCount = countClueBearingScenes(secondScenes, ctx.clues); // A7-D07
             const secondMin = Math.ceil(secondScenes.length * run.minClueSceneRatio);
             const secondCountCheck = checkNarrativeSceneCountFloor(secondRetry, sceneCountLock);
@@ -446,28 +446,28 @@ export async function enforceCluePacing(ctx: OrchestratorContext, run: Agent7Run
 
 export function forceAssignUncoveredClues(ctx: OrchestratorContext, narrative: NarrativeOutline) {
   {
-    const allScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+    const allScenes = (narrative.acts ?? []).flatMap((a) => a.scenes ?? []);
     const coveredClueIds = new Set<string>(
       allScenes
-        .flatMap((s: any) => Array.isArray(s.cluesRevealed) ? s.cluesRevealed : [])
+        .flatMap((s) => Array.isArray(s.cluesRevealed) ? s.cluesRevealed : [])
         .map(String)
         .filter(Boolean)
     );
     const allDistributionIds = (ctx.clues?.clues ?? [])
-      .map((c: any) => String(c.id ?? ""))
+      .map((c) => String(c.id ?? ""))
       .filter(Boolean);
     const uncoveredIds = allDistributionIds.filter((id) => !coveredClueIds.has(id));
 
     if (uncoveredIds.length > 0) {
       // Deterministically assign each uncovered ID to the least-loaded scene in its target act.
       for (const clueId of uncoveredIds) {
-        const clueEntry = (ctx.clues!.clues as any[]).find((c) => c.id === clueId);
+        const clueEntry = ctx.clues!.clues.find((c) => c.id === clueId);
         const placement: string = clueEntry?.placement ?? "mid";
         const targetAct = placement === "early" ? 1 : placement === "late" ? 3 : 2;
-        const actScenes = allScenes.filter((s: any) => s.act === targetAct);
+        const actScenes = allScenes.filter((s) => s.act === targetAct);
         const candidates = actScenes.length > 0 ? actScenes : allScenes;
         const sorted = [...candidates].sort(
-          (a: any, b: any) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0)
+          (a, b) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0)
         );
         const target = sorted[0];
         if (target) {

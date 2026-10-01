@@ -961,6 +961,11 @@ export async function generateWorldDocument(
   messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
 
   let lastError: Error | null = null;
+  // CR-19 (ORC-03 / A1X-09): what this function's own calls cost, summed from 0 in call order. This was
+  // `byAgent["Agent65-WorldBuilder"]` read back from the tracker; the two are the same number bit for bit
+  // because this function is the label's only charger and runs once per run on a fresh client (runStage,
+  // no scoring retry since owner decision 7) — pinned in llm-client chat-response-cost.test.ts.
+  let spent = 0;
   // A6-03 (owner decision 12, CML_VERIFIED_FIXES): what kind of failure lastError is, so the retry asks for
   // length only after a length failure. Read only with the flag ON.
   let lastFailureKind: WorldBuilderFailureKind = 'validation-other';
@@ -1076,6 +1081,8 @@ export async function generateWorldDocument(
       },
     });
 
+    spent += response.cost ?? 0;
+
     // A6-03: the transport's own word for a completion-limit stop (Azure "length", Anthropic "max_tokens").
     const responseTruncated = response.finishReason === 'length' || response.finishReason === 'max_tokens';
     lastFailureKind = 'validation-other';
@@ -1104,9 +1111,7 @@ export async function generateWorldDocument(
     parsed = normalizeWorldDocumentStructure(parsed, inputs);
 
     // Inject cost/duration
-    const costTracker = client.getCostTracker();
-    const costNum = costTracker?.getSummary().byAgent["Agent65-WorldBuilder"] ?? 0;
-    parsed.cost = costNum;
+    parsed.cost = spent;
     parsed.durationMs = Date.now() - start;
 
     // Schema validation

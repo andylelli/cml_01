@@ -5,9 +5,10 @@
  */
 import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { NarrativeOutline } from "@cml/prompts-llm";
+import type { OutlineScene } from "./outline-types.js";
 
 export type SceneRef = {
-  scene: any;
+  scene: OutlineScene;
   act: 1 | 2 | 3;
   sceneNumber: number;
   actSceneNumber: number;
@@ -28,10 +29,10 @@ export function getPlacementForAct(act: 1 | 2 | 3): "early" | "mid" | "late" {
 export function flattenNarrativeScenes(narrative: NarrativeOutline): SceneRef[] {
   const refs: SceneRef[] = [];
   let globalIndex = 0;
-  (narrative.acts ?? []).forEach((actBlock: any, actIdx: number) => {
+  (narrative.acts ?? []).forEach((actBlock, actIdx: number) => {
     const act = ((actBlock?.actNumber ?? actIdx + 1) as 1 | 2 | 3) || ((actIdx + 1) as 1 | 2 | 3);
-    const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
-    scenes.forEach((scene: any, sceneIdx: number) => {
+    const scenes: OutlineScene[] = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
+    scenes.forEach((scene, sceneIdx: number) => {
       refs.push({
         scene,
         act,

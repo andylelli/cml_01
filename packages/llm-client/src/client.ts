@@ -418,6 +418,7 @@ export class AzureOpenAIClient {
         model, // Use deployment name since response may not have model property
         finishReason,
         latencyMs,
+        cost: estimatedCost, // CR-19 — the tracker's own figure for this call, never recomputed
       };
 
       // Log response

@@ -136,11 +136,11 @@ export async function enforcePreCommitCompleteness(ctx: OrchestratorContext, run
 
 export function enforceCompletenessContract(ctx: OrchestratorContext, narrative: NarrativeOutline) {
   if (ctx.inputs.enableOutlineCompleteness) {
-    const allPatchScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+    const allPatchScenes = (narrative.acts ?? []).flatMap((a) => a.scenes ?? []);
     let rhPatchCount = 0;
     for (const scene of allPatchScenes) {
-      if ((scene.act === 1 || scene.act === 2) && (scene as any).redHerringPlacement === undefined) {
-        (scene as any).redHerringPlacement = null;
+      if ((scene.act === 1 || scene.act === 2) && scene.redHerringPlacement === undefined) {
+        scene.redHerringPlacement = null;
         rhPatchCount += 1;
       }
     }
@@ -156,8 +156,8 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
     // those values so the gate can pass without masking real structural gaps.
     let factPatchCount = 0;
     for (const scene of allPatchScenes) {
-      const pivot = (scene as any).pivotElement;
-      const fact = (scene as any).factEstablished;
+      const pivot = scene.pivotElement;
+      const fact = scene.factEstablished;
       const pivotGeneric = !pivot || GENERIC_CONTRACT_VALUE_RE.test(String(pivot).trim());
       const factGeneric = !fact || GENERIC_CONTRACT_VALUE_RE.test(String(fact).trim());
       // Derive a fallback: prefer the sibling field if concrete, else use summary/purpose/title.
@@ -167,12 +167,12 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
         (typeof scene.title === "string" && scene.title.trim().length > 0 ? `Scene establishes: ${scene.title.trim()}` : null) ??
         `Advances investigation in Act ${scene.act ?? "?"}`;
       if (factGeneric) {
-        (scene as any).factEstablished = fallbackSource;
+        scene.factEstablished = fallbackSource;
         factPatchCount += 1;
       }
       if (pivotGeneric) {
         const pivotFallback: string = (!factGeneric ? String(fact).trim() : null) ?? fallbackSource;
-        (scene as any).pivotElement = pivotFallback;
+        scene.pivotElement = pivotFallback;
         factPatchCount += 1;
       }
     }
@@ -187,12 +187,12 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
   // scene is missing pivotElement / factEstablished (all scenes), or if an Act I–II
   // scene is missing redHerringPlacement (which may be null, but must be present).
   if (ctx.inputs.enableOutlineCompleteness) {
-    const allCompScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+    const allCompScenes = (narrative.acts ?? []).flatMap((a) => a.scenes ?? []);
     const missing: string[] = [];
     for (const scene of allCompScenes) {
       const sn = `Scene ${scene.sceneNumber} (Act ${scene.act})`;
-      const pivot = (scene as any).pivotElement;
-      const fact = (scene as any).factEstablished;
+      const pivot = scene.pivotElement;
+      const fact = scene.factEstablished;
       if (!pivot || GENERIC_CONTRACT_VALUE_RE.test(String(pivot).trim())) {
         missing.push(`${sn}: pivotElement missing or generic ("${pivot ?? ''}")`);
       }
@@ -200,7 +200,7 @@ export function enforceCompletenessContract(ctx: OrchestratorContext, narrative:
         missing.push(`${sn}: factEstablished missing or generic ("${fact ?? ''}")`);
       }
       // Act I–II scenes must have redHerringPlacement present (null is OK; undefined is not)
-      if ((scene.act === 1 || scene.act === 2) && (scene as any).redHerringPlacement === undefined) {
+      if ((scene.act === 1 || scene.act === 2) && scene.redHerringPlacement === undefined) {
         missing.push(`${sn}: redHerringPlacement absent (must be null or a placement object)`);
       }
     }

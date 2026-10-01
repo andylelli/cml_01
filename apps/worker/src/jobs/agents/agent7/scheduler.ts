@@ -3,7 +3,8 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import type { NarrativeOutline } from "@cml/prompts-llm";
+import { caseOf, type CaseView } from "@cml/cml";
+import type { Clue, NarrativeOutline } from "@cml/prompts-llm";
 import { distributeChapterWordBudget, applyGridClueJobs } from "@cml/story-validation";
 import {
   type OrchestratorContext,
@@ -31,15 +32,15 @@ import {
  * so when shadow+authority are both enabled the grid is built once instead of twice. Pure perf — the
  * inputs (caseData/clues/redHerrings) don't change between these end-of-run calls. */
 type Agent7GridCache = {
-  caseData: any;
-  clues: Array<{ id: any; placement: any; criticality: any; supportsInferenceStep: any }>;
+  caseData: CaseView;
+  clues: Array<Pick<Clue, "id" | "placement" | "criticality" | "supportsInferenceStep">>;
   redHerrings: Array<{ id?: string }>;
   get(sceneCount: number): { grid: ReturnType<typeof buildSceneGrid>; obligations: ReturnType<typeof collectObligations>["obligations"] };
 };
 
 export function makeAgent7GridCache(ctx: OrchestratorContext): Agent7GridCache {
-  const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
-  const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+  const caseData = caseOf(ctx.cml);
+  const clues = ((ctx.clues?.clues ?? []) as Clue[]).map((c) => ({
     id: c.id,
     placement: c.placement,
     criticality: c.criticality,
@@ -68,8 +69,8 @@ export function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: Na
   if (!isAgent7SchedulerShadowEnabled()) return;
   try {
     const liveScenes =
-      (narrative as any).totalScenes ??
-      (narrative.acts ?? []).reduce((n: number, a: any) => n + (Array.isArray(a.scenes) ? a.scenes.length : 0), 0);
+      narrative.totalScenes ??
+      (narrative.acts ?? []).reduce((n: number, a) => n + (Array.isArray(a.scenes) ? a.scenes.length : 0), 0);
     const sceneCount = liveScenes && liveScenes >= 4 ? liveScenes : 10;
 
     // A_53 P10 (scheduler-grid-rebuilt-twice-per-run): shared memoized grid (see makeAgent7GridCache).
@@ -112,10 +113,10 @@ export function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrativ
   });
 
   // Keep act-level totals consistent with the new per-scene budgets.
-  (narrative.acts ?? []).forEach((actBlock: any) => {
+  (narrative.acts ?? []).forEach((actBlock) => {
     const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
     actBlock.estimatedWordCount = scenes.reduce(
-      (sum: number, s: any) => sum + (typeof s.estimatedWordCount === "number" ? s.estimatedWordCount : 0),
+      (sum: number, s) => sum + (typeof s.estimatedWordCount === "number" ? s.estimatedWordCount : 0),
       0,
     );
   });
@@ -156,7 +157,7 @@ function applyAgent7ClueJobAuthority(
     const { grid } = gridCache.get(sceneRefs.length);
     // Pass act + scene-number so the stamp aligns by (act, act-scene-number), not raw index.
     const sceneCells = sceneRefs.map((r) => {
-      const cell = r.scene as any;
+      const cell = r.scene;
       cell.act = r.act;
       if (typeof cell.sceneNumber !== "number") cell.sceneNumber = r.sceneNumber;
       return cell;
@@ -190,24 +191,24 @@ function applyAgent7ClueJobAuthority(
  * force-assign any unanchored id to the least-loaded scene in its target act (mirrors the main
  * clue-coverage gate) so the additive stamp can never leave a clue in zero scenes. */
 function reassertClueCoverage(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
-  const allScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+  const allScenes = (narrative.acts ?? []).flatMap((a) => a.scenes ?? []);
   const covered = new Set<string>(
     allScenes
-      .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
+      .flatMap((s) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
       .map(String)
       .filter(Boolean),
   );
-  const allIds = (ctx.clues?.clues ?? []).map((c: any) => String(c.id ?? "")).filter(Boolean);
+  const allIds = (ctx.clues?.clues ?? []).map((c) => String(c.id ?? "")).filter(Boolean);
   const uncovered = allIds.filter((id) => !covered.has(id));
   if (uncovered.length === 0) return;
   for (const clueId of uncovered) {
-    const clueEntry = (ctx.clues!.clues as any[]).find((c) => c.id === clueId);
+    const clueEntry = ctx.clues!.clues.find((c) => c.id === clueId);
     const placement: string = clueEntry?.placement ?? "mid";
     const targetAct = placement === "early" ? 1 : placement === "late" ? 3 : 2;
-    const actScenes = allScenes.filter((s: any) => s.act === targetAct);
+    const actScenes = allScenes.filter((s) => s.act === targetAct);
     const candidates = actScenes.length > 0 ? actScenes : allScenes;
     const target = [...candidates].sort(
-      (a: any, b: any) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0),
+      (a, b) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0),
     )[0];
     if (target) {
       if (!Array.isArray(target.cluesRevealed)) target.cluesRevealed = [];

@@ -4,7 +4,7 @@
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
 import { validateArtifact, verifiedFixesEnabled } from "@cml/cml";
-import type { NarrativeOutline } from "@cml/prompts-llm";
+import type { NarrativeFormattingInputs, NarrativeOutline } from "@cml/prompts-llm";
 import { formatNarrative } from "@cml/prompts-llm";
 import { scoreRealNarrative } from "@cml/story-validation";
 import { scoreNarrativePhase } from "../phase-scoring.js";
@@ -51,7 +51,7 @@ export interface Agent7Run {
   minClueSceneRatio: number;
   pacingGuardrails: string[];
   lockedFactsSpread: { lockedFacts?: LockedFactRegistry };
-  completenessSpread: { enableOutlineCompleteness?: true; characterBundle?: any };
+  completenessSpread: { enableOutlineCompleteness?: true; characterBundle?: NarrativeFormattingInputs["characterBundle"] };
 }
 
 /**

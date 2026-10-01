@@ -136,7 +136,7 @@ export function emitAgent7CoercionTelemetry(ctx: OrchestratorContext): void {
   );
 
   try {
-    (ctx as any).scoreAggregator?.upsertDiagnostic?.(
+    ctx.scoreAggregator?.upsertDiagnostic?.(
       "agent7_coercion",
       "agent7_narrative",
       "Agent 7 Coercion Counters",
@@ -295,8 +295,8 @@ export function fillMissingActPurposes(ctx: OrchestratorContext, narrative: Narr
     2: "Develop the investigation, deepen the mystery, and introduce complications.",
     3: "Build to the confrontation, reveal the truth, and resolve the mystery.",
   };
-  if (Array.isArray((narrative as any).acts)) {
-    for (const act of (narrative as any).acts) {
+  if (Array.isArray(narrative.acts)) {
+    for (const act of narrative.acts) {
       if (act && typeof act === "object" && !act.purpose && act.actNumber) {
         act.purpose = ACT_DEFAULT_PURPOSES[act.actNumber] ?? "Advance the story.";
         ctx.warnings.push(`act${act.actNumber}.purpose was missing — synthesised default.`);

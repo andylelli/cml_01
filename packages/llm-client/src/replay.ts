@@ -213,8 +213,8 @@ export class ReplayClient {
       this.noteDrift(agent, entry, options);
       if (entry.outcome.kind === "response") {
         const o = entry.outcome;
-        this.costTracker.trackCost(o.model, o.usage, agent);
-        return { content: o.content, usage: o.usage, model: o.model, finishReason: o.finishReason, latencyMs: o.latencyMs ?? 0 };
+        const cost = this.costTracker.trackCost(o.model, o.usage, agent);
+        return { content: o.content, usage: o.usage, model: o.model, finishReason: o.finishReason, latencyMs: o.latencyMs ?? 0, cost };
       }
       if (isRetryOf(entry, queue[0])) continue; // the client's retry loop swallowed this error
       throw new Error(entry.outcome.errorMessage);

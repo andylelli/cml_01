@@ -21,7 +21,7 @@
  */
 
 // X39 — the case's two temporal spines, checked while a repair is still cheap (REVIEW_09 §3).
-import { resolveIdentity, verifiedFixesEnabled } from "@cml/cml";
+import { resolveIdentity, verifiedFixesEnabled, type CaseCastMember, type CaseView } from "@cml/cml";
 import { checkCaseTimelineDeception, checkCaseTimeCoherence } from "@cml/prompts-llm";
 import {
   applyGeometryOutlineRepair,
@@ -34,6 +34,7 @@ import {
 } from "@cml/story-geometry";
 
 import { type OrchestratorContext } from "./shared.js";
+import type { LiveClue } from "./agent7/outline-types.js";
 
 // ── flags (runtime getters, never module consts — the dotenv-freeze trap) ─────
 
@@ -73,9 +74,9 @@ const RESOLVE_SYSTEM =
   "clues it already contains. You make exactly two selections. You never invent a clue, a character, " +
   "or a fact, and you never write prose.";
 
-const buildResolvePrompt = (caseData: any, clues: ReadonlyArray<GeometryClue>): string => {
+const buildResolvePrompt = (caseData: CaseView, clues: ReadonlyArray<GeometryClue>): string => {
   const culprit = String((caseData?.culpability?.culprits ?? [])[0] ?? "");
-  const suspects = ((caseData?.cast ?? []) as any[])
+  const suspects = ((caseData?.cast ?? []) as CaseCastMember[])
     .filter((c) => {
       const role = roleOf(c);
       return !resolveIdentity("agent75.suspects", "detective", c, role.includes("detective"))
@@ -116,7 +117,7 @@ const resolveOpenChoices = async (
   ctx: OrchestratorContext,
   clues: ReadonlyArray<GeometryClue>,
 ): Promise<{ resolution: GeometryResolution | null; cost: number }> => {
-  const caseData = caseOf(ctx.cml);
+  const caseData: CaseView = caseOf(ctx.cml);
   const costBefore = ctx.client.getCostTracker().getTotalCost();
   try {
     const response = await ctx.client.chat({
@@ -140,7 +141,7 @@ const resolveOpenChoices = async (
     const accused = String(parsed.false_solution_accused ?? "").trim();
 
     const culprit = String((caseData?.culpability?.culprits ?? [])[0] ?? "").trim();
-    const castNames = new Set(((caseData?.cast ?? []) as any[]).map((c) => String(c?.name ?? "").trim()));
+    const castNames = new Set(((caseData?.cast ?? []) as CaseCastMember[]).map((c) => String(c?.name ?? "").trim()));
     const knownClue = clues.some((c) => String(c.id ?? "") === clueId);
 
     return {
@@ -164,7 +165,7 @@ const resolveOpenChoices = async (
 
 /** The clue shape geometry reads, mapped off the live Agent-5 distribution. */
 const readClues = (ctx: OrchestratorContext): GeometryClue[] =>
-  ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+  ((ctx.clues?.clues ?? []) as LiveClue[]).map((c) => ({
     id: String(c?.id ?? ""),
     description: typeof c?.description === "string" ? c.description : undefined,
     pointsTo: typeof c?.pointsTo === "string" ? c.pointsTo : undefined,
@@ -219,7 +220,7 @@ export const isDropForeignClockFactsEnabled = (env: NodeJS.ProcessEnv = process.
   /^(1|true|yes|on)$/i.test(String(env.AGENT75_DROP_FOREIGN_CLOCK_FACTS ?? "").trim());
 
 export const dropForeignClockFacts = (
-  ctx: { lockedFactRegistry?: any[]; hardLogicDevices?: any; warnings: string[] },
+  ctx: { lockedFactRegistry?: Array<{ id?: unknown }>; hardLogicDevices?: unknown; warnings: string[] },
   violations: ReadonlyArray<{ code: string; factIds?: string[] }>,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] => {
@@ -233,7 +234,7 @@ export const dropForeignClockFacts = (
   ids.delete("");
   if (ids.size === 0) return [];
   const dropped = new Set<string>();
-  const keep = (fact: any): boolean => {
+  const keep = (fact: { id?: unknown } | null | undefined): boolean => {
     const id = String(fact?.id ?? "").trim();
     if (ids.has(id)) {
       dropped.add(id);
@@ -242,7 +243,7 @@ export const dropForeignClockFacts = (
     return true;
   };
   if (Array.isArray(ctx.lockedFactRegistry)) ctx.lockedFactRegistry = ctx.lockedFactRegistry.filter(keep);
-  for (const device of ((ctx.hardLogicDevices as any)?.devices ?? []) as any[]) {
+  for (const device of ((ctx.hardLogicDevices as { devices?: unknown } | null | undefined)?.devices ?? []) as Array<{ lockedFacts?: unknown } | null | undefined>) {
     if (Array.isArray(device?.lockedFacts)) device.lockedFacts = device.lockedFacts.filter(keep);
   }
   const unique = [...dropped];

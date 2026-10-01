@@ -3,6 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
+import type { CaseView } from "@cml/cml";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -107,8 +108,8 @@ export const detectIdentityRuleOccupationCollisions = (
  */
 export function applyIdentityRuleCollisionRepair(ctx: OrchestratorContext): void {
   try {
-    const identityRules = (ctx.cml as any)?.CASE?.prose_requirements?.identity_rules;
-    const castCharacters = (ctx.cast as any)?.cast?.characters;
+    const identityRules = (ctx.cml as { CASE?: CaseView } | null | undefined)?.CASE?.prose_requirements?.identity_rules;
+    const castCharacters = ctx.cast?.cast?.characters;
     const collisions = detectIdentityRuleOccupationCollisions(identityRules, castCharacters);
     if (collisions.length === 0) return;
     for (const c of collisions) {
@@ -121,7 +122,7 @@ export function applyIdentityRuleCollisionRepair(ctx: OrchestratorContext): void
     }
     if (isIdentityRuleCollisionGuardEnabled()) {
       const dropIndices = new Set(collisions.map((c) => c.ruleIndex));
-      (ctx.cml as any).CASE.prose_requirements.identity_rules = (identityRules as any[]).filter(
+      (ctx.cml as { CASE: Required<Pick<CaseView, "prose_requirements">> }).CASE.prose_requirements.identity_rules = identityRules!.filter(
         (_: unknown, i: number) => !dropIndices.has(i),
       );
     }
