@@ -115,3 +115,6 @@ library/.pg-catalog.csv
 library/.pubyear-cache.json
 library/.acquire-report.json
 library/.survey-cache.json
+
+# Book-cover samples (may be in copyright, never committed) and harness output — documentation/covers/.
+temp/covers/

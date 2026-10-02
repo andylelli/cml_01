@@ -1,0 +1,30 @@
+# Family C — flat lithographic travel poster.
+# Derived from temp/covers samples: 1930s/image_03, 05, 06, 07, 08 (analysis: documentation/covers/COVER-HARNESS-PLAN.md §1).
+# Every line is an OPERATION the image model can carry out, not a resemblance. No artist or publication is named.
+id: flat-travel-poster
+label: Flat travel poster
+family: C
+summary: A place is the subject, in silhouette and a few flat inks.
+medium: >-
+  flat-colour lithographic poster print, hard-edged shapes, no outlines, at most one soft gradient (the sky),
+  slight paper grain and faint ink registration offset
+palette_rule: exactly 4 flat inks plus the paper colour; one ink is near-black used only for silhouettes
+palettes:
+  - { name: dusk,      inks: ["#1d2b3a", "#e9a03b", "#c4462e", "#f3e6c8"] }
+  - { name: sea,       inks: ["#0b5a8c", "#f2a81d", "#e8572f", "#f4ecd8"] }
+  - { name: night,     inks: ["#141629", "#3b4a8f", "#9fb4e3", "#f1ead6"] }
+  - { name: heath,     inks: ["#2b1d33", "#7a4e7e", "#e98f87", "#f6dcc2"] }
+composition:
+  - the setting fills the frame; buildings, trees or landscape reduced to large silhouetted shapes
+  - one strong diagonal or a horizon in the lower third
+  - human figures, if any, are small, faceless and dark, giving scale
+  - large unbroken areas of a single colour
+motifs: [long cast shadows, reflections broken into flat ripple shapes, a single lit window]
+figure_treatment: small faceless silhouettes, no facial detail
+type_band: { position: top, style: framed, height: 0.24 }
+title_font: display-deco
+avoid: [photographic realism, 3d rendering, gradients on figures, outlines around shapes, text or lettering of any kind]
+suits:
+  axis: [spatial, temporal, physical]
+  tone: [Classic, Dark, Cozy]
+  location: [CountryHouse, Village, Seaside, Coastal, Island, Train, Ship, Hotel, Abroad, Resort]

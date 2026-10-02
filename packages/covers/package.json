@@ -1,0 +1,28 @@
+{
+  "name": "@cml/covers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Book-cover generation: style cards (library/cover-styles) + story anchors -> art brief -> image model -> typeset cover. Optional post-pass; documentation/covers/.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@cml/llm-client": "*",
+    "@napi-rs/canvas": "^1.0.10",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}

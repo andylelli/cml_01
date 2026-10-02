@@ -28,6 +28,7 @@ const ORDER = [
   "@cml/story-geometry",
   "@cml/llm-client",
   "@cml/novelty",
+  "@cml/covers",             // → llm-client (book covers, documentation/covers/)
   // depend on leaves
   "@cml/cml",
   "@cml/rubric-score",       // → prose-guard, cml

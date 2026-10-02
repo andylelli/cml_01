@@ -1064,3 +1064,18 @@ audit, the deterministic blind-reader rescue, and the structural-failure classif
 | Flag | State | Default | Notes |
 |---|---|---|---|
 | `AGENT5_CLUE_SPEC_CHECKLIST` | unset → **off** | OFF | **A5-15 / A5-Q07, owner: build the promotion now, its paid read later.** `clueSpecChecklistEnabled()` in `@cml/cml`, read at call time. ON: Agent 5's "Mandatory Clue Requirements" block is a projection of `deriveClueSpec(cml).clueSlots` (`packages/prompts-llm/src/agent5/clue-spec-checklist.ts`) — one line per slot, clue-spec's evidenceType / placement / category / step / keyTerms, in the existing line format; sentences shared with the legacy block are word for word. MEASURED over the 69 archived CMLs: slot count equal in 7/69 (legacy 1,305 lines, clue-spec 1,427); category disagrees on 187 of 566 per-step slots and 357 of 1,031 matched slots (method tell 69/69, culprit-direct 69/69, discriminating 26/69, mechanism 6/69, eliminations 0/189); ON drops the legacy contradiction-anchor, unique-means, premeditation and elimination-chain lines and adds the flaw and clincher slots. OFF is byte-identical (old-dist vs new-dist, 828 prompts, 0 diffs; flag=1 control 69/69 differ). **Settling probe:** one matched pair (`RESUME_REDO=clues`, Agent 5 onward against byte-identical upstream) reading clue coverage and the release gate; if the probe never runs, the flag stays OFF and the legacy block remains the checklist. |
+
+## Addendum — book covers: an optional post-pass (2026-10-02)
+
+A cover is made AFTER the manuscript is saved and never fails a run (a failure is a run event, `cover_warning`). No prompt
+of any book-writing agent changes, so none of these can move a read. Plan and evidence: `documentation/covers/`.
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `CML_COVER_GEN` | unset → **off** | OFF | **Covers on by default for runs that make no explicit choice.** `resolveCoverRequest()` in `@cml/covers`, read at call time. The per-run choice (UI "Book cover" select → spec `coverStyle`; canary `--cover`) beats it in both directions. Cost per cover ≈ one image call; settles nothing about the book, so it needs no matched pair — the exit condition is the owner choosing a default style after a contact-sheet review. |
+| `CML_COVER_IMAGE_PROVIDER` | unset → openai if `OPENAI_API_KEY`, else azure | CONFIG | Provider selection. MEASURED 2026-10-02: the project's Azure resource has no image deployment (404 for gpt-image-2/1.5/1, dall-e-3; the chat deployment answers 400, so the probe discriminates). |
+| `CML_COVER_IMAGE_MODEL` | unset → `gpt-image-2` | CONFIG | OpenAI model id, or Azure deployment name. |
+| `CML_COVER_IMAGE_QUALITY` | unset → `medium` | CONFIG | `low`/`medium`/`high`; the harness `--quality` overrides. |
+| `CML_COVER_LLM_PROVIDER` | unset → `azure` | CONFIG | The anchor step's text model; `anthropic` routes it to Claude (`ANTHROPIC_API_KEY`). Verify by the `Agent10-CoverAnchors` label in `logs/llm-prompts-full.jsonl`. |
+| `CML_COVER_LLM_MODEL` | unset → `AZURE_OPENAI_DEPLOYMENT_NAME` / `claude-sonnet-5` | CONFIG | |
+| `CML_COVER_STYLES_DIR` | unset → `library/cover-styles/cards` | CONFIG | Test/alternate card sets. |

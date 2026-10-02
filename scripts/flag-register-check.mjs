@@ -105,6 +105,8 @@ const FLAG_PATTERN = new RegExp(
     // CR-22 (A9W-13): was read by v1's agent9-run.ts, set only by the replay harness. Retired with v1 (owner
     // decision 1); still matched here so a config line setting it is reported as "read by no code".
     String.raw`CANARY_REPLAY_FAIRPLAY_ADVISORY|` +
+    // documentation/covers (2026-10-02): the book-cover post-pass and its provider/model/quality knobs.
+    String.raw`CML_COVER_[A-Z0-9_]+|` +
     `${LOGGING_KEYS.join("|")})\\b`,
   "g",
 );
