@@ -177,10 +177,10 @@ A5-08	CR-16	done	9af9b5fd	R1: openClueSynthesis (4 preludes) and appendToClueTim
 A5-09	CR-27	done	ecb12773	buildCluePrompt split into section builders + retry-feedback normaliser; MEASURED 0 diffs / 9,240 comparisons, flag off and on
 A5-10	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
 A5-11	CR-29	done	55448eb5	behind CML_VERIFIED_FIXES: every Agent 5 regeneration carries strictContract + lockedFacts (agent5/contract-payload.ts). Only the red-herring floor is live by default
-A5-12	CR-25	todo		OWNER (with A5-D06): deriving the strict contract once after all CML mutation removes the caches, and changes clue output on remap runs
+A5-12	CR-25	done	a2a0615c	DECIDED: compute fresh — with CML_VERIFIED_FIXES on, the four WeakMap memos are bypassed
 A5-13	CR-08	done	5662ca4c 094de134	WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16)
 A5-14	CR-31	done	ecb12773	CANONICAL_CLUE_ID_RE and escapeRegExp once in @cml/cml
-A5-15	CR-16	todo		OWNER = A5-Q07 (when clue-spec becomes the prompt checklist)
+A5-15	CR-16	wip	a2a0615c	shadow now logs uncovered ClueSpec slots (clue-contracts/clue-spec-shadow.ts); promotion to the prompt waits on the A7-Q05 read (recommendation)
 A5-16	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
 A5-17		withdrawn		CPU is not a lever (README §3)
 A5-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
@@ -196,16 +196,16 @@ A5-D10	CR-20	done	21992344	category/placement/criticality lower-cased at parse; 
 A5-Q01	CR-16	done	79e6d803	DECIDED (owner decision 4): CASE.death_method is legal; workerLegal true, the enumerator always offers it; prompt, validator and strict whitelist name the same set
 A5-Q02	CR-07	done	55448eb5	DECIDED (decision 12, review's R2 recommendation): meridiem needs a clock number; also fixed 'a.m.' never matching; still behind AGENT5_MERIDIEM_CHECK
 A5-Q03	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
-A5-Q04	CR-16	todo		
+A5-Q04	CR-16	done	a2a0615c	DECIDED: a targeted red-herring top-up after separation, behind AGENT5_RED_HERRING_TOPUP (OFF); the evidence: red herrings are lost to deterministic pruning, not the model (6 of 61 projects)
 A5-Q05	CR-16	done	ec9904b2	DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs)
 A5-Q06	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): AGENT5_ENABLE_LLM_RETRIES and its six branches retired (-368 lines); red-herring floor stays
-A5-Q07	CR-16	todo		
+A5-Q07	CR-16	wip	a2a0615c	DECIDED (timing): promote @cml/clue-spec behind a flag after the A7-Q05 read; meanwhile the shadow reports uncovered slots
 A6-01	CR-25	done	71c3fdab	runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue)
 A6-02	CR-29	done	55448eb5	failure-derived phrases first (≤8), then the contract lines, cap 16 — on the retries-on arm only
 A6-03	CR-29	done	55448eb5	outer half moot (decision 7) and dead branch deleted (4bd53121); inner retry text classified behind CML_VERIFIED_FIXES
-A6-04	CR-16	deferred	9af9b5fd	R1 done: refreshCoverageOnContext (4 copies). MEASURED: pre-LLM and post-revision orderings agree in 65/65 planted cases; WP8A (backstop first) differs in 65/65, so one ordering at all four sites is R2 — OWNER
+A6-04	CR-16	withdrawn	a2a0615c	MOOT: the WP8A backstop re-audit (the ordering that disagreed 65/65) went with Agent 6's retry arm (A6-Q01); the remaining refresh sites are the pre-LLM and rescue orderings that agreed 65/65
 A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
-A6-06	CR-25	deferred		blind-reader dedupe sits in runAgent6's inline remediation block (TS would not extract it); a hand rewrite, R1, next Agent 6 pass
+A6-06	CR-25	withdrawn	a2a0615c	MOOT: the blind-reader dedupe lived in the remediation loop deleted with the retry arm (A6-Q01)
 A6-07	CR-12	todo		OWNER (R2): one cast-aware guess resolver changes the blind-reader and T2.1 verdicts that gate
 A6-08	CR-31	done	0ca80a5f	typed CriticalFairPlayRule + one predicate, matching unchanged. Defects recorded: case-sensitive match; the full-mode prompt asks for different rule names
 A6-09	CR-16	done	9af9b5fd	R0: Agent 5's checker library moved to jobs/clue-contracts/ (12131e7c) — no agent6 module imports agent5; R1: shared synthesis prelude, bridge token list once, backstop push once (9af9b5fd). Open, R2: the elimination vocabulary divergence (structural audit accepts 'rules out'/'clears', isEliminationLike does not)
@@ -215,22 +215,22 @@ A6-12	CR-25	deferred		world-builder validate refactor + deleting ~55 lines of un
 A6-13	CR-25	done	cee74c9d	WP6A tests the production function; structural audit golden + known negative
 A6-14	CR-08	done	3295ad4e 094de134 3d63527f	Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign)
 A6-15	CR-33	done	6f233c91	the post-revision parity-bridge injection is persistent-risk (the backstop already was)
-A6-16	CR-34	deferred		DEFERRED (decision 12, CR-34): (1) majority-of-k is k=1 by default (AGENT6_BLIND_READER_MAJORITY_K unset), so Promise.all saves nothing at default; (2) the audit loop can rewrite clues the blind read consumes, so running them concurrently is unsafe; (3) the provisional audit sits on the AGENT_PRE9_ENABLE_LLM_RETRIES arm, which waits on A6-Q01
+A6-16	CR-34	withdrawn	a2a0615c	MOOT: the provisional audit and the retry-arm concurrency went with Agent 6's retry arm (A6-Q01)
 A6-17	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
 A6-18	CR-13	done	0ca80a5f	typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client
 A6-19	CR-31	done	55448eb5	Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy)
-A6-D01	CR-19	done	03c4f5d3	DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts
+A6-D01	CR-19	done	03c4f5d3	DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts — SUPERSEDED 2026-10-02: the meter and its test went with Agent 6's retry arm (A6-Q01, a2a0615c); no retry budget remains to charge
 A6-D02	CR-07	done	55448eb5	behind CML_VERIFIED_FIXES: break-moment default via the role predicates
 A6-D03	CR-12	done	75a049ca	the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing
 A6-D04	CR-12	done	0ca80a5f	behind CML_VERIFIED_FIXES: the blind reader's suspects exclude detective and victim (released by decision 2)
-A6-D05	CR-25	deferred		stale verdict after a CML revision (retries arm, off by default) — behaviour; with CR-29
+A6-D05	CR-25	withdrawn	a2a0615c	MOOT: the stale verdict after a CML revision was on the retry arm, retired (A6-Q01)
 A6-D06	CR-16	done	11384aaf	the post-revision backstop's repairs are persistent-risk warnings
 A6-D07	CR-12	done	0ca80a5f	behind CML_VERIFIED_FIXES: surname match only when no other cast member shares it
 A6-D08	CR-07	done	55448eb5	behind CML_VERIFIED_FIXES: no duplicate contradiction backstop clue
 A6-D09	CR-16	deferred		MEASURED 0/103 archived CMLs lack prose_requirements.discriminating_test_scene, so the empty stub is never created in the corpus. When it is, Agent 7's prompt prints 'Act undefined, Scene undefined' (agent7-narrative.ts:468 tests the object for truthiness) and the schema's required fields fail. The fix (read without creating; create prose_requirements only on a write) changes Agent 7's prompt on that path: R2, owner (CR-07 class)
-A6-Q01	CR-29	todo	03c4f5d3	REOPENED 2026-10-01: the withdrawal was wrong. A6-02 and A6-03 sit on Agent 6's own AGENT_PRE9_ENABLE_LLM_RETRIES arm (agent6-run.ts:400,491; audit-loop.ts:100-107; structural-retry.ts:182,333,397) and the World Builder's own 3-attempt loop, which decision 7 did not delete. OWNER: probe the arm, or retire it as decision 7 did the phase-score path
+A6-Q01	CR-29	done	a2a0615c	DECIDED (owner, 2026-10-02, OPEN-QUESTIONS §1): retire. Agent 6's LLM-retry arm deleted (~990 source lines; ran in 0 of 70 archived runs); Agent 3 still reads AGENT_PRE9_ENABLE_LLM_RETRIES
 A6-Q02	CR-29	done	55448eb5	DECIDED (decision 12, review's recommendation): behind CML_VERIFIED_FIXES a World Builder failure degrades to degradedWorldDocument with an [A6-Q02] warning
-A6-Q03	CR-34	deferred		DEFERRED: the provisional audit is on the AGENT_PRE9_ENABLE_LLM_RETRIES arm (OFF); whether that arm is probed or retired is A6-Q01 (owner)
+A6-Q03	CR-34	withdrawn	a2a0615c	MOOT: the provisional audit lived on Agent 6's retry arm, retired by A6-Q01
 A6-Q04	CR-32	done	69ed426b	AGENT6_MODEL now effective for both Agent 6 calls (override outranks tier). Separate auditor/blind-reader labels: not built (no recommendation; one variable serves both)
 A7-01	CR-24	done	c5423dfd	runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/
 A7-02	CR-23	done	0ca80a5f	behind CML_VERIFIED_FIXES: adoptOutlineCandidate at all 10 adoption points (normalise + warn-only schema)
@@ -241,7 +241,7 @@ A7-06	CR-16	done	11384aaf	R1: one GENERIC_CONTRACT_VALUE_RE. R2 (owner, A7-Q04):
 A7-07	CR-18	done	ecb12773	behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate)
 A7-08	CR-22	done	50b73fa7	agent7/flags.ts on envOn/envNotOff (vocabulary unchanged); retriesEnabled already gone. OWNER: whether contract-recovery-off is still wanted (R2)
 A7-09	CR-27	done	ecb12773	section builders, text moved verbatim; the duplicated prose-requirements / pacing rules left (prompt changes)
-A7-10	CR-20	todo		DEFERRED: a schema -> derived type -> boundary parser needs a schema source chosen (zod or FromSchema: a new dependency, owner); the request schema's flag AGENT7_STRUCTURED_OUTPUT is OFF and R4 was demoted to DON'T (REVIEW_05 §11.1). The parse half is done (8054d8a6)
+A7-10	CR-20	done	a2a0615c	DECIDED: json-schema-to-ts FromSchema (declared, already installed) types the outline from its JSON schema; compile-time checks vs the hand-written types — no mismatch
 A7-11	CR-33	done	6f233c91	formatNarrative's 5 coercion sites + the silent clue-id drop counted per site, at all 7 call sites, on a non-enumerable side channel; two silent sites warn; [R4] original keys unchanged. Not counted yet: the remaining sites the item lists in the v1 prose path and the Pillar-4/coverage patches (each already warns)
 A7-12	CR-24	deferred		small R0 cosmetics (stamp helper dedupe, a rename only a test reads, a tombstone); not worth a separate change
 A7-13	CR-17	withdrawn	fd058f16	MOOT: the other two arc formulas were v1 (prompt-builder.ts, generate.ts); neither prose-engine nor agent9-v2 reads emotionalRegister/arcPosition; leftovers under ORC-08
@@ -259,7 +259,7 @@ A7-D10	CR-06	done	9801b481	fixed on the live line 2026-09-08 (after the snapshot
 A7-Q01	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites
 A7-Q02	CR-33	done	6f233c91	DECIDED (decision 12, the review's recommendation): "consolidate plus per-site counters" — what A7-11 shipped (6f233c91)
 A7-Q03	CR-30	withdrawn		MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-scheduler stays unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF
-A7-Q04	CR-16	todo		
+A7-Q04	CR-16	done	a2a0615c	DECIDED: act 2 — clue-pacing.ts now agrees with the other three sites (0 of 3,530 archived clues lack a placement)
 A7-Q05	CR-07	todo		
 A34-01	CR-14	done	ac0c76d4	step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner)
 A34-02	CR-12	wip	5aeaf992	Owner decision 2: unified predicate (explicit role wins) shipped in SHADOW at 8 sites (resolveIdentity, [identity-disagree]); flip CML_IDENTITY_ROLE_WINS after N runs of the counter. MEASURED before: 577 archive disagreements
@@ -325,9 +325,9 @@ A1X-D11	CR-07	done	55448eb5	behind CML_VERIFIED_FIXES: 2b pairs profile and cast
 A1X-D12	CR-33	done	ba1b5496	2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected
 A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
 A1X-Q01	CR-12	done	5aeaf992	DECIDED (owner decision 2): @cml/cml with the explicit role winning; shipped behind CML_IDENTITY_ROLE_WINS (OFF) with the [identity-disagree] counter
-A1X-Q02	CR-18	todo		
+A1X-Q02	CR-18	done	a2a0615c	DECIDED: score the shipped artifact — Agents 1, 2, 2c now score after post-processing (runUnscoredStage + recordShippedPhaseScore); report numbers only
 A1X-Q03	CR-07	done	2ad12d6c	DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed
-A1X-Q04	CR-17	todo		CR-03 found: 2d seeds the date from runId, so a resume that re-runs 2d re-dates the story (REPLAY.md)
+A1X-Q04	CR-17	done	a2a0615c	DECIDED: pin 2d's year/month to generateSpecificDate; a resume anchors on the source run's id. 66/66 archived calls already matched — fresh runs byte-identical
 A1X-Q05	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): F5b and the Agent 1 runner realism fold deleted
 A1X-Q06	CR-30	done	55448eb5	DECIDED (decision 12): fix, not freeze — Agent 8's summariser reads CML 2.0 behind CML_VERIFIED_FIXES (A1X-D03); it still runs whenever NOVELTY_SIMILARITY_THRESHOLD < 1 (the API default is 0.9)
 A1X-Q07	CR-29	done	55448eb5	DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll
@@ -348,7 +348,7 @@ ORC-14	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the e
 ORC-15	CR-13	done	55448eb5	reportProgress stage, initialHardLogicDirectives and noveltyConstraints typed
 ORC-16	CR-26	withdrawn	fd058f16	MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1)
 ORC-D01	CR-07	withdrawn	03c4f5d3	MOOT: executeAgentWithRetry and abortCritical were deleted with the phase-score retry path (owner decision 7)
-ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
+ORC-D02	CR-03	done	a2a0615c	the replay's rubric is the live path; its fake "evaluated, no gaps" coverage stub removed (left absent, as a resume does)
 ORC-D03	CR-06	done	dff49644	
 ORC-D04	CR-06	done	faeb6755	
 ORC-D05	CR-17	withdrawn	fd058f16	MOOT: obligation-block.ts, prompt-builder.ts and generate.ts deleted with v1
@@ -361,7 +361,7 @@ ORC-D11	CR-07	done	4bd53121	no-op 2x spread removed; names and order unchanged
 ORC-D12	CR-19	dup		= A6-D01
 ORC-D13	CR-06	done	ec237e5a	
 ORC-Q01	CR-07	done	03c4f5d3	DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003)
-ORC-Q02	CR-03	todo		
+ORC-Q02	CR-03	done	a2a0615c	DECIDED: the offline replay scores through runRubricScoring and records scoring_path
 ORC-Q03	CR-20	done	79e6d803	DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest
 ORC-Q04	CR-17	withdrawn	fd058f16	MOOT: one live arc-position formula remains (agent7/world-first.ts)
 ORC-Q05	CR-22	done	7cb43ad0	DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1|true|yes|on / 0|false|no|off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted
@@ -391,12 +391,12 @@ SCO-D08	CR-18	withdrawn	51f0d14a	MOOT: agent1-scoring-adapter.ts was deleted wit
 SCO-D09	CR-06	done	ec237e5a	
 SCO-D10	CR-13	done	55448eb5	web report type mirrors in_progress, scoring_enabled, phase_thresholds_met
 SCO-D11	CR-06	dup		= A34-D14 (flag register)
-SCO-D12	CR-18	todo		OWNER: novelty 'skipped' recorded as 100/A in the mean — a report-number policy
+SCO-D12	CR-18	done	a2a0615c	DECIDED: a skipped novelty audit is N/A (not_applicable) and excluded from the mean, as decision 8 did for scoring off
 SCO-Q01	CR-30	done	51f0d14a	DECIDED (owner decision 8): HONEST_SCORERS promoted and retired; vanity scorers for 1/2/2c/2e/4/7/9 deleted. 2b/2d/6.5 keep theirs until an honest table exists (SCO-Q07)
 SCO-Q02	CR-18	done	03c4f5d3	DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once
-SCO-Q03	CR-18	todo		
+SCO-Q03	CR-18	done	a2a0615c	DECIDED: strict/lenient modes and the agent4-hard-logic key deleted; agent9-prose kept (still emitted); `mode` accepted and ignored
 SCO-Q04	CR-16	withdrawn	8631e31b	MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose
 SCO-Q05	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): comparePromptVariants deleted (no importer)
 SCO-Q06	CR-06	withdrawn	51f0d14a	MOOT: both weightings deleted (40/40/20 with v1 agent9-run, 35/35/15/15 with ProseScorer)
-SCO-Q07	CR-18	todo		
+SCO-Q07	CR-18	done	a2a0615c	DECIDED: honest scorers for 2b, 2d, 6.5 (vanity scorers + adapters deleted); 0 of 65 archived projects fail; Agent 9's phase score kept
 SCO-Q08	CR-18	done	51f0d14a	DECIDED (owner decision 8): report written with ENABLE_SCORING off, scoring_enabled=false, graded N/A

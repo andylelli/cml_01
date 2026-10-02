@@ -1,9 +1,12 @@
 # What the refactoring needs from the owner (2026-10-02)
 
-**Every buildable item is built.** The ledger is at 367 of 401 closed. The 34 that remain cannot be closed by code
+**Every buildable item is built.** The ledger figure is the README's first line. The 34 that remain cannot be closed by code
 alone: 15 are owner questions (each now with a recommendation, §1), 5 wait on a flag flip or a paid read, and 14 are deferred with reasons.
 
-## 1. Decisions — now each with a recommendation (2026-10-02)
+## 1. Decisions — recommended 2026-10-02, BUILT the same day (`a2a0615c`)
+
+The owner said "carry on"; every row below is built as recommended. A5-15 / A5-Q07 stay open only for their timing:
+promotion to the prompt waits on the A7-Q05 read.
 
 None had a recommendation on record. A read-only research pass (~191k tokens, 96 tool uses) measured each against the
 archive (`data/store.json` 66 projects with clues / 69 CMLs, its backup, ~80 runs of `logs/llm.jsonl`,

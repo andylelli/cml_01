@@ -31,7 +31,7 @@ withdrawn with their evidence in the ledger.
 | A1X-08 | a | done | 55448eb5 | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
 | SCO-D10 | a | done | 55448eb5 | web report type mirrors in_progress, scoring_enabled, phase_thresholds_met |
 | A34-11 | a | done | 0ca80a5f | discriminated RevisionResult on a required degraded |
-| SCO-Q03 | a/c | todo | | stale threshold keys (a); modes (c) |
+| SCO-Q03 | a/c | done | a2a0615c | DECIDED: strict/lenient modes and the agent4-hard-logic key deleted; agent9-prose kept (still emitted); `mode` accepted and ignored |
 | A1X-07 | a | done | ecb12773 | unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept |
 | A6-10 | a | done | ecb12773 | one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320 |
 | A7-03 | a | done | ecb12773 | CaseBrief = projectCaseForPrompt (with A6-10); the A7-D01 fix is behind CML_VERIFIED_FIXES |
