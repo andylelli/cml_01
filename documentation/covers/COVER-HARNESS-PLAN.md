@@ -227,6 +227,11 @@ The first full matrix costs under **£1**, which is less than one book run.
   (from the anchors' accepted candidates). Cards' `composition` is now style-level only; the framing decides what
   is shown and from where. Pinned by tests: same seed → identical draw, 200 seeds → all 4 cards, ≥9 framings,
   blends 20–55%, the best-fit card still most frequent. Two dry runs of `auto:6` on one story: 12 different covers.
+- **MEASURED — the variety check (seed 633279957, story_20261002-1855, `auto:4`, gpt-image-2 medium, ~$0.17 ASSUMED).**
+  4/4 images. (1) Four clearly different pictures, none the old "woman from behind + clock" layout — YES: reflection
+  in a polished table, a view through a doorway with a gloved hand, a steep look down a stair hall, the house at
+  night with one lit window; 3 of 4 were blends. (2) No-person framings contain no person — NOT TESTED, none was drawn.
+  (3) Title band honoured — 4/4. Output `temp/covers/out/story_20261002-1855/2026-10-02T19-24-38/`.
 - **MEASURED — first two real covers (2026-10-02, seed story_20261002-1855, gpt-image-2 via OpenAI, medium,
   reused anchors).** Both returned in ~38 s; 1,372 image-output tokens each (~$0.04 each at an ASSUMED $30/M).
   Predictions: (1) API works — YES; (2) top band left calm — YES on both; (3) no weapon, no lettering in the art —
