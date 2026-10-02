@@ -240,8 +240,8 @@ between the halves is unmeasured (memory: the rubric cannot rank two books).
 | Arrested culprit tends the fire in ch10 (82094 OFF, "biggest continuity error") | **Ours** — ch10's contract put her "On the page" in the aftermath | Fixed behind `CML_VERIFIED_FIXES` (`7501ebf9`) |
 | "Miss Fairweather is cleared" in ch9 — the culprit (82094 OFF) | **Ours** — THE CLOCK listed her alibi like an innocent's; ch9's contract asks a clearance beat per suspect | Fixed (her row reads "cover") |
 | "Where and when: [object Object]." (82094 OFF brief) | **Ours** — setting objects stringified | Fixed |
-| "Kenneth Ingram was seen accessing…" notes-like line (5670) | **Ours** — the clue description is in the brief verbatim and was copied | Open — the copy is the model's; a brief-side fix is a prompt change for a probe |
-| Clock "wound forward" vs times saying back (5670) | **Ours** — the CML device itself is inverted; `[A_80 F15]` flagged it and nothing acted | Open — detected, not enforced |
+| "Kenneth Ingram was seen accessing…" notes-like line (5670) | **Ours** — the clue description is in the brief verbatim and was copied; MEASURED 71/459 clue lines (15.5%) across 25 v2 runs reappear as an 8-word span | Fixed behind `CML_VERIFIED_FIXES` (`564229a2`): 8+-word observables briefed as ≤6-word fragments |
+| Clock "wound forward" vs times saying back (5670) | **Ours** — the device text contradicts its own locked times; MEASURED 2 of 7 directional devices in the archive | Fixed behind `CML_VERIFIED_FIXES` (`564229a2`): direction words repaired at source in Agent 3b (magnitude stays X38's) |
 | "(…reserved for chapter 6)" scaffold note (5670) | Model paraphrasing a reveal-timing instruction; not in any brief | Open |
 | "absence of any digital clocks or mobile telephones" (82094 OFF) | **Model** — no period-constraint wording reaches the writer's brief (an earlier attribution to us was the probe's error, withdrawn) | Not ours |
 | Long speech → short reply pattern; repetition | Model | — |
