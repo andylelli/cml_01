@@ -23,6 +23,7 @@
  *   --author <name>      author line on the cover.
  *   --out <dir>          default temp/covers/out/<story-id>/<timestamp>.
  *   --into-story         also copy the primary cover to <story>/cover.png (what the pipeline does).
+ *   --reletter <outDir>  re-typeset an earlier output's art with the current lettering (free).
  *   --yes                skip the paid-call confirmation line (non-interactive use).
  *
  * Env: see packages/covers/src/image-client.ts and llm.ts. CML_COVER_LLM_PROVIDER=anthropic routes the
@@ -53,6 +54,24 @@ const opts = (name) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] 
 
 const cardsDir = covers.resolveCardsDir(root);
 const cards = covers.loadStyleCards(cardsDir);
+
+// --reletter <outDir>: re-typeset existing art-*.png with the current lettering code. No image call, no cost.
+const reletter = opt("reletter");
+if (reletter) {
+  const dir = path.resolve(root, reletter);
+  const fs = await import("node:fs");
+  const m = JSON.parse(fs.readFileSync(path.join(dir, "covers.json"), "utf8"));
+  for (const r of m.covers.filter((c) => c.artPath)) {
+    const b = JSON.parse(fs.readFileSync(path.join(dir, r.briefPath), "utf8"));
+    const png = await covers.typesetCover({
+      art: fs.readFileSync(path.join(dir, r.artPath)), title: m.title, author: opt("author"),
+      band: b.typeBand, inks: b.inks, titleFont: b.titleFont, fontsDir: path.join(path.dirname(cardsDir), "fonts"),
+    });
+    fs.writeFileSync(path.join(dir, r.coverPath ?? `cover-${r.briefId}.png`), png);
+    console.log(`[covers] relettered ${r.briefId}`);
+  }
+  process.exit(0);
+}
 
 if (flag("list-styles")) {
   for (const c of cards) console.log(`${c.id.padEnd(24)} ${c.label} — ${c.summary}\n${"".padEnd(25)}palettes: ${c.palettes.map((p) => p.name).join(", ")}`);

@@ -10,7 +10,7 @@ export {
   createImageClientFromEnv,
   resolveImageQuality,
 } from "./image-client.js";
-export { COVER_HEIGHT, COVER_WIDTH, fitTitle, luminance, registerCoverFonts, typesetCover } from "./typeset.js";
+export { COVER_HEIGHT, COVER_WIDTH, fitTitle, luminance, registerCoverFonts, splitTitle, typesetCover } from "./typeset.js";
 export { OPENING_CHAPTERS, parseManuscript, readStoryDir, storyInputFromRun } from "./story-input.js";
 export { IMAGE_SIZE, generateCovers, type GenerateCoversOptions } from "./generate.js";
 export { renderContactSheet } from "./contact-sheet.js";

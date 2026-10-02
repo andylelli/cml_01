@@ -80,7 +80,19 @@ export const fitTitle = (
   return { size: box.minSize, lines: [words.join(" ")] };
 };
 
-const averageLuminance = (ctx: SKRSContext2D, x: number, y: number, w: number, h: number) => {
+/**
+ * "THE HALF-HOUR HAND: A THEATRE CLOCK DECEPTION" → main + subtitle. MEASURED on the first matrix: set as one
+ * run, the line broke after "A" and the thin display face drew the colon like a full stop.
+ */
+export const splitTitle = (title: string): { main: string; sub?: string } => {
+  const i = title.search(/\s*[:—–]\s+/);
+  if (i <= 0) return { main: title };
+  const main = title.slice(0, i).trim();
+  const sub = title.slice(i).replace(/^\s*[:—–]\s+/, "").trim();
+  return sub ? { main, sub } : { main: title };
+};
+
+const averageLuminance =(ctx: SKRSContext2D, x: number, y: number, w: number, h: number) => {
   const { data } = ctx.getImageData(x, y, w, h);
   let sum = 0;
   let n = 0;
@@ -163,16 +175,24 @@ export const typesetCover = async (args: TypesetArgs): Promise<Buffer> => {
 
   const lineHeight = 1.08;
   const titleTop = innerTop + strapSize * 1.6;
+  const { main, sub } = splitTitle(title);
+  const subSize = sub ? Math.max(24, Math.round(bandH * 0.085)) : 0;
+  const subBlock = sub ? subSize * 1.9 : 0;
   const fit = fitTitle(
-    title,
+    main,
     (s, size) => {
       ctx.font = `${size}px "${titleFamily}"`;
       return ctx.measureText(s).width;
     },
-    { maxWidth: W - 2 * margin - 60, maxHeight: innerBottom - titleTop, maxLines: 3, maxSize: 132, minSize: 36, lineHeight },
+    { maxWidth: W - 2 * margin - 60, maxHeight: innerBottom - titleTop - subBlock, maxLines: 3, maxSize: 132, minSize: 36, lineHeight },
   );
   ctx.font = `${fit.size}px "${titleFamily}"`;
   fit.lines.forEach((line, i) => ctx.fillText(line, W / 2, titleTop + i * fit.size * lineHeight));
+  if (sub) {
+    // The subtitle in the strap face, smaller: a colon is a break between two things, not a word in a line.
+    ctx.font = `${subSize}px "${smallFamily}"`;
+    ctx.fillText(sub, W / 2, titleTop + fit.lines.length * fit.size * lineHeight + subSize * 0.5);
+  }
 
   if (args.author) {
     const authorSize = 34;

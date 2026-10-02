@@ -15,6 +15,7 @@ import {
   parseAnchors,
   parseManuscript,
   readStoryDir,
+  splitTitle,
   runCoverPostPass,
   listCoverStyles,
   resolveCoverRequest,
@@ -187,6 +188,11 @@ describe("image client from env", () => {
 });
 
 describe("typeset", () => {
+  it("splitTitle breaks at a colon or dash, and leaves a plain title alone", () => {
+    expect(splitTitle("THE HALF-HOUR HAND: A THEATRE CLOCK DECEPTION")).toEqual({ main: "THE HALF-HOUR HAND", sub: "A THEATRE CLOCK DECEPTION" });
+    expect(splitTitle("DEATH — A STUDY")).toEqual({ main: "DEATH", sub: "A STUDY" });
+    expect(splitTitle("THE HALF-HOUR HAND")).toEqual({ main: "THE HALF-HOUR HAND" });
+  });
   it("fitTitle wraps within width and line limits", () => {
     const measure = (s: string, size: number) => s.length * size * 0.6;
     const fit = fitTitle("THE ROTATING WALL AT HALLOWAY MANOR", measure, { maxWidth: 900, maxHeight: 300, maxLines: 3, maxSize: 132, minSize: 36, lineHeight: 1.08 });

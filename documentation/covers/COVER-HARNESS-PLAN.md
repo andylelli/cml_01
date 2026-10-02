@@ -193,7 +193,7 @@ The first full matrix costs under **£1**, which is less than one book run.
 | 8 | Pipeline post-pass: API run (spec `coverStyle`, after `pipeline_complete`, never awaited) + canary (`coverStyle` input, `COVER_SAVED`/`COVER_SKIPPED`); `runCoverPostPass` never throws | DONE | `feat(covers): wire` |
 | 9 | UI: "Book cover" select on Create (default **No cover**); "The Cover" card on a finished case with style picker + make/remake; routes `GET /api/cover-styles`, `GET/POST /api/projects/:id/cover`, `GET …/cover.png` | DONE — verified in the browser with no key (disabled, reason shown) | `feat(covers): wire` |
 | 10 | Vision analysis `scripts/covers/analyse-samples.mjs` → `library/cover-styles/samples.json` | DONE — 12/15 agree with §1 | `feat(covers): samples` |
-| 11 | First paid matrix: 3 stories × 4 cards at medium | **needs owner yes** | |
+| 11 | First paid matrix: 3 stories × 4 cards at medium (existing stories only, no book runs) | DONE — 12/12; §6 | `docs(covers): matrix` |
 
 ## 6. Findings from building it
 
@@ -208,6 +208,17 @@ The first full matrix costs under **£1**, which is less than one book run.
   harm; a fix would need the CML's clue list, which the harness does not read.
 - **MEASURED — the flag checker could not see the new flags** (`CML_COVER_*` matched no prefix) and reported clean.
   Prefix added; it then listed all 7.
+- **MEASURED — first matrix (2026-10-02, 3 newest stories × 4 cards, gpt-image-2 medium, fresh anchors, ~$0.52 ASSUMED).**
+  Output `temp/covers/out/<story>/2026-10-02T19-03-14/`. 12/12 images; ~29–35 s each.
+  Predictions: (1) winner — **Deco portrait** strongest on all three; best single cover the Mirror travel poster;
+  (2) flat travel poster follows its card once details are exterior — **2/3** (Mirror, Theatre yes; Rotating Wall
+  still an interior); (3) no weapon or mechanism — **11/12 by object**: "Mirror's Deceit" chose "angled mirror flush
+  with corridor wall", the device itself (title already names it; an ordinary object cannot be caught by a word
+  list — needs the CML's mechanism terms); (4) title band honoured — **12/12**, no model lettering anywhere.
+  **Lettering defect, MEASURED and fixed:** a colon title broke after "A" and the thin face drew ":" as "."; titles
+  now split into main + subtitle (`splitTitle`), re-lettered from the saved art with `--reletter` at no cost.
+  **Observed, not yet acted on:** every cover repeats one composition — a woman seen from behind, the object in the
+  foreground — because the anchors are per story and the brief template fixes the object's position.
 - **MEASURED — first two real covers (2026-10-02, seed story_20261002-1855, gpt-image-2 via OpenAI, medium,
   reused anchors).** Both returned in ~38 s; 1,372 image-output tokens each (~$0.04 each at an ASSUMED $30/M).
   Predictions: (1) API works — YES; (2) top band left calm — YES on both; (3) no weapon, no lettering in the art —
