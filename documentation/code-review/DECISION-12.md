@@ -226,3 +226,9 @@ as the victim.
 **Verdict (owner delegated, best judgement):** `CML_VERIFIED_FIXES=1` and `CML_PROMPT_TRIMS=1` set in `.env.local`
 (backup `.env.local.bak-20261002-batch`); the flags stay in code, so one line reverts. `AGENT5_RED_HERRING_TOPUP` stays
 OFF (no evidence). A single pair settles crashes and outcomes, not a mark.
+
+**External reads (owner, ChatGPT, ±3 marks):** seed 5670 (batch ON, the WORTH-A-LOOK book) **78/100** — clock direction,
+Kenneth not physically tied to the mechanism, repetitive clue exposition; seed 82094 OFF **80/100** — an ending
+contradiction around Ottoline (the culprit) costs most; "87–89 with chapter 10 corrected". The ON half
+(`stories/story_20261002-1855/`, SHIP-CHECK normal) is unread — its read completes the pair. A difference under ~7 marks
+between the halves is unmeasured (memory: the rubric cannot rank two books).
