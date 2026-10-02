@@ -18,6 +18,7 @@
  * nothing saved.
  */
 
+import { verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -219,8 +220,20 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
    * transition "two scene versions spliced together".
    */
   const victim = contract.fairPlay.victim;
-  const living = scene.present.filter((n) => n !== victim);
+  /**
+   * After the reveal the culprit is in custody. MEASURED on run mystery-1790960614933 (seed 82094): chapter 10's
+   * brief said "this chapter comes after Ottoline Fairweather was named… On the page: Adela Halloway, Ottoline
+   * Fairweather, …", and the writer had the arrested culprit tending the fire and doing "one last sweep" — the
+   * reader's biggest complaint (ending 6/10). With CML_VERIFIED_FIXES on, a chapter after the reveal leaves the
+   * culprits off the page and says where they are — a job, not a prohibition (this model ignores prohibitions).
+   */
+  const afterReveal = chapter > contract.roles.reveal && verifiedFixesEnabled();
+  const culprits = contract.fairPlay.culprits;
+  const living = scene.present.filter((n) => n !== victim && !(afterReveal && culprits.includes(n)));
   if (living.length > 0) lines.push(`  On the page: ${living.join(", ")}.`);
+  if (afterReveal && culprits.length > 0) {
+    lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
+  }
   if (victim && scene.present.includes(victim) && !scene.wound) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
   }
