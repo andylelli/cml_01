@@ -115,6 +115,15 @@ describe("anchors", () => {
     expect(a.place).not.toMatch(/victim|bedroom/);
     expect(a.rejected).toEqual(["a letter opener with fingerprints", "a bloodied glove", "the victim's bedroom in a country manor"]);
   });
+  it("drops place details that paint the mechanism (the two measured on the first real covers)", () => {
+    const a = parseAnchors(JSON.stringify({
+      place: "a large 1950s country manor in winter",
+      place_details: ["stone walls with a hidden panel", "heavy carpet with disturbed patch", "tall chimneys against a white sky"],
+      clue_objects: ["a mantel clock"],
+    }));
+    expect(a.place_details).toEqual(["tall chimneys against a white sky"]);
+    expect(a.rejected).toEqual(["stone walls with a hidden panel", "heavy carpet with disturbed patch"]);
+  });
   it("falls back, never throws, when the LLM fails", async () => {
     const res = await extractAnchors(input, { chat: async () => { throw new Error("boom"); } });
     expect(res.anchors.source).toBe("fallback");

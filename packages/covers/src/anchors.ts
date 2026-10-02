@@ -35,7 +35,7 @@ ${input.openingText.slice(0, MAX_OPENING_CHARS)}
 Return this JSON object:
 {
   "place": "the house, building or landscape the story is set in, seen from OUTSIDE, in 4-10 words (e.g. 'a flint manor above a salt marsh')",
-  "place_details": ["exactly 3 visible physical details of that place, 2-8 words each"],
+  "place_details": ["exactly 3 details of the building and its grounds as seen from OUTSIDE — roofline, windows, chimneys, trees, water, drive, gates — 2-8 words each"],
   "time_of_day": "one of: dawn, morning, afternoon, dusk, night",
   "weather": "2-5 words",
   "season": "one of: spring, summer, autumn, winter",
@@ -73,6 +73,15 @@ const ONE_OF = (v: string, allowed: string[], dflt: string) => (allowed.includes
 export const CRIME_OBJECT_RE =
   /\b(knife|knives|dagger|blade|letter[- ]?opener|gun|pistol|revolver|rifle|shotgun|bullet|poison|arsenic|cyanide|strychnine|vial|phial|syringe|needle|rope|cord|garrotte|noose|blood|bloody|bloodied|wound|body|corpse|fingerprints?|weapon|bludgeon|cosh|poker|candlestick|razor|hammer|axe|hatchet|scissors|shears)\b/i;
 export const CRIME_PLACE_RE = /\b(victim'?s?|bedroom|body|corpse|crime scene|blood|morgue|mortuary)\b/i;
+/**
+ * Traces of the MECHANISM. MEASURED 2026-10-02, first two real covers: `place_details` carried "stone walls
+ * with a hidden panel" and "heavy carpet with disturbed patch" and both pictures painted them — the device,
+ * on the jacket. Details are now asked for from outside, and any detail matching this or the two lists
+ * above is dropped (and recorded in `rejected`).
+ */
+export const CRIME_TRACE_RE =
+  /\b(hidden|secret|concealed|disturbed|panel|trap ?door|passage|stain(?:ed)?|scuff(?:ed)?|scratch(?:ed|es)?|forced|broken|footprints?|tampered|missing)\b/i;
+const isCrimeDetail = (d: string) => CRIME_TRACE_RE.test(d) || CRIME_OBJECT_RE.test(d) || CRIME_PLACE_RE.test(d);
 
 /** Parse and coerce a model reply. Throws when the two load-bearing fields are missing. */
 export const parseAnchors = (raw: string): CoverAnchors => {
@@ -87,10 +96,12 @@ export const parseAnchors = (raw: string): CoverAnchors => {
     // "the victim's bedroom in a country manor" → "a country manor": keep the building, drop the room.
     place = place.match(/\b(?:in|of|at)\s+(.+)$/i)?.[1]?.trim() || "an English country house";
   }
+  const details = list(o.place_details, 3);
+  rejected.push(...details.filter(isCrimeDetail));
   const figure = str(o.figure);
   return {
     place,
-    place_details: list(o.place_details, 3),
+    place_details: details.filter((d) => !isCrimeDetail(d)),
     time_of_day: ONE_OF(str(o.time_of_day), ["dawn", "morning", "afternoon", "dusk", "night"], "dusk"),
     weather: str(o.weather, 60) || "still air",
     season: ONE_OF(str(o.season), ["spring", "summer", "autumn", "winter"], "autumn"),
