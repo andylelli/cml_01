@@ -232,3 +232,16 @@ Kenneth not physically tied to the mechanism, repetitive clue exposition; seed 8
 contradiction around Ottoline (the culprit) costs most; "87–89 with chapter 10 corrected". The ON half
 (`stories/story_20261002-1855/`, SHIP-CHECK normal) is unread — its read completes the pair. A difference under ~7 marks
 between the halves is unmeasured (memory: the rubric cannot rank two books).
+
+### Injector audit of the two reads (2026-10-02, free — the run's own prompts)
+
+| Complaint (read) | Source | Status |
+|---|---|---|
+| Arrested culprit tends the fire in ch10 (82094 OFF, "biggest continuity error") | **Ours** — ch10's contract put her "On the page" in the aftermath | Fixed behind `CML_VERIFIED_FIXES` (`7501ebf9`) |
+| "Miss Fairweather is cleared" in ch9 — the culprit (82094 OFF) | **Ours** — THE CLOCK listed her alibi like an innocent's; ch9's contract asks a clearance beat per suspect | Fixed (her row reads "cover") |
+| "Where and when: [object Object]." (82094 OFF brief) | **Ours** — setting objects stringified | Fixed |
+| "Kenneth Ingram was seen accessing…" notes-like line (5670) | **Ours** — the clue description is in the brief verbatim and was copied | Open — the copy is the model's; a brief-side fix is a prompt change for a probe |
+| Clock "wound forward" vs times saying back (5670) | **Ours** — the CML device itself is inverted; `[A_80 F15]` flagged it and nothing acted | Open — detected, not enforced |
+| "(…reserved for chapter 6)" scaffold note (5670) | Model paraphrasing a reveal-timing instruction; not in any brief | Open |
+| "absence of any digital clocks or mobile telephones" (82094 OFF) | **Model** — no period-constraint wording reaches the writer's brief (an earlier attribution to us was the probe's error, withdrawn) | Not ours |
+| Long speech → short reply pattern; repetition | Model | — |
