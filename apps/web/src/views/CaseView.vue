@@ -32,13 +32,14 @@ import { useProjectStore } from "../stores/projectStore";
  */
 
 const props = defineProps<{ projectId: string; projectName?: string }>();
-const emit = defineEmits<{ back: []; openWorkshop: [] }>();
+const emit = defineEmits<{ back: []; openWorkshop: []; titled: [string] }>();
 
 const store = useProjectStore();
 const {
 	settingData,
 	castData,
 	synopsisData,
+	storyTitle,
 	proseData,
 	characterProfilesData,
 	locationProfilesData,
@@ -138,7 +139,15 @@ const download = async () => {
 
 /* ── derived ─────────────────────────────────────────────────────────────────────────────────── */
 
-const title = computed(() => synopsisData.value?.title || props.projectName || "Untitled case");
+const title = computed(() => storyTitle.value || props.projectName || "Untitled case");
+
+/**
+ * The title lands mid-run (the synopsis is written after Agent 3), long after the shell named this
+ * case from the spec. Tell the shell, so the nav tab and the browser tab stop saying "1930s · …".
+ */
+watch(storyTitle, (t) => {
+	if (t) emit("titled", t);
+}, { immediate: true });
 
 /**
  * THE LEDE MUST NOT GIVE THE METHOD AWAY.
@@ -493,7 +502,7 @@ onBeforeUnmount(() => {
 			title="Listen"
 			subtitle="The manuscript, narrated. Play it here or take the file with you."
 		>
-			<NarrationPanel :project-id="projectId" :has-story="hasStory" />
+			<NarrationPanel :project-id="projectId" :has-story="hasStory" :story-title="storyTitle" />
 		</StepCard>
 
 		<!-- ── spoilers ────────────────────────────────────────────────── -->

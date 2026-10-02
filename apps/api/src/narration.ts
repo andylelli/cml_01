@@ -18,6 +18,7 @@ import {
   type Voice,
 } from "@cml/narrator";
 import type { ProjectRepository } from "./db.js";
+import { storyTitleFor } from "./project-title.js";
 
 /* ------------------------------------------------------------------ *
  * Narration: a manuscript in the store becomes an audiobook you can play
@@ -142,8 +143,9 @@ async function manuscriptFor(
   if (!picked) return null;
 
   const project = await repo.getProject(projectId);
+  // Prose payloads carry no title (0 of 9 measured); the story's title is the synopsis's.
   const converted = proseToMarkdown(picked.artifact.payload, {
-    fallbackTitle: project?.name || "Mystery Story",
+    fallbackTitle: (await storyTitleFor(repo, projectId)) || project?.name || "Mystery Story",
   });
   return {
     markdown: converted.markdown,

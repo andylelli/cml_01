@@ -18,6 +18,8 @@ export type ApiHealth = {
 export type Project = {
   id: string;
   name: string;
+  /** The story's title once the pipeline has written one; `name` is the spec label it was created under. */
+  title?: string | null;
   status?: string;
   createdAt?: string;
 };

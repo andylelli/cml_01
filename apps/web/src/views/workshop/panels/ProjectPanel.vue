@@ -24,6 +24,7 @@ const {
 	scrollToSection,
 	selectedProjectId,
 	goTo,
+	storyTitle,
 	synopsisData,
 	synopsisSummary,
 } = useWorkshop();
@@ -42,8 +43,8 @@ const {
 	<div v-if="synopsisData" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="t-section">Synopsis</div>
 	  <div class="mt-2 text-sm text-ink-soft">
-	    <strong v-if="synopsisData.title" class="text-ink">{{ synopsisData.title }}</strong>
-	    <span :class="synopsisData.title ? 'ml-2' : ''">{{ synopsisSummary }}</span>
+	    <strong v-if="storyTitle" class="text-ink">{{ storyTitle }}</strong>
+	    <span :class="storyTitle ? 'ml-2' : ''">{{ synopsisSummary }}</span>
 	  </div>
 	  <div class="mt-3 flex flex-wrap gap-2 text-xs text-ink-soft">
 	    <button

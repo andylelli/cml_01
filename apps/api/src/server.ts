@@ -8,6 +8,7 @@ import { createRepository } from "./db.js";
 import { validateCml, MOJIBAKE_REPLACEMENTS } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle } from "@cml/prompts-llm";
+import { storyTitleFor, withStoryTitle } from "./project-title.js";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import {
   buildLlmLogger as buildWorkerLlmLogger,
@@ -1327,20 +1328,20 @@ export const createServer = () => {
 
   app.get("/api/projects", (_req, res) => {
     repoPromise
-      .then((repo) => repo.listProjects())
+      .then(async (repo) => Promise.all((await repo.listProjects()).map((project) => withStoryTitle(repo, project))))
       .then((projects) => res.json({ projects }))
       .catch(() => res.status(500).json({ error: "Failed to list projects" }));
   });
 
   app.get("/api/projects/:id", (_req, res) => {
     repoPromise
-      .then((repo) => repo.getProject(_req.params.id))
-      .then((project) => {
+      .then(async (repo) => {
+        const project = await repo.getProject(_req.params.id);
         if (!project) {
           res.status(404).json({ error: "Project not found" });
           return;
         }
-        res.json(project);
+        res.json(await withStoryTitle(repo, project));
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
   });
@@ -2104,19 +2105,13 @@ export const createServer = () => {
         res.status(404).json({ error: "Prose artifact not found" });
         return;
       }
-      const synopsis = await repo.getLatestArtifact(req.params.id, "synopsis");
       const project = await repo.getProject(req.params.id);
       const prosePayload = artifact.payload as Record<string, unknown>;
-      const synopsisTitle = synopsis?.payload && typeof synopsis.payload === "object"
-        ? (synopsis.payload as Record<string, unknown>).title
-        : undefined;
       const fallbackTitle =
         (typeof prosePayload.title === "string" && prosePayload.title.trim().length > 0
           ? prosePayload.title
           : undefined)
-        || (typeof synopsisTitle === "string" && synopsisTitle.trim().length > 0
-          ? synopsisTitle
-          : undefined)
+        || (await storyTitleFor(repo, req.params.id))
         || (typeof project?.name === "string" && project.name.trim().length > 0
           ? project.name
           : undefined)

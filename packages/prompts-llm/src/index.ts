@@ -56,7 +56,7 @@ export { generateTemporalContext, deriveSeasonFromMonth } from "./agent2d-tempor
 export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { deriveBackgroundContext, BACKDROP_SUMMARY_STUB } from "./agent2e-background-derive.js";
 export type { DeriveBackgroundContextInputs } from "./agent2e-background-derive.js";
-export { deriveStoryTitle } from "./story-title.js";
+export { deriveStoryTitle, isGenerationResidueTitle } from "./story-title.js";
 export {
   generateHardLogicDevices,
   extractThemeMechanismFamilies,
