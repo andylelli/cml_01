@@ -1,9 +1,9 @@
 /**
  * Final-story rubric scoring, moved verbatim out of `mystery-orchestrator.ts` (code review ORC-07).
  *
- * One body: the orchestrator calls it; `agent9-replay.ts` still carries its own `runRubric`, which
- * ignores RUBRIC_JUDGE_MODEL and skips the structural verifiers — moving the replay onto this one
- * changes that replay's scores, so it is the owner's call (ledger ORC-Q02).
+ * One body: the live pipeline (`pipeline/finalize.ts`) and the offline replay (`agent9-replay.ts`, whose
+ * `runRubric` wraps this function and records `scoring_path`) both score through `runRubricScoring`,
+ * with RUBRIC_JUDGE_MODEL and the structural verifiers (owner decision ORC-Q02, a2a0615c).
  */
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // X37 — a refused judge is a measurement that did not happen, and must say so (REVIEW_09 §4).

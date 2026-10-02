@@ -434,6 +434,127 @@ export const OUTPUT_JSON_SCHEMA = `## Output JSON Schema
 \`\`\``;
 
 // ---------------------------------------------------------------------------------------------------------
+// CML_PROMPT_TRIMS (owner decision 12, CR-28 deferrals: A5-10 / A5-Q03 / A5-16) — the ON variants.
+//
+// `status` is read by nobody and `audit` is overwritten by the worker's reconcileModelAudit before anything
+// compares it, so ON drops every instruction that asks for them (the parser stays tolerant of both). Each
+// contract that the developer and user messages both stated is stated ONCE, in the developer message's static
+// or case sections; every requirement keeps one copy. `inference` stays: buildCaseModel reads it.
+// ---------------------------------------------------------------------------------------------------------
+
+export const HARD_PRECEDENCE_AND_GENERATION_ORDER_TRIMMED = `## Hard Precedence (resolve in order)
+1. sourceInCML legality
+2. index bounds and cast name-index correctness
+3. discriminating-test clue ID coverage
+4. suspect elimination quality
+5. red-herring separation
+6. optional texture
+
+## Generation Order (Critical)
+1. Build clues[].id and clues[].sourceInCML first.
+2. Validate source paths against valid_source_paths[] when available; otherwise allowed roots + bounds.
+3. Populate clue description/pointsTo text.
+4. Build elimination details.
+5. Generate red herrings last.
+
+`;
+
+/**
+ * Trimmed: the valid_source_paths line is the SOURCE LEGALITY CONTRACT, the second cast-path line restates the
+ * first, the discriminating-ID and elimination lines are "Hard Constraints Learned from Failures" 1-3, and the
+ * two status lines go with `status`.
+ */
+export const FAILURE_MODE_HARDENING_TRIMMED = `## Failure-Mode Hardening (pass-first)
+- CAST PATH BINDING CONTRACT: If sourceInCML is CASE.cast[N].*, suspect references in description/pointsTo must name cast[N].name and no other suspect.
+- Red-herring forbidden terms apply to description/misdirection only; supportsAssumption may restate the false assumption.
+
+`;
+
+/** Trimmed: the user rules' FULL OBJECT field list and exactness wording folded in; status/audit dropped. */
+export function buildDeterministicOutputContractsSectionTrimmed(stepCount: number): string {
+  return `## Deterministic Output Contracts
+- FIRST-PASS CONTRACT: satisfy every contract in the initial output; downstream deterministic guardrails are safety nets, not primary completion paths.
+- REQUIRED FIELDS CONTRACT: every clue must include non-empty id, sourceInCML, pointsTo, and supportsInferenceStep.
+- FULL OBJECT CONTRACT: emit full clue objects only, never partial clue objects; each clue object includes id, category, description, sourceInCML, pointsTo, placement, criticality, supportsInferenceStep, evidenceType.
+- FIELD CONSISTENCY CONTRACT: if sourceInCML is CASE.inference_path.steps[N].*, supportsInferenceStep must equal N+1.
+- PER-STEP COVERAGE CONTRACT: for each inference step in range 1..${stepCount}, include at least one mapped clue and at least one contradiction clue.
+- SOURCE LEGALITY CONTRACT: sourceInCML must exactly match an entry in valid_source_paths[]; never invent or transform paths.
+- SOURCE FORMAT CONTRACT: use bracket-index leaf paths only (for example CASE.inference_path.steps[1].correction). Dot-index and intermediate-node paths are forbidden.
+- SUSPECT PARITY CONTRACT: if any non-culprit suspect is named, include elimination/alibi evidence parity for that suspect.
+- TOP-LEVEL KEY CONTRACT: output top-level keys exactly as clues, redHerrings; do not output red_herrings.
+- DISCRIMINATING ID EXACTNESS: preserve ID strings exactly, including underscores; clue_1 must remain clue_1 (do not output clue1).
+- ANTI-COLLAPSE OUTPUT RULE: when CML evidence exists, always output a non-empty best-effort clues[] set, even if some checks still fail.
+
+`;
+}
+
+export const SILENT_PRE_OUTPUT_CHECKLIST_TRIMMED = `## Silent Pre-Output Checklist
+- every clue traceable to CML
+- essential clues placed early/mid only
+- supportsInferenceStep populated when applicable
+- at least one contradiction clue exists for every inference step with supportsInferenceStep mapping
+- red herrings support false assumption without inventing facts
+- all discriminating-test evidence clue IDs present in clue list
+- elimination clues include qualifying alibi/corroboration/exclusion detail
+- no illegal sourceInCML paths
+- every CASE.cast[N].* clue references cast[N].name consistently in description/pointsTo
+- no out-of-range inference-step indices
+- no digit-based clock notation in description/pointsTo
+- required fixed slot IDs exist exactly once with essential early/mid placement
+- JSON only, no markdown fences
+
+`;
+
+export const OUTPUT_JSON_SCHEMA_TRIMMED = `## Output JSON Schema
+\`\`\`json
+{
+  "clues": [
+    {
+      "id": "clue_1",
+      "category": "temporal|spatial|physical|behavioral|testimonial",
+      "description": "Concrete, specific clue description",
+      "observable": "The on-page surface a character can SEE/HEAR/FIND — no interpretation",
+      "inference": "What that observable lets the detective conclude",
+      "sourceInCML": "Where in CML this comes from",
+      "pointsTo": "What it reveals",
+      "first_full_reveal_chapter": null,
+      "placement": "early|mid|late",
+      "criticality": "essential|supporting|optional",
+      "supportsInferenceStep": 1,
+      "evidenceType": "observation|contradiction|elimination"
+    }
+  ],
+  "redHerrings": [
+    {
+      "id": "rh_1",
+      "description": "Red herring description",
+      "supportsAssumption": "Which false assumption it supports",
+      "misdirection": "How it misleads"
+    }
+  ]
+}
+\`\`\``;
+
+/**
+ * A5-16 (ON): the case-independent developer sections, in one block that opens the developer message so a
+ * prefix cache can hold it across runs. It ends with the blank-line separator every section carries.
+ */
+export function buildStaticDeveloperPrefixTrimmed(): string {
+  return [
+    HARD_PRECEDENCE_AND_GENERATION_ORDER_TRIMMED,
+    buildFirstPassSlotsSection(),
+    CLUE_PLACEMENT_STRATEGY,
+    QUALITY_BAR,
+    FAILURE_MODE_HARDENING_TRIMMED,
+    buildSourcePathLegalitySection(),
+    MICRO_EXEMPLARS,
+    SILENT_PRE_OUTPUT_CHECKLIST_TRIMMED,
+    OUTPUT_JSON_SCHEMA_TRIMMED,
+    "\n\n",
+  ].join("");
+}
+
+// ---------------------------------------------------------------------------------------------------------
 // User prompt
 // ---------------------------------------------------------------------------------------------------------
 
@@ -474,7 +595,8 @@ export function buildStrictContractBlock(sc: ClueExtractionInputs["strictContrac
 
 /**
  * The two contract lines that ship only when there is no feedback at all. Every production caller passes
- * feedback, so in production this is always "" (A5-10 records the decision that is owed).
+ * feedback, so in production this is always "" (A5-10 records the decision that is owed). With CML_PROMPT_TRIMS
+ * on (A5-Q03), buildCluePrompt passes `true` whenever no retry block renders, so the first pass ships them.
  */
 export function buildFirstAttemptContracts(isFirstAttemptPrompt: boolean, redHerringBudget: number): string {
   return isFirstAttemptPrompt
@@ -531,5 +653,41 @@ ${u.strictContractBlock}
 - Essential solving clues must remain early or mid.
 - Cite sourceInCML for every clue
 - Return valid JSON matching the Output JSON Schema above
+`;
+}
+
+/**
+ * CML_PROMPT_TRIMS (ON) — the user rules with every contract the developer message already states removed
+ * (cast-path binding, discriminating-ID coverage and exactness, required/full fields, per-step coverage, suspect
+ * parity, top-level keys, source format, anti-collapse, "cite sourceInCML", "essential clues remain early or
+ * mid"), the status lines dropped, and the empty lines an absent first-attempt or strict block left removed.
+ */
+export function buildUserRulesSectionTrimmed(u: {
+  userClueCountDirective: string | number;
+  rhUserText: string;
+  firstAttemptContracts: string;
+  strictContractBlock: string;
+}): string {
+  const lines = [
+    `- Do NOT invent new facts — every clue must be traceable to CML`,
+    `- Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.`,
+    `- OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each - clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain.`,
+    `- MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description.`,
+    u.firstAttemptContracts,
+    u.strictContractBlock,
+    `- CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption.`,
+    `- ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution.`,
+    `- OBSERVABLE/INFERENCE SPLIT: also give each clue an "observable" (the concrete thing a character sees/hears/finds, with NO interpretation) and an "inference" (what that observable lets the detective conclude). Keep the solution/pointsTo OUT of "observable".`,
+    `- POINTS-TO DISTINCTNESS: no two essential clues may share the same "pointsTo" implication — each solving clue must advance a DISTINCT step of the deduction rather than re-eliminating the same suspect.`,
+    `- SELF-CHECK OUTPUT RULE: run all checks internally and output JSON only; do not output checklist commentary.`,
+    `- If quality controls require late clues, satisfy late placement with supporting or optional clues only.`,
+    `- Follow every contract in the developer message, and return valid JSON matching the Output JSON Schema above.`,
+  ].filter((line) => line.length > 0);
+  return `Extract and organize clues from this mystery CML.
+
+Generate ${u.userClueCountDirective} clues${u.rhUserText} that uphold fair play — every essential clue must be placed so the reader can solve the mystery before the detective reveals the answer.
+
+Rules:
+${lines.join("\n")}
 `;
 }

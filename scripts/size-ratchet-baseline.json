@@ -6,15 +6,15 @@
   },
   "files": {
     "apps/api/src/server.ts": 1929,
-    "packages/story-validation/src/generation-params.ts": 1626
+    "packages/story-validation/src/generation-params.ts": 1601
   },
   "functions": {
     "apps/api/src/server.ts::createServer": 1293,
     "apps/worker/src/jobs/agents/agent6-run.ts::runAgent6": 404,
-    "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 502,
+    "apps/worker/src/jobs/mystery-orchestrator.ts::generateMystery": 504,
     "packages/prompts-llm/src/agent2-cast-checker.ts::checkCast": 408,
-    "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 642,
+    "packages/prompts-llm/src/agent3-cml.ts::buildCMLPrompt": 657,
     "packages/story-geometry/src/accept.ts::checkManuscriptGeometry": 517,
-    "packages/story-validation/src/generation-params.ts::mergeConfig": 829
+    "packages/story-validation/src/generation-params.ts::mergeConfig": 816
   }
 }

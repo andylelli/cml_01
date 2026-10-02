@@ -8,7 +8,7 @@
  */
 
 import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
-import { enumerateSourcePaths } from "@cml/cml";
+import { enumerateSourcePaths, promptTrimsEnabled } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
@@ -33,6 +33,9 @@ import {
   buildConstraintSpaceSections,
   buildDeterministicBoundsSection,
   buildDeterministicOutputContractsSection,
+  buildDeterministicOutputContractsSectionTrimmed,
+  buildStaticDeveloperPrefixTrimmed,
+  buildUserRulesSectionTrimmed,
   buildEvidenceSensitiveSection,
   buildFairPlayAuditSection,
   buildFirstAttemptContracts,
@@ -538,6 +541,48 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
     castMin: 0,
     castMax: Math.max(castIndexMap.length - 1, 0),
   };
+
+  // CML_PROMPT_TRIMS (owner decision 12, CR-28: A5-16, A5-10, A5-Q03), read at call time. OFF: the sections
+  // below, byte for byte. ON: the case-independent sections open the developer message (prefix cache), the
+  // unread status/audit instructions are gone, each contract is stated once, and the two first-attempt
+  // contract lines ship whenever no retry block renders — the first pass, proactive feedback or not.
+  if (promptTrimsEnabled()) {
+    const retryFeedbackTrimmed = normalizeRetryFeedback(inputs.fairPlayFeedback, caseData, castIndexMap);
+    const trimmedDeveloper = [
+      buildStaticDeveloperPrefixTrimmed(),
+      buildCmlSummarySection({
+        title,
+        category,
+        primaryAxis,
+        castCount,
+        clueDensity,
+        effectiveDensity,
+        requiredCount: requiredClues.length,
+      }),
+      buildMandatoryRequirementsList(requiredClues),
+      buildConstraintSpaceSections({ timeAnchors, timeContradictions, accessActors, accessObjects, physicalTraces }),
+      buildEvidenceSensitiveSection(evidenceSensitiveChars),
+      buildDeterministicBoundsSection(bounds),
+      buildCastIndexMapSection(castIndexMap),
+      buildClueDensitySection(densityInfo, densityOverflow, requiredClues.length),
+      buildRedHerringSection(redHerringBudget, falseAssumptionStatement, correctionLexicon, falseAssumptionLexicon),
+      buildLockedFactsSection(inputs.lockedFacts),
+      buildQualityControlsSection(caseData?.quality_controls ?? {}),
+      buildFairPlayAuditSection(inputs.fairPlayFeedback),
+      buildHardConstraintsLearnedSection(stepCount),
+      buildValidSourcePathsSection(validSourcePaths),
+      buildDeterministicOutputContractsSectionTrimmed(stepCount),
+    ].join("").replace(/\n+$/, "");
+    const rhUserTextTrimmed = redHerringBudget > 0 ? ` and ${redHerringBudget} red herrings` : "";
+    let trimmedUser = buildUserRulesSectionTrimmed({
+      userClueCountDirective: densityOverflow ? `at least ${requiredClues.length}` : DENSITY_COUNT_TEXT[effectiveDensity],
+      rhUserText: rhUserTextTrimmed,
+      firstAttemptContracts: buildFirstAttemptContracts(!retryFeedbackTrimmed, redHerringBudget),
+      strictContractBlock: buildStrictContractBlock(inputs.strictContract),
+    });
+    if (retryFeedbackTrimmed) trimmedUser += buildRetryModeBlock(retryFeedbackTrimmed, true);
+    return { system: CLUE_SYSTEM_PROMPT, developer: trimmedDeveloper, user: trimmedUser };
+  }
 
   // --- Developer prompt, in section order ---
   const developer = [

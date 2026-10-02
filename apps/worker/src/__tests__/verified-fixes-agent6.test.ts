@@ -26,8 +26,7 @@ vi.mock("@cml/story-validation", () => ({
   getGenerationParams: () => ({
     agent6_fairplay: {
       params: {
-        retries: { max_retry_cost_usd: 0.15, max_fair_play_attempts: 2, max_total_attempts_with_targeted_regen: 3 },
-        blind_reader: { pass_criteria: { min_confidence: "likely", max_remediation_cycles: 0 } },
+        blind_reader: { pass_criteria: { min_confidence: "likely" } },
       },
     },
   }),
@@ -116,6 +115,64 @@ describe("A6-Q01 — Agent 6 has no clue-regeneration retry", () => {
     try { await runAgent6(agent6Ctx()); } catch { /* a failed audit may end the stage; only the call count matters */ }
     expect(mockAuditFairPlay).toHaveBeenCalled();
     expect(mockExtractClues).not.toHaveBeenCalled();
+  });
+});
+
+describe("A6-D09 — clue traceability sync reads prose_requirements without creating a stub", () => {
+  const sync = __testables.synchronizeClueTraceabilityFromCurrentClues;
+  // One late optional clue: not relevant to the pre-test mapping, so the sync writes nothing.
+  const noopClues = () => ({
+    clues: [{ id: "clue_late_1", placement: "late", criticality: "optional", evidenceType: "observation" }],
+    clueTimeline: { early: [], mid: [], late: ["clue_late_1"] },
+  }) as any;
+  const writingClues = () => ({
+    clues: [{ id: "clue_early_1", placement: "early", criticality: "essential", evidenceType: "observation", category: "physical" }],
+    clueTimeline: { early: ["clue_early_1"], mid: [], late: [] },
+  }) as any;
+
+  it("flag OFF: a no-op still creates prose_requirements with an empty discriminating_test_scene (today)", () => {
+    setFlag(false);
+    const cml = { CASE: {} } as any;
+    expect(sync(cml, noopClues())).toEqual([]);
+    expect(cml.CASE.prose_requirements).toEqual({ discriminating_test_scene: {} });
+  });
+
+  it("flag ON: a no-op leaves CASE without prose_requirements", () => {
+    setFlag(true);
+    const cml = { CASE: {} } as any;
+    expect(sync(cml, noopClues())).toEqual([]);
+    expect("prose_requirements" in cml.CASE).toBe(false);
+  });
+
+  it("flag ON: a no-op on an existing prose_requirements adds no discriminating_test_scene", () => {
+    setFlag(true);
+    const cml = { CASE: { prose_requirements: { clue_to_scene_mapping: [] } } } as any;
+    sync(cml, noopClues());
+    expect(cml.CASE.prose_requirements).toEqual({ clue_to_scene_mapping: [] });
+  });
+
+  it("flag ON: a write creates prose_requirements holding only the mapping — the same mapping as OFF", () => {
+    setFlag(false);
+    const off = { CASE: {} } as any;
+    const offUpdates = sync(off, writingClues());
+    setFlag(true);
+    const on = { CASE: {} } as any;
+    const onUpdates = sync(on, writingClues());
+    expect(onUpdates).toEqual(offUpdates);
+    expect(onUpdates.length).toBeGreaterThan(0);
+    expect(on.CASE.prose_requirements.clue_to_scene_mapping).toEqual(off.CASE.prose_requirements.clue_to_scene_mapping);
+    expect(Object.keys(on.CASE.prose_requirements)).toEqual(["clue_to_scene_mapping"]);
+    expect(off.CASE.prose_requirements.discriminating_test_scene).toEqual({});
+  });
+
+  it("flag ON: an existing discriminating_test_scene is still read for the pre-test budget", () => {
+    setFlag(true);
+    const cml = { CASE: { prose_requirements: { discriminating_test_scene: { act_number: 2, scene_number: 2 } } } } as any;
+    sync(cml, writingClues());
+    expect(cml.CASE.prose_requirements.clue_to_scene_mapping).toEqual([
+      expect.objectContaining({ clue_id: "clue_early_1", act_number: 1, scene_number: 1 }),
+    ]);
+    expect(cml.CASE.prose_requirements.discriminating_test_scene).toEqual({ act_number: 2, scene_number: 2 });
   });
 });
 

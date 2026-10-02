@@ -49,6 +49,33 @@ import {
  * hindsight rather than in advance. */
 const deathMethodTellTokens = deathMethodSignatureTerms;
 
+type SceneRef = ReturnType<typeof flattenNarrativeScenes>[number];
+
+/** A7-12 — the scene index where each clue id is first revealed, in scene order; `keep` filters the ids. */
+function firstRevealIndexById(sceneRefs: SceneRef[], keep: (id: string) => boolean = () => true): Map<string, number> {
+  const firstRevealIdx = new Map<string, number>();
+  sceneRefs.forEach((r, i) => {
+    const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
+    for (const id of revealed.map(String)) {
+      if (keep(id) && !firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
+    }
+  });
+  return firstRevealIdx;
+}
+
+/** A7-12 — the text a clue is matched on: description, pointsTo and keyTerms. */
+function clueTextBlob(c: LiveClue): string {
+  return `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : ""}`;
+}
+
+/** A7-12 — the flattened index of the CASE's discriminating-test scene, or -1. */
+function discriminatingSceneIndexOf(sceneRefs: SceneRef[], caseData: any): number {
+  return resolveDiscriminatingSceneIndex(
+    sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
+    caseData?.prose_requirements?.discriminating_test_scene,
+  );
+}
+
 /**
  * A_64 §3.3 C1 — plant-before-reveal on the SHIPPED outline (additive, the RC3.5 pattern). The
  * 33-run corpus's #1 deficit (clues 5.21, 96% ≤6) is one complaint: essential clues surface too late
@@ -71,13 +98,7 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
     const sceneRefs = flattenNarrativeScenes(narrative);
     if (sceneRefs.length < 3) return;
 
-    const firstRevealIdx = new Map<string, number>();
-    sceneRefs.forEach((r, i) => {
-      const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
-      for (const id of revealed.map(String)) {
-        if (essential.has(id) && !firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
-      }
-    });
+    const firstRevealIdx = firstRevealIndexById(sceneRefs, (id) => essential.has(id));
 
     const stamped: string[] = [];
     for (const [id, revealIdx] of firstRevealIdx) {
@@ -238,8 +259,7 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
 
     /** A physical clue that places the CULPRIT at the scene — the thing a reveal produces as proof. */
     const isDecisiveTrace = (c: LiveClue): boolean => {
-      const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : ""}`;
-      if (!namesCulprit(blob)) return false;
+      if (!namesCulprit(clueTextBlob(c))) return false;
       // Physical, not testimonial: a witness saying "I saw Hugo" is not a trace that can be planted
       // incidentally, and dramatizing it early would be an accusation rather than an unremarked object.
       const category = String(c?.category ?? "").toLowerCase();
@@ -250,11 +270,7 @@ export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: Nar
     const sceneRefs = flattenNarrativeScenes(narrative);
     if (sceneRefs.length < 4) return;
 
-    const firstRevealIdx = new Map<string, number>();
-    sceneRefs.forEach((r, i) => {
-      const revealed = Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [];
-      for (const id of revealed.map(String)) if (!firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
-    });
+    const firstRevealIdx = firstRevealIndexById(sceneRefs);
 
     const alreadyPlanted = new Set<string>(
       sceneRefs.flatMap((r) => (Array.isArray(r.scene?.cluesPlanted) ? r.scene.cluesPlanted.map(String) : [])),
@@ -311,7 +327,7 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
       if (isCulpritImplicating(c)) return false;
       if (c?.isDeathMethodTell === true) return true;
       if (tokens.length === 0) return false;
-      const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${(Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : "")}`.toLowerCase();
+      const blob = clueTextBlob(c).toLowerCase();
       return tokens.some((t) => blob.includes(t));
     };
     const tellClueIds = clues.filter(isTellClue).map((c) => String(c.id ?? "")).filter(Boolean);
@@ -373,12 +389,7 @@ function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: Narrative
   const sceneRefs = flattenNarrativeScenes(narrative);
   if (sceneRefs.length === 0) return;
   try {
-    const caseData = caseOf(ctx.cml);
-    const testScene = caseData?.prose_requirements?.discriminating_test_scene;
-    const thresholdIndex = resolveDiscriminatingSceneIndex(
-      sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
-      testScene,
-    );
+    const thresholdIndex = discriminatingSceneIndexOf(sceneRefs, caseOf(ctx.cml));
     const gate = stampMechanismRevealGate(sceneRefs.map((r) => r.scene), thresholdIndex);
     if (gate.thresholdIndex >= 0) {
       console.info(
@@ -456,10 +467,7 @@ export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext
     if (evidenceClues.length === 0) return;
     const sceneRefs = flattenNarrativeScenes(narrative);
     if (sceneRefs.length === 0) return;
-    const dtIndex = resolveDiscriminatingSceneIndex(
-      sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
-      caseData?.prose_requirements?.discriminating_test_scene,
-    );
+    const dtIndex = discriminatingSceneIndexOf(sceneRefs, caseData);
     if (dtIndex < 0) return;
     const dtScene = sceneRefs[dtIndex].scene;
     if (!Array.isArray(dtScene.cluesRevealed)) dtScene.cluesRevealed = [];

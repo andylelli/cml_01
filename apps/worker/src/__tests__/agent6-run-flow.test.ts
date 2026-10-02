@@ -24,15 +24,9 @@ vi.mock("@cml/story-validation", () => ({
   getGenerationParams: () => ({
     agent6_fairplay: {
       params: {
-        retries: {
-          max_retry_cost_usd: 0.15,
-          max_fair_play_attempts: 2,
-          max_total_attempts_with_targeted_regen: 3,
-        },
         blind_reader: {
           pass_criteria: {
             min_confidence: "likely",
-            max_remediation_cycles: 0,
           },
         },
       },

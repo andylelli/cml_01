@@ -19,6 +19,7 @@ afterEach(() => {
 const inputs = (): CastInputs => ({
   runId: "run-char",
   projectId: "proj-char",
+  characterNames: ["Agnes Pryor", "Basil Wyke", "Cecily Marlow", "Duncan Ferrers", "Hester Lowe"],
   castSize: 5,
   setting: "1930s country house",
   crimeType: "murder",

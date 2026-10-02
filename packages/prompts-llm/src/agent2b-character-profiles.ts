@@ -7,7 +7,7 @@
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { verifiedFixesEnabled } from "@cml/cml";
+import { promptTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { CastDesign } from "./agent2-cast.js";
@@ -452,7 +452,26 @@ export async function generateCharacterProfiles(
 
   // Targeted repair: if any profile is still missing paragraphs (e.g. due to token
   // budget truncation on the last profile), repair each one with a focused single-profile call
-  if (Array.isArray(validatedResult.profiles)) {
+  // A1X-11(e) (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time: ON, the independent repairs run
+  // concurrently — same prompts, same per-profile writes and logs; only the order of the calls changes.
+  if (Array.isArray(validatedResult.profiles) && promptTrimsEnabled()) {
+    const profiles = validatedResult.profiles;
+    await Promise.all(
+      profiles.map(async (p, i) => {
+        if (p.paragraphs && p.paragraphs.length > 0) return;
+        try {
+          profiles[i] = await repairMissingParagraphs(client, inputs, p, i);
+          console.log(
+            `[Agent 2b] Repaired missing paragraphs for "${castMemberForProfile(inputs, p, i)?.name ?? `profile[${i}]`}"`
+          );
+        } catch (repairErr) {
+          console.error(
+            `[Agent 2b] Could not repair paragraphs for profile[${i}]: ${repairErr}`
+          );
+        }
+      }),
+    );
+  } else if (Array.isArray(validatedResult.profiles)) {
     for (let i = 0; i < validatedResult.profiles.length; i++) {
       const p = validatedResult.profiles[i];
       if (!p.paragraphs || p.paragraphs.length === 0) {

@@ -3,7 +3,7 @@
  * 
  * Moved verbatim from agent7-run.ts (code review A7-01 / CR-24), which re-exports what it exported.
  */
-import { caseOf, type CaseView } from "@cml/cml";
+import { caseOf } from "@cml/cml";
 import type { Clue, NarrativeOutline } from "@cml/prompts-llm";
 import { distributeChapterWordBudget, applyGridClueJobs } from "@cml/story-validation";
 import {
@@ -31,10 +31,8 @@ import {
  * cache builds each (grid, obligations) pair once per scene-count and lets both call sites share it,
  * so when shadow+authority are both enabled the grid is built once instead of twice. Pure perf — the
  * inputs (caseData/clues/redHerrings) don't change between these end-of-run calls. */
+/** A7-12: only `get` is read; the inputs it closes over are not exposed. */
 type Agent7GridCache = {
-  caseData: CaseView;
-  clues: Array<Pick<Clue, "id" | "placement" | "criticality" | "supportsInferenceStep">>;
-  redHerrings: Array<{ id?: string }>;
   get(sceneCount: number): { grid: ReturnType<typeof buildSceneGrid>; obligations: ReturnType<typeof collectObligations>["obligations"] };
 };
 
@@ -49,9 +47,6 @@ export function makeAgent7GridCache(ctx: OrchestratorContext): Agent7GridCache {
   const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
   const memo = new Map<number, { grid: ReturnType<typeof buildSceneGrid>; obligations: ReturnType<typeof collectObligations>["obligations"] }>();
   return {
-    caseData,
-    clues,
-    redHerrings,
     get(sceneCount: number) {
       const cached = memo.get(sceneCount);
       if (cached) return cached;

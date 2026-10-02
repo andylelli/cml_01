@@ -64,8 +64,6 @@ type RunStateKey =
   | "maxCmlRevisionAttempts"
   | "revisedByAgent4"
   | "revisionAttempts"
-  | "revisedByAgent4FairPlay"
-  | "fairPlayRevisionAttempts"
   | "proseScoringSnapshot";
 
 type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T];
@@ -90,8 +88,6 @@ export function createOrchestratorContext(base: OrchestratorContextBase): Orches
     maxCmlRevisionAttempts: 3,
     revisedByAgent4: false,
     revisionAttempts: undefined,
-    revisedByAgent4FairPlay: false,
-    fairPlayRevisionAttempts: 0,
     proseScoringSnapshot: newProseScoringSnapshot(),
   };
   return { ...initial, ...base };
@@ -328,8 +324,6 @@ export interface OrchestratorContext {
   // ── Result flags ─────────────────────────────────────────────────────────
   revisedByAgent4: boolean;
   revisionAttempts: number | undefined;
-  revisedByAgent4FairPlay: boolean;
-  fairPlayRevisionAttempts: number;
 
   // ── Prose-specific state (initialised before Agent 9) ───────────────────
   characterGenderMap?: Record<string, string>;

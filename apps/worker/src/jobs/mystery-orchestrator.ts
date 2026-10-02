@@ -652,8 +652,10 @@ export async function generateMystery(
         agentDurations,
         revisedByAgent4: ctx.revisedByAgent4,
         revisionAttempts: ctx.revisionAttempts,
-        revisedByAgent4FairPlay: ctx.revisedByAgent4FairPlay,
-        fairPlayRevisionAttempts: ctx.fairPlayRevisionAttempts,
+        // Agent 6's structural-revision arm was retired (owner decision A6-Q01) and nothing sets these any
+        // more; the two keys keep their only possible values so the result's shape is unchanged.
+        revisedByAgent4FairPlay: false,
+        fairPlayRevisionAttempts: 0,
       },
       status,
       warnings,

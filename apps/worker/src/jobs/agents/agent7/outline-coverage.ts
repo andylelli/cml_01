@@ -127,29 +127,7 @@ export function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseDa
       });
     }
 
-    // --- Check 3: suspect closure CEILING (X32) ---
-    //
-    // Check 2 can only ever complain about too FEW clearances. The 08-19 outline allocated the job to
-    // two scenes ("Clearing the Others" in Act 2 and "Clearances and Culprit Revealed" in Act 3) and
-    // the manuscript duly resolved the suspects, resolved them again during the discriminating test,
-    // and resolved them a third time after the confession. Check 2 was satisfied throughout, so
-    // `AGENT9_FOLD_SUSPECT_CLEARANCES` — which lives inside the repair guardrail Check 2 triggers —
-    // was never reachable on the run whose defect it was built to fix.
-    //
-    // GATED on that same flag, because ANY issue here drives an outline retry (see the call site) and
-    // 11 of the 32 archived outlines allocate more than one. Flag off: default behaviour is unchanged
-    // and the count is reported as a warning only. Flag on: the ceiling drives the fold guardrail, at
-    // the trigger where folding is the actual repair.
-    // 2026-08-23 — THE ISSUE IS GONE; THE REPAIR IS A STAMP. See `applySuspectClearanceGate` below.
-    //
-    // Raising an issue here put the repair on the outline-RETRY path, and that is the whole reason the
-    // flag stayed off: 11 of 32 archived outlines allocate the job more than once, so turning it on
-    // re-rolled a third of all outlines at a fresh Agent 7 call each — to fix a defect a re-roll is
-    // not even reliably going to avoid reproducing. The flag is named *fold*, and A_67 FIX-1 Change C
-    // designed it as a fold, so it now folds: a deterministic per-scene gate, no retry, no LLM call.
-    //
-    // The count stays visible as the always-on `[X32]` warning at the call site, which is what it was
-    // built to be.
+    // Check 3 (the X32 clearance ceiling) was removed 2026-08-23 for the `applySuspectClearanceGate` stamp (stamps.ts); history: 334b2b67.
   }
 
   return issues;

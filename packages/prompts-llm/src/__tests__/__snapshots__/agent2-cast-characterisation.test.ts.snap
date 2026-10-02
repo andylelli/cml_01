@@ -6,7 +6,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > clean — constrained of
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
@@ -122,7 +122,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > clean — constrained on
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
@@ -238,19 +238,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > count miss ×3 — const
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -365,19 +365,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > count miss ×3 — const
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "a7334b1720538af5",
+      "messages": "64a71b45b24fdc5c",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "5a5d4eb8130c7cbf",
+      "messages": "17c11860d0c23106",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -392,13 +392,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > count miss, then clean �
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -514,13 +514,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > count miss, then clean �
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "a7334b1720538af5",
+      "messages": "64a71b45b24fdc5c",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -636,19 +636,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > culprits short ×3 — c
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -764,19 +764,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > culprits short ×3 — c
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -892,13 +892,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > culprits short, then cle
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -1014,13 +1014,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > culprits short, then cle
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -1136,13 +1136,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > empty, then clean — co
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -1258,13 +1258,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > empty, then clean — co
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -1380,7 +1380,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > enum near-misses — con
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
@@ -1503,7 +1503,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > enum near-misses — con
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
@@ -1626,19 +1626,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > low diversity ×3 — co
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -1754,19 +1754,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > low diversity ×3 — co
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "03feb73a694a42b1",
+      "messages": "c6941d75b2f24537",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "a114d7db1c5cf1dc",
+      "messages": "64bd175e138bfb01",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -1882,19 +1882,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > missing fields ×3 — c
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -2014,19 +2014,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > missing fields ×3 — c
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "98ac8233bc8ac53a",
+      "messages": "0d900fa57f56d321",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "07a360064ae583b9",
+      "messages": "61f6bc903123e286",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -2041,13 +2041,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > missing fields, then cle
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -2163,13 +2163,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > missing fields, then cle
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "3cbfc85247771960",
+      "messages": "fe8a71eb1a1717df",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -2284,19 +2284,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > parse error ×3 — cons
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -2310,19 +2310,19 @@ exports[`designCast characterisation (CR-21 / A1X-05) > parse error ×3 — cons
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 3,
       "temperature": 0.75,
     },
@@ -2337,13 +2337,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > parse error, then clean 
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -2459,13 +2459,13 @@ exports[`designCast characterisation (CR-21 / A1X-05) > parse error, then clean 
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 2,
       "temperature": 0.75,
     },
@@ -2581,7 +2581,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > snake_case crimeDynamics
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },
@@ -2711,7 +2711,7 @@ exports[`designCast characterisation (CR-21 / A1X-05) > snake_case crimeDynamics
   "calls": [
     {
       "maxTokens": 6000,
-      "messages": "0ab0aa3bb6887bbe",
+      "messages": "07ba7f613ab60d3f",
       "retryAttempt": 1,
       "temperature": 0.75,
     },

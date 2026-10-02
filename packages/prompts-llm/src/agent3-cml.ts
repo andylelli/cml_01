@@ -11,7 +11,7 @@ import {
   validateCml, parseClockTime, parseDurationMinutes,
   checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
   isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
-  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled,
+  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled, promptTrimsEnabled,
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
@@ -461,6 +461,14 @@ Binding rules — these values are settled and the case must be built around the
     ? "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues may be left empty — Agent 5 back-fills it with the planted clue IDs; any clue ID you do list must appear in prose_requirements.clue_to_scene_mapping."
     : "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.";
 
+  // A34-14 (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time. ON: rule 4 states the
+  // required_evidence anti-abstraction contract once (the union of both copies' examples), and the per-run
+  // uniqueness seed moves from offset ~7.9k to the end of the developer message, after the static rules.
+  // OFF: byte-identical. Independent of fixA34D11 above — those lines are rule 9e and the hard constraints.
+  const trims = promptTrimsEnabled();
+  const uniquenessSeedBlock = `**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
+Use this seed to ensure the case details and logic differ meaningfully from prior runs.`;
+
   const backgroundGroundingSection = `
 **Background Context Artifact (must remain separate from mechanism logic)**:
 ${backgroundContextText}
@@ -501,10 +509,9 @@ The following plot elements are permanently banned because they will trigger a n
 - Culprit who is the victim's spouse or domestic partner using household poisoning
 
 If two or more of the above are present, the story will be rejected. Design around different motive structures: blackmail, professional rivalry, silencing a witness, concealing a past crime, jealousy unrelated to inheritance. Use non-domestic murder mechanisms from the hard-logic device list.
-
-**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
-Use this seed to ensure the case details and logic differ meaningfully from prior runs.
-
+${trims ? "" : `
+${uniquenessSeedBlock}
+`}
 ---
 
 **Era Constraints**:
@@ -549,7 +556,11 @@ ${INFERENCE_PATH_QUALITY}
 4. required_evidence must list 2-4 CML facts per step. These are the facts that 
    Agent 5 MUST surface as clues for the reader. If you cannot list concrete evidence, 
    the observation is too abstract - rewrite it.
-  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
+${trims ? `  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
+  - Each required_evidence item must name at least one concrete anchor from CML context (person, object, document, location, timestamp/time phrase, physical trace, access record, witness statement).
+  - Reject placeholders and generic summaries (for example: "timeline discrepancy", "suspicious behavior", "hidden motive", "motive pressure", "detective insight", "inconsistency", "anomaly").
+  - Reject detective-only private cognition or behavioral shorthand as evidence (for example: "he seems guilty", "she appears nervous", "signals of guilt", "suspicious reactions", "observed defensiveness", "confession").
+  - If a step cannot be supported by 2-4 concrete entries, rewrite the step so concrete evidence exists before final output.` : `  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
   - Each required_evidence item must name at least one concrete anchor from CML context (person, object, document, location, timestamp/time phrase, physical trace, access record, witness statement).
   - Reject placeholders and generic summaries (for example: "timeline discrepancy", "suspicious behavior", "motive pressure", "detective insight", "inconsistency", "anomaly").
   - Reject detective-only private cognition phrasing (for example: "he seems guilty", "she appears nervous") as evidence.
@@ -558,7 +569,7 @@ ${INFERENCE_PATH_QUALITY}
   "suspicious behavior", "hidden motive", "detective insight"). Each entry must name
   a concrete artifact, witness statement, document, timestamp, physical trace, or access record.
   Do NOT use detective-only behavioral shorthand as evidence (for example: "signals of guilt",
-  "suspicious reactions", "observed defensiveness", or "confession").
+  "suspicious reactions", "observed defensiveness", or "confession").`}
 5. The constraint_space MUST contain at least one contradiction per inference step - 
    a pair of facts that create logical tension the reader can resolve
 6. The discriminating_test.design MUST reference specific evidence the reader has 
@@ -633,7 +644,11 @@ Before finalizing, run a silent checklist:
 - required setting fields (including institution) are non-empty
 - canonical enum forms only
 - narrative-facing time references are era-appropriate and written in words
-- inference effects do not contradict culprit assignment`;
+- inference effects do not contradict culprit assignment${trims ? `
+
+---
+
+${uniquenessSeedBlock}` : ""}`;
 
   const requiredSkeleton = `
 **Required YAML Skeleton (do not omit any keys)**:

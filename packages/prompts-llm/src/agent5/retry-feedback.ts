@@ -127,8 +127,11 @@ export function normalizeRetryFeedback(
   };
 }
 
-/** The user-prompt retry block (appended to the rules), including the red-herring rewrite line. */
-export function buildRetryModeBlock(n: NormalizedRetryFeedback): string {
+/**
+ * The user-prompt retry block (appended to the rules), including the red-herring rewrite line. `trims`
+ * (CML_PROMPT_TRIMS, A5-10) drops the two lines that ask for `audit`/`status` output nobody reads.
+ */
+export function buildRetryModeBlock(n: NormalizedRetryFeedback, trims = false): string {
   const {
     correctionTargets,
     forbiddenTerms,
@@ -153,8 +156,7 @@ export function buildRetryModeBlock(n: NormalizedRetryFeedback): string {
     - Retry scope: use violation_codes[], targeted_clue_ids[], and preserve_clue_ids[] below as the authoritative delta contract.
     - Do not reopen unaffected clues or red herrings beyond the bounded scope declared below.
 - Preserve unaffected clues unless changes are needed for consistency.
-- Populate audit arrays to show no unresolved critical defects.
-- If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.
+${trims ? "" : "- Populate audit arrays to show no unresolved critical defects.\n"}- If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.
 ${requiredCluePhrases.length > 0 ? `- REQUIRED CLUE CONTENT (must be covered by essential early/mid clues):\n${requiredCluePhrases.map((p) => `  - ${p}`).join("\n")}` : ""}
 
     Structured correction payload (bounded delta; apply exactly):
@@ -210,8 +212,8 @@ Hard retry contract:
 - If required_direct_culprit_clue is present, keep that exact ID, name the culprit explicitly, and use one of its allowed_source_paths.
 - If forbidden_terms[] is non-empty, none of those terms may appear in redHerrings[].description or redHerrings[].misdirection.
 - Retry CAST PATH BINDING CONTRACT (MANDATORY): for each clue with sourceInCML=CASE.cast[N].*, suspect references in description/pointsTo must match cast[N].name from cast_index_to_name_map[].
-- Mandatory pre-output self-check: iterate every clue and verify cast-path binding, source-path legality, and discriminating evidence ID coverage before final output.
-- If that cannot be satisfied while keeping red herring coherence, return status=\"fail\" with the blocking term list in audit.invalidSourcePaths.`;
+- Mandatory pre-output self-check: iterate every clue and verify cast-path binding, source-path legality, and discriminating evidence ID coverage before final output.${trims ? "" : `
+- If that cannot be satisfied while keeping red herring coherence, return status=\"fail\" with the blocking term list in audit.invalidSourcePaths.`}`;
   if (rewriteTargets.length > 0 || correctionTargets.some((t) => /red\s*herring\s*(rh_1|rh_2)|rh_1|rh_2/i.test(t))) {
     block += `
 - Explicitly rewrite ${rewriteTargets.length > 0 ? rewriteTargets.join(", ") : "both rh_1 and rh_2"} and include a non-overlap justification sentence in each misdirection field.`;

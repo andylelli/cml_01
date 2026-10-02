@@ -86,6 +86,7 @@ describe("A1X-D11 — Agent 2b pairs a profile with its cast member by name", ()
 // ── A1X-Q07 — legacy-mode blind re-roll for deterministically-fixable misses ──────────────────────────────
 const castInputs = (): CastInputs => ({
   runId: "run-q07", projectId: "proj-q07", castSize: 5, setting: "1930s country house",
+  characterNames: ["Agnes Pryor", "Basil Wyke", "Cecily Marlow", "Duncan Ferrers", "Hester Lowe"],
   crimeType: "murder", tone: "golden age", detectiveType: "amateur",
 });
 const ARCHETYPES = ["Amateur Sleuth", "Primary suspect", "Financial suspect", "Romantic suspect", "Social rival"];

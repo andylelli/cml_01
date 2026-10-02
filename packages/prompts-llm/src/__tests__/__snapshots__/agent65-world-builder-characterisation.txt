@@ -1,0 +1,320 @@
+0 on  ok@1 d00c58c70c34fe40
+1 off ok@2 69e13dcb3a7bca89
+2 on  ok@1 8e178e22b15f1359
+3 off ok@1 7393d927692cab57
+4 off ok@1 e207b0a869fd38f1
+5 on  ok@1 cfe6b220767324f1
+6 off ok@3 a150194af509e910
+7 on  ok@1 ceef9d6daa16cd35
+8 off ok@2 c6fb0646a71a03cc
+9 on  err@3 c084d2e39ee6f24a ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+10 on  ok@2 be77887f2f36066e
+11 off ok@1 acc46ab1fdc40fbe
+12 on  ok@2 e78597161be0f3ac
+13 on  ok@1 85b78846f0a17737
+14 off ok@1 ba5cebb5623b9a90
+15 off ok@1 f882171009f1207e
+16 on  ok@1 a603bab48fa259f4
+17 off err@3 474ee8efc0f1a61c ERR Agent 6.5 World Builder failed: storyTheme is too short (23 words;
+18 on  err@3 da8adb5db4f0efa6 ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+19 on  ok@2 a650d7e0b9592a54
+20 on  err@3 7641e764db917fb8 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+21 off ok@2 b79d338ed155fcea
+22 off err@3 6daac9f6d4ecafae ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+23 off ok@2 55c08310eaa70aab
+24 on  ok@3 20193ee5e5477230
+25 off err@3 4711b2c824e5f43e ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+26 off err@3 c48815120cfadf8f ERR Agent 6.5 World Builder failed schema validation: humourPlacementM
+27 on  ok@1 c358756e93789aad
+28 off ok@1 d2f8a756120c828f
+29 off ok@2 b21bd1e430ffac85
+30 off ok@1 6b390062a4eed09f
+31 on  ok@2 4ef6ea0604b86cca
+32 off ok@1 d81e70b0790e706e
+33 off ok@1 c9aba34ed76e4d52
+34 off ok@1 88d700d784c20d33
+35 on  ok@1 74e5c9dd47014fb4
+36 on  ok@2 f8654ad566101349
+37 on  ok@2 4ca424ded2ace4f1
+38 off ok@3 f810b247a5608c95
+39 on  ok@1 004cc5d7f6a903d7
+40 on  ok@2 c53b2322a9c5f096
+41 off ok@3 48ae8178cdc20a95
+42 off ok@1 515ac11cc1613efd
+43 off ok@1 e40896b0b9c7af70
+44 off err@3 fe1a89bb33442833 ERR Agent 6.5 World Builder failed schema validation: humourPlacementM
+45 off ok@1 d9ec5e73b9eb8a38
+46 off err@3 a9d935b85d891185 ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+47 off ok@1 93d9c78c13406946
+48 off ok@3 1da8a4f6be2b6504
+49 on  ok@1 debbfa75c701633b
+50 off ok@1 c3b899a96c1834fd
+51 on  ok@3 b92ecd092db5e460
+52 on  err@3 6bc5c94dce02a6f4 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+53 on  ok@3 dc189820873d2093
+54 off ok@2 bb71fbe0bad39c76
+55 on  ok@1 5aacc1386238968d
+56 on  ok@1 5c5f3f9fcfcf4333
+57 on  ok@1 b95c25f5fb36505f
+58 on  ok@1 b3d70145bf230ae2
+59 on  ok@1 fbe00217ad300755
+60 off ok@1 a51af170b9dbcb35
+61 on  ok@2 29781d60f1b48a7c
+62 on  ok@1 ff034396c424100a
+63 off ok@3 656ae00d851c0ff4
+64 off ok@1 f2b38ae2c15a2fcc
+65 off err@3 0cd002f6e8afa140 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+66 off ok@3 8f76af0c898622a9
+67 off ok@1 049a16d596642a0b
+68 off ok@3 304ac7e90f05759b
+69 off ok@1 021f3568e05d1e8c
+70 on  ok@3 ac0693e324ecb070
+71 off ok@3 135fcc705ae8c1fa
+72 on  ok@1 77f80869924fa68b
+73 on  err@3 abcf9600cad2d3b4 ERR Agent 6.5 World Builder failed: characterVoiceSketches count (8) d
+74 off ok@2 a7b73a92d31359cb
+75 on  ok@2 32521babb009cf49
+76 on  ok@1 76a563c7c3a27f5f
+77 on  ok@1 115c27b0ae694570
+78 off ok@1 da1acea334e4eaf7
+79 off ok@1 c95cde888ffc5a1b
+80 on  ok@1 60d9c73c5a3495b3
+81 on  ok@3 00e9e8b4e9162320
+82 off ok@3 e229cea1b115d092
+83 on  ok@3 51b0d8d623bf65f1
+84 on  ok@2 bd4245fe0da7dc7c
+85 off err@3 b2434278979bcb56 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+86 off ok@2 7bae8dba1493735d
+87 off ok@1 84a0f3f0bb0c0510
+88 off ok@1 a1a9070912a195ba
+89 off ok@1 3eabcd28abde329c
+90 on  err@3 d2b143695ecafe8b ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+91 off ok@1 d1789acd786be9a4
+92 on  ok@2 1ae1f749b5dfb3de
+93 off ok@2 a546ddc8b01fabe4
+94 on  err@3 b02e60b45b05199e ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+95 off ok@1 89850848722970f4
+96 off ok@1 8bf6420aef36d64c
+97 off ok@2 d0dced970ca04d4b
+98 off err@3 46617137539cc676 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+99 on  ok@1 89ff17bacddc884d
+100 off ok@1 51e7d5e42a16577e
+101 off ok@1 bffb7951e66f01f9
+102 off err@3 eae5b46d080f245f ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+103 off err@3 cba4a36c4ee3b1c0 ERR Agent 6.5 World Builder failed: characterVoiceSketches count (8) d
+104 off ok@1 1c27661e59521bd0
+105 off ok@1 0e459c70bb1eef02
+106 off ok@1 edb04f5d36590e35
+107 off ok@1 01ec1c13724a7e4f
+108 on  ok@1 e7ddcd9531f77384
+109 on  ok@1 8aaae1a7d16828a9
+110 on  ok@3 7e4c14ae92254c03
+111 off ok@1 aa568420aa7c116d
+112 off ok@1 99970a85057ea2be
+113 off ok@2 bac5e4aff0b8f9e1
+114 on  ok@1 f4fdaa73ff013cf3
+115 off ok@1 fd98f0502fd2fc00
+116 off ok@1 88f34c5301848a2a
+117 off err@3 bb46c72b4077291c ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+118 on  ok@3 fb2fc6c027c7dc51
+119 on  ok@2 d14d6da9166b1678
+120 on  ok@3 8c2ba84c1123bce5
+121 on  ok@1 d6b9b8df4fa1772b
+122 off ok@1 1812e3fde3c2dd24
+123 on  ok@1 00951cdb6bff8190
+124 on  err@3 2e03797042103b7d ERR Agent 6.5 World Builder failed: storyTheme is too short (22 words;
+125 off ok@1 c5449513d49595b6
+126 on  ok@1 9370578c0f37bec7
+127 on  ok@2 fe1e39f7d5e26e85
+128 on  ok@1 11df19a1bc0c22f3
+129 on  err@3 ffc434cb582a6579 ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+130 off err@3 54c84f8c7043bec4 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+131 on  ok@2 634bb5661401223c
+132 off ok@2 fd2eb38b289b8936
+133 off ok@2 23611f258e8b8feb
+134 on  ok@3 4cefaa3ab7fdc6e2
+135 on  ok@1 49c486e8344e352e
+136 on  ok@3 c61019048cc88729
+137 on  ok@1 bbea402344958775
+138 off ok@3 d1dc5013466fd5d0
+139 off err@3 c5bafcbbf50ed579 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+140 on  ok@1 03108e1f89ef5ed7
+141 off err@3 eda52793a3d30fff ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+142 off ok@1 ea2b29d8b7b4b97e
+143 on  ok@1 4fa6b59649c7b867
+144 on  ok@1 32651b11b74579bc
+145 off err@3 289290e4ac20e525 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+146 off ok@1 128956d60ae0899f
+147 on  ok@3 283dd367d5a2f90b
+148 on  ok@1 ded9bf4b27d41915
+149 off ok@1 9a914c204ac87141
+150 on  ok@1 bade59866f5ffb9b
+151 on  ok@1 80da2658c4af74fd
+152 off ok@1 131812c10f3120ae
+153 off err@3 072eb7c9c16ca1e7 ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+154 off ok@1 2ae5606bf7f18fc3
+155 on  ok@3 29f572585d7f1c5a
+156 off ok@2 99a6cb89f4133594
+157 off ok@1 b38fb50f8574ac70
+158 off err@3 196fa7c4a9f163e8 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+159 off err@3 31019d8c1feb6b4a ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+160 off ok@2 90ea2c48ecc4f633
+161 on  ok@1 347525b256cb18de
+162 off ok@2 9441f4fdf6a591a5
+163 off err@3 0a4404a37378dd3e ERR Agent 6.5 World Builder failed: characterVoiceSketches count (8) d
+164 off ok@1 74a7a156e3b5239e
+165 off err@3 f959ed04f288c0fa ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+166 on  ok@2 09c8313902f7341e
+167 off ok@1 a712a0c4bd6190fa
+168 on  err@3 16050a14161e801f ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+169 on  ok@1 589bd4e0e9ca4d8d
+170 on  ok@1 03c6cc9046dda589
+171 on  ok@1 6a2b5865793d72a3
+172 on  ok@3 b0cc335c25849294
+173 off ok@1 d487c4ebdf237bf9
+174 on  err@3 88df52ee2f2d3e2b ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+175 on  err@3 acbeed8939d23481 ERR Agent 6.5 World Builder failed: characterVoiceSketches count (8) d
+176 off ok@2 d308880efc951355
+177 off err@3 f3d664ebb445e62d ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+178 off ok@2 ea4eecc8be0793f0
+179 off ok@3 7a90f38eb839f860
+180 on  ok@1 bf1d56e64d93e257
+181 on  err@3 33931a01ea126b2e ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+182 on  ok@1 eb80939cbb0f47ad
+183 on  err@3 5698de68e6113db0 ERR Agent 6.5 World Builder failed: characterPortraits count (6) does 
+184 off ok@2 14f6575437b5ccd2
+185 off err@3 494631b3509a5524 ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+186 on  ok@2 ca0e2060b6a16e4b
+187 on  ok@1 0db3278527573a84
+188 off ok@1 c0875426b9c9dffb
+189 on  ok@2 5251953354489f93
+190 off ok@2 f78ef8359b46fae9
+191 off ok@1 6b62f19db6c16164
+192 off ok@2 fca7f5b98348e665
+193 on  ok@2 700e0d08bd5cf988
+194 on  ok@1 0cb8bb8223f9e95c
+195 off ok@1 14d75c0d7b0dbaf5
+196 on  ok@2 6fb6e54c073b164c
+197 off ok@1 3160047d36b570ad
+198 off ok@1 4893db0a54630326
+199 on  ok@1 0411bb08e7efe931
+200 off err@3 ae58d0e9223be757 ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+201 off ok@1 1a5bd1a1d4682963
+202 off err@3 9214b9816c708f0c ERR Agent 6.5 World Builder failed schema validation: humourPlacementM
+203 on  err@3 8be5cd0d0b615300 ERR Agent 6.5 World Builder failed: characterPortraits count (6) does 
+204 on  err@3 0a6fb5b34ca7e522 ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+205 off ok@2 988bc06216e6a0d8
+206 off ok@1 72aa41659c66047b
+207 off err@3 2ad7c8545a1c5322 ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+208 off ok@2 5d2289ed1dbad1dc
+209 on  ok@2 69097291fcd44465
+210 off ok@1 587b5f8c14081718
+211 off ok@2 8021530e235f93c0
+212 off ok@2 e73a9614c3e47e91
+213 on  ok@1 f267ea66d6af421a
+214 off ok@2 207a2af229aab127
+215 on  ok@1 ba865cb65eb5d43b
+216 on  ok@1 146323078d80127d
+217 on  ok@1 9cc9a16d9aabf640
+218 off err@3 5a97d353ae755c24 ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+219 on  err@3 60ebdfa18cf98126 ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+220 on  ok@2 cf4631a84e004f57
+221 off ok@1 54a9ac5c59e00215
+222 off ok@2 fb0d8e621b58a2e6
+223 off ok@3 5b8b6662fcc358bc
+224 on  ok@2 0c05130924f7d356
+225 on  ok@2 fde1a14b1f22a39a
+226 off ok@3 87f4816d3863d97b
+227 off ok@1 325aae5fe303140f
+228 on  ok@3 3367b63106d03a1c
+229 off ok@1 df3f7dc688f85af7
+230 off ok@1 43d4e6f7184ee490
+231 off ok@1 4db7910807180c34
+232 off ok@1 23db7b270755cd6f
+233 off ok@1 8ab15ed8a137f06b
+234 on  ok@1 0ca925db692e31fa
+235 off ok@1 2115113490c04045
+236 on  err@3 2614d520fe84df1c ERR Agent 6.5 World Builder failed: characterPortraits count (6) does 
+237 off ok@2 12b9f1bafa0ab16d
+238 on  ok@1 e558a1d4e9ae9617
+239 off ok@1 f219e384b57cfa13
+240 off ok@1 a60f8deb6abedfec
+241 on  ok@1 d8d49be246de108b
+242 off ok@1 3951cbcced7a715c
+243 off ok@1 61b9d6f209ade352
+244 on  err@3 cf672800db43006d ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+245 on  ok@1 e68584c4a6ffe2a0
+246 on  ok@3 6c31b5f90ed81896
+247 on  ok@1 f391b24b39310d0f
+248 on  ok@1 9db2e38ccccb6ac2
+249 off err@3 e255ae1ba231a678 ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+250 on  ok@1 c831a217842fc8c0
+251 on  ok@2 3a270f47a42bb246
+252 on  err@3 83b499b95fc5d506 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+253 on  ok@2 830812ec33187b10
+254 on  ok@3 3156de4e20b11b5a
+255 on  ok@1 93215bdb679058f7
+256 off ok@1 b473c87ff9b56a66
+257 on  ok@3 1db5ea2a511075c9
+258 off ok@1 cd13044d57db2244
+259 on  ok@1 18014781f7369fcc
+260 off ok@2 706549cf0e1fa85d
+261 on  ok@1 708c6b600e39ee9a
+262 on  ok@2 c1091e5628b4d5e2
+263 off err@3 480d44b5521356cc ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+264 off ok@2 93ff43e793fcb2b9
+265 on  ok@1 58037147cc83f206
+266 on  ok@1 082c2c5c01e0e06d
+267 off err@3 a1ce093379cdd09d ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+268 on  ok@1 ef1dfa105263da1b
+269 off ok@1 d0a9cdaa9ff2d3d4
+270 off err@3 9bf3dcd8701b205e ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+271 off ok@2 943b259e872e95ea
+272 on  ok@1 999a91816fd0be6a
+273 off err@3 97f27d64a68a451a ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+274 on  err@3 eac2ad4278fb99e0 ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+275 off err@3 3985a6f2fe521886 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+276 on  ok@2 c18aa29175e4d82b
+277 off ok@2 68d8be8a2596b46b
+278 on  ok@2 9f4c347bcfdc73f7
+279 off ok@2 20cc99e86349a02d
+280 on  ok@1 c9abae3abf06c3f2
+281 on  ok@3 110696dc2e017c95
+282 off ok@1 052357c2e574e000
+283 off ok@3 39ebe1e988ac01af
+284 off err@3 410df0c1781cd729 ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+285 off ok@1 f19f9c5b353f700f
+286 on  ok@1 9bade2463f6637b6
+287 off ok@1 f3e706256f615ee2
+288 on  err@3 a2972d2ff57c3b84 ERR Agent 6.5 World Builder failed schema validation: characterPortrai
+289 on  ok@1 a5bbebdec408dea0
+290 on  ok@2 bb92f030f58e466d
+291 off ok@1 485802c1fce96e97
+292 on  ok@1 bb70660b996d5b1b
+293 off ok@1 73e9146fcd45ea0d
+294 on  ok@1 4f85b24b09949b67
+295 off ok@1 a37c1dfd2816cf71
+296 on  ok@3 065624df8a9e8018
+297 off ok@3 3de95a6c56b44108
+298 off ok@3 0006bfa70967e05f
+299 on  ok@3 cc11c627c84a7bcd
+300 on  ok@2 e72ff90a66303baf
+301 on  err@3 a170b7c5496fcf1e ERR Agent 6.5 World Builder failed: storyEmotionalArc.arcDescription m
+302 off ok@3 94c130972e0d5752
+303 on  err@3 d70aa1c12507fdbe ERR Agent 6.5 World Builder failed: JSON parse failure on attempt 3: E
+304 off ok@1 d432a76884fb4135
+305 on  ok@2 1567bb7ac9db1231
+306 off ok@2 382613dfaf30c14b
+307 on  err@3 9910a594a1881efd ERR Agent 6.5 World Builder failed schema validation: breakMoment.scen
+308 on  ok@3 8829d875522b5e44
+309 on  err@3 d799337019275f6c ERR Agent 6.5 World Builder failed: characterPortraits[2].name (Nobody
+310 on  ok@1 2e4a99b861fda8a7
+311 off ok@1 56d792fb9b70dab4
+312 on  ok@2 51a57d837a2ad71e
+313 on  ok@1 5ca609ab24c5d18a
+314 off ok@1 1458635ef388d2fe
+315 on  ok@2 9161ddc027cbad79
+316 on  ok@2 8dfe357095af13ab
+317 on  ok@3 d18f201be0af96ba
+318 off ok@2 484c8c6ed6ef9b0e
+319 off ok@2 1968aa5d0b4d445e

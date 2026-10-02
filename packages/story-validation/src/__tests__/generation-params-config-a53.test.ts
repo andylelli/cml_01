@@ -5,10 +5,8 @@ import { getGenerationParams, DEFAULT_CONFIG } from '../generation-params.js';
 // YAML and DEFAULT_CONFIG, so a future drift fails CI instead of silently changing live behavior.
 
 describe('generation-params — single source of truth (A_53 P6)', () => {
-  it('Agent 6 max_remediation_cycles is 1 (DEFAULT_CONFIG aligned to YAML — no silent doubling)', () => {
-    const cfg = getGenerationParams();
-    expect(cfg.agent6_fairplay.params.blind_reader.pass_criteria.max_remediation_cycles).toBe(1);
-  });
+  // The Agent 6 max_remediation_cycles pin went with the key (2026-10-02): the blind-reader remediation
+  // cycles it budgeted were retired with Agent 6's retry arm (owner decision A6-Q01), and nothing reads it.
 
   it('novelty similarity_threshold_default fires the audit by default (shouldSkipNovelty=false)', () => {
     const threshold = getGenerationParams().agent8_novelty.params.thresholds.similarity_threshold_default;

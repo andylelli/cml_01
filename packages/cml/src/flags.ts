@@ -33,3 +33,15 @@ export function readBooleanFlag(name: string, defaultValue: boolean, env: Record
 export function verifiedFixesEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return readBooleanFlag("CML_VERIFIED_FIXES", false, env);
 }
+
+/**
+ * Owner decision 12, CR-28 deferrals (built 2026-10-02): token trims in the NON-prose prompts — Agent 5 (A5-16
+ * static-first ordering, A5-10/A5-Q03 unread status/audit output dropped and each contract stated once, the two
+ * first-attempt contract lines shipped on the first pass), Agent 3 (A34-14 required_evidence contract once, the
+ * uniqueness seed after the static rules), Agent 2c / Agent 8 / Agent 2b (A1X-11 a, c, e). Default OFF: with it
+ * unset every prompt is byte-identical. Each trim changes a prompt on every run, so the read is a paid probe.
+ * Read at call time (ADR-0004).
+ */
+export function promptTrimsEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("CML_PROMPT_TRIMS", false, env);
+}

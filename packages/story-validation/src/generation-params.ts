@@ -85,13 +85,7 @@ export interface Agent6FairPlayConfig extends AgentStatusConfig {
       model: ModelConfig;
       pass_criteria: {
         min_confidence: "likely" | "certain";
-        max_remediation_cycles: number;
       };
-    };
-    retries: {
-      max_fair_play_attempts: number;
-      max_total_attempts_with_targeted_regen: number;
-      max_retry_cost_usd: number;
     };
   };
 }
@@ -486,16 +480,7 @@ export const DEFAULT_CONFIG: GenerationParamsConfig = {
         model: { temperature: 0.2, max_tokens: 1500 },
         pass_criteria: {
           min_confidence: "likely",
-          // A_53 P6 (max-remediation-cycles-config-mismatch): aligned to the YAML (1). The fallback
-          // DEFAULT_CONFIG must equal the parsed YAML so a YAML load failure can't silently DOUBLE
-          // Agent 6's remediation spend. A config-equality test guards this.
-          max_remediation_cycles: 1,
         },
-      },
-      retries: {
-        max_fair_play_attempts: 2,
-        max_total_attempts_with_targeted_regen: 3,
-        max_retry_cost_usd: 0.15,
       },
     },
   },
@@ -1118,20 +1103,7 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
               source.agent6_fairplay?.params?.blind_reader?.pass_criteria?.min_confidence === "certain"
                 ? "certain"
                 : DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.pass_criteria.min_confidence,
-            max_remediation_cycles: Math.floor(
-              clampNumber(
-                source.agent6_fairplay?.params?.blind_reader?.pass_criteria?.max_remediation_cycles,
-                DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.pass_criteria.max_remediation_cycles,
-                0,
-                5,
-              ),
-            ),
           },
-        },
-        retries: {
-          max_fair_play_attempts: Math.floor(clampNumber(source.agent6_fairplay?.params?.retries?.max_fair_play_attempts, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_fair_play_attempts, 1, 10)),
-          max_total_attempts_with_targeted_regen: Math.floor(clampNumber(source.agent6_fairplay?.params?.retries?.max_total_attempts_with_targeted_regen, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_total_attempts_with_targeted_regen, 1, 10)),
-          max_retry_cost_usd: clampNumber(source.agent6_fairplay?.params?.retries?.max_retry_cost_usd, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_retry_cost_usd, 0, 10),
         },
       },
     },

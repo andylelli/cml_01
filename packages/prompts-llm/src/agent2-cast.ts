@@ -84,34 +84,6 @@ export function normalizeRelationshipWeb(raw: unknown): RelationshipWeb {
   return { pairs: [] };
 }
 
-/**
- * Derive N distinct first-name starting letters from the run hash.
- * Uses a linear congruential generator seeded with the hash so we get a
- * deterministic but highly varied sequence across runs.
- * Avoids letters that feel unnatural as period name starters (Q, X, Y, Z, U, V).
- */
-const deriveNameInitials = (hash: number, count: number): string[] => {
-  const letterPool = 'ABCDEFGHIJKLMNOPRSTW'; // 20 period-authentic letters
-  const initials: string[] = [];
-  const used = new Set<string>();
-  // LCG: produces a different sequence per hash seed
-  let state = (hash >>> 0) || 1;
-  for (let i = 0; i < count; i++) {
-    state = Math.imul(state, 1664525) + 1013904223 >>> 0;
-    let idx = state % letterPool.length;
-    // Resolve collision by walking forward in pool
-    let attempts = 0;
-    while (used.has(letterPool[idx]) && attempts < letterPool.length) {
-      idx = (idx + 1) % letterPool.length;
-      attempts++;
-    }
-    const letter = letterPool[idx];
-    initials.push(letter);
-    used.add(letter);
-  }
-  return initials;
-};
-
 // Generate specific variation directives from runId
 /**
  * A_86 item 4 — `AGENT2_MOTIVE_KIND_ROTATION`: rotate what the culprit WANTS, not just how many
@@ -148,30 +120,17 @@ export const CULPRIT_MOTIVE_KINDS: ReadonlyArray<string> = [
   "CONVICTION — the culprit believed, and still believes, that the victim deserved it or that a greater harm was prevented",
 ];
 
-const generateCastVariation = (runId: string, count: number): {
+// A1X-15 (CR-30, owner decision 12): the naming pool and first-name initials were retired with the
+// no-names prompt branch — runAgent2 always supplies names. Bits 12–19 of the hash are now unused;
+// every other field keeps its bit-slice, so each with-names prompt is byte-identical.
+const generateCastVariation = (runId: string): {
   relationshipStyle: number;
   motivePattern: number;
   dynamicType: number;
-  namingPool: string;
-  nameInitials: string[];
   /** A_86 item 4 — which KIND of motive drives the culprit this run. */
   motiveKind: string;
 } => {
   const hash = simpleHash(runId);
-  const namingPools = [
-    'English county gentry (Midlands/South — Austen-era landed families)',
-    'Irish or Welsh with Celtic surnames (O\'Brien, Llewellyn, Maguire, Pryce style)',
-    'Scottish Lowland merchant class (Erskine, Drummond, Gillespie, Dunbar style)',
-    'Anglo-French Norman descent (Beaumont, Delacroix, Montfort, Villiers style)',
-    'Northern English (Yorkshire/Lancashire industrialist — Sutcliffe, Threlfall, Appleyard style)',
-    'Jewish-British professional London (Goldstein, Levy, Abramowitz, Cohen style)',
-    'Central European émigré (Austrian/German: Vossler, Grunewald, Steiner, Hirsch style)',
-    'Mixed colonial (Anglo-Indian or Caribbean-British: Krishnamurthy, Okonkwo, De Silva, Ferreira style)',
-    'East Anglian/Fenland working gentry (Sparrow, Fulcher, Lavenham, Brome style)',
-    'Victorian professional London (Solicitor/physician class: Alderton, Carver, Penrose, Quain style)',
-    'Cornish or Devon coastal (Trevithick, Carne, Pengelly, Rosevear style)',
-    'Edwardian theatrical/artistic circle (Sable, Lancing, Beauchamp, Glaive style)',
-  ];
   // A_53 P11 (variation-seed-int-min-negative-index): mask to unsigned (>>> 0) before
   // shifting/mod. `simpleHash` returns Math.abs(hash), but Math.abs(INT_MIN) overflows int32
   // and signed `>>` re-signs it, so `% n` could yield a NEGATIVE array/seed index. Unsigned
@@ -181,10 +140,8 @@ const generateCastVariation = (runId: string, count: number): {
     relationshipStyle: (uHash % 4) + 1,
     motivePattern: ((uHash >>> 4) % 3) + 1,
     dynamicType: ((uHash >>> 8) % 3) + 1,
-    namingPool: namingPools[(uHash >>> 12) % namingPools.length],
-    nameInitials: deriveNameInitials(uHash, count),
     // A_86 item 4 — a different bit-slice from the same hash, so the motive KIND rotates
-    // independently of the naming pool while staying reproducible for a given runId.
+    // independently of the other fields while staying reproducible for a given runId.
     motiveKind: CULPRIT_MOTIVE_KINDS[(uHash >>> 20) % CULPRIT_MOTIVE_KINDS.length]!,
   };
 };
@@ -368,7 +325,7 @@ Output contract:
 - No null placeholders.
 - No extra top-level keys beyond characters, relationships, diversity, crimeDynamics.`;
 
-  const count = inputs.characterNames?.length || inputs.castSize || 6;
+  const count = inputs.characterNames.length || inputs.castSize || 6;
   const minUniqueArchetypes = getMinimumUniqueArchetypes(count);
 
   // Detective archetype guidance
@@ -412,19 +369,13 @@ Output contract:
     ? `\n\n⛔ GENDER ASSIGNMENTS — NON-NEGOTIABLE (cannot be changed, inferred, or overridden):\n${genderLockLines.join('\n')}\nYou MUST assign these exact genders. The \`gender\` field in your JSON output for each named character must match exactly.`
     : '';
 
-  const namesSection = inputs.characterNames
-    ? `**Character Names** (pre-selected — use EXACTLY as given, do not alter, abbreviate, or substitute any name): ${inputs.characterNames.join(", ")}${genderLockBlock}
+  const namesSection = `**Character Names** (pre-selected — use EXACTLY as given, do not alter, abbreviate, or substitute any name): ${inputs.characterNames.join(", ")}${genderLockBlock}
 
 IMPORTANT: Exactly ONE of these ${count} characters is the investigator/detective. Assign that role to the character whose name and background best fits ${detectiveArchetype}. Their roleArchetype must be "${detectiveRoleLabel}".
 
-DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`
-    : `**Cast Size**: Create exactly ${count} original characters. Generate names that are authentic to the era and setting (${inputs.setting}). Names must sound plausible for that time period and social class — not modern or anachronistic.
-
-IMPORTANT: Exactly ONE of the ${count} characters is the investigator/detective. That character must be ${detectiveArchetype}. Their roleArchetype must be "${detectiveRoleLabel}". The remaining ${count - 1} characters are suspects, witnesses, and victims.
-
 DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`;
 
-  const variation = generateCastVariation(inputs.runId || inputs.projectId || "", count);
+  const variation = generateCastVariation(inputs.runId || inputs.projectId || "");
   const relationshipGuidance = [
     "family secrets and inheritance conflicts",
     "professional rivalries and workplace tensions",
@@ -444,17 +395,10 @@ DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`;
     ? "insider vs outsider dynamics"
     : "generational conflicts and changing values";
 
-  const namingDirectives = !inputs.characterNames
-    ? `- Naming Style: ${variation.namingPool}
-- NAMING RULE: Generate names that feel authentic to the naming style above. FORBIDDEN overused golden-age surnames (do NOT use any of these): Harrington, Whitfield, Ashford, Pemberton, Wentworth, Blackwood, Sterling, Thornton, Bancroft, Worthington, Montague, Greystone, Ashbourne, Hartley, Fletcher, Cunningham. Use fresh, surprising names the reader has not seen a hundred times.
-- FIRST-NAME INITIALS (MANDATORY): The ${count} characters' given names must begin with these letters (one per character, assign in any order you like): ${variation.nameInitials.join(', ')}. Every character must have a first name starting with one of these letters — no two characters may share the same initial. This guarantees name uniqueness across stories.
-`
-    : ``;
-
   const user = `Design a high-quality suspect cast for this mystery:
 
 VARIATION DIRECTIVES FOR THIS CAST:
-${namingDirectives}- Relationship Theme: Emphasize ${relationshipGuidance}
+- Relationship Theme: Emphasize ${relationshipGuidance}
 - Motive Distribution: ${motiveGuidance}${isMotiveKindRotationEnabled() ? `
 - CULPRIT MOTIVE KIND (this story): ${variation.motiveKind}.
   The culprit's motiveSeed MUST be of that kind. Other suspects may want anything; the person who
@@ -907,7 +851,7 @@ export async function designCast(
   const startTime = Date.now();
   const config = getGenerationParams().agent2_cast.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
-  const expectedCount = inputs.characterNames?.length || inputs.castSize || 6;
+  const expectedCount = inputs.characterNames.length || inputs.castSize || 6;
   const requiredUniqueArchetypes = Math.max(
     1,
     Math.ceil(expectedCount * config.quality.role_archetype.min_unique_ratio),

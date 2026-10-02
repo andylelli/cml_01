@@ -138,7 +138,7 @@ describe("mystery orchestrator fix coverage", () => {
     } as any;
 
     const result = rebalanceNarrativeSceneCountsDeterministically(underfilled, 30, clues);
-    expect(result.changed).toBe(true);
+    expect(result.reachedTarget).toBe(true);
 
     const snapshot = captureNarrativeSceneCountSnapshot(underfilled);
     expect(snapshot.totalScenes).toBe(30);

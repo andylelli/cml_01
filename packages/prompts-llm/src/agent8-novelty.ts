@@ -21,7 +21,7 @@
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { isVictimMember, verifiedFixesEnabled } from "@cml/cml";
+import { isVictimMember, promptTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import {
   AGENT8_CASE_POLICY,
@@ -249,6 +249,10 @@ function summarizeCML(cml: CaseData, label: string): string {
 }
 
 function buildUserRequest(similarityThreshold: number, failDelta: number): string {
+  // A1X-11(c) (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time. auditNovelty recomputes status,
+  // overallNovelty, mostSimilarSeed, highestSimilarity and every row's overallSimilarity from the per-dimension
+  // scores and overwrites the model's values, so ON stops asking for them. OFF: byte-identical.
+  const trims = promptTrimsEnabled();
   const thresholdPercent = Math.round(similarityThreshold * 100);
   // A1X-12: the fail band is config `fail_delta` (0.1 shipped = the +10 points this used to hard-code).
   const failPercent = Math.min(100, thresholdPercent + Math.round(failDelta * 100));
@@ -322,9 +326,7 @@ For each seed CML, evaluate:
 
 ## Silent Pre-Output Checklist
 - all similarity dimensions scored for each seed
-- weighted overall similarity matches configured formula
-- status matches threshold policy
-- violations/warnings cite concrete matched elements
+${trims ? "" : "- weighted overall similarity matches configured formula\n- status matches threshold policy\n"}- violations/warnings cite concrete matched elements
 - JSON only, no markdown fences
 
 ## Output Format
@@ -333,15 +335,15 @@ Return a JSON object:
 
 \`\`\`json
 {
-  "status": "pass" | "fail" | "warning",
+${trims ? "" : `  "status": "pass" | "fail" | "warning",
   "overallNovelty": 0.75,
   "mostSimilarSeed": "The Moonstone",
   "highestSimilarity": 0.62,
-  "similarityScores": [
+`}  "similarityScores": [
     {
       "seedTitle": "The Moonstone",
-      "overallSimilarity": 0.62,
-      "plotSimilarity": 0.55,
+${trims ? "" : `      "overallSimilarity": 0.62,
+`}      "plotSimilarity": 0.55,
       "characterSimilarity": 0.70,
       "settingSimilarity": 0.80,
       "solutionSimilarity": 0.50,
@@ -460,7 +462,8 @@ export async function auditNovelty(
   const noveltyData = parsedJson.data;
 
   // Validate required fields
-  if (!noveltyData.status || !noveltyData.similarityScores || !noveltyData.summary) {
+  // A1X-11(c): with CML_PROMPT_TRIMS on the prompt no longer asks for `status` (recomputed below), so it is not required.
+  if ((!noveltyData.status && !promptTrimsEnabled()) || !noveltyData.similarityScores || !noveltyData.summary) {
     throw new Error("Invalid novelty audit result: missing required fields (status, similarityScores, summary)");
   }
 

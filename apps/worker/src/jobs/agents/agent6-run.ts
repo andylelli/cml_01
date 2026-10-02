@@ -21,7 +21,7 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult, Clue } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import { caseOf } from "@cml/cml";
+import { caseOf, verifiedFixesEnabled } from "@cml/cml";
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type TestResult } from "@cml/story-validation";
@@ -158,8 +158,17 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
     caseBlock.discriminating_test.evidence_clues.length > 0;
   if (clueList.length === 0 && !hasEvidenceForCompleteness) return [];
 
-  const proseRequirements = (caseBlock.prose_requirements ??= {});
-  const discriminatingScene = (proseRequirements.discriminating_test_scene ??= {});
+  // A6-D09 (CML_VERIFIED_FIXES): read prose_requirements and its discriminating_test_scene WITHOUT creating
+  // them. The old `??=` left an empty discriminating_test_scene stub even on a no-op, which Agent 7's prompt
+  // renders as "Act undefined, Scene undefined" (it tests the object for truthiness) and the schema rejects.
+  // With the flag ON, prose_requirements is attached only when a mapping is written, and the DT scene never.
+  const fixA6D09 = verifiedFixesEnabled();
+  const proseRequirements = fixA6D09
+    ? (caseBlock.prose_requirements ?? {})
+    : (caseBlock.prose_requirements ??= {});
+  const discriminatingScene = fixA6D09
+    ? (proseRequirements.discriminating_test_scene ?? {})
+    : (proseRequirements.discriminating_test_scene ??= {});
   const discriminatingAct = Number.isInteger(Number(discriminatingScene.act_number)) && Number(discriminatingScene.act_number) > 0
     ? Number(discriminatingScene.act_number)
     : 3;
@@ -281,6 +290,7 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
 
   if (updates.length === 0) return [];
 
+  if (fixA6D09) caseBlock.prose_requirements ??= proseRequirements;
   proseRequirements.clue_to_scene_mapping = Array.from(mappingById.values()).sort(
     (left, right) =>
       Number(left?.act_number ?? 99) - Number(right?.act_number ?? 99)

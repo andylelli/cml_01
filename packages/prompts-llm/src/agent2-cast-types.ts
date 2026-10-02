@@ -5,11 +5,12 @@
 export interface CastInputs {
   runId: string;
   projectId: string;
-  characterNames?: string[]; // User-provided names (optional)
+  /** Required (A1X-15, CR-30): runAgent2 always supplies names; the no-names prompt branch was retired. */
+  characterNames: string[];
   /** Gender lock map: name → 'male' | 'female'. When provided alongside characterNames,
    * the cast designer is instructed to treat these gender assignments as non-negotiable. */
   characterGenders?: Record<string, 'male' | 'female'>;
-  castSize?: number; // Number of characters to generate (if names not provided)
+  castSize?: number; // Fallback count when characterNames is empty
   setting: string; // Era + location context
   crimeType: string; // Murder, theft, etc.
   tone: string; // Golden age, noir, cozy, etc.

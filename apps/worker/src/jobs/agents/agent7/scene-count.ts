@@ -24,7 +24,8 @@ import {
 } from "./generate.js";
 
 type SceneCountRebalanceResult = {
-  changed: boolean;
+  /** The repaired outline matches the target total and per-act counts exactly. */
+  reachedTarget: boolean;
   summary: string;
 };
 
@@ -180,13 +181,13 @@ export function rebalanceNarrativeSceneCountsDeterministically(
   const after = captureNarrativeSceneCountSnapshot(narrative);
   const targetSummary = `Act I=${targetActs[1]}, Act II=${targetActs[2]}, Act III=${targetActs[3]}`;
   const actualSummary = `Act I=${after.perAct[1]}, Act II=${after.perAct[2]}, Act III=${after.perAct[3]}`;
-  const changed = after.totalScenes === expectedTotalScenes &&
+  const reachedTarget = after.totalScenes === expectedTotalScenes &&
     after.perAct[1] === targetActs[1] &&
     after.perAct[2] === targetActs[2] &&
     after.perAct[3] === targetActs[3];
 
   return {
-    changed,
+    reachedTarget,
     summary: `target(${targetSummary}) actual(${actualSummary}) total=${after.totalScenes}`,
   };
 }
