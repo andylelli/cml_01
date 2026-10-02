@@ -45,3 +45,14 @@ export function verifiedFixesEnabled(env: Record<string, string | undefined> = p
 export function promptTrimsEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return readBooleanFlag("CML_PROMPT_TRIMS", false, env);
 }
+
+/**
+ * A5-15 / A5-Q07 (owner: build the promotion now, read it later). ON: Agent 5's "Mandatory Clue Requirements"
+ * checklist is a projection of `@cml/clue-spec`'s `deriveClueSpec(cml).clueSlots` — the deriver the worker runs
+ * only in shadow — instead of `generateExplicitClueRequirements`. Measured over the 69 archived CMLs, the two
+ * derivations agree on slot count in 7 and on per-step category in 379 of 566 slots, so ON changes the checklist
+ * of every case. Default OFF: with it unset the prompt is byte-identical. Read at call time (ADR-0004).
+ */
+export function clueSpecChecklistEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("AGENT5_CLUE_SPEC_CHECKLIST", false, env);
+}

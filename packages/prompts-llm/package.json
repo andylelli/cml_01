@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@cml/cml": "*",
+    "@cml/clue-spec": "file:../clue-spec",
     "@cml/llm-client": "*",
     "@cml/period-kb": "*",
     "@cml/prose-guard": "*",

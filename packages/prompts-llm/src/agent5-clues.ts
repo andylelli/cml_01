@@ -8,7 +8,7 @@
  */
 
 import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
-import { enumerateSourcePaths, promptTrimsEnabled } from "@cml/cml";
+import { clueSpecChecklistEnabled, enumerateSourcePaths, promptTrimsEnabled } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parseLlmJson } from "./shared/llm-json.js";
@@ -17,6 +17,8 @@ import type { PromptComponents } from "./types.js";
 import type { Clue, ClueDistributionResult, RedHerring } from "./types/clue-distribution.js";
 import { deathMethodTellHints } from "./shared/clue-observable.js";
 import { extractKeyTerms } from "./agent5/key-terms.js";
+import { buildClueSpecChecklist } from "./agent5/clue-spec-checklist.js";
+import type { RequirementLine } from "./agent5/clue-prompt-sections.js";
 import { normalizeRetryFeedback, buildRetryModeBlock } from "./agent5/retry-feedback.js";
 import {
   CLUE_SYSTEM_PROMPT,
@@ -492,8 +494,12 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
     ? caseData.inference_path.steps.length
     : 0;
 
-  // ELEGANT SOLUTION: Pre-analyze CML to generate explicit requirements
-  const requiredClues = generateExplicitClueRequirements(cml);
+  // ELEGANT SOLUTION: Pre-analyze CML to generate explicit requirements.
+  // A5-15 / A5-Q07: AGENT5_CLUE_SPEC_CHECKLIST (default OFF, read at call time) renders the checklist as a
+  // projection of @cml/clue-spec's deriveClueSpec — its slots, its categories — in the same line format.
+  const requiredClues: RequirementLine[] = clueSpecChecklistEnabled()
+    ? buildClueSpecChecklist(cml)
+    : generateExplicitClueRequirements(cml);
   const { effectiveDensity, overflow: densityOverflow } = deriveEffectiveDensity(clueDensity, requiredClues.length);
 
   // --- Case facts the developer prompt reads ---

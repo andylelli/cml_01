@@ -13,7 +13,7 @@
 import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
-import { isDetectiveMember, isVictimMember, verifiedFixesEnabled } from "@cml/cml";
+import { isDetectiveMember, isVictimMember, verifiedFixesEnabled, promptTrimsEnabled } from "@cml/cml";
 import { parseLlmJson } from "./shared/llm-json.js";
 import type { WorldDocumentResult } from "./types/world-document.js";
 import { getGenerationParams } from "@cml/story-validation";
@@ -234,7 +234,13 @@ export interface WorldBuilderInputs {
   onProgress?: (phase: string, message: string) => void;
 }
 
-const WORLD_BUILDER_SYSTEM = `You are the World Builder for a mystery story.
+/**
+ * A6-17 (CR-28, CML_PROMPT_TRIMS): the arc word minimum was hard-coded "300" here while the user message
+ * and both retry texts render `getArcDescParams().prompt`. Flag OFF renders the literal 300 (byte-identical
+ * to the old constant); ON renders the configured value so the system prompt and the retries agree.
+ */
+function renderWorldBuilderSystem(arcWords: number): string {
+  return `You are the World Builder for a mystery story.
 
 Your role is to synthesise all structured information about the story — its cast, setting, era,
 locations, plot logic, and clues — into a single coherent World Document. This document will be
@@ -243,10 +249,10 @@ grounded in every specific fact provided.
 
 Critical constraints:
   - storyEmotionalArc.arcDescription is your most important output field. Budget your tokens
-    for it before writing shorter fields. It MUST be at least 300 words written across multiple
+    for it before writing shorter fields. It MUST be at least ${arcWords} words written across multiple
     clearly distinct paragraphs — not a dense single block. Trace the full emotional journey:
     opening atmosphere → rising unease → first investigative turn → mid-story revelation →
-    second pivot → pre-climax pressure → climax → resolution. A response shorter than 300 words
+    second pivot → pre-climax pressure → climax → resolution. A response shorter than ${arcWords} words
     will fail validation. Count your words before finalising this field.
   - JSON arrays must contain ONLY objects of the specified type. Never add strings, notes,
     comments, or placeholder text inside characterPortraits, characterVoiceSketches,
@@ -270,6 +276,13 @@ Critical constraints:
   - FIRST-PASS CONTRACT: include all required humourPlacementMap scene positions exactly once in the initial response.
 
 You will produce a single JSON object. Return only the JSON. No preamble, no commentary.`;
+}
+
+const WORLD_BUILDER_SYSTEM = renderWorldBuilderSystem(300);
+
+function worldBuilderSystem(): string {
+  return promptTrimsEnabled() ? renderWorldBuilderSystem(getArcDescParams().prompt) : WORLD_BUILDER_SYSTEM;
+}
 
 // A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): the World Builder is explicitly
 // forbidden from inventing clues or describing any clue "in specific forensic detail", so it does not
@@ -320,9 +333,35 @@ function withoutRunTelemetry<T>(artifact: T): T {
   return copy as T;
 }
 
+/**
+ * A6-17 (CR-28, CML_PROMPT_TRIMS): CASE keys the World Builder is sent without needing — only the instructions to
+ * OTHER agents: `quality_controls` (Agents 3/5) and `prose_requirements` (Agent 9's scene contracts).
+ *
+ * The solution half (`hidden_model`, `inference_path`, `constraint_space`, `discriminating_test`, `fair_play`,
+ * `red_herrings`) is KEPT on purpose. MEASURED over 65 archived World Documents: phrases traceable only to those
+ * sections appear 150 times in revealImplications and 244 in storyEmotionalArc, and discriminating_test wording in
+ * 38 of 65 documents — the reveal draws on them. Dropping them saves a fraction of a penny per call and risks the
+ * reveal, so it is not done; quality_controls had 0 hits. Compact JSON carries most of the saving.
+ */
+const WORLD_BUILDER_CASE_OMIT = [
+  'quality_controls',
+  'prose_requirements',
+] as const;
+
+function projectCaseForWorldBuilder(caseSection: unknown): unknown {
+  if (!caseSection || typeof caseSection !== 'object' || Array.isArray(caseSection)) return caseSection;
+  const copy: Record<string, unknown> = { ...(caseSection as Record<string, unknown>) };
+  for (const k of WORLD_BUILDER_CASE_OMIT) delete copy[k];
+  return copy;
+}
+
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
   const { prompt: ARC_DESC_PROMPT } = getArcDescParams();
-  const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
+  // A6-17 (CR-28, CML_PROMPT_TRIMS): compact JSON (the indentation was ~15% of the INPUTS) and the CASE projection.
+  const trims = promptTrimsEnabled();
+  const json = (value: unknown): string => (trims ? JSON.stringify(value) : JSON.stringify(value, null, 2));
+  const rawCase = (inputs.caseData as any)?.CASE ?? inputs.caseData;
+  const caseSection = trims ? projectCaseForWorldBuilder(rawCase) : rawCase;
   const lockedFacts = inputs.hardLogicDevices?.lockedFacts
     ?? inputs.hardLogicDevices?.devices?.flatMap((d: any) => d.lockedFacts ?? [])
     ?? [];
@@ -330,25 +369,25 @@ function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
   return `## INPUTS
 
 ### CASE
-${JSON.stringify(caseSection, null, 2)}
+${json(caseSection)}
 
 ### CHARACTER_PROFILES
-${JSON.stringify(withoutRunTelemetry(inputs.characterProfiles?.profiles ?? inputs.characterProfiles), null, 2)}
+${json(withoutRunTelemetry(inputs.characterProfiles?.profiles ?? inputs.characterProfiles))}
 
 ### LOCATION_PROFILES
-${JSON.stringify(withoutRunTelemetry(inputs.locationProfiles), null, 2)}
+${json(withoutRunTelemetry(inputs.locationProfiles))}
 
 ### TEMPORAL_CONTEXT
-${JSON.stringify(withoutRunTelemetry(inputs.temporalContext), null, 2)}
+${json(withoutRunTelemetry(inputs.temporalContext))}
 
 ### BACKGROUND_CONTEXT
-${JSON.stringify(withoutRunTelemetry(inputs.backgroundContext), null, 2)}
+${json(withoutRunTelemetry(inputs.backgroundContext))}
 
 ### LOCKED_FACTS
-${JSON.stringify(lockedFacts, null, 2)}
+${json(lockedFacts)}
 
 ### CLUE_DISTRIBUTION (summary — counts + id/placement/category only; no forensic detail)
-${JSON.stringify(summarizeClueDistribution(inputs.clueDistribution ?? null), null, 2)}
+${json(summarizeClueDistribution(inputs.clueDistribution ?? null))}
 
 ---
 
@@ -955,7 +994,7 @@ export async function generateWorldDocument(
   inputs.onProgress?.('world-builder', 'Building world document...');
 
   const messages: Message[] = [
-    { role: 'system', content: WORLD_BUILDER_SYSTEM },
+    { role: 'system', content: worldBuilderSystem() },
   ];
 
   messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
@@ -1336,6 +1375,9 @@ export const __testables = {
   enforceCastCoverage,
   withoutRunTelemetry,
   buildWorldBuilderUserMessage,
+  worldBuilderSystem,
+  projectCaseForWorldBuilder,
+  WORLD_BUILDER_CASE_OMIT,
   buildClassifiedRetryMessage,
   parseWorldBuilderResponse,
   validateWorldDocument,
