@@ -118,3 +118,8 @@ library/.survey-cache.json
 
 # Book-cover samples (may be in copyright, never committed) and harness output — documentation/covers/.
 temp/covers/
+
+# Book covers (documentation/covers/): 2–3 MB PNGs per cover, regenerable from their brief + seed — never tracked.
+stories/_covers/
+stories/*/covers/
+stories/*/cover.png
