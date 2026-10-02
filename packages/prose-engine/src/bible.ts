@@ -34,6 +34,7 @@
 
 import type { Bible, BibleSectionKey, ContractCore, ContractInput } from "./types.js";
 import { humourMove } from "./humour-move.js";
+import { verifiedFixesEnabled } from "@cml/cml";
 
 /**
  * The same arithmetic as v1's `estimateTokenCount` (`prompt-builder.ts:1496`), deliberately
@@ -71,10 +72,28 @@ const text = (value: unknown): string => String(value ?? "").replace(/\s+/g, " "
 
 const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
+/**
+ * A setting field may be an object — Agent 1 writes `location: { type, description, … }` and `era: { decade, … }`.
+ * MEASURED on run mystery-1790960614933 (seed 82094): the brief said "Where and when: [object Object]." With
+ * CML_VERIFIED_FIXES on, an object yields its first naming field instead; OFF keeps the old stringification.
+ */
+const NAMING_KEYS = ["place", "name", "decade", "period", "type", "description"] as const;
+const fieldValue = (value: unknown): string => {
+  if (value && typeof value === "object" && !Array.isArray(value) && verifiedFixesEnabled()) {
+    const o = value as Record<string, unknown>;
+    for (const k of NAMING_KEYS) {
+      const v = text(o[k]);
+      if (v && typeof o[k] !== "object") return v;
+    }
+    return "";
+  }
+  return text(value);
+};
+
 const field = (source: unknown, ...keys: string[]): string => {
   const s = source as Record<string, unknown> | null;
   for (const key of keys) {
-    const v = text(s?.[key]);
+    const v = fieldValue(s?.[key]);
     if (v) return v;
   }
   return "";
@@ -280,15 +299,25 @@ const chronologySection = (
   lockedFacts: ReadonlyArray<Record<string, unknown>>,
 ): string[] => {
   const lines: string[] = [];
+  // A culprit's alibi is the one the solution breaks. MEASURED on run mystery-1790960614933: THE CLOCK listed
+  // "Ottoline Fairweather's alibi" (the murderer) like an innocent's, and chapter 9 said "Miss Fairweather is cleared".
+  // With CML_VERIFIED_FIXES on it reads as the culprit's cover; OFF unchanged.
+  const culprits = verifiedFixesEnabled() ? core.fairPlay.culprits.filter(Boolean) : [];
+  const asClaimed = (label: string): string =>
+    culprits.some((c) => label.includes(c)) && /\balibi\b/i.test(label)
+      // "cover" is exactly as long as "alibi": THE CLOCK has a token budget, and any longer label pushed later clock
+      // values out of it (measured on the archive: "claimed alibi (…)" lost 2 lines, "false alibi" 1).
+      ? label.replace(/\balibi\b/gi, "cover")
+      : label;
   for (const row of core.chronology.rows) {
-    lines.push(`  ${row.value} — ${row.label}`);
+    lines.push(`  ${row.value} — ${asClaimed(row.label)}`);
   }
   const values = new Set(core.chronology.rows.map((r) => r.value));
   for (const fact of lockedFacts) {
     const value = text(fact.value);
     const description = text(fact.description);
     if (!value || values.has(value)) continue;
-    lines.push(`  ${value} — ${description || String(fact.id ?? "")}`);
+    lines.push(`  ${value} — ${asClaimed(description || String(fact.id ?? ""))}`);
   }
   if (lines.length > 0) {
     lines.unshift("Every one of these is written the same way every time it appears:");
