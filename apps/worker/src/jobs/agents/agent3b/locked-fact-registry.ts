@@ -30,7 +30,8 @@ import {
 } from "../shared.js";
 // A34-03 (R1): the pure helpers live in @cml/cml (packages/cml/src/locked-facts.ts); re-exported so
 // existing importers of this module keep their path.
-import { wordifyLockedFactValue, stripLeadingArticleFromLockedValue, impliedIntervalFactId } from "@cml/cml";
+import { wordifyLockedFactValue, stripLeadingArticleFromLockedValue, impliedIntervalFactId, verifiedFixesEnabled } from "@cml/cml";
+import { contradictsDirection, deviceContradicts, expectedDirection, falseAndTrueClocks, fixText, repairDeviceDirection } from "./device-direction.js";
 export { stripLeadingArticleFromLockedValue, impliedIntervalFactId };
 
 
@@ -113,6 +114,47 @@ export { stripLeadingArticleFromLockedValue, impliedIntervalFactId };
  * downstream detect it. Until that exists, this makes the defect visible in every run's warnings
  * instead of only in an external reader's score.
  */
+/**
+ * The clock's DIRECTION at source (see ./device-direction.ts for the measurement). With CML_VERIFIED_FIXES on: the
+ * locked false/true times decide whether the clock was set forward or back, and the device's prose fields and the
+ * registry's fact descriptions are rewritten to say so. Asserted like X38 (the X64/X65 lesson): if a clock sentence
+ * still contradicts after the rewrite, everything goes back and the run keeps a warning.
+ */
+export function reconcileDeviceDirection(ctx: OrchestratorContext): void {
+  if (!verifiedFixesEnabled()) return;
+  const registry = ctx.lockedFactRegistry ?? [];
+  const pair = falseAndTrueClocks(registry, parseClockTime);
+  if (!pair) return;
+  const want = expectedDirection(pair.shown, pair.truth);
+  if (!want) return;
+  const device = (ctx.hardLogicDevices as { devices?: Array<Record<string, unknown>> } | undefined)?.devices?.[0];
+  if (!device) return;
+  const deviceBefore = JSON.stringify(device);
+  const descriptionsBefore = registry.map((f) => f.description);
+  const changed = repairDeviceDirection(device, want);
+  let registryChanged = 0;
+  for (const f of registry) {
+    if (typeof f.description !== "string") continue;
+    const fixed = fixText(f.description, want);
+    if (fixed !== f.description) { f.description = fixed; registryChanged++; }
+  }
+  if (changed.length === 0 && registryChanged === 0) return;
+  const stillWrong = deviceContradicts(device, want)
+    || registry.some((f) => typeof f.description === "string" && contradictsDirection(f.description, want));
+  if (stillWrong) {
+    const restored = JSON.parse(deviceBefore) as Record<string, unknown>;
+    for (const k of Object.keys(device)) delete device[k];
+    Object.assign(device, restored);
+    registry.forEach((f, i) => { f.description = descriptionsBefore[i]; });
+    ctx.warnings.push(`[clock direction] the device's direction words contradict its times (shows ${pair.shownText}, true ${pair.truthText} — set ${want}) and the rewrite did not clear them; kept as written.`);
+    return;
+  }
+  ctx.warnings.push(
+    `[clock direction] repaired at source: the clock shows ${pair.shownText} against a true ${pair.truthText}, so it was set ${want}; `
+      + `${changed.length} device field(s) and ${registryChanged} fact description(s) said otherwise — ${changed.slice(0, 2).join("; ")}`,
+  );
+}
+
 export function reportCaseTemporalCoherence(ctx: OrchestratorContext): void {
   const registry = ctx.lockedFactRegistry ?? [];
   if (registry.length < 2) return;
@@ -483,6 +525,7 @@ export async function buildLockedFactRegistryPhase(ctx: OrchestratorContext, set
       // X38-at-source: reconcile before the artifact is written, so locked-facts-{runId}.json records
       // the values the run actually used rather than the ones it was about to repair.
       reconcileDeviceArithmetic(ctx);
+      reconcileDeviceDirection(ctx);
     };
 
     buildRegistryFromPrimaryDevice();

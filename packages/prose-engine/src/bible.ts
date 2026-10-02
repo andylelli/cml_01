@@ -35,6 +35,7 @@
 import type { Bible, BibleSectionKey, ContractCore, ContractInput } from "./types.js";
 import { humourMove } from "./humour-move.js";
 import { verifiedFixesEnabled } from "@cml/cml";
+import { fragmentObservable } from "./clue-shape.js";
 
 /**
  * The same arithmetic as v1's `estimateTokenCount` (`prompt-builder.ts:1496`), deliberately
@@ -329,8 +330,10 @@ const cluesSection = (core: ContractCore): string[] => {
   const lines: string[] = [];
   for (const scene of core.scenes) {
     for (const surface of scene.mustSurface) {
-      const observable = surface.observable || surface.keyTerms.join(", ");
-      if (!observable) continue;
+      const raw = surface.observable || surface.keyTerms.join(", ");
+      if (!raw) continue;
+      // Clue copying (see ./clue-shape.ts): with CML_VERIFIED_FIXES on, a long observable is given as fragments.
+      const observable = verifiedFixesEnabled() ? fragmentObservable(raw) : raw;
       const unlocked = surface.unlockedBy ? ` — ${surface.unlockedBy.name} reads it because they know ${surface.unlockedBy.skill}` : "";
       lines.push(`  [${surface.id}] chapter ${scene.chapter}: ${observable}${unlocked}`);
     }
