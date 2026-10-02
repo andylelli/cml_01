@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 185 | 138 | 70 | 393 |
-| open | 5 | 1 | 2 | 8 |
+| closed | 187 | 138 | 71 | 396 |
+| open | 3 | 1 | 1 | 5 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -32,7 +32,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-13 | 12 | 12 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 11 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
-| CR-16 | 25 | 23 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
+| CR-16 | 25 | 25 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
 | CR-17 | 28 | 28 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
 | CR-18 | 23 | 23 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
 | CR-19 | 7 | 7 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
@@ -44,7 +44,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-25 | 9 | 9 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
 | CR-26 | 7 | 7 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
 | CR-27 | 14 | 14 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
-| CR-28 | 19 | 18 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
+| CR-28 | 19 | 19 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
 | CR-29 | 20 | 20 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
 | CR-30 | 21 | 21 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
 | CR-31 | 27 | 27 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
@@ -59,7 +59,6 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | CR | Key | Question | Answer |
 |---|---|---|---|
 | CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
-| CR-16 | A5-Q07 | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? | DECIDED (timing): promote @cml/clue-spec behind a flag after the A7-Q05 read; meanwhile the shadow reports uncovered slots |
 
 ## 01-agent9-worker
 
@@ -271,7 +270,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-12 | P2 | R1 | CR-25 | done | a2a0615c | WeakMap memos keyed on a CML that is mutated in place | DECIDED: compute fresh — with CML_VERIFIED_FIXES on, the four WeakMap memos are bypassed |
 | A5-13 | P2 | R0 | CR-08 | done | 5662ca4c 094de134 | Dead and vestigial code (compiler-proven and verified by grep) | WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16) |
 | A5-14 | P2 | R0/R1 | CR-31 | done | ecb12773 | Vocabulary and tokenizer zoo (escape ×2, elimination regex ×3, step-from-path ×4, clue-id regex ×6) | CANONICAL_CLUE_ID_RE and escapeRegExp once in @cml/cml |
-| A5-15 | P2 | R2 | CR-16 | wip | a2a0615c | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations | shadow now logs uncovered ClueSpec slots (clue-contracts/clue-spec-shadow.ts); promotion to the prompt waits on the A7-Q05 read (recommendation) |
+| A5-15 | P2 | R2 | CR-16 | done | f40aa14c | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations | behind AGENT5_CLUE_SPEC_CHECKLIST (OFF): the checklist is a projection of deriveClueSpec; ON drops 4 of today's requirements — weigh before its read |
 | A5-16 | P3 | R2 | CR-28 | done | 46ae2c05 | Stable prompt text sits after volatile CML text (prefix caching) | behind CML_PROMPT_TRIMS: static sections first — cache-stable prefix 455→5,517 chars |
 | A5-17 | P3 | — | **—** | withdrawn |  | CPU: memo caches and O(n²) scans are negligible against LLM latency | CPU is not a lever (README §3) |
 | A5-D01 |  |  | CR-06 | done | pre-audit | AM/PM guard dead since 2026-08-21 — HIGH, MEASURED. agent5-run.ts:1971 contains literal 0x08 backspace | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |
@@ -290,7 +289,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-Q04 |  |  | CR-16 | done | a2a0615c | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? | DECIDED: a targeted red-herring top-up after separation, behind AGENT5_RED_HERRING_TOPUP (OFF); the evidence: red herrings are lost to deterministic pruning, not the model (6 of 61 projects) |
 | A5-Q05 |  |  | CR-16 | done | ec9904b2 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? | DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs) |
 | A5-Q06 |  |  | CR-30 | done | 4bd53121 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode | DECIDED (decision 12, CR-30): AGENT5_ENABLE_LLM_RETRIES and its six branches retired (-368 lines); red-herring floor stays |
-| A5-Q07 |  |  | CR-16 | wip | a2a0615c | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? | DECIDED (timing): promote @cml/clue-spec behind a flag after the A7-Q05 read; meanwhile the shadow reports uncovered slots |
+| A5-Q07 |  |  | CR-16 | done | f40aa14c | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? | DECIDED (owner: best judgement): built behind its own OFF flag now; its paid read is separate from the batch pair |
 
 ## 07-agent6-fairplay-worldbuilder
 
@@ -312,7 +311,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 094de134 3d63527f | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) | Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign) |
 | A6-15 | P2 | R2 (report-only) | CR-33 | done | 6f233c91 | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) | the post-revision parity-bridge injection is persistent-risk (the backstop already was) |
 | A6-16 | P3 | R2 | CR-34 | withdrawn | a2a0615c | LLM calls a deterministic check could avoid; independent calls made in sequence | MOOT: the provisional audit and the retry-arm concurrency went with Agent 6's retry arm (A6-Q01) |
-| A6-17 | P3 | R2 | CR-28 | deferred |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it | DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built |
+| A6-17 | P3 | R2 | CR-28 | done | f40aa14c | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it | behind CML_PROMPT_TRIMS: compact JSON + config word count + other agents' instructions dropped; the solution half KEPT (the reveal draws on it: 394 archived phrase hits) |
 | A6-18 | P3 | R0/R1 | CR-13 | done | 0ca80a5f | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade | typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client |
 | A6-19 | P3 | R0/R2 | CR-31 | done | 55448eb5 | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge | Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy) |
 | A6-D01 |  |  | CR-19 | done | 03c4f5d3 | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts — SUPERSEDED 2026-10-02: the meter and its test went with Agent 6's retry arm (A6-Q01, a2a0615c); no retry budget remains to charge |

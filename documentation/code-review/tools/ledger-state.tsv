@@ -180,7 +180,7 @@ A5-11	CR-29	done	55448eb5	behind CML_VERIFIED_FIXES: every Agent 5 regeneration 
 A5-12	CR-25	done	a2a0615c	DECIDED: compute fresh — with CML_VERIFIED_FIXES on, the four WeakMap memos are bypassed
 A5-13	CR-08	done	5662ca4c 094de134	WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16)
 A5-14	CR-31	done	ecb12773	CANONICAL_CLUE_ID_RE and escapeRegExp once in @cml/cml
-A5-15	CR-16	wip	a2a0615c	shadow now logs uncovered ClueSpec slots (clue-contracts/clue-spec-shadow.ts); promotion to the prompt waits on the A7-Q05 read (recommendation)
+A5-15	CR-16	done	f40aa14c	behind AGENT5_CLUE_SPEC_CHECKLIST (OFF): the checklist is a projection of deriveClueSpec; ON drops 4 of today's requirements — weigh before its read
 A5-16	CR-28	done	46ae2c05	behind CML_PROMPT_TRIMS: static sections first — cache-stable prefix 455→5,517 chars
 A5-17		withdrawn		CPU is not a lever (README §3)
 A5-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
@@ -199,7 +199,7 @@ A5-Q03	CR-28	done	46ae2c05	DECIDED (owner: best judgement): drop the unread fiel
 A5-Q04	CR-16	done	a2a0615c	DECIDED: a targeted red-herring top-up after separation, behind AGENT5_RED_HERRING_TOPUP (OFF); the evidence: red herrings are lost to deterministic pruning, not the model (6 of 61 projects)
 A5-Q05	CR-16	done	ec9904b2	DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs)
 A5-Q06	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): AGENT5_ENABLE_LLM_RETRIES and its six branches retired (-368 lines); red-herring floor stays
-A5-Q07	CR-16	wip	a2a0615c	DECIDED (timing): promote @cml/clue-spec behind a flag after the A7-Q05 read; meanwhile the shadow reports uncovered slots
+A5-Q07	CR-16	done	f40aa14c	DECIDED (owner: best judgement): built behind its own OFF flag now; its paid read is separate from the batch pair
 A6-01	CR-25	done	71c3fdab	runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue)
 A6-02	CR-29	done	55448eb5	failure-derived phrases first (≤8), then the contract lines, cap 16 — on the retries-on arm only
 A6-03	CR-29	done	55448eb5	outer half moot (decision 7) and dead branch deleted (4bd53121); inner retry text classified behind CML_VERIFIED_FIXES
@@ -216,7 +216,7 @@ A6-13	CR-25	done	cee74c9d	WP6A tests the production function; structural audit g
 A6-14	CR-08	done	3295ad4e 094de134 3d63527f	Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign)
 A6-15	CR-33	done	6f233c91	the post-revision parity-bridge injection is persistent-risk (the backstop already was)
 A6-16	CR-34	withdrawn	a2a0615c	MOOT: the provisional audit and the retry-arm concurrency went with Agent 6's retry arm (A6-Q01)
-A6-17	CR-28	deferred		DEFERRED (decision 12, CR-28): the recommendation gated CR-28 on STORY TO DATE (A9P-Q01), which went with v1. What remains trims prompts of non-prose agents — prose is ~70% of a book's prompt bill — and changes their prompt text on every run, so each needs a paid probe (ADR-0011); recorded, not built
+A6-17	CR-28	done	f40aa14c	behind CML_PROMPT_TRIMS: compact JSON + config word count + other agents' instructions dropped; the solution half KEPT (the reveal draws on it: 394 archived phrase hits)
 A6-18	CR-13	done	0ca80a5f	typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client
 A6-19	CR-31	done	55448eb5	Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy)
 A6-D01	CR-19	done	03c4f5d3	DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts — SUPERSEDED 2026-10-02: the meter and its test went with Agent 6's retry arm (A6-Q01, a2a0615c); no retry budget remains to charge
