@@ -191,3 +191,38 @@ phases failed threshold` (Agent 3 82, Agent 7 70).
 **Do not send this book to a reader:** its SHIP-CHECK is WORTH A LOOK — 156 repeated 6-word spans, 125.1 per 10k,
 7.2× the corpus median ("quarter to six in the evening" ×25). One scene-ref join fell back to keywords (5/21
 unresolved); no prose chapter was forced to a deterministic fallback.
+
+## The batch read — matched pair, seed 82094 (2026-10-02)
+
+Spatial (the axis rule: spatial had 0–1 reads) · 1950s · CountryHouse · Cozy · short · private detective · classic ·
+cast 6 (Adela Halloway, Cecil Thorne, Harriet Bellamy, Ivor Yardley, Marguerite Selwyn, Ottoline Fairweather) · angle
+"a circus wintering in a market town". The novelty ledger was snapshotted before OFF and restored before ON (both
+halves saw the same history; the OFF entry was merged back afterwards). `CML_IDENTITY_ROLE_WINS` off in both.
+
+| | OFF `mystery-1790960614933` | ON `mystery-1790962241800` (`CML_VERIFIED_FIXES=1 AGENT5_RED_HERRING_TOPUP=1 CML_PROMPT_TRIMS=1`) |
+|---|---|---|
+| Completed · gate | 10 ch · **warning** (7 classes) · run_outcome passed | 10 ch · **warning** (4 classes) · run_outcome passed |
+| Cost (run-cost-audit) | £0.95 | £0.93 |
+| Agent 7 case summary | "**Victim**: Unknown", "Unknown motive" | "**Victim**: Cecil Thorne", "**Motive**: Victim refused to approve contract renewal for circus" |
+| Agent 5 first prompt | ~7,507 tokens | ~6,430 tokens (−1,077) |
+| Cache hit (run) | 48% | 48% |
+| SHIP-CHECK | Normal (0.0 per 10k) | Normal (1.5 per 10k) |
+| Agent 3 phase | 99 | 82 — fails "Discriminating test" (see below) |
+| `[identity-disagree]` | 2 | 1 |
+| Red-herring top-up | — | did not fire (2 survived separation) |
+
+**Predictions:** both complete with a real gate verdict — **pass** (the v2 gate fix works live); Agent 7 names the
+victim only ON — **pass**; Agent 5 ~675 tokens shorter — **pass** (−1,077); cost ON ≤ OFF — **pass**; identity counter
+0 — **fail** (see below); top-up fires only on a deficit — **not exercised**.
+
+**Found:** (1) ON's Agent 3 phase failed in 2 of 2 ON runs (seeds 5670, 82094) on `discriminating_test missing
+evidence_clues` — A34-D11 tells Agent 3 to leave them empty (its skeleton's own instruction) and the honest scorer still
+required them. Fixed: under the flag the scorer accepts an empty list (report-only; Agent 5's contracts still require the
+ids). (2) The identity counter fired 3× across the pair, all at `agent2.victim`: the model marked TWO members
+`role: victim` before normalisation (Cecil, the real victim, and Ivor, a suspect); the old archetype test resolved it to
+Cecil, the unified predicate would call both victims. **Decision 2's flip stays OFF** — it would change who Agent 2 keeps
+as the victim.
+
+**Verdict (owner delegated, best judgement):** `CML_VERIFIED_FIXES=1` and `CML_PROMPT_TRIMS=1` set in `.env.local`
+(backup `.env.local.bak-20261002-batch`); the flags stay in code, so one line reverts. `AGENT5_RED_HERRING_TOPUP` stays
+OFF (no evidence). A single pair settles crashes and outcomes, not a mark.

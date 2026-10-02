@@ -1,0 +1,24 @@
+{
+  "seed": 82094,
+  "runId": "mystery-1790960614933",
+  "projectId": "canary_1790960614931",
+  "primaryAxis": "spatial",
+  "storyAngle": "a circus wintering in a market town",
+  "targetLength": "short",
+  "eraPreference": "1950s",
+  "locationPreset": "CountryHouse",
+  "tone": "Cozy",
+  "detectiveType": "private",
+  "narrativeStyle": "classic",
+  "humourLevel": "classic",
+  "castSize": 6,
+  "castNames": [
+    "Adela Halloway",
+    "Cecil Thorne",
+    "Harriet Bellamy",
+    "Ivor Yardley",
+    "Marguerite Selwyn",
+    "Ottoline Fairweather"
+  ],
+  "generatedAt": "2026-10-02T17:30:22.269Z"
+}

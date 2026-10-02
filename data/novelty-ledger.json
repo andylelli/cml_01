@@ -2087,6 +2087,34 @@
       "discrimDesign": "A controlled comparison is staged between the theatre foyer clock and an independent accurate timepiece, demonstrating the fifteen-minute advancement caused by tampering. Witnesses are questioned about their reliance on the theatre clock, exposing contradictions in their timelines. The clock's mechanical winding marks are examined in front of all to prove recent adjustment, forcing Kenneth Ingram to admit his manipulation.",
       "premise": "Prudence Merrow, a beloved actress in a historic London theatre, is found stabbed backstage. Witnesses report seeing the murder occur around quarter to six in the evening, based on the theatre's grand foyer clock. However, the victim's personal watch stopped exactly at six o'clock. Detective Ambrose Dunmore uncovers a mechanical deception: the theatre clock was wound forward by fifteen minutes shortly after the murder, fabricating an alibi for the culprit. The investigation reveals tampering with the clock's mechanism and forged schedule announcements, exposing the killer who exploited the false timeline.",
       "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1790962241800",
+      "title": "The Rotating Wall at Halloway Manor",
+      "era": "1950s",
+      "location": "Halloway Manor",
+      "crimeSubtype": "stabbing with a letter opener",
+      "deathMethod": "stabbed with a letter opener, to the heart",
+      "axis": "spatial",
+      "falseAssumption": "The victim’s room was completely sealed with no possible entry or exit during the murder, as indicated by the locked door and barred windows.",
+      "discrimMethod": "trap",
+      "discrimDesign": "Recreate the victim’s room locking and carpet layout, then physically rotate the wall panel through its full ninety-degree motion to demonstrate that the hidden servant corridor aligns exactly at the pivot point. Measure the carpet wear length and verify it matches the panel’s pivot path. Simultaneously, reset the victim’s clock to quarter past nine, then observe that the actual time of death must have occurred later, invalidating suspects’ alibis relying on the false clock time.",
+      "premise": "Cecil Thorne, the estate trustee, is found stabbed in his locked room at Halloway Manor during a cold winter evening while a circus troupe winters on the estate grounds. The room is locked from inside with no apparent entry or exit possible. The initial assumption is that the murder must have happened inside the locked room without outside interference. Suspicion falls on several members of the manor and circus community who had motives and opportunity, but all claim alibis that seem to place them outside the victim's room during the murder time. The mystery revolves around the seeming impossibility of the murderer's presence inside the locked room and their subsequent disappearance.",
+      "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1790960614933",
+      "title": "The Mirror's Deceit at Halloway Manor",
+      "era": "1950s",
+      "location": "Halloway Manor",
+      "crimeSubtype": "stabbed with a hunting knife, to the heart",
+      "deathMethod": "stabbed with a hunting knife, to the heart",
+      "axis": "spatial",
+      "falseAssumption": "The corridor outside Cecil Thorne's room was empty and impassable, making it impossible for anyone to enter or exit during the murder timeframe.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "The discriminating test compares corridor, mirror, and outline against the claimed timeline.",
+      "premise": "During a chilly winter at Halloway Manor, Cecil Thorne was found stabbed in his locked room. The corridor outside appeared deserted and impassable, with no footprints or dust disturbance, suggesting no one could have entered or left. Suspicion fell on several estate and circus members, but the discovery of a concealed alcove behind an angled mirror revealed a hidden passage. Ottoline Fairweather, the head gardener, exploited this spatial illusion to commit the murder, concealing her movements behind the mirror's reflection and manipulating perceptions of access. A carefully staged test reveals the truth, exposing the killer despite the apparent locked-room scenario.",
+      "mechanismFamily": "locked_room_key"
     }
   ]
 }

@@ -819,6 +819,14 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "15d908aa482217ef",
     "warnings": [],
   },
+  "canary_1790960614931_cast_1473": {
+    "cast": "fefdc7d57910384b",
+    "warnings": [],
+  },
+  "canary_1790962241799_cast_1487": {
+    "cast": "83450fe4d3184272",
+    "warnings": [],
+  },
   "proj_cdad5315-bd36-499f-81f9-1f327f4d444a_cast_1427": {
     "cast": "3310b6b6299411ea",
     "warnings": [],
