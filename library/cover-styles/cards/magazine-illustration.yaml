@@ -13,9 +13,9 @@ palettes:
   - { name: cobalt,   inks: ["#2340a8", "#e9b84a", "#f07f8f", "#151515", "#f5ead7"] }
   - { name: winter,   inks: ["#3f5d6e", "#f2f0ea", "#b8433a", "#1d1d1d", "#c9c2a6"] }
 composition:
-  - one figure in strict profile or three-quarter back view, cropped at the waist or chest
-  - the background is a flat colour broken by tall vertical stripes (trees, columns, curtains or panelling)
-  - one seasonal or weather motif scattered across the frame (falling leaves, snow, rain, petals)
+  - "the background is one flat colour, broken by tall vertical stripes (trees, columns, curtains or panelling)"
+  - "one seasonal or weather motif is scattered across the frame (falling leaves, snow, rain, petals)"
+  - "generous empty space around the subject"
 motifs: [cloche hat, scarf caught by wind, gloved hand holding an object, falling leaves]
 figure_treatment: elongated neck, small features, closed or lowered eyes, rouged cheek
 type_band: { position: top, style: full-bleed, height: 0.20 }

@@ -102,7 +102,7 @@ onBeforeUnmount(stopPoll);
 				</p>
 			</div>
 			<figcaption v-if="cover?.styles?.length && !painting" class="mt-2 text-[0.72rem] text-ink-faint">
-				{{ cover.styles.join(" + ") }}<span v-if="cover.palette"> · {{ cover.palette }}</span>
+				{{ cover.styles.join(" + ") }}<span v-if="cover.framing"> · {{ cover.framing }}</span><span v-if="cover.palette"> · {{ cover.palette }}</span>
 				<span v-if="cover.anchors?.clue_object" class="block">Shows: {{ cover.anchors.clue_object }}</span>
 			</figcaption>
 		</figure>
@@ -134,8 +134,9 @@ onBeforeUnmount(stopPoll);
 			</p>
 			<p v-if="error" class="text-[0.75rem] leading-snug text-danger">{{ error }}</p>
 			<p class="text-[0.72rem] leading-snug text-ink-faint">
-				The picture is drawn from the opening chapters, with weapons and crime scenes kept off it. The title is
-				lettered separately, so it is always spelled right.
+				Every cover is a fresh draw: style, composition, palette and light change each time, so "Make a new cover"
+				never repeats the last one. The picture is drawn from the opening chapters, with weapons and crime scenes
+				kept off it; the title is lettered separately, so it is always spelled right.
 			</p>
 		</div>
 	</div>

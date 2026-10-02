@@ -712,6 +712,9 @@ export interface CoverInfo {
   style?: string;
   styles?: string[];
   palette?: string;
+  /** What the picture shows and from where — drawn per cover (packages/covers/src/framings.ts). */
+  framing?: string;
+  seed?: number;
   provider?: string;
   model?: string;
   generatedAt?: string;

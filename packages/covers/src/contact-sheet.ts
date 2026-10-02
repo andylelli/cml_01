@@ -12,7 +12,7 @@ export const renderContactSheet = (m: CoverManifest, briefs: CoverBrief[]): stri
         ? `<img src="${esc(r.coverPath)}" alt="${esc(r.briefId)}">`
         : `<div class="empty">${esc(r.error ?? (m.dryRun ? "dry run — brief only" : "no image"))}</div>`;
       const swatches = (b?.inks ?? []).map((c) => `<span style="background:${c}" title="${c}"></span>`).join("");
-      return `<figure>${img}<figcaption><b>${esc(r.styles.join(" + "))}</b> · ${esc(r.palette)} <span class="sw">${swatches}</span>
+      return `<figure>${img}<figcaption><b>${esc(r.styles.join(" + "))}</b> · ${esc(r.framing ?? "")} · ${esc(r.palette)} <span class="sw">${swatches}</span>
 <details><summary>brief</summary><pre>${esc(b?.prompt ?? "")}</pre></details></figcaption></figure>`;
     })
     .join("\n");
@@ -32,7 +32,7 @@ figcaption{padding:10px 12px;font-size:13px} .sw span{display:inline-block;width
 pre{white-space:pre-wrap;font-size:12px;color:var(--mute)}
 </style></head><body>
 <h1>${esc(m.title)}</h1>
-<div class="meta">${m.dryRun ? "DRY RUN · " : ""}${esc(m.generatedAt)} · anchors (${a.source}): ${esc(a.place)} · ${esc(a.time_of_day)}, ${esc(a.season)} · object: ${esc(a.clue_object)} · mood: ${esc(a.mood)}</div>
+<div class="meta">${m.dryRun ? "DRY RUN · " : ""}${esc(m.generatedAt)} · seed ${m.seed} · anchors (${a.source}): ${esc(a.place)} · ${esc(a.time_of_day)}, ${esc(a.season)} · object: ${esc(a.clue_object)} · mood: ${esc(a.mood)}</div>
 <div class="grid">
 ${cards}
 </div></body></html>`;

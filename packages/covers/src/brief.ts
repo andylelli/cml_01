@@ -1,38 +1,52 @@
+import { figureFor } from "./framings.js";
 import type { CoverAnchors, CoverBrief, StoryCoverInput, StyleChoice } from "./types.js";
 
 /**
  * The image prompt, composed from a TEMPLATE — not written by an LLM — so a cover is reproducible from
- * its brief.json and a change in look is attributable to a change in a card (give-a-requirement-a-shape).
+ * its brief.json (anchors + style spec + seed) and a change in look is attributable to a card or a framing.
  *
- * Section order is fixed: subject → composition → mystery modifier → palette → medium → layout → exclusions.
- * The mystery modifier is the same for every card: none of the 15 samples carries menace (§1 of the plan),
- * so it is supplied here as three operations rather than left to the style.
+ * Sections: subject → framing (what/where) → style layout → mystery touches → palette → medium → layout → exclusions.
+ * The framing, touches, light and object come from the seeded draw in resolveStyleChoices; a choice without
+ * them (an old caller) falls back to the original fixed still-life wording.
  */
-export const composeBrief = (input: StoryCoverInput, anchors: CoverAnchors, choice: StyleChoice, index = 0): CoverBrief => {
-  const { primary, secondary, palette } = choice;
-  const compositionCard = secondary ?? primary;
+export const composeBrief = (input: StoryCoverInput, anchors: CoverAnchors, choice: StyleChoice, index = 0, seed?: number): CoverBrief => {
+  const { primary, secondary, palette, framing } = choice;
+  const layoutCard = secondary ?? primary;
+  const obj = choice.object ?? anchors.clue_object;
+  const light = choice.light ?? anchors.time_of_day;
   const bandPct = Math.round(primary.type_band.height * 100);
   const details = anchors.place_details.length ? ` Visible: ${anchors.place_details.join("; ")}.` : "";
   const era = input.era ? ` Everything is consistent with the ${input.era}${anchors.era_details.length ? ` (${anchors.era_details.join("; ")})` : ""}.` : "";
-  const figure = anchors.figure ? ` One figure: ${anchors.figure}; ${primary.figure_treatment}.` : "";
+  const who = framing ? figureFor(framing, anchors) : anchors.figure ?? "";
+  const figureNote = who ? ` People are drawn this way: ${primary.figure_treatment}.` : "";
+
+  const framingLines = framing
+    ? framing.operations({ obj, place: anchors.place, who: who || "a figure in period clothing", light })
+    : [`${obj} sits in the foreground and is the most sharply lit object in the picture`];
+  const touches = choice.touches?.length
+    ? choice.touches
+    : ["one long shadow falls across the scene", "one doorway or window is dark"];
 
   const lines = [
     `Vintage mystery-novel cover illustration, portrait format.`,
-    `SUBJECT: ${anchors.place}, at ${anchors.time_of_day}, ${anchors.season}, ${anchors.weather}.${details}${figure}${era}`,
-    `COMPOSITION: ${compositionCard.composition.join("; ")}.`,
-    `MYSTERY: ${anchors.clue_object} sits in the foreground and is the most sharply lit object in the picture; ` +
-      `one long shadow falls across the scene toward it; one doorway or window is dark. Mood: ${anchors.mood}.`,
-    `MOTIFS (use at most two): ${primary.motifs.join("; ")}.`,
+    `SUBJECT: ${anchors.place}; ${anchors.season}, ${anchors.weather}, in ${light}.${details}${era}${figureNote}`,
+    `FRAMING: ${framingLines.join("; ")}.`,
+    `STYLE LAYOUT: ${layoutCard.composition.join("; ")}.`,
+    `MYSTERY: ${touches.join("; ")}. Mood: ${anchors.mood}.`,
+    `MOTIFS (use at most one): ${layoutCard.motifs.join("; ")}.`,
     `PALETTE: ${primary.palette_rule}. Use only these colours: ${palette.inks.join(", ")}.`,
     `MEDIUM: ${primary.medium}.`,
     `LAYOUT: the top ${bandPct}% of the picture is a plain, calm area of a single flat colour from the palette (open sky, a wall or a dark ground) with nothing important in it — a title will be printed there later. The main subject sits in the lower ${100 - bandPct}%.`,
     `EXCLUDE: ${[...primary.avoid, "words, letters, numbers, signatures, logos or frames of text"].join("; ")}.`,
   ];
   const styles = secondary ? [primary.id, secondary.id] : [primary.id];
+  const framingId = framing?.id ?? "still-life";
   return {
-    id: `${String(index + 1).padStart(2, "0")}-${styles.join("+")}-${palette.name}`,
+    id: `${String(index + 1).padStart(2, "0")}-${styles.join("+")}-${framingId}-${palette.name}`,
     styles,
     palette: palette.name,
+    framing: framingId,
+    seed,
     prompt: lines.join("\n"),
     typeBand: primary.type_band,
     titleFont: primary.title_font,

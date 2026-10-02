@@ -24,6 +24,7 @@
  *   --out <dir>          default temp/covers/out/<story-id>/<timestamp>.
  *   --into-story         also copy the primary cover to <story>/cover.png (what the pipeline does).
  *   --reletter <outDir>  re-typeset an earlier output's art with the current lettering (free).
+ *   --seed <n>           replay a recorded seed (printed on every run, stored in covers.json). Omitted → random.
  *   --yes                skip the paid-call confirmation line (non-interactive use).
  *
  * Env: see packages/covers/src/image-client.ts and llm.ts. CML_COVER_LLM_PROVIDER=anthropic routes the
@@ -115,7 +116,8 @@ if (!dryRun && image.error) {
 // Plan, stated before any paid call (CLAUDE.md: state the parameters first).
 const inputs = storyDirs.map((d) => ({ dir: d, input: { ...covers.readStoryDir(d), author: opt("author") } }));
 let imageCalls = 0;
-for (const { input } of inputs) imageCalls += covers.resolveStyleChoices(styles, cards, input, variants).length;
+// Count only: "auto:N" is N covers whatever the draw, so a throwaway rng is fine here.
+for (const { input } of inputs) imageCalls += covers.resolveStyleChoices(styles, cards, input, variants, Math.random).length;
 console.log(`[covers] ${inputs.length} stor${inputs.length === 1 ? "y" : "ies"} · styles=${styles} · variants=${variants} · ` +
   (dryRun ? "DRY RUN (no image calls)" : `${imageCalls} image call(s) via ${image.client.provider}/${image.client.model} @ ${quality}`) +
   ` · anchors via ${reusedAnchors ? "reused file" : llm.client ? `${llm.provider}/${llm.model}` : "fallback"}`);
@@ -141,6 +143,7 @@ for (const { dir, input } of inputs) {
     dryRun,
     quality,
     anchors: reusedAnchors,
+    seed: opt("seed") !== undefined ? Number(opt("seed")) : undefined,
     llm: llm.client,
     image: image.client,
     cardsDir,

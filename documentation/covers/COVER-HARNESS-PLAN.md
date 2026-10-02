@@ -219,6 +219,14 @@ The first full matrix costs under **£1**, which is less than one book run.
   now split into main + subtitle (`splitTitle`), re-lettered from the saved art with `--reletter` at no cost.
   **Observed, not yet acted on:** every cover repeats one composition — a woman seen from behind, the object in the
   foreground — because the anchors are per story and the brief template fixes the object's position.
+- **BUILT — every cover is a fresh draw (2026-10-02).** One seed per call (random unless `--seed` replays one;
+  recorded in every brief and in `covers.json`) drives: the card (`auto` = weighted random by fit score + 1, not
+  the top card), a blend partner (35% of `auto` covers), the palette, a FRAMING from 10 (`framings.ts`: establishing,
+  still-life, through-doorway, birds-eye, shadow-on-wall, hand-and-object, lit-window-night, portrait-glance,
+  two-figures, reflection — three have no person in them), two of ten mystery touches, the light, and the object
+  (from the anchors' accepted candidates). Cards' `composition` is now style-level only; the framing decides what
+  is shown and from where. Pinned by tests: same seed → identical draw, 200 seeds → all 4 cards, ≥9 framings,
+  blends 20–55%, the best-fit card still most frequent. Two dry runs of `auto:6` on one story: 12 different covers.
 - **MEASURED — first two real covers (2026-10-02, seed story_20261002-1855, gpt-image-2 via OpenAI, medium,
   reused anchors).** Both returned in ~38 s; 1,372 image-output tokens each (~$0.04 each at an ASSUMED $30/M).
   Predictions: (1) API works — YES; (2) top band left calm — YES on both; (3) no weapon, no lettering in the art —

@@ -20,6 +20,9 @@ import {
   listCoverStyles,
   resolveCoverRequest,
   resolveStyleChoices,
+  rankCards,
+  makeRng,
+  FRAMINGS,
   storyInputFromRun,
   typesetCover,
   validateCard,
@@ -51,6 +54,7 @@ const anchors: CoverAnchors = {
   weather: "fog off the marsh",
   season: "autumn",
   clue_object: "a stopped carriage clock",
+  clue_candidates: ["a stopped carriage clock", "a brass door key", "a folded letter"],
   mood: "quiet unease",
   figure: null,
   era_details: ["oil lamps", "a cloche hat on a chair"],
@@ -78,14 +82,35 @@ describe("style cards", () => {
 
 describe("style selection", () => {
   it("a spatial country-house story ranks a poster card first", () => {
-    const [choice] = resolveStyleChoices("auto", cards, input);
-    expect(["flat-travel-poster", "painterly-poster"]).toContain(choice.primary.id);
+    // The RANKING is deterministic; "auto" now draws from it at random (weighted), tested below.
+    expect(rankCards(cards, input)[0].card.id).toBe("flat-travel-poster");
   });
-  it("is deterministic and variants walk the palette list", () => {
-    const a = resolveStyleChoices("flat-travel-poster", cards, input, 3);
-    const b = resolveStyleChoices("flat-travel-poster", cards, input, 3);
-    expect(a.map((c) => c.palette.name)).toEqual(b.map((c) => c.palette.name));
-    expect(new Set(a.map((c) => c.palette.name)).size).toBe(3);
+  const sig = (cs: ReturnType<typeof resolveStyleChoices>) =>
+    cs.map((c) => [c.primary.id, c.secondary?.id, c.palette.name, c.framing?.id, c.light, c.object, ...(c.touches ?? [])].join("|"));
+  it("the same seed reproduces a draw exactly; a different seed changes it", () => {
+    const a = resolveStyleChoices("auto:3", cards, input, 1, makeRng(42), anchors);
+    const b = resolveStyleChoices("auto:3", cards, input, 1, makeRng(42), anchors);
+    const c = resolveStyleChoices("auto:3", cards, input, 1, makeRng(43), anchors);
+    expect(sig(a)).toEqual(sig(b));
+    expect(sig(c)).not.toEqual(sig(a));
+  });
+  it("variants of one card get distinct palettes and distinct framings", () => {
+    const v = resolveStyleChoices("flat-travel-poster", cards, input, 3, makeRng(7), anchors);
+    expect(new Set(v.map((c) => c.palette.name)).size).toBe(3);
+    expect(new Set(v.map((c) => c.framing?.id)).size).toBe(3);
+  });
+  it("over many runs, auto varies card, framing and blend — and still favours the best fit", () => {
+    const draws = Array.from({ length: 200 }, (_, i) => resolveStyleChoices("auto", cards, input, 1, makeRng(i + 1), anchors)[0]);
+    const cardCounts = new Map<string, number>();
+    for (const d of draws) cardCounts.set(d.primary.id, (cardCounts.get(d.primary.id) ?? 0) + 1);
+    expect(cardCounts.size).toBe(4);
+    const best = [...cardCounts.entries()].sort((x, y) => y[1] - x[1])[0][0];
+    expect(best).toBe("flat-travel-poster"); // the top-scoring card for a spatial country house
+    expect(new Set(draws.map((d) => d.framing?.id)).size).toBeGreaterThanOrEqual(9);
+    const blends = draws.filter((d) => d.secondary).length;
+    expect(blends).toBeGreaterThan(40);
+    expect(blends).toBeLessThan(110);
+    expect(new Set(draws.map((d) => d.object))).toEqual(new Set(anchors.clue_candidates));
   });
   it("parses blends and lists, and names unknown styles", () => {
     const [blend] = resolveStyleChoices("deco-portrait+flat-travel-poster", cards, input);
@@ -141,15 +166,26 @@ describe("anchors", () => {
 });
 
 describe("brief", () => {
-  it("is built from the template: subject, clue object, inks, reserved band, exclusions", () => {
-    const [choice] = resolveStyleChoices("flat-travel-poster", cards, input);
-    const b = composeBrief(input, anchors, choice);
-    expect(b.prompt).toContain("a stopped carriage clock sits in the foreground");
+  it("is built from the template: subject, framing, object, inks, reserved band, exclusions", () => {
+    const [choice] = resolveStyleChoices("flat-travel-poster", cards, input, 1, makeRng(3), anchors);
+    const b = composeBrief(input, anchors, choice, 0, 3);
+    expect(b.prompt).toMatch(/FRAMING: /);
+    expect(b.prompt).toContain(choice.object!);
+    expect(b.seed).toBe(3);
+    expect(b.id).toContain(choice.framing!.id);
     expect(b.prompt).toContain("top 24%");
     for (const ink of choice.palette.inks) expect(b.prompt).toContain(ink);
     expect(b.prompt).toMatch(/EXCLUDE:.*words, letters/);
     expect(b.prompt).toContain("1930s");
     expect(b.prompt).not.toMatch(/in the style of/i);
+  });
+  it("a framing with no figure puts no person in the brief", () => {
+    const shadow = FRAMINGS.find((f) => f.id === "shadow-on-wall")!;
+    const [choice] = resolveStyleChoices("deco-portrait", cards, input, 1, makeRng(1), { ...anchors, figure: "a woman in a grey suit" });
+    const b = composeBrief(input, { ...anchors, figure: "a woman in a grey suit" }, { ...choice, framing: shadow });
+    expect(b.prompt).not.toContain("a woman in a grey suit");
+    expect(b.prompt).not.toContain("People are drawn this way");
+    expect(b.prompt).toContain("NOT in the picture");
   });
   it("a blend takes composition from the second card", () => {
     const [choice] = resolveStyleChoices("magazine-illustration+flat-travel-poster", cards, input);
@@ -250,6 +286,17 @@ describe("generateCovers", () => {
     expect(m.primary).toBeUndefined();
     for (const f of ["anchors.json", "covers.json", "index.html", m.covers[0].briefPath]) expect(existsSync(join(out, f))).toBe(true);
   });
+  it("records the seed; an unseeded rerun draws differently, a seeded rerun identically", async () => {
+    const run = (dir: string, seed?: number) =>
+      generateCovers({ input, outDir: join(tmp, dir), styles: "auto:3", dryRun: true, anchors, cardsDir: CARDS, seed });
+    const a = await run("s1");
+    const b = await run("s2");
+    const c = await run("s3", a.seed);
+    const ids = (m: Awaited<ReturnType<typeof run>>) => m.covers.map((x) => x.briefId).join(",");
+    expect(typeof a.seed).toBe("number");
+    expect(a.seed).not.toBe(b.seed);
+    expect(ids(c)).toBe(ids(a));
+  });
   it("records one failed image and still ships the others, primary = first success", async () => {
     const out = join(tmp, "live");
     let n = 0;
@@ -301,5 +348,15 @@ describe("runCoverPostPass", () => {
   });
   it("lists styles for the UI", () => {
     expect(listCoverStyles(CARDS).map((s) => s.id)).toContain("deco-portrait");
+  });
+});
+
+describe("framing light", () => {
+  it("a framing that fixes the time of day overrides the random light", () => {
+    for (let i = 1; i <= 60; i++) {
+      for (const c of resolveStyleChoices("all", cards, input, 1, makeRng(i), anchors)) {
+        if (c.framing?.id === "lit-window-night") expect(c.light).toBe("moonlight and one lamp");
+      }
+    }
   });
 });

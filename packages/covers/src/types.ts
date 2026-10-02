@@ -63,8 +63,10 @@ export interface CoverAnchors {
   time_of_day: string;
   weather: string;
   season: string;
-  /** One object that appears in the opening chapters and can be drawn. */
+  /** One object that appears in the opening chapters and can be drawn (the first accepted candidate). */
   clue_object: string;
+  /** Every candidate that passed the crime filter — a cover draws one at random. Older anchors files lack it. */
+  clue_candidates?: string[];
   mood: string;
   /** A figure seen in the opening, described without a name, or null. */
   figure: string | null;
@@ -75,17 +77,28 @@ export interface CoverAnchors {
   source: "llm" | "fallback";
 }
 
-/** A style choice: one card, or a blend (palette + medium from `primary`, composition from `secondary`). */
+/**
+ * One cover's draw: a card or a blend (palette + medium from `primary`, layout + motifs from `secondary`), plus
+ * the framing (what/where), two mystery touches, the light and the object — all from one seeded rng.
+ */
 export interface StyleChoice {
   primary: StyleCard;
   secondary?: StyleCard;
   palette: Palette;
+  framing?: import("./framings.js").Framing;
+  touches?: string[];
+  light?: string;
+  /** One of the anchors' accepted objects. */
+  object?: string;
 }
 
 export interface CoverBrief {
   id: string;
   styles: string[];
   palette: string;
+  framing: string;
+  /** The rng seed for the whole call — pass it back (`--seed`) to reproduce these covers. */
+  seed?: number;
   prompt: string;
   typeBand: TypeBand;
   titleFont: string;
@@ -128,6 +141,7 @@ export interface CoverRecord {
   briefId: string;
   styles: string[];
   palette: string;
+  framing?: string;
   briefPath: string;
   artPath?: string;
   coverPath?: string;
@@ -139,6 +153,8 @@ export interface CoverManifest {
   title: string;
   generatedAt: string;
   dryRun: boolean;
+  /** Reproduce with the same anchors + style spec + this seed. */
+  seed: number;
   anchors: CoverAnchors;
   covers: CoverRecord[];
   /** The cover the pipeline treats as THE cover (first successful), relative to the out dir. */

@@ -90,7 +90,8 @@ export const parseAnchors = (raw: string): CoverAnchors => {
   const candidates = [...list(o.clue_objects, 5), str(o.clue_object)].filter(Boolean);
   if (!place || candidates.length === 0) throw new Error("anchor reply missing place or clue_objects");
   const rejected = candidates.filter((c) => CRIME_OBJECT_RE.test(c));
-  const clue = candidates.find((c) => !CRIME_OBJECT_RE.test(c)) ?? "a single lit oil lamp";
+  const accepted = candidates.filter((c) => !CRIME_OBJECT_RE.test(c));
+  const clue = accepted[0] ?? "a single lit oil lamp";
   if (CRIME_PLACE_RE.test(place)) {
     rejected.push(place);
     // "the victim's bedroom in a country manor" → "a country manor": keep the building, drop the room.
@@ -106,6 +107,7 @@ export const parseAnchors = (raw: string): CoverAnchors => {
     weather: str(o.weather, 60) || "still air",
     season: ONE_OF(str(o.season), ["spring", "summer", "autumn", "winter"], "autumn"),
     clue_object: clue,
+    clue_candidates: accepted.length ? accepted : [clue],
     mood: str(o.mood, 60) || "quiet unease",
     figure: figure && figure.toLowerCase() !== "null" ? figure : null,
     era_details: list(o.era_details, 2),

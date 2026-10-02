@@ -12,9 +12,9 @@ palettes:
   - { name: teal,     inks: ["#2f7f86", "#0e1a20", "#d6a94a", "#f2ead8", "#9cc7c3"] }
   - { name: oxblood,  inks: ["#6e1420", "#1b1b2a", "#d1a44a", "#f1e3d0", "#2c4a6b"] }
 composition:
-  - one figure, head-and-shoulders or three-quarter length, turned in profile or three-quarter view
-  - a sunburst, arch or stepped geometric frame behind the figure
-  - the figure looks away from the viewer, toward something out of frame
+  - "a sunburst, arch or stepped geometric frame sits behind the main subject"
+  - "strong symmetry or a single bold curve organises the picture"
+  - "colour planes are separated by thin gold lines"
 motifs: [sunburst rays, stepped arches, pearls or beads, feathers, a cigarette holder or glove]
 figure_treatment: elongated stylised features, closed or heavy-lidded eyes, no photographic skin detail
 type_band: { position: top, style: full-bleed, height: 0.22 }

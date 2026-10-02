@@ -5,6 +5,7 @@ import { composeBrief } from "./brief.js";
 import { loadStyleCards, resolveCardsDir } from "./cards.js";
 import { renderContactSheet } from "./contact-sheet.js";
 import { resolveImageQuality } from "./image-client.js";
+import { makeRng, randomSeed } from "./framings.js";
 import { resolveStyleChoices } from "./select.js";
 import { typesetCover } from "./typeset.js";
 import type {
@@ -37,6 +38,8 @@ export interface GenerateCoversOptions {
   logContext?: { runId: string; projectId: string };
   /** Parallel image calls. Default 3. */
   concurrency?: number;
+  /** Replay a recorded seed. Omitted → a fresh random seed, so every run differs. */
+  seed?: number;
   log?: (line: string) => void;
 }
 
@@ -63,14 +66,19 @@ export const generateCovers = async (opts: GenerateCoversOptions): Promise<Cover
   writeFileSync(join(opts.outDir, "anchors.json"), JSON.stringify(anchors, null, 2));
   log(`[covers] anchors (${anchors.source}): ${anchors.place} · object: ${anchors.clue_object}`);
 
-  const choices = resolveStyleChoices(opts.styles ?? "auto", cards, opts.input, opts.variants ?? 1);
-  const briefs = choices.map((c, i) => composeBrief(opts.input, anchors!, c, i));
+  // One seed per call: a fresh one unless the caller replays one, so every run makes different covers and
+  // any cover can be reproduced from the seed recorded in its brief and in covers.json.
+  const seed = (opts.seed ?? randomSeed()) >>> 0;
+  const rng = makeRng(seed);
+  log(`[covers] seed ${seed}`);
+  const choices = resolveStyleChoices(opts.styles ?? "auto", cards, opts.input, opts.variants ?? 1, rng, anchors);
+  const briefs = choices.map((c, i) => composeBrief(opts.input, anchors!, c, i, seed));
   const quality = opts.quality ?? resolveImageQuality();
 
   const records: CoverRecord[] = briefs.map((b) => {
     const briefPath = join(opts.outDir, `brief-${b.id}.json`);
     writeFileSync(briefPath, JSON.stringify({ ...b, size: IMAGE_SIZE, quality, title: opts.input.title }, null, 2));
-    return { briefId: b.id, styles: b.styles, palette: b.palette, briefPath: relative(opts.outDir, briefPath) };
+    return { briefId: b.id, styles: b.styles, palette: b.palette, framing: b.framing, briefPath: relative(opts.outDir, briefPath) };
   });
 
   if (!opts.dryRun) {
@@ -120,6 +128,7 @@ export const generateCovers = async (opts: GenerateCoversOptions): Promise<Cover
     title: opts.input.title,
     generatedAt: new Date().toISOString(),
     dryRun: !!opts.dryRun,
+    seed,
     anchors,
     covers: records,
     primary: first ? "cover.png" : undefined,

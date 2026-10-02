@@ -74,6 +74,8 @@ export const startCover = async (repo: Repo, a: StartCoverArgs): Promise<CoverPo
           style: a.style,
           styles: chosen?.styles ?? [],
           palette: chosen?.palette,
+          framing: chosen?.framing,
+          seed: r.manifest?.seed,
           anchors: r.manifest?.anchors,
           provider: r.provider,
           model: r.model,

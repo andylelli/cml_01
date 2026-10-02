@@ -22,6 +22,8 @@ export interface CoverPostPassArgs {
   logContext?: { runId: string; projectId: string };
   env?: NodeJS.ProcessEnv;
   log?: (line: string) => void;
+  /** Replay a recorded seed; omitted → a fresh one, so every run's cover differs. */
+  seed?: number;
   /** Test seams; production builds both from env. */
   image?: ImageClient;
   llm?: CoverChatClient;
@@ -58,6 +60,7 @@ export const runCoverPostPass = async (args: CoverPostPassArgs): Promise<CoverPo
       outDir,
       styles: args.style,
       variants: args.variants ?? 1,
+      seed: args.seed,
       llm: llm.client,
       image: image.client,
       logContext: args.logContext,
