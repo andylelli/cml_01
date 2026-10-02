@@ -20,6 +20,8 @@ import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { registerNarrationRoutes } from "./narration.js";
 import { registerRunRoute } from "./run-route.js";
+import { registerCoverRoutes, startCover } from "./covers.js";
+import { resolveCoverRequest } from "@cml/covers";
 
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"] as const);
 
@@ -887,8 +889,12 @@ const runPipeline = async (
     const sanitizedProse = sanitizeProsePayload(result.prose as unknown as Record<string, unknown>);
     await repo.createArtifact(projectId, `prose_${inputs.targetLength}`, sanitizedProse, null);
     await repo.addRunEvent(runId, "prose_done", `Prose generated (${inputs.targetLength} format)`);
+    let storyRelPath: string | undefined;
     try {
       const storyFilename = await saveReadableStoryText(projectId, sanitizedProse, runId, synopsis.title as string | undefined);
+      storyRelPath = storyFilename;
+      // Where the manuscript went, so a cover made later (button) lands beside it (documentation/covers/).
+      await repo.createArtifact(projectId, "story_file", { relPath: storyFilename }, null);
       await repo.addRunEvent(runId, "story_text_done", `Story text saved (${storyFilename})`);
     } catch (storySaveError) {
       await repo.addRunEvent(runId, "story_text_warning", `Story text save skipped: ${describeError(storySaveError)}`);
@@ -902,6 +908,22 @@ const runPipeline = async (
 
     if (result.warnings.length > 0) {
       await repo.addRunEvent(runId, "pipeline_warnings", `Warnings: ${result.warnings.join(", ")}`);
+    }
+
+    // Book cover — optional post-pass (UI "Book cover" select → spec.coverStyle; CML_COVER_GEN for runs that
+    // make no choice). Started AFTER pipeline_complete and not awaited: it can neither fail nor delay the book.
+    const coverStyle = resolveCoverRequest(specPayload?.coverStyle);
+    if (coverStyle && storyRelPath) {
+      void startCover(repo, {
+        projectId,
+        runId,
+        style: coverStyle,
+        storyDir: path.join(storiesDir, path.dirname(storyRelPath)),
+        title: (synopsis.title as string | undefined) || "Untitled Mystery",
+        prose: sanitizedProse,
+        inputs: inputs as unknown as Record<string, unknown>,
+        cml: result.cml as unknown as Record<string, unknown>,
+      });
     }
 
   } catch (error) {
@@ -1392,6 +1414,7 @@ export const createServer = () => {
   });
 
   registerRunRoute(app, repoPromise, runPipeline); // owner decision 11: one run at a time (run-route.ts)
+  registerCoverRoutes(app, repoPromise, { workspaceRoot, storiesDir }); // documentation/covers/
 
   app.get("/api/projects/:id/status", (_req, res) => {
     repoPromise

@@ -690,3 +690,63 @@ export type NarrationSummary = {
 /** One call for the whole cases list — per-row polling would be N requests. */
 export const fetchNarrationLibrary = (): Promise<{ narrations: NarrationSummary[] }> =>
 	narration("/api/narration/library");
+
+/* ── book covers (documentation/covers/) ─────────────────────────────────────────────────────── */
+
+export interface CoverStyle {
+  id: string;
+  label: string;
+  summary: string;
+  family: string;
+}
+
+export interface CoverStylesResponse {
+  styles: CoverStyle[];
+  /** null when no image model is configured — the UI says so instead of offering a button that fails. */
+  image: { provider: string; model: string } | null;
+  imageError: string | null;
+}
+
+export interface CoverInfo {
+  path?: string;
+  style?: string;
+  styles?: string[];
+  palette?: string;
+  provider?: string;
+  model?: string;
+  generatedAt?: string;
+  imageUrl?: string;
+  inProgress: boolean;
+  anchors?: { place?: string; clue_object?: string };
+}
+
+export const fetchCoverStyles = async (): Promise<CoverStylesResponse> => {
+  const response = await fetch(`${apiBase}/api/cover-styles`);
+  if (!response.ok) throw new Error(`Fetch cover styles failed (${response.status})`);
+  return response.json() as Promise<CoverStylesResponse>;
+};
+
+/** null when the project has no cover and none is being made. */
+export const fetchCover = async (projectId: string): Promise<CoverInfo | null> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cover`);
+  if (response.status === 404) return null;
+  if (response.status === 202) return { inProgress: true };
+  if (!response.ok) throw new Error(`Fetch cover failed (${response.status})`);
+  return response.json() as Promise<CoverInfo>;
+};
+
+/** The image itself; `version` busts the browser cache after a remake. */
+export const coverImageUrl = (projectId: string, version = "") =>
+  `${apiBase}/api/projects/${projectId}/cover.png${version ? `?v=${encodeURIComponent(version)}` : ""}`;
+
+export const requestCover = async (projectId: string, style: string): Promise<void> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cover`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ style }),
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `Cover request failed (${response.status})`);
+  }
+};

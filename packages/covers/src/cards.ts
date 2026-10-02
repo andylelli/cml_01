@@ -76,3 +76,7 @@ export const loadStyleCards = (dir: string = resolveCardsDir()): StyleCard[] => 
   }
   return cards.sort((a, b) => a.id.localeCompare(b.id));
 };
+
+/** The UI's view of the library: id, label, one-line summary. */
+export const listCoverStyles = (dir?: string) =>
+  loadStyleCards(dir).map(({ id, label, summary, family }) => ({ id, label, summary, family }));

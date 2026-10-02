@@ -9,6 +9,7 @@ import OptionGroup from "../components/ui/OptionGroup.vue";
 import QuotePanel from "../components/ui/QuotePanel.vue";
 import ScriptNote from "../components/ui/ScriptNote.vue";
 import StepCard from "../components/ui/StepCard.vue";
+import type { Option } from "../components/ui/types";
 import { brand } from "../design/brand";
 import { composeTheme, mechanismNote } from "../spec/composeTheme";
 import { ANGLE_GROUPS, randomAngle } from "../spec/storyAngles";
@@ -41,10 +42,22 @@ import {
  */
 const spec = defineModel<MysterySpec>({ required: true });
 
-const props = withDefaults(defineProps<{ busy?: boolean; disabled?: boolean }>(), {
-	busy: false,
-	disabled: false,
-});
+const props = withDefaults(
+	defineProps<{
+		busy?: boolean;
+		disabled?: boolean;
+		/**
+		 * Book-cover choices (documentation/covers/), from GET /api/cover-styles via the caller — this view
+		 * stays network-free. Empty means the library could not be read; the select then offers only "No cover".
+		 */
+		coverOptions?: readonly Option[];
+		/** Why covers are unavailable (no image model), shown under the select. */
+		coverNote?: string | null;
+	}>(),
+	{ busy: false, disabled: false, coverOptions: () => [], coverNote: null },
+);
+
+const coverChoices = computed<readonly Option[]>(() => [{ value: "off", label: "No cover" }, ...props.coverOptions]);
 
 const emit = defineEmits<{ submit: [MysterySpec] }>();
 
@@ -297,6 +310,15 @@ const onSubmit = () => {
 						label="Length"
 						icon="book"
 						:options="LENGTH_OPTIONS"
+					/>
+					<FieldSelect
+						v-model="spec.coverStyle"
+						label="Book cover"
+						note=" (optional)"
+						icon="bookmark"
+						:options="coverChoices"
+						:help="coverNote ?? 'Painted after the book is written, in the manner of a period jacket.'"
+						:disabled="coverOptions.length === 0"
 					/>
 				</div>
 

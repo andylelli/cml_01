@@ -7,6 +7,7 @@ import HeroBanner from "../components/ui/HeroBanner.vue";
 import ProgressTrack from "../components/ui/ProgressTrack.vue";
 import StepCard from "../components/ui/StepCard.vue";
 import NarrationPanel from "../components/NarrationPanel.vue";
+import CoverPanel from "../components/CoverPanel.vue";
 import { downloadStoryPdf, fetchProjectStatus } from "../services/api";
 import { deriveProgress, deriveStages } from "../run/timeline";
 import { useProjectStore } from "../stores/projectStore";
@@ -493,6 +494,16 @@ onBeforeUnmount(() => {
 					</p>
 				</div>
 			</article>
+		</StepCard>
+
+		<!-- ── the cover (documentation/covers/) ───────────────────────── -->
+		<StepCard
+			v-if="hasStory"
+			icon="bookmark"
+			title="The Cover"
+			subtitle="A jacket in the manner of the period, painted from the opening chapters."
+		>
+			<CoverPanel :project-id="projectId" :has-story="hasStory" />
 		</StepCard>
 
 		<!-- ── read aloud ──────────────────────────────────────────────── -->

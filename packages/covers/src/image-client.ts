@@ -93,7 +93,14 @@ export const createImageClientFromEnv = (
   const model = (env.CML_COVER_IMAGE_MODEL ?? "").trim() || DEFAULT_IMAGE_MODEL;
   const openaiKey = (env.OPENAI_API_KEY ?? "").trim();
   const requested = (env.CML_COVER_IMAGE_PROVIDER ?? "").trim().toLowerCase();
-  const provider = requested || (openaiKey ? "openai" : "azure");
+  // Azure is never inferred from the CHAT resource's credentials alone: that resource has no image
+  // deployment (MEASURED above), so inferring it would offer a button guaranteed to 404. Azure is chosen
+  // by naming it, or by giving an image-specific endpoint.
+  const azureImageEndpoint = (env.AZURE_OPENAI_IMAGE_ENDPOINT ?? "").trim();
+  const provider = requested || (openaiKey ? "openai" : azureImageEndpoint ? "azure" : "");
+  if (!provider) {
+    return { error: "no image model configured — add OPENAI_API_KEY (gpt-image-2), or set CML_COVER_IMAGE_PROVIDER=azure with an image deployment" };
+  }
   if (provider === "openai") {
     if (!openaiKey) return { error: "CML_COVER_IMAGE_PROVIDER=openai but OPENAI_API_KEY is unset" };
     return { client: new OpenAIImageClient(model, openaiKey, fetchImpl) };

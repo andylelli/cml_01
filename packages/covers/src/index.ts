@@ -16,3 +16,5 @@ export { IMAGE_SIZE, generateCovers, type GenerateCoversOptions } from "./genera
 export { renderContactSheet } from "./contact-sheet.js";
 export { coverGenEnabled, resolveCoverRequest } from "./flags.js";
 export { createCoverLlmFromEnv } from "./llm.js";
+export { runCoverPostPass, type CoverPostPassArgs, type CoverPostPassResult } from "./postpass.js";
+export { listCoverStyles } from "./cards.js";

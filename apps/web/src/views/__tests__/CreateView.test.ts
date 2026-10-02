@@ -164,4 +164,21 @@ describe("CreateView", () => {
 			).toBe(true);
 		}
 	});
+
+	it("sends the book-cover choice, and offers only 'No cover' when the library is unavailable", async () => {
+		// documentation/covers/ — coverStyle defaults to "off": a cover is a paid image call, made only when asked for.
+		const bare = mountView();
+		const select = bare.findAll("select").find((s) => s.findAll("option").some((o) => o.text() === "No cover"))!;
+		expect(select.findAll("option").map((o) => o.attributes("value"))).toEqual(["off"]);
+
+		const wrapper = mount(CreateView, {
+			props: {
+				modelValue: { ...defaultSpec(), coverStyle: "deco-portrait" },
+				"onUpdate:modelValue": () => {},
+				coverOptions: [{ value: "auto", label: "Best fit" }, { value: "deco-portrait", label: "Deco portrait" }],
+			},
+		});
+		await wrapper.find("form").trigger("submit");
+		expect(submitted(wrapper).coverStyle).toBe("deco-portrait");
+	});
 });

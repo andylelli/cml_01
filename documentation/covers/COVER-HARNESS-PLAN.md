@@ -160,8 +160,8 @@ The first full matrix costs under **£1**, which is less than one book run.
 | 5 | Image provider: OpenAI direct (gpt-image-2) **or** Azure deployment | BUILT — needs `OPENAI_API_KEY` in `.env.local`, or an Azure image deployment | `feat(covers)` |
 | 6 | Typography: `@napi-rs/canvas` + 4 OFL fonts (`library/cover-styles/fonts/`) | DONE (verified by render) | `feat(covers)` |
 | 7 | Flags registered: `CML_COVER_*` (FLAG-AUDIT addendum; flag checker taught the prefix) | DONE | `feat(covers)` |
-| 8 | Pipeline post-pass: API run + canary `--cover` | todo | |
-| 9 | UI: "Book cover" select on Create; cover shown on the project; "Generate cover" button | todo | |
+| 8 | Pipeline post-pass: API run (spec `coverStyle`, after `pipeline_complete`, never awaited) + canary (`coverStyle` input, `COVER_SAVED`/`COVER_SKIPPED`); `runCoverPostPass` never throws | DONE | `feat(covers): wire` |
+| 9 | UI: "Book cover" select on Create (default **No cover**); "The Cover" card on a finished case with style picker + make/remake; routes `GET /api/cover-styles`, `GET/POST /api/projects/:id/cover`, `GET …/cover.png` | DONE — verified in the browser with no key (disabled, reason shown) | `feat(covers): wire` |
 | 10 | Vision analysis script for future samples (`analyse-samples.mjs`) | todo | |
 | 11 | First paid matrix: 3 stories × 4 cards at medium | **needs owner yes** | |
 
@@ -178,5 +178,11 @@ The first full matrix costs under **£1**, which is less than one book run.
   harm; a fix would need the CML's clue list, which the harness does not read.
 - **MEASURED — the flag checker could not see the new flags** (`CML_COVER_*` matched no prefix) and reported clean.
   Prefix added; it then listed all 7.
+- **MEASURED — Azure must not be inferred from the chat resource.** The first `/api/cover-styles` reported
+  `azure/gpt-image-2` as configured because the chat endpoint+key were present; that resource has no image
+  deployment, so every button press would have 404'd. Azure is now chosen only by `CML_COVER_IMAGE_PROVIDER=azure`
+  or an `AZURE_OPENAI_IMAGE_ENDPOINT`.
+- **MEASURED — `coverStyle` would have been dropped by the canary input allowlist** (`canary-input-overrides.mjs`
+  is a silent filter). Added; a YAML with `coverStyle: deco-portrait` now reaches canary-core (probe run).
 - **MEASURED — a heredoc-patched regex shipped with literal backspace characters** (`` → U+0008) and let
   "letter opener" through; the new crime-filter test caught it.

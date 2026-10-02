@@ -181,4 +181,10 @@ describe("isPrimaryAxis", () => {
 			expect(isPrimaryAxis(bad)).toBe(false);
 		}
 	});
+
+	it("coverStyle defaults to off and survives a stored style id, but not junk", () => {
+		expect(defaultSpec().coverStyle).toBe("off");
+		expect(coerceSpec({ coverStyle: "magazine-illustration+flat-travel-poster" }).coverStyle).toBe("magazine-illustration+flat-travel-poster");
+		expect(coerceSpec({ coverStyle: "<script>" as never }).coverStyle).toBe("off");
+	});
 });

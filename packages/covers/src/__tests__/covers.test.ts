@@ -15,6 +15,8 @@ import {
   parseAnchors,
   parseManuscript,
   readStoryDir,
+  runCoverPostPass,
+  listCoverStyles,
   resolveCoverRequest,
   resolveStyleChoices,
   storyInputFromRun,
@@ -153,9 +155,12 @@ describe("image client from env", () => {
     expect(client?.provider).toBe("openai");
     expect(client?.model).toBe("gpt-image-2");
   });
-  it("falls to Azure, and explains when nothing is configured", () => {
-    expect(createImageClientFromEnv({ AZURE_OPENAI_ENDPOINT: "https://x", AZURE_OPENAI_API_KEY: "k" } as NodeJS.ProcessEnv).client?.provider).toBe("azure");
-    expect(createImageClientFromEnv({} as NodeJS.ProcessEnv).error).toMatch(/no image provider/);
+  it("never infers Azure from the chat resource alone; Azure is named or given an image endpoint", () => {
+    const chatOnly = { AZURE_OPENAI_ENDPOINT: "https://x", AZURE_OPENAI_API_KEY: "k" } as NodeJS.ProcessEnv;
+    expect(createImageClientFromEnv(chatOnly).error).toMatch(/no image model configured/);
+    expect(createImageClientFromEnv({ ...chatOnly, CML_COVER_IMAGE_PROVIDER: "azure" }).client?.provider).toBe("azure");
+    expect(createImageClientFromEnv({ ...chatOnly, AZURE_OPENAI_IMAGE_ENDPOINT: "https://img" }).client?.provider).toBe("azure");
+    expect(createImageClientFromEnv({} as NodeJS.ProcessEnv).error).toMatch(/no image model configured/);
   });
   it("sends the OpenAI request shape and surfaces an HTTP error body", async () => {
     let body: any;
@@ -252,5 +257,34 @@ describe("cover request resolution", () => {
     expect(resolveCoverRequest(undefined, "true")).toBe("auto");
     expect(resolveCoverRequest("off", "true")).toBeNull();
     expect(resolveCoverRequest("deco-portrait", "")).toBe("deco-portrait");
+  });
+});
+
+describe("runCoverPostPass", () => {
+  const prose = { chapters: [{ paragraphs: ["The manor stood above the marsh."] }, { paragraphs: ["A clock ticked."] }] };
+  it("never throws: no provider configured is an error result", async () => {
+    const r = await runCoverPostPass({ storyDir: join(tmp, "pp0"), style: "auto", title: "T", prose, env: {} as NodeJS.ProcessEnv });
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/no image model configured/);
+  });
+  it("writes <storyDir>/cover.png and covers/ when the image call succeeds", async () => {
+    process.env.CML_COVER_STYLES_DIR = CARDS;
+    try {
+      const dir = join(tmp, "pp1");
+      const r = await runCoverPostPass({
+        storyDir: dir, style: "flat-travel-poster", title: "The Marsh Clock", prose, env: {} as NodeJS.ProcessEnv,
+        image: { provider: "fake", model: "m", generate: async () => ({ png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 }) },
+        llm: { chat: async () => ({ content: JSON.stringify({ place: "a flint manor above a marsh", clue_objects: ["a carriage clock"] }) }) },
+      });
+      expect(r.ok).toBe(true);
+      expect(existsSync(join(dir, "cover.png"))).toBe(true);
+      expect(existsSync(join(dir, "covers", "covers.json"))).toBe(true);
+      expect(r.manifest?.anchors.clue_object).toBe("a carriage clock");
+    } finally {
+      delete process.env.CML_COVER_STYLES_DIR;
+    }
+  });
+  it("lists styles for the UI", () => {
+    expect(listCoverStyles(CARDS).map((s) => s.id)).toContain("deco-portrait");
   });
 });

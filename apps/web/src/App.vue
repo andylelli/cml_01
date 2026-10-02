@@ -6,7 +6,7 @@ import ErrorNotification from "./components/ErrorNotification.vue";
 import { useCreateFlow } from "./composables/useCreateFlow";
 import { useErrorLog } from "./composables/useErrorLog";
 import { useUiState, type Mode } from "./composables/useUiState";
-import { logActivity, type Project } from "./services/api";
+import { fetchCoverStyles, logActivity, type Project } from "./services/api";
 import { useSessionState } from "./composables/useSessionState";
 import type { MysterySpec } from "./spec/vocabulary";
 import { brand } from "./design/brand";
@@ -43,6 +43,23 @@ const log = useErrorLog({
 });
 
 const view = ref<ViewId>("create");
+
+/** Book-cover choices for the Create form (documentation/covers/). A failed read leaves only "No cover". */
+const coverOptions = ref<Array<{ value: string; label: string }>>([]);
+const coverNote = ref<string | null>(null);
+onMounted(async () => {
+	try {
+		const lib = await fetchCoverStyles();
+		coverOptions.value = [
+			{ value: "auto", label: "Best fit for the story" },
+			...lib.styles.map((s) => ({ value: s.id, label: s.label })),
+		];
+		coverNote.value = lib.image ? null : `Unavailable — ${lib.imageError ?? "no image model configured"}`;
+		if (!lib.image) coverOptions.value = [];
+	} catch {
+		coverOptions.value = [];
+	}
+});
 
 // B13: one mode and one spec for the whole app. The console reads the same refs, so a story
 // configured in Create is the story the Workshop shows.
@@ -183,6 +200,8 @@ const revealWorkshop = () => {
 			v-if="view === 'create'"
 			v-model="spec"
 			:busy="flow.busy.value"
+			:cover-options="coverOptions"
+			:cover-note="coverNote"
 			@submit="onGenerate"
 		/>
 

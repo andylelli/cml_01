@@ -8,6 +8,7 @@ import { makeJsonArtifactPersister } from "../apps/worker/dist/jobs/json-artifac
 import { printRunSummary } from "./run-summary.mjs";
 import { saveReadableStory } from "../apps/worker/dist/jobs/save-readable-story.js";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
+import { resolveCoverRequest, runCoverPostPass } from "../packages/covers/dist/index.js";
 
 const root = process.cwd();
 config({ path: path.join(root, ".env") });
@@ -311,11 +312,33 @@ try {
         humourLevel: inputs.humourLevel ?? null,
         castSize: inputs.castSize ?? (Array.isArray(inputs.castNames) ? inputs.castNames.length : null),
         castNames: inputs.castNames ?? null,
+        // documentation/covers — the cover style asked for (null = none); the cover itself is cover.png beside this file.
+        coverStyle: resolveCoverRequest(inputs.coverStyle),
         generatedAt: new Date().toISOString(),
       }, null, 2), "utf8");
       console.log("STORY_PARAMS_SAVED", sidecar);
     } catch (sidecarErr) {
       console.log("STORY_PARAMS_SAVE_FAILED", String(sidecarErr?.message ?? sidecarErr));
+    }
+
+    // Book cover — optional post-pass (documentation/covers/). `coverStyle` in the canary inputs
+    // ("auto", a card id, "a+b", "off"), else CML_COVER_GEN. Awaited here because the process exits
+    // next; it cannot change the exit code — a failure is one COVER_SKIPPED line.
+    const coverStyle = resolveCoverRequest(inputs.coverStyle);
+    if (coverStyle) {
+      const cover = await runCoverPostPass({
+        storyDir: path.dirname(saved.absPath),
+        style: coverStyle,
+        title: saved.title,
+        prose,
+        inputs,
+        cml: result.cml,
+        logger: buildLlmLogger(root),
+        logContext: { runId: result.metadata.runId, projectId },
+        log: (line) => console.log(line),
+      });
+      if (cover.ok) console.log("COVER_SAVED", cover.coverPath, `${cover.provider}/${cover.model}`);
+      else console.log("COVER_SKIPPED", cover.error);
     }
   }
 } catch (storySaveErr) {
