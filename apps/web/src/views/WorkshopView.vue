@@ -112,6 +112,7 @@ const {
   projectId,
   projectIdInput,
   projectName,
+  storyTitle,
   projectsList,
   proseArtifact,
   proseData,
@@ -159,7 +160,8 @@ const {
             <!-- The console's only h1 used to be in the sidebar. With the sidebar gone the view had
                  no heading element at all, which the item-29 auditor caught immediately. -->
             <p class="t-eyebrow">Workshop</p>
-            <h1 class="t-display-sm mt-0.5 truncate">{{ projectName || "No project open" }}</h1>
+            <h1 class="t-display-sm mt-0.5 truncate">{{ storyTitle || projectName || "No project open" }}</h1>
+            <p v-if="storyTitle && projectName" class="t-subtitle mt-0.5 truncate text-[0.75rem]">{{ projectName }}</p>
           </div>
           <div class="flex items-center gap-4 text-sm">
             <!--

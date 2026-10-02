@@ -5,144 +5,58 @@
  * scoring-path retry and schema-repair retry, and writes ctx.setting.
  */
 
-import { refineSetting } from "@cml/prompts-llm";
+import { recordShippedPhaseScore, runUnscoredStage, scoreSettingPhase } from "./phase-scoring.js";
+import { backfillSetting, refineSetting } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { SettingRefinementScorer, scoreRealSetting } from "@cml/story-validation";
-import { adaptSettingForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
   appendRetryFeedbackOptional,
-  preAgent9LlmRetriesEnabled,
-  preAgent9ContractRecoveryEnabled,
-  applyHonestScorer,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent1_setting",
-      "Setting Refinement",
-      async (retryFeedback?: string) => {
-        const settingResult = await refineSetting(ctx.client, {
-          decade: ctx.inputs.eraPreference || "1930s",
-          location: ctx.locationSpec.location,
-          institution: ctx.locationSpec.institution,
-          storyAngle: ctx.inputs.storyAngle,
-          tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: settingResult, cost: settingResult.cost };
-      },
-      async (settingResult) => {
-        const scorer = new SettingRefinementScorer();
-        const adapted = adaptSettingForScoring(settingResult.setting);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {},
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(settingResult.setting), ctx.warnings, "agent1-setting") };
-      },
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-    );
+  // CR-21 (ORC-02): the one refineSetting input — the first attempt and the schema-repair re-roll.
+  const settingInputs = (retryFeedback?: string): Parameters<typeof refineSetting>[1] => ({
+    decade: ctx.inputs.eraPreference || "1930s",
+    location: ctx.locationSpec.location,
+    institution: ctx.locationSpec.institution,
+    storyAngle: ctx.inputs.storyAngle,
+    tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
 
-    ctx.setting = result;
-    ctx.agentCosts["agent1_setting"] = cost;
-    ctx.agentDurations["agent1_setting"] = duration;
-  } else {
-    const settingStart = Date.now();
-    ctx.setting = await refineSetting(ctx.client, {
-      decade: ctx.inputs.eraPreference || "1930s",
-      location: ctx.locationSpec.location,
-      institution: ctx.locationSpec.institution,
-      storyAngle: ctx.inputs.storyAngle,
-      tone: ctx.inputs.tone,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent1_setting"] = ctx.setting.cost;
-    ctx.agentDurations["agent1_setting"] = Date.now() - settingStart;
-  }
+  // A1X-Q02: generate here; the phase is scored below, on the setting that ships (after backfill / re-roll).
+  ctx.setting = await runUnscoredStage(ctx, {
+    agentId: "agent1_setting",
+    phaseName: "Setting Refinement",
+    generate: async () => {
+      const settingResult = await refineSetting(ctx.client, settingInputs());
+      return { result: settingResult, cost: settingResult.cost };
+    },
+  });
 
-  if (
-    ctx.setting.setting.realism.anachronisms.length > 0 ||
-    ctx.setting.setting.realism.implausibilities.length > 0
-  ) {
-    // A_53 P2 (repair-not-abort): refineSetting already folds residual realism notes on its final
-    // attempt; this is a defensive belt — fold + warn here too, never throw away ~30 agents of work.
-    const realism = ctx.setting.setting.realism;
-    const anachronismCount = realism.anachronisms.length;
-    const implausibilityCount = realism.implausibilities.length;
-    realism.recommendations = [
-      ...(realism.recommendations ?? []),
-      ...realism.anachronisms.map((a) => `Anachronism to avoid: ${a}`),
-      ...realism.implausibilities.map((i) => `Implausibility to avoid: ${i}`),
-    ];
-    realism.anachronisms = [];
-    realism.implausibilities = [];
+  // A1X-10 (owner decision 12, CML_VERIFIED_FIXES): refineSetting now backfills a missing top-level key
+  // before re-rolling, and says so on the result; the field is absent when the flag is OFF.
+  const structuralBackfill: unknown = (ctx.setting as { structuralBackfill?: unknown }).structuralBackfill;
+  if (Array.isArray(structuralBackfill) && structuralBackfill.length > 0) {
     ctx.warnings.push(
-      `Agent 1: folded ${anachronismCount + implausibilityCount} residual realism note(s) ` +
-      `(anachronisms=${anachronismCount}, implausibilities=${implausibilityCount}) into recommendations instead of aborting.`,
+      `Setting response lacked top-level key(s) ${structuralBackfill.join(", ")}; filled by deterministic backfill instead of an LLM re-roll (A1X-10).`,
     );
   }
 
   // A_53 P2 (repair-not-abort): deterministic schema backfill from context — runs FREE before any
   // LLM re-roll or throw. Most setting-schema failures are a single missing array/string field;
   // values are generic, parameter-derived neutrals (no story content).
-  const backfillSettingArtifact = (raw: unknown): any => {
-    const s: any = raw && typeof raw === "object" ? raw : {};
-    const ensureStr = (v: unknown, fallback: string) =>
-      typeof v === "string" && v.trim().length > 0 ? v : fallback;
-    const ensureArr = (v: unknown) => (Array.isArray(v) ? v : []);
-
-    const era: any = s.era && typeof s.era === "object" ? s.era : {};
-    era.decade = ensureStr(era.decade, ctx.inputs.eraPreference || "1930s");
-    era.technology = ensureArr(era.technology);
-    era.forensics = ensureArr(era.forensics);
-    era.transportation = ensureArr(era.transportation);
-    era.communication = ensureArr(era.communication);
-    era.socialNorms = ensureArr(era.socialNorms);
-    era.policing = ensureArr(era.policing);
-    s.era = era;
-
-    const location: any = s.location && typeof s.location === "object" ? s.location : {};
-    location.type = ensureStr(location.type, ctx.locationSpec.institution || "institution");
-    location.description = ensureStr(
-      location.description,
-      `${ctx.locationSpec.location} — ${ctx.locationSpec.institution}`.trim(),
-    );
-    location.physicalConstraints = ensureArr(location.physicalConstraints);
-    location.geographicIsolation = ensureStr(location.geographicIsolation, "moderate");
-    location.accessControl = ensureArr(location.accessControl);
-    s.location = location;
-
-    const atmosphere: any = s.atmosphere && typeof s.atmosphere === "object" ? s.atmosphere : {};
-    atmosphere.weather = ensureStr(atmosphere.weather, "overcast");
-    atmosphere.timeOfDay = ensureStr(atmosphere.timeOfDay, "evening");
-    atmosphere.mood = ensureStr(atmosphere.mood, "tense");
-    atmosphere.visualDescription = ensureStr(atmosphere.visualDescription, "Dim, shadowed period interiors.");
-    s.atmosphere = atmosphere;
-
-    const realism: any = s.realism && typeof s.realism === "object" ? s.realism : {};
-    realism.anachronisms = ensureArr(realism.anachronisms);
-    realism.implausibilities = ensureArr(realism.implausibilities);
-    realism.recommendations = ensureArr(realism.recommendations);
-    s.realism = realism;
-
-    return s;
-  };
+  // A1X-10: the one backfill body, in @cml/prompts-llm (refineSetting uses it before a re-roll when
+  // CML_VERIFIED_FIXES is on). MEASURED identical to the closure that was here (same reads, formatting only).
+  const backfillSettingArtifact = (raw: unknown): any =>
+    backfillSetting(raw, {
+      decade: ctx.inputs.eraPreference ?? "",
+      location: ctx.locationSpec.location,
+      institution: ctx.locationSpec.institution,
+    });
 
   let settingSchemaValidation = validateArtifact("setting_refinement", ctx.setting.setting);
   if (!settingSchemaValidation.valid) {
@@ -154,22 +68,12 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     }
   }
   if (!settingSchemaValidation.valid) {
-    if (!contractRecoveryEnabled) {
-      settingSchemaValidation.errors.forEach((error) => ctx.errors.push(`Setting schema failure: ${error}`));
-      throw new Error("Setting artifact failed schema validation (contract recovery disabled)");
-    }
-    ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation with schema repair guardrails");
+    // A1X-D10 (unflagged — telemetry text only): the re-roll below sends the SAME prompt; the warning used to
+    // claim "schema repair guardrails", which no Agent 1 request carries.
+    ctx.warnings.push("Setting refinement failed schema validation after backfill; retrying setting generation (same prompt, re-roll only)");
     const settingSchemaRetryStart = Date.now();
-    const retriedSetting = await refineSetting(ctx.client, {
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-      decade: ctx.inputs.eraPreference || "1930s",
-      location: ctx.locationSpec.location,
-      institution: ctx.locationSpec.institution,
-      storyAngle: ctx.inputs.storyAngle,
-      tone: ctx.inputs.tone,
-    }, 2);
-    ctx.agentCosts["agent1_setting"] = (ctx.agentCosts["agent1_setting"] || 0) + retriedSetting.cost;
+    const retriedSetting = await refineSetting(ctx.client, settingInputs(), 2);
+    ctx.agentCosts["agent1_setting"] = retriedSetting.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
     ctx.agentDurations["agent1_setting"] = (ctx.agentDurations["agent1_setting"] || 0) + (Date.now() - settingSchemaRetryStart);
     let retryValidation = validateArtifact("setting_refinement", retriedSetting.setting);
     if (!retryValidation.valid) {
@@ -186,6 +90,9 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push("Setting schema-repair retry succeeded");
   }
   settingSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Setting schema warning: ${warning}`));
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the setting that ships, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent1_setting", "Setting Refinement", () => scoreSettingPhase(ctx.setting!.setting, ctx.warnings));
 
   ctx.reportProgress("setting", "Era and setting refined", 12);
 }

@@ -536,21 +536,26 @@ describe("Agent 9's precondition must be satisfiable by a resume", () => {
    * THE RULE: a stage may HARD-REQUIRE only what a resume can restore -- a ctx field backed by a
    * persisted artifact. A derived signal may be required to be REPORTED, never to be PRESENT.
    */
+  /**
+   * Owner decision 1 (2026-09-30): the v1 engine this used to parse — its `if (!ctx.cml || ...)` clause of
+   * eight hard requirements — is deleted. The rule still binds the engine that remains: every `!ctx.X`
+   * a v2 source file tests is collected, and each must be restorable. v2 has none today (it reads its
+   * inputs optionally), so the known positive below proves the extractor finds one.
+   */
+  const extractRequired = (src: string): string[] =>
+    [...src.matchAll(/if \(([^)]*!ctx[.]\w+[^)]*)\)/g)].flatMap((m) => [...m[1].matchAll(/!ctx[.](\w+)/g)].map((x) => x[1]));
   const preconditionFields = (): string[] => {
-    const { readFileSync: readSource } = fsMod;
-    const src = readSource(
+    const { readFileSync: readSource, readdirSync } = fsMod;
+    const dir = fileURLToPath(new URL("../jobs/agents/agent9-v2/", import.meta.url));
+    const sources = [
       fileURLToPath(new URL("../jobs/agents/agent9-run.ts", import.meta.url)),
-      "utf8",
-    );
-    const start = src.indexOf("if (!ctx.cml");
-    expect(start, "could not locate Agent 9's precondition -- update this test deliberately")
-      .toBeGreaterThan(-1);
-    const clause = src.slice(start, src.indexOf(") {", start));
-    return [...clause.matchAll(/!ctx[.](\w+)/g)].map((m) => m[1]);
+      ...readdirSync(dir).filter((f) => f.endsWith(".ts")).map((f) => join(dir, f)),
+    ];
+    return sources.flatMap((f) => extractRequired(readSource(f, "utf8")));
   };
 
-  it("finds the precondition (a test that matched nothing would pass silently)", () => {
-    expect(preconditionFields().length).toBeGreaterThanOrEqual(8);
+  it("the extractor finds a hard requirement (a test that matched nothing would pass silently)", () => {
+    expect(extractRequired("if (!ctx.cml || !ctx.coverageResult) { throw new Error('x'); }")).toEqual(["cml", "coverageResult"]);
   });
 
   it("every hard requirement is backed by a persisted artifact", () => {

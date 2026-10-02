@@ -5,22 +5,19 @@
  * handles scoring-path retry and schema validation, and writes ctx.backgroundContext.
  */
 
-import {
-  generateBackgroundContext,
-  deriveBackgroundContext,
-  BACKDROP_SUMMARY_STUB,
-  type DeriveBackgroundContextInputs,
-  type BackgroundContextArtifact,
-} from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { BackgroundContextScorer, scoreRealBackground } from "@cml/story-validation";
-import { adaptBackgroundContextForScoring } from "../scoring-adapters/index.js";
 import {
-  type OrchestratorContext,
-  executeAgentWithRetry,
-  appendRetryFeedback,
-  appendRetryFeedbackOptional,
-  applyHonestScorer,
+BACKDROP_SUMMARY_STUB,
+type BackgroundContextArtifact,
+deriveBackgroundContext,
+type DeriveBackgroundContextInputs,
+generateBackgroundContext,
+} from "@cml/prompts-llm";
+import { readModeFlag } from "./mode-flag.js";
+import { scoreBackgroundPhase } from "./phase-scoring.js";
+import {
+type OrchestratorContext,
+runStage
 } from "./shared.js";
 
 export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
@@ -31,73 +28,22 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
 
   let backgroundContextResult: Awaited<ReturnType<typeof generateBackgroundContext>>;
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2e_background_context",
-      "Background Context",
-      async (retryFeedback?: string) => {
-        const bgResult = await generateBackgroundContext(ctx.client, {
-          settingRefinement: setting.setting,
-          cast: cast.cast,
-          theme: appendRetryFeedbackOptional(ctx.inputs.theme, retryFeedback),
-          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: bgResult, cost: bgResult.cost };
-      },
-      async (bgResult) => {
-        const scorer = new BackgroundContextScorer();
-        const adapted = adaptBackgroundContextForScoring(bgResult.backgroundContext, setting.setting);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: setting.setting,
-            agent2_cast: cast.cast,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return {
-          adapted,
-          score: applyHonestScorer(
-            score,
-            () => scoreRealBackground(bgResult.backgroundContext, {
-              castRoster: (((cast.cast as any)?.characters ?? []) as any[]).map((c) => String(c?.name ?? "")).filter(Boolean),
-              agent1Echo: [
-                setting.setting.location?.description,
-                setting.setting.atmosphere?.mood,
-                setting.setting.atmosphere?.visualDescription,
-              ].filter((x): x is string => Boolean(x)),
-            }),
-            ctx.warnings,
-            "agent2e-background",
-          ),
-        };
-      },
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-    );
-    backgroundContextResult = result;
-    ctx.agentCosts["agent2e_background_context"] = cost;
-    ctx.agentDurations["agent2e_background_context"] = duration;
-  } else {
-    const backgroundContextStart = Date.now();
-    backgroundContextResult = await generateBackgroundContext(ctx.client, {
-      settingRefinement: setting.setting,
-      cast: cast.cast,
-      theme: ctx.inputs.theme,
-      tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent2e_background_context"] = backgroundContextResult.cost;
-    ctx.agentDurations["agent2e_background_context"] = Date.now() - backgroundContextStart;
-  }
+  backgroundContextResult = await runStage(ctx, {
+    agentId: "agent2e_background_context",
+    phaseName: "Background Context",
+    generate: async () => {
+      const bgResult = await generateBackgroundContext(ctx.client, {
+        settingRefinement: setting.setting,
+        cast: cast.cast,
+        theme: ctx.inputs.theme,
+        tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      return { result: bgResult, cost: bgResult.cost };
+    },
+    score: async (bgResult) => scoreBackgroundPhase(bgResult.backgroundContext, setting.setting, cast.cast, ctx.warnings),
+  });
 
   ctx.backgroundContext = backgroundContextResult.backgroundContext;
 
@@ -118,8 +64,8 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
   // evidence (documentation/12_system_redesign/06_agent_2e_background_context.md §4, §9).
   // Default OFF; when AGENT2E_DERIVE_BACKGROUND is set (on) it LOGS a field-match summary into
   // warnings WITHOUT changing behavior. try/catch so it can never break the run.
-  const deriveMode = (process.env.AGENT2E_DERIVE_BACKGROUND ?? "").trim().toLowerCase();
-  if (deriveMode && deriveMode !== "off" && deriveMode !== "false" && deriveMode !== "0") {
+  const deriveMode = readModeFlag(process.env.AGENT2E_DERIVE_BACKGROUND);
+  if (deriveMode) {
     try {
       const live = ctx.backgroundContext;
       const deriveInputs: DeriveBackgroundContextInputs = {
@@ -152,7 +98,10 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
       const total = deterministicFields.length;
 
       ctx.warnings.push(
-        `[agent2e-derive][shadow] deterministic fields matched: ${matched}/${total}; only backdropSummary differs`
+        // A1X-D12: this said "only backdropSummary differs" whatever the count; it names the mismatches now.
+        `[agent2e-derive][shadow] deterministic fields matched: ${matched}/${total}` +
+          (mismatches.length ? `; mismatched: ${mismatches.join(", ")}` : "") +
+          "; backdropSummary (creative) is not compared"
       );
       for (const field of mismatches) {
         ctx.warnings.push(

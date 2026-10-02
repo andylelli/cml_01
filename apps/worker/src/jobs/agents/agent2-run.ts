@@ -5,24 +5,22 @@
  * scoring-path retry and schema-repair retry, and writes ctx.cast.
  */
 
+// CR-12 (A1X-04): the coercers designCast also uses, under the names this file's body reads.
+import { resolveIdentity } from "@cml/cml";
+import { coerceMotiveStrength as normaliseMotiveStrength, coerceAccessPlausibility as normaliseAccessPlausibility, coerceRelationshipTension as normaliseRelationshipTension } from "@cml/prompts-llm";
+import { readModeFlag } from "./mode-flag.js";
+import { recordShippedPhaseScore, runUnscoredStage, scoreCastPhase } from "./phase-scoring.js";
 import {
   designCast,
   generateCastNames,
   checkCast,
   summarizeCastCheck,
   type NameGeneratorContext,
-  type CastCheckResult,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { CastDesignScorer, scoreRealCast } from "@cml/story-validation";
-import { adaptCastForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
-  executeAgentWithRetry,
   appendRetryFeedback,
-  preAgent9LlmRetriesEnabled,
-  preAgent9ContractRecoveryEnabled,
-  applyHonestScorer,
 } from "./shared.js";
 import { isDetectiveArchetype } from "./identity-match.js";
 
@@ -44,31 +42,6 @@ const MALE_NAMES = new Set([
 // Classic feminine suffixes (-a / -ine / -ette …) are reliable enough for a fallback.
 const FEMININE_SUFFIX_RE = /(?:a|ine|ette|elle|een|ina)$/;
 
-// A_53 P10 (checkcast-recomputed-multiple-times): `checkCast` (archetype maps + relationship-graph
-// walk) was run 2–3× over the SAME cast object (scorer honest-fallback + shadow logger). Memoize by
-// cast-object identity + expectedCount via a WeakMap so each distinct cast is checked at most once;
-// the result is identical and the entry is GC'd with the cast. Generic/holistic — no story data.
-const castCheckCache = new WeakMap<object, Map<number, CastCheckResult>>();
-function checkCastMemo(
-  cast: Parameters<typeof checkCast>[0],
-  opts: { expectedCount: number },
-): CastCheckResult {
-  const key = (cast as unknown as object) ?? null;
-  if (!key || typeof key !== "object") {
-    return checkCast(cast, opts);
-  }
-  let byCount = castCheckCache.get(key);
-  if (!byCount) {
-    byCount = new Map<number, CastCheckResult>();
-    castCheckCache.set(key, byCount);
-  }
-  const cached = byCount.get(opts.expectedCount);
-  if (cached) return cached;
-  const result = checkCast(cast, opts);
-  byCount.set(opts.expectedCount, result);
-  return result;
-}
-
 /**
  * Normalise common LLM field-name variants in a raw cast artifact.
  * Handles snake_case crimeDynamics keys, missing required array fields,
@@ -76,52 +49,164 @@ function checkCastMemo(
  * Mutates the object in place — call before validateArtifact.
  * Any deterministic repairs (e.g. the K1 victim invariant) are surfaced on `warnings`.
  */
-function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[] = []): void {
+export function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[] = []): void {
   // --- crimeDynamics: snake_case → camelCase ---
-  const cd = ((castRaw.crimeDynamics ?? {}) as Record<string, unknown>);
-  if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
-  if (!cd.redHerrings && cd.red_herrings)                   { cd.redHerrings = cd.red_herrings; }
-  if (!cd.victimCandidates && cd.victim_candidates)         { cd.victimCandidates = cd.victim_candidates; }
-  if (!cd.detectiveCandidates && cd.detective_candidates)   { cd.detectiveCandidates = cd.detective_candidates; }
+  const cd = normaliseCrimeDynamicsKeys(castRaw);
 
-  // --- crimeDynamics: ensure all required arrays are present, deriving from characters if needed ---
   const characters = Array.isArray(castRaw.characters)
     ? (castRaw.characters as Array<Record<string, unknown>>)
     : [];
 
   // --- characters: coerce enum-like fields to valid schema values ---
   // Prevent deterministic-mode schema aborts for near-miss enum values.
-  const normaliseMotiveStrength = (value: unknown): "weak" | "moderate" | "strong" | "compelling" => {
-    const raw = String(value ?? "").trim().toLowerCase();
-    if (raw === "weak" || raw === "moderate" || raw === "strong" || raw === "compelling") {
-      return raw;
-    }
-    if (/compell|overwhelm|extreme|decisive|certain/.test(raw)) return "compelling";
-    if (/strong|high|powerful|major|serious/.test(raw)) return "strong";
-    if (/moderate|medium|mixed|balanced/.test(raw)) return "moderate";
-    if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(raw)) return "weak";
-    return "moderate";
-  };
+  normaliseCharacterEnumsAndGenders(characters);
 
-  const normaliseAccessPlausibility = (value: unknown): "impossible" | "unlikely" | "possible" | "easy" => {
-    const raw = String(value ?? "").trim().toLowerCase();
-    if (raw === "impossible" || raw === "unlikely" || raw === "possible" || raw === "easy") {
-      return raw;
-    }
-    if (/certain|definite|guarant|easy|high|sure/.test(raw)) return "easy";
-    if (/like|probable|often|common|frequent/.test(raw)) return "possible";
-    if (/unlike|improbab|rare|seldom|difficult|hard/.test(raw)) return "unlikely";
-    if (/impossible|never|no.access|barred/.test(raw)) return "impossible";
-    return "possible";
-  };
+  // --- crimeDynamics: ensure all required arrays are present, deriving from characters if needed ---
+  fillCrimeDynamicsDefaults(cd, characters, castRaw);
 
-  const normaliseGender = (value: unknown): "male" | "female" | "non-binary" | undefined => {
+  // --- relationships: normalise to { pairs: [...] } if LLM returned a bare array ---
+  normaliseRelationships(castRaw, characters, warnings);
+
+  // --- K1: enforce the first-class victim invariant (deterministic, repair-not-abort) ---
+  // Runs after possibleCulprits and relationships are settled so it can both fix
+  // crimeDynamics and synthesise the missing motive-anchor edge.
+  enforceVictimRoleInvariant(castRaw, warnings);
+
+  // --- diversity: coerce string fields to string[] ---
+  // gpt-4.1-mini returns a single string for recommendations/stereotypeCheck when
+  // it has one unified thought. The schema requires string[]; wrap rather than abort.
+  normaliseDiversity(castRaw);
+}
+
+/**
+ * A_52 role model (was K1, ANALYSIS_51 §1) — guarantee the fair-play cast structure:
+ * exactly one DETECTIVE (alive throughout) and one first-class NAMED VICTIM (dead from the
+ * murder on), with the remaining characters as suspects (the culprit is a hidden attribute of
+ * one suspect, assigned downstream — never a role here). This is the root fix for both the
+ * "phantom victim" and the "victim is dead AND alive" failure class.
+ *
+ * Deterministic and repair-not-abort (per MEMORY: a role defect must repair, never throw). It
+ * (1) resolves the detective from the explicit `role` field → crimeDynamics.detectiveCandidates
+ * → archetype regex (so a detective labelled e.g. "Authority Figure" is no longer missed and the
+ * detective can never be designated victim); (2) resolves the victim from the explicit `role` →
+ * victim archetype → victimCandidates → first non-detective non-culprit; (3) locks the victim's
+ * archetype, (4) removes the victim from possibleCulprits (topping the pool back up), (5) pins
+ * crimeDynamics.victimCandidates, (6) synthesises the motive-anchor relationship when missing,
+ * and (7) tags every character's `role` (detective | victim | suspect) so downstream consumers
+ * and the lifecycle lock read a fixed role instead of inferring it. Repairs surface on `warnings`.
+ *
+ * DIAGNOSIS-BATCH #3 — TOP UP ONLY THE CHARACTERS STILL MISSING RELATIONSHIP COVERAGE.
+ *
+ * MEASURED (external read 84/100): the relationship mechanism worked for ONE pair (Dr. Finch /
+ * Captain Hale — real, concrete, `sharedHistory` naming a specific event) while every OTHER
+ * character had zero coverage, and the reviewer asked "what did Montague do to Kestrel... why is
+ * Marguerite loyal... what does Ferdinand's patronage cost him" — precisely the characters this
+ * repair never reached. Root cause, in the caller: the full-replace ring-topology fallback only
+ * fires when NO valid pair exists at all. As soon as one valid pair exists, that branch is skipped
+ * entirely and every other character can ship with zero coverage — confirmed exactly the symptom.
+ *
+ * Pure: cast names and existing pairs in, a top-up pair list out. Preserves every existing pair
+ * (concrete, LLM-authored history is strictly better than the generic fallback sentence) and adds
+ * coverage ONLY for cast members who appear in zero pairs, using the same ring-topology shape the
+ * full-replace fallback uses, scoped to just the missing names so it never duplicates or crowds out
+ * a real relationship. Exported for unit testing.
+ */
+/**
+ * Owner decision 10 (A1X-Q03, 2026-10-01): the user's `castGenders` are a specification, so they are applied to
+ * the finished cast rather than only requested in the prompt. MEASURED: Agent 2 obeyed the lock for 25 of 25
+ * locked characters (4 paired projects), so on the archive this moves nothing; it matters on the schema-repair
+ * re-roll, which has never been sent the genders. Names match trimmed and case-insensitively. Returns the
+ * number of characters changed; each change is a warning.
+ */
+export function applyCastGenders(
+  characters: Array<Record<string, unknown>>,
+  castGenders: Record<string, string> | undefined,
+  warnings: string[] = [],
+): number {
+  if (!castGenders) return 0;
+  const wanted = new Map<string, "male" | "female">();
+  for (const [name, gender] of Object.entries(castGenders)) {
+    const g = String(gender ?? "").trim().toLowerCase();
+    if (g === "male" || g === "female") wanted.set(name.trim().toLowerCase(), g);
+  }
+  let changed = 0;
+  for (const character of characters) {
+    const want = wanted.get(String(character.name ?? "").trim().toLowerCase());
+    if (!want || character.gender === want) continue;
+    warnings.push(`[cast-gender] ${String(character.name)}: ${JSON.stringify(character.gender ?? null)} → ${want} (the user's castGenders)`);
+    character.gender = want;
+    changed += 1;
+  }
+  return changed;
+}
+
+export interface RelationshipPairLike {
+  character1?: unknown;
+  character2?: unknown;
+  relationship?: unknown;
+  tension?: unknown;
+  sharedHistory?: unknown;
+}
+
+export const topUpMissingRelationshipCoverage = (
+  castNames: readonly string[],
+  existingPairs: readonly RelationshipPairLike[],
+): { topUpPairs: RelationshipPairLike[]; missingNames: string[] } => {
+  const castNameKeys = new Set(castNames.map((n) => n.toLowerCase()));
+  const namesInAnyPair = new Set<string>();
+  for (const pair of existingPairs) {
+    const c1 = String(pair.character1 ?? "").trim().toLowerCase();
+    const c2 = String(pair.character2 ?? "").trim().toLowerCase();
+    if (castNameKeys.has(c1)) namesInAnyPair.add(c1);
+    if (castNameKeys.has(c2)) namesInAnyPair.add(c2);
+  }
+  const missingNames = castNames.filter((name) => !namesInAnyPair.has(name.toLowerCase()));
+  if (missingNames.length === 0) return { topUpPairs: [], missingNames: [] };
+
+  const fallbackPair = (character1: string, character2: string): RelationshipPairLike => ({
+    character1,
+    character2,
+    relationship: "social acquaintance",
+    tension: "moderate",
+    sharedHistory: "They have ongoing social friction connected to the case environment.",
+  });
+
+  const topUpPairs: RelationshipPairLike[] = [];
+  // Ring the missing names among themselves so each gets >=1 edge without touching anyone already
+  // covered. A lone missing name (no ring possible) pairs with the first already-covered character
+  // instead, so it is never left with zero coverage either way.
+  if (missingNames.length >= 2) {
+    for (let i = 0; i < missingNames.length; i += 1) {
+      topUpPairs.push(fallbackPair(missingNames[i], missingNames[(i + 1) % missingNames.length]));
+    }
+  } else {
+    const anchor =
+      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase() && namesInAnyPair.has(n.toLowerCase())) ??
+      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase());
+    if (anchor) topUpPairs.push(fallbackPair(missingNames[0], anchor));
+  }
+  return { topUpPairs, missingNames };
+};
+
+function normaliseCrimeDynamicsKeys(castRaw: Record<string, unknown>) {
+  const cd = ((castRaw.crimeDynamics ?? {}) as Record<string, unknown>);
+  if (!cd.possibleCulprits && cd.possible_culprits) { cd.possibleCulprits = cd.possible_culprits; }
+  if (!cd.redHerrings && cd.red_herrings) { cd.redHerrings = cd.red_herrings; }
+  if (!cd.victimCandidates && cd.victim_candidates) { cd.victimCandidates = cd.victim_candidates; }
+  if (!cd.detectiveCandidates && cd.detective_candidates) { cd.detectiveCandidates = cd.detective_candidates; }
+  return cd;
+}
+
+function normaliseCharacterEnumsAndGenders(characters: Record<string, unknown>[]) {
+  // Owner decision 10 (A1X-04 R2): one binary vocabulary, as designCast and every pronoun check already assume
+  // (A_73 §40). Anything else — "non-binary" included (0 of 689 archived characters) — is unrecognised and
+  // resolved below like a missing gender.
+  const normaliseGender = (value: unknown): "male" | "female" | undefined => {
     const raw = String(value ?? "").trim().toLowerCase();
     if (!raw) return undefined;
-    if (raw === "male" || raw === "female" || raw === "non-binary") return raw;
+    if (raw === "male" || raw === "female") return raw;
     if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
     if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
-    if (/non[-\s]?binary|\benby\b|^nb$/.test(raw)) return "non-binary";
     return undefined;
   };
 
@@ -138,18 +223,6 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
     if (MALE_NAMES.has(first)) return "male";
     if (FEMININE_SUFFIX_RE.test(first)) return "female";
     return undefined;
-  };
-
-  const normaliseRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
-    const raw = String(value ?? "").trim().toLowerCase();
-    if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
-      return raw;
-    }
-    if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
-    if (/low|mild|minor|slight/.test(raw)) return "low";
-    if (/moderate|medium|mixed/.test(raw)) return "moderate";
-    if (/high|severe|intense|strong/.test(raw)) return "high";
-    return "moderate";
   };
 
   for (const character of characters) {
@@ -177,21 +250,22 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
     character.gender =
       inferGenderFromName(String(character.name ?? "")) ?? (idx % 2 === 0 ? "female" : "male");
   });
+}
 
-  // A_52 role model: identify the detective by the explicit `role` field first, then the archetype
-  // regex — NOT an exact "detective" archetype match (which missed a detective labelled e.g.
-  // "Authority Figure" and let them leak into the culprit/victim fallbacks).
-  // A_53 P4 (Pattern D): prefer the explicit role, then the detectiveCandidates roster, then a
-  // word-boundary archetype test that excludes non-police "building inspector"-style occupations.
+// A_52 role model: identify the detective by the explicit `role` field first, then the archetype
+// regex — NOT an exact "detective" archetype match (which missed a detective labelled e.g.
+// "Authority Figure" and let them leak into the culprit/victim fallbacks).
+// A_53 P4 (Pattern D): prefer the explicit role, then the detectiveCandidates roster, then a
+// word-boundary archetype test that excludes non-police "building inspector"-style occupations.
+function fillCrimeDynamicsDefaults(cd: Record<string, unknown>, characters: Record<string, unknown>[], castRaw: Record<string, unknown>) {
   const detectiveCandidateSet = new Set(
     (Array.isArray(cd.detectiveCandidates) ? (cd.detectiveCandidates as unknown[]) : [])
       .map((n) => String(n ?? "").trim().toLowerCase())
-      .filter(Boolean),
+      .filter(Boolean)
   );
-  const looksDetective = (c: Record<string, unknown>): boolean =>
-    String((c as Record<string, unknown>).role ?? "").trim().toLowerCase() === "detective" ||
+  const looksDetective = (c: Record<string, unknown>): boolean => String((c as Record<string, unknown>).role ?? "").trim().toLowerCase() === "detective" ||
     detectiveCandidateSet.has(String(c.name ?? "").trim().toLowerCase()) ||
-    isDetectiveArchetype(String(c.roleArchetype ?? ""));
+    resolveIdentity("agent2.detective", "detective", c, isDetectiveArchetype(String(c.roleArchetype ?? "")));
   const nonDetectiveNames = characters
     .filter((c) => !looksDetective(c) && c.name)
     .map((c) => String(c.name));
@@ -211,8 +285,9 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
     cd.detectiveCandidates = detectiveNames.length > 0 ? detectiveNames : nonDetectiveNames.slice(0, 1);
   }
   castRaw.crimeDynamics = cd;
+}
 
-  // --- relationships: normalise to { pairs: [...] } if LLM returned a bare array ---
+function normaliseRelationships(castRaw: Record<string, unknown>, characters: Record<string, unknown>[], warnings: string[]) {
   const rels = castRaw.relationships;
   if (Array.isArray(rels)) {
     castRaw.relationships = { pairs: rels };
@@ -234,7 +309,7 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
       ?? rawPair.target
       ?? rawPair.character
       ?? rawPair.name
-      ?? "",
+      ?? ""
     ).trim();
     if (!source || !character2 || source === character2) {
       return;
@@ -248,7 +323,7 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
         rawPair.sharedHistory
         ?? rawPair.shared_history
         ?? rawPair.history
-        ?? `${source} and ${character2} have unresolved social friction tied to the case.`,
+        ?? `${source} and ${character2} have unresolved social friction tied to the case.`
       ).trim() || `${source} and ${character2} have unresolved social friction tied to the case.`,
     });
   };
@@ -300,10 +375,9 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
   // relationship-merge below uses O(1) `.has` membership instead of O(pairs×cast) `Array.includes`.
   const castNameKeys = new Set(castNames.map((name) => name.toLowerCase()));
 
-  const relationshipContainer =
-    castRaw.relationships !== null && typeof castRaw.relationships === "object"
-      ? (castRaw.relationships as Record<string, unknown>)
-      : ((castRaw.relationships = {}) as Record<string, unknown>);
+  const relationshipContainer = castRaw.relationships !== null && typeof castRaw.relationships === "object"
+    ? (castRaw.relationships as Record<string, unknown>)
+    : ((castRaw.relationships = {}) as Record<string, unknown>);
 
   const existingPairsRaw = Array.isArray(relationshipContainer.pairs)
     ? (relationshipContainer.pairs as Array<Record<string, unknown>>)
@@ -385,20 +459,14 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
       relationshipContainer.pairs = [...existingPairs, ...topUpPairs];
       warnings.push(
         `[Agent 2 relationship top-up] ${missingNames.length} character(s) had zero relationship ` +
-          `coverage (${missingNames.join(", ")}) — added fallback pairs; ${existingPairs.length} ` +
-          `existing pair(s) preserved unchanged (diagnosis-batch #3).`,
+        `coverage (${missingNames.join(", ")}) — added fallback pairs; ${existingPairs.length} ` +
+        `existing pair(s) preserved unchanged (diagnosis-batch #3).`
       );
     }
   }
+}
 
-  // --- K1: enforce the first-class victim invariant (deterministic, repair-not-abort) ---
-  // Runs after possibleCulprits and relationships are settled so it can both fix
-  // crimeDynamics and synthesise the missing motive-anchor edge.
-  enforceVictimRoleInvariant(castRaw, warnings);
-
-  // --- diversity: coerce string fields to string[] ---
-  // gpt-4.1-mini returns a single string for recommendations/stereotypeCheck when
-  // it has one unified thought. The schema requires string[]; wrap rather than abort.
+function normaliseDiversity(castRaw: Record<string, unknown>) {
   const div = castRaw.diversity;
   if (div !== null && typeof div === 'object') {
     const divObj = div as Record<string, unknown>;
@@ -420,87 +488,6 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
 }
 
 /**
- * A_52 role model (was K1, ANALYSIS_51 §1) — guarantee the fair-play cast structure:
- * exactly one DETECTIVE (alive throughout) and one first-class NAMED VICTIM (dead from the
- * murder on), with the remaining characters as suspects (the culprit is a hidden attribute of
- * one suspect, assigned downstream — never a role here). This is the root fix for both the
- * "phantom victim" and the "victim is dead AND alive" failure class.
- *
- * Deterministic and repair-not-abort (per MEMORY: a role defect must repair, never throw). It
- * (1) resolves the detective from the explicit `role` field → crimeDynamics.detectiveCandidates
- * → archetype regex (so a detective labelled e.g. "Authority Figure" is no longer missed and the
- * detective can never be designated victim); (2) resolves the victim from the explicit `role` →
- * victim archetype → victimCandidates → first non-detective non-culprit; (3) locks the victim's
- * archetype, (4) removes the victim from possibleCulprits (topping the pool back up), (5) pins
- * crimeDynamics.victimCandidates, (6) synthesises the motive-anchor relationship when missing,
- * and (7) tags every character's `role` (detective | victim | suspect) so downstream consumers
- * and the lifecycle lock read a fixed role instead of inferring it. Repairs surface on `warnings`.
- *
- * DIAGNOSIS-BATCH #3 — TOP UP ONLY THE CHARACTERS STILL MISSING RELATIONSHIP COVERAGE.
- *
- * MEASURED (external read 84/100): the relationship mechanism worked for ONE pair (Dr. Finch /
- * Captain Hale — real, concrete, `sharedHistory` naming a specific event) while every OTHER
- * character had zero coverage, and the reviewer asked "what did Montague do to Kestrel... why is
- * Marguerite loyal... what does Ferdinand's patronage cost him" — precisely the characters this
- * repair never reached. Root cause, in the caller: the full-replace ring-topology fallback only
- * fires when NO valid pair exists at all. As soon as one valid pair exists, that branch is skipped
- * entirely and every other character can ship with zero coverage — confirmed exactly the symptom.
- *
- * Pure: cast names and existing pairs in, a top-up pair list out. Preserves every existing pair
- * (concrete, LLM-authored history is strictly better than the generic fallback sentence) and adds
- * coverage ONLY for cast members who appear in zero pairs, using the same ring-topology shape the
- * full-replace fallback uses, scoped to just the missing names so it never duplicates or crowds out
- * a real relationship. Exported for unit testing.
- */
-export interface RelationshipPairLike {
-  character1?: unknown;
-  character2?: unknown;
-  relationship?: unknown;
-  tension?: unknown;
-  sharedHistory?: unknown;
-}
-
-export const topUpMissingRelationshipCoverage = (
-  castNames: readonly string[],
-  existingPairs: readonly RelationshipPairLike[],
-): { topUpPairs: RelationshipPairLike[]; missingNames: string[] } => {
-  const castNameKeys = new Set(castNames.map((n) => n.toLowerCase()));
-  const namesInAnyPair = new Set<string>();
-  for (const pair of existingPairs) {
-    const c1 = String(pair.character1 ?? "").trim().toLowerCase();
-    const c2 = String(pair.character2 ?? "").trim().toLowerCase();
-    if (castNameKeys.has(c1)) namesInAnyPair.add(c1);
-    if (castNameKeys.has(c2)) namesInAnyPair.add(c2);
-  }
-  const missingNames = castNames.filter((name) => !namesInAnyPair.has(name.toLowerCase()));
-  if (missingNames.length === 0) return { topUpPairs: [], missingNames: [] };
-
-  const fallbackPair = (character1: string, character2: string): RelationshipPairLike => ({
-    character1,
-    character2,
-    relationship: "social acquaintance",
-    tension: "moderate",
-    sharedHistory: "They have ongoing social friction connected to the case environment.",
-  });
-
-  const topUpPairs: RelationshipPairLike[] = [];
-  // Ring the missing names among themselves so each gets >=1 edge without touching anyone already
-  // covered. A lone missing name (no ring possible) pairs with the first already-covered character
-  // instead, so it is never left with zero coverage either way.
-  if (missingNames.length >= 2) {
-    for (let i = 0; i < missingNames.length; i += 1) {
-      topUpPairs.push(fallbackPair(missingNames[i], missingNames[(i + 1) % missingNames.length]));
-    }
-  } else {
-    const anchor =
-      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase() && namesInAnyPair.has(n.toLowerCase())) ??
-      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase());
-    if (anchor) topUpPairs.push(fallbackPair(missingNames[0], anchor));
-  }
-  return { topUpPairs, missingNames };
-};
-
-/**
  * Exported for unit testing.
  */
 export function enforceVictimRoleInvariant(
@@ -519,7 +506,12 @@ export function enforceVictimRoleInvariant(
   const roleOf = (c: Record<string, unknown>): string => String(c?.role ?? "").trim().toLowerCase();
   // A_53 P4 (Pattern D): word-boundary archetype test that excludes non-police "building inspector".
   const archetypeDetective = (c: Record<string, unknown>): boolean =>
-    isDetectiveArchetype(archetypeOf(c));
+    resolveIdentity("agent2.detective", "detective", c, isDetectiveArchetype(archetypeOf(c)));
+  // A1X-D01 (unflagged — shadow only): the victim fallback's substring test (`/victim/` matches "Friend of
+  // the victim") now passes through the unified predicate like the detective sites above. With
+  // CML_IDENTITY_ROLE_WINS OFF resolveIdentity returns the old verdict and logs any disagreement.
+  const archetypeVictim = (c: Record<string, unknown>): boolean =>
+    resolveIdentity("agent2.victim", "victim", c, /victim/.test(archetypeOf(c)));
 
   const detectiveCandidateKeys = Array.isArray(cd.detectiveCandidates)
     ? (cd.detectiveCandidates as unknown[]).map((n) => String(n).trim().toLowerCase()).filter(Boolean)
@@ -555,7 +547,7 @@ export function enforceVictimRoleInvariant(
   const victimCandidateKeys = new Set(victimCandidates.map((v) => v.toLowerCase()));
   const victim =
     characters.find((c) => roleOf(c) === "victim" && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
-    characters.find((c) => /victim/.test(archetypeOf(c)) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
+    characters.find((c) => archetypeVictim(c) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
     characters.find((c) => nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey && victimCandidateKeys.has(nameOf(c).toLowerCase())) ??
     characters.find((c) => {
       const k = nameOf(c).toLowerCase();
@@ -574,7 +566,7 @@ export function enforceVictimRoleInvariant(
   const detectiveNames = new Set(detectiveKey ? [detectiveKey] : []);
 
   // 2. Lock the victim archetype so the role is first-class downstream.
-  if (!/victim/.test(archetypeOf(victim))) {
+  if (!archetypeVictim(victim)) { // A1X-D01
     const prior = String(victim.roleArchetype ?? "").trim();
     victim.roleArchetype = "victim";
     warnings.push(`[agent2-victim][repair] designated ${victimName} as the named victim (was "${prior || "unset"}").`);
@@ -761,8 +753,6 @@ function repairCastSchemaFields(castRaw: Record<string, unknown>): number {
 }
 
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 
   const setting = ctx.setting!;
@@ -775,78 +765,30 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   const effectiveCastNames = ctx.inputs.castNames ?? generateCastNames(ctx.runId, totalCastSize, nameContext);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2_cast",
-      "Cast Design",
-      async (retryFeedback?: string) => {
-        const castResult = await designCast(ctx.client, {
-          characterNames: effectiveCastNames,
-          characterGenders: ctx.inputs.castGenders,
-          castSize: totalCastSize,
-          setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-          crimeType: "Murder",
-          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
-          socialContext: setting.setting.era.socialNorms.join(", "),
-          detectiveType: ctx.inputs.detectiveType,
-          storyAngle: ctx.inputs.storyAngle,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: castResult, cost: castResult.cost };
-      },
-      async (castResult) => {
-        const scorer = new CastDesignScorer();
-        const adapted = adaptCastForScoring(castResult.cast);
-        const scorerInput = {
-          cast_size: ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1,
-        };
-        const score = await scorer.score(scorerInput, adapted, {
-          previous_phases: { agent1_setting: setting.setting },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return {
-          adapted,
-          score: applyHonestScorer(
-            score,
-            // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reused by the shadow logger
-            // when this attempt's cast is the one that ships.
-            () => scoreRealCast(castResult.cast, checkCastMemo(castResult.cast, { expectedCount: scorerInput.cast_size }), { expectedCount: scorerInput.cast_size }),
-            ctx.warnings,
-            "agent2-cast",
-          ),
-        };
-      },
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport,
-    );
-    ctx.cast = result;
-    ctx.agentCosts["agent2_cast"] = cost;
-    ctx.agentDurations["agent2_cast"] = duration;
-  } else {
-    const castStart = Date.now();
-    ctx.cast = await designCast(ctx.client, {
-      characterNames: effectiveCastNames,
-      characterGenders: ctx.inputs.castGenders,
-      castSize: totalCastSize,
-      setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-      crimeType: "Murder",
-      tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-      socialContext: setting.setting.era.socialNorms.join(", "),
-      detectiveType: ctx.inputs.detectiveType,
-      storyAngle: ctx.inputs.storyAngle,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent2_cast"] = ctx.cast.cost;
-    ctx.agentDurations["agent2_cast"] = Date.now() - castStart;
-  }
+  // CR-21 (ORC-02): the one designCast input — the scored attempt and the schema-repair re-roll.
+  const castInputs = (retryFeedback?: string): Parameters<typeof designCast>[1] => ({
+    characterNames: effectiveCastNames,
+    characterGenders: ctx.inputs.castGenders,
+    castSize: totalCastSize,
+    setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+    crimeType: "Murder",
+    tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+    socialContext: setting.setting.era.socialNorms.join(", "),
+    detectiveType: ctx.inputs.detectiveType,
+    storyAngle: ctx.inputs.storyAngle,
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
+  // A1X-Q02: generate here; the phase is scored below, on the cast that ships (normalised, repaired, gendered).
+  ctx.cast = await runUnscoredStage(ctx, {
+    agentId: "agent2_cast",
+    phaseName: "Cast Design",
+    generate: async () => {
+      const castResult = await designCast(ctx.client, castInputs());
+      return { result: castResult, cost: castResult.cost };
+    },
+  });
 
   const cast = ctx.cast!;
 
@@ -873,11 +815,6 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   let castSchemaValidation = validateArtifact("cast_design", castValidationPayload);
   if (!castSchemaValidation.valid) {
-    if (!contractRecoveryEnabled) {
-      castSchemaValidation.errors.forEach((error) => ctx.errors.push(`Cast schema failure: ${error}`));
-      const errorSummary = castSchemaValidation.errors.slice(0, 3).join("; ");
-      throw new Error(`Cast artifact failed schema validation (contract recovery disabled): ${errorSummary}`);
-    }
     // A_53 P9 (cast-schema-repair-full-regen): before paying for a whole second designCast (itself
     // ≤3 internal attempts → doubles ~6k-token spend + latency on the critical path), try a
     // deterministic repair of the SPECIFIC residual fields and re-validate. normaliseCastOutput
@@ -912,19 +849,13 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
       ];
       const castSchemaRetryStart = Date.now();
       const retriedCast = await designCast(ctx.client, {
-        characterNames: effectiveCastNames,
-        castSize: totalCastSize,
-        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-        crimeType: "Murder",
-        tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-        socialContext: setting.setting.era.socialNorms.join(", "),
-        detectiveType: ctx.inputs.detectiveType,
-        storyAngle: ctx.inputs.storyAngle,
+        ...castInputs(),
+        // ORC-02 drift, kept: the re-roll's prompt has never carried the user's genders. Owner decision 10
+        // applies them deterministically to the finished cast instead (applyCastGenders, below).
+        characterGenders: undefined,
         qualityGuardrails: schemaRepairGuardrails,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
       });
-      ctx.agentCosts["agent2_cast"] = (ctx.agentCosts["agent2_cast"] || 0) + retriedCast.cost;
+      ctx.agentCosts["agent2_cast"] = retriedCast.cost; // cumulative byAgent total (A_53 P3) — assign, never add (CR-06 / ORC-D03)
       ctx.agentDurations["agent2_cast"] = (ctx.agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);
       normaliseCastOutput((retriedCast.cast as unknown) as Record<string, unknown>, ctx.warnings);
       const retriedPayload = {
@@ -944,18 +875,23 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     }
   }
   castSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Cast schema warning: ${warning}`));
+  applyCastGenders(((ctx.cast!.cast as unknown) as { characters: Array<Record<string, unknown>> }).characters ?? [], ctx.inputs.castGenders, ctx.warnings);
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the cast that ships, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent2_cast", "Cast Design", () =>
+    scoreCastPhase(ctx.cast!.cast, setting.setting, totalCastSize, checkCast, ctx.warnings));
 
   // Phase-0 shadow: run the deterministic cast checker for telemetry only. Default OFF; when
   // AGENT2_CAST_CHECK is set (shadow/on) it LOGS findings (placeholder/gender/enum/archetype/
   // graph health) into warnings WITHOUT changing behavior — the deterministic foundation for the
   // Agent 2 redesign (documentation/12_system_redesign/02_agent_2_cast.md §9.2). The enforcement
   // path (deleting the normalize/pad/coerce gauntlet) waits on the constrained-decoding platform.
-  const castCheckMode = (process.env.AGENT2_CAST_CHECK ?? "").trim().toLowerCase();
-  if (castCheckMode && castCheckMode !== "off" && castCheckMode !== "false" && castCheckMode !== "0") {
+  const castCheckMode = readModeFlag(process.env.AGENT2_CAST_CHECK);
+  if (castCheckMode) {
     try {
       // A_53 P10 (checkcast-recomputed-multiple-times): memoized — reuses the scorer's result for
       // the shipping cast object instead of recomputing the full check.
-      const check = checkCastMemo(ctx.cast!.cast, { expectedCount: totalCastSize });
+      const check = checkCast(ctx.cast!.cast, { expectedCount: totalCastSize }); // fresh: the cast was normalised in place since scoring (A1X-D05)
       ctx.warnings.push(`[agent2-cast-check][shadow] ${summarizeCastCheck(check)}`);
       for (const issue of check.issues) {
         ctx.warnings.push(`[agent2-cast-check][shadow] ${issue.severity}: ${issue.message}`);

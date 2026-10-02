@@ -320,7 +320,7 @@ code generations differ in ways nothing records.
   `AGENT2C_SCENE_GATE` · `AGENT2C_SPINE_CHECK` · `AGENT2E_DERIVE_BACKGROUND` · `AGENT5_ENABLE_LLM_RETRIES` ·
   `AGENT6_BLIND_READER_BLOCKING` · `AGENT6_REVEAL_GATE` · `AGENT7_CLUE_JOB_AUTHORITY` ·
   `AGENT7_SCHEDULER_AUTHORITATIVE` · `AGENT_PRE9_ENABLE_LLM_RETRIES` ·
-  `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` · `NOVELTY_CROSS_RUN` · `NOVELTY_MODE` · `NOVELTY_SKIP` ·
+  ~~`AGENT_PRE9_ENABLE_CONTRACT_RECOVERY`~~ (default ON — corrected 2026-09-29, see the CR-06 addendum) · `NOVELTY_CROSS_RUN` · `NOVELTY_MODE` · `NOVELTY_SKIP` ·
   `RUBRIC_STRUCTURAL_CAPS_A68`
 - **SET in `.env.local`, so at least the choice is recorded:** `AGENT3B_PLAUSIBILITY_JUDGE=shadow` ·
   `AGENT6_DT_EVIDENCE_COMPLETENESS=true` · `AGENT7_DISCOVERY_TELL=true` ·
@@ -479,6 +479,13 @@ to one is visible, which is the property that was missing.
 | `LOG_TO_FILE` | SET on | **CONFIG** | Gates `logs/llm.jsonl` |
 | `LOG_FILE_PATH` | SET (`./logs/llm.jsonl`) | **CONFIG** | The agent-loop copy defaulted to a relative `apps/api/logs/llm.jsonl`; unified to `<workspaceRoot>/logs/llm.jsonl`. Never observed, because the key is set |
 | `LOG_FULL_PROMPTS_TO_FILE` | unset → **ON** | **CONFIG** | Default-on. Gates the cost-audit surface — the key the defect was found on |
+| `LLM_REPLAY_CASSETTE` | unset → off | **TOOLING** | CR-03 (documentation/code-review). A path to a cassette (`scripts/cassette-from-logs.mjs`). `buildClient()` in `apps/worker/src/jobs/cli-runtime.ts` then returns a `ReplayClient`: every LLM call is answered from the recording, a prompt differing by one byte throws `ReplayMismatchError` naming the agent and the byte, and `resume-run` exits 5 if recorded attempts were never requested. No credentials, no network, no cost. Never set in `.env.local` — a run that silently replayed would be a run that never happened. |
+| `LLM_REPLAY_MODE` | unset → strict | **TOOLING** | CR-03. `rebase` matches calls by agent label and order instead of prompt hash, serves the recorded outcome, and records the prompt the current code sent; with `LLM_REPLAY_REBASE_OUT=<path>` the updated cassette is written at the end of `resume-run`. Re-baselines a deliberate prompt change for free; the cassette diff shows which prompts changed. Only read when `LLM_REPLAY_CASSETTE` is set. |
+| `LLM_REPLAY_REBASE_OUT` | unset | **TOOLING** | CR-03. Where rebase mode writes the updated cassette (`.jsonl` or `.jsonl.gz`). |
+| `CML_STORIES_DIR` | unset → `<workspace>/stories` | **TOOLING** | CR-03. Where `resume-run` writes the readable book. A replay points it at a scratch folder so an offline replay never adds a folder to `stories/`. |
+| `CML_AGENT9_CHECKPOINT_PATH` | unset → engine default | **TOOLING** | CR-03. `resume-run` passes it as `inputs.agent9CheckpointPath`, which both prose engines honour. `scripts/replay-stage.mjs` points it into the sandbox: MEASURED 2026-09-29, an unsandboxed replay overwrote `apps/worker/logs/agent9v2-checkpoint-<project>.json` with a checkpoint matching the CURRENT contract hash, so the next paid `RESUME_REDO=prose` on that project would have reused replayed drafts instead of calling the writer. |
+| `CML_SKIP_ENV_FILES` | unset → off | **TOOLING** | CR-03. `1` makes `loadEnvFiles()` (`apps/worker/src/jobs/cli-runtime.ts`) skip `.env.local` / `.env`. `scripts/replay-stage.mjs` sets it and applies the fixture's recorded flag environment instead, so a replay digests the same on any machine and in CI. |
+| `RESUME_RUN_ID` | unset → `resume-<epoch ms>` | **TOOLING** | CR-03. Pins `resume-run`'s run id. `scripts/replay-stage.mjs` sets it to the recorded run's id: Agent 2d seeds the story date from the run id (`generateSpecificDate`), so a fresh id re-dates the story (MEASURED 2026-09-29: 1935 May recorded, 1933 April on replay). |
 | `FULL_PROMPT_LOG_FILE_PATH` | unset → `<root>/logs/llm-prompts-full.jsonl` | **CONFIG** | |
 | `LOG_ACTUAL_PROMPT_DOCS_TO_FILE` | unset → **ON** | **CONFIG** | Default-on. Gates `documentation/prompts/actual/`, which is what replay hydration reads (N5) |
 | `ACTUAL_PROMPT_DOCS_DIR` | unset → `<root>/documentation/prompts/actual` | **CONFIG** | |
@@ -926,3 +933,134 @@ run caught it; `agent9-v2-dry-run.test.ts` pins it.
 `PROSE_V2_AFTERMATH_JOB`, no `PROSE_V2_WIT_SHAPES`. Those are contract and brief content, derived
 from the artifacts and asserted by 107 tests over the 53-project archive. A behaviour worth a flag in
 v2 is a behaviour that has not been measured yet.
+
+## Addendum — `AGENT65_OMIT_RUN_TELEMETRY`, registered 2026-09-29 (code review CR-03)
+
+The Agent 6.5 prompt serialises its upstream artifacts whole, and two of them carry their own run
+telemetry at the root. MEASURED on `run_7b1ec2ef`: `"cost"` and `"durationMs"` in TEMPORAL_CONTEXT and
+BACKGROUND_CONTEXT, 4 fields, in no other agent's prompt (the same probe finds none in the 46-call v2
+prose cassette). `durationMs` is wall-clock, so two runs of one case send Agent 6.5 different bytes; it
+is the only nondeterminism between two rebases of the from-clues replay (byte 91,190 of 106,970:
+`"durationMs": 8` against `5`).
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `AGENT65_OMIT_RUN_TELEMETRY` | unset → off (`=== 'true'`, read at call time); **`true` in the `from-clues-d0ee7b26` replay fixture only** | **DEFER — owner's call to promote** | ON drops the root `cost` and `durationMs` of each artifact before it is serialised into the prompt; nested keys (`"cost": "4d"` in a price list) are story content and stay. Removes ~60 bytes of numbers the model has no use for. No read can measure it — the change is below any instrument this project has — so promotion is a judgement, not a probe. Pinned by `agent65-world-builder.test.ts`. |
+
+## Addendum — nine levers the checker could not see, and one wrong default (code review CR-06, 2026-09-29)
+
+`flag-register-check.mjs` polices env vars by PREFIX, and nine behaviour levers matched none — so the register
+could not name them and `flags:check` reported clean over them (VERIFIED-BUGS #22 found `CML_REPAIR_MODE`). They
+are now named in the checker; three were already documented here, the six below were not. Defaults are read from
+the code at each site (MEASURED).
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `CML_REPAIR_MODE` | unset → `rewrite` | CONFIG | `agent3-cml.ts`: `patch` \| `rewrite` \| `shadow` for Agent 3's CML repair; `patch` is the ANALYSIS_53 opt-in. |
+| `ENABLE_SCORING` | **`true` in `.env` and `.env.local`**; unset → off | CONFIG — the scoring master switch | `mystery-orchestrator.ts`, read through `parseBooleanEnv` since CR-06 (ORC-D07): `1`/`yes`/`on` count; before, only the string `true` did. |
+| `ENABLE_PROSE_BLIND_READER` | unset → off | DEFER — no probe recorded | `prose-blind-reader.ts`; accepts `1`/`true`/`yes`/`y`/`on` since CR-06 (ORC-D07). |
+| `CANARY_REPLAY_FAIRPLAY_ADVISORY` | unset → off; **never set in .env** | HARNESS-ONLY — added to the checker in CR-22 (A9W-13) | `agent9-run.ts` (`parseBooleanEnv`): demotes the fair-play hard-stop to a warning in A/B replays, where a fresh audit over hydrated artifacts scores near 45/100 in both arms. Set only by `scripts/exp-regen-clue-ab.mjs`. |
+| `HONEST_SCORERS` | unset → `off` | DEFER — ANALYSIS_50 Phase 3 | `off` returns the vanity score (production); `shadow` logs vanity↔honest; `enforce` returns the honest score. Characterised on the golden bundles by `phase-scoring-golden.test.ts` (SCO-12). |
+| `ALLOW_MULTIPLE_RETRY_GATES` | unset → off | CONFIG | `retry-gate-guard.ts`: overrides the one-retry-gate-per-run refusal. |
+| `LLM_RETRY_TEMP_ESCALATION` | unset → **on** | DEFER | `llm-client/client.ts`: off-words (`0`/`off`/`false`/`no`) disable the temperature escalation on transport retries; anything else, including unset, leaves it on. |
+
+**Correction — `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` is default-ON.** Addendum 5 lists it under "Default OFF,
+mode-valued". `preAgent9ContractRecoveryEnabled()` (`agents/shared.ts`) returns `true` when unset and on any value
+it does not recognise; only `0`/`false`/`no`/`off` disable it (code review A34-D14, SCO-D11, A1X-D07). It belongs
+in Addendum 5's default-ON table:
+
+| Flag | Resolution line | Default |
+|---|---|---|
+| `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` | `if (!raw) return true;` … off-words → `false`; anything else → `true` | **ON** |
+
+## Addendum — retired with the v1 prose engine (owner decision 1, 2026-10-01)
+
+The v1 prose engine (`runAgent9` below its v2 early return, `generateProse`, `packages/prompts-llm/src/agent9-prose/`) was
+deleted. Every flag below was read only by that code, so it is **retired**: no code reads it, and `.env.local` keeps its old
+line commented out (`# retired with v1 …`; the pre-retirement file is `.env.local.bak-v1-retirement-20261001`). The rows
+above are kept as the history of each lever; they no longer describe a live control. `scripts/flag-register-check.mjs`
+still matches these names, so a config line that sets one is reported as read by no code.
+
+**Retired (72 flags):** `AGENT9_AFTERMATH_LOCKED_FACT_BOOK_SCOPE`, `AGENT9_AFTERMATH_POSITIVE_JOB`, `AGENT9_AFTERMATH_SCENE_PURPOSE`, `AGENT9_ARC_FROM_BEATS`, `AGENT9_ATMOSPHERE_NARRATION_ONLY`, `AGENT9_BIBLE_AUTHORITATIVE`, `AGENT9_CLEARANCE_AT_END`, `AGENT9_CLEARANCE_OWNERSHIP`, `AGENT9_CLEARANCE_TRIM`, `AGENT9_CLEARING_HUMAN_BEAT`, `AGENT9_CLUE_LIST_GRAMMAR`, `AGENT9_CLUE_OWNERSHIP`, `AGENT9_CLUE_TIME_WORDFORM`, `AGENT9_CONTINUITY_SPAN`, `AGENT9_CULPRIT_INJECTION_IN_SCENE`, `AGENT9_CULPRIT_TERMS_WIDE`, `AGENT9_DEPTH_BEAT`, `AGENT9_DEPTH_TRAIT_ONLY`, `AGENT9_DESCRIBE_ONCE`, `AGENT9_DT_THEORY_VOCABULARY`, `AGENT9_EARLIEST_TRAP_WINS`, `AGENT9_FALLBACK_STAGE_MODE_REGEN`, `AGENT9_FULLSTORY_DIAGNOSTIC`, `AGENT9_GEOMETRY_ACCEPTANCE`, `AGENT9_GROUNDING_LEAD`, `AGENT9_INJECT_BEFORE_FINAL_PARAGRAPH`, `AGENT9_LOCATION_LABEL_PROSE`, `AGENT9_LOCKED_FACT_ALIASES`, `AGENT9_LOCKED_FACT_FLOOR_BOOK_SCOPE`, `AGENT9_MODEL_REGEN`, `AGENT9_OFFSTAGE_ACTORS`, `AGENT9_ONE_WEAPON`, `AGENT9_OPENING_FRESHNESS`, `AGENT9_OPENING_STYLE_PER_STORY`, `AGENT9_PHRASE_EDIT_CLAUSE_GUARD`, `AGENT9_PHRASE_LOCKED_BOUNDARY`, `AGENT9_POLISH_ANTHROPIC_MODEL`, `AGENT9_POLISH_PROVIDER`, `AGENT9_PROMPT_BUDGET_CRAFT_FLOOR`, `AGENT9_PROMPT_CAPS_UNDER_PRESSURE_ONLY`, `AGENT9_PROMPT_PREFIX_ORDER`, `AGENT9_PROMPT_TOKEN_CEILING`, `AGENT9_REGEN_AFTERMATH_REPEAT`, `AGENT9_REGEN_CONVERGENCE_STOP`, `AGENT9_REGEN_CULPRIT_EVIDENCE`, `AGENT9_REGEN_EDIT_LIST`, `AGENT9_REGEN_LOCKED_FACT`, `AGENT9_REGEN_MECHANISM`, `AGENT9_REGEN_RESOLUTION`, `AGENT9_REGEN_REVEAL_MODIFY`, `AGENT9_REGEN_SCAFFOLD`, `AGENT9_REGEN_SUSPECT_ELIM`, `AGENT9_REGEN_TRANSITION`, `AGENT9_REGISTER_BAN`, `AGENT9_RELATIONSHIP_CONTENT`, `AGENT9_REPEAT_BAN_ALIBI_EXEMPT`, `AGENT9_REPEAT_BAN_LIST`, `AGENT9_REVEAL_ARITHMETIC`, `AGENT9_REVEAL_CITES_PLANTS`, `AGENT9_REVEAL_DECEPTION_PURPOSE`, `AGENT9_REVEAL_ON_DT_CHAPTER`, `AGENT9_SCENE_REF_ARBITRATION`, `AGENT9_SENSORY_PALETTE_ROTATION`, `AGENT9_SHAPE_BY_REGISTER`, `AGENT9_TEST_AS_EVENT`, `AGENT9_VICTIM_BODY_PRONOUN_GUARD`, `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE`, `AGENT9_VICTIM_RETROSPECT_EXEMPTION`, `AGENT9_WALKON_REPAIR`, `AGENT9_WIT_BEAT`, `AGENT9_WIT_SHAPES`, `PROSE_ENGINE`.
+
+Also retired with v1, never set in config: `AGENT9_PROSE_BATCH_SIZE`, `AGENT9_GEOMETRY_CONTRACT`, `AGENT9_REDO_CHAPTER`
+(resume-run now refuses it: the one-chapter redo was a v1 feature), `CANARY_REPLAY_FAIRPLAY_ADVISORY`, `ENABLE_PROSE_BLIND_READER`.
+
+**Unwired, not retired:** `PROSE_ANTI_COPY_GATE` and `AGENT9_RETRY_REGRESSION_GUARD` are still read by their gates in
+`@cml/prose-guard`, but the gates' only caller was v1. Whether v2 should call them is a separate decision; until then
+they govern nothing.
+
+## Addendum — owner decision 2: one role predicate, shadowed (2026-10-01)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `CML_IDENTITY_ROLE_WINS` | unset → **off** | OFF | **Owner decision 2 (A1X-Q01 / A34-02).** `@cml/cml` `resolveIdentity`: at eight sites (validator culprit check, lifecycle and chapter-validator victim, rubric-score victim, Agent 7.5 suspects, Agent 7 victim, the normaliser's victim-ineligible and suspect lists, Agent 2 detective) each old detective/victim verdict is compared with the unified predicate — the explicit `role` enum wins, else the archetype predicates — and every disagreement is logged `[identity-disagree] site=… kind=… member=… old=… unified=…`. OFF keeps every old verdict (byte-identical); ON uses the unified one. MEASURED before shipping: 577 disagreements over 2,502 archived cast members. Flip after N runs of the shadow counter, per the decision. Not covered: `story-geometry` derive.ts (no `@cml/cml` dependency; its own `STORY_GEOMETRY_ROLE_FIELD_FIX`). |
+
+## Addendum — owner decision 8: honest scorers only (2026-10-01)
+
+`HONEST_SCORERS` is **retired**. Phases 1, 2, 2c, 2e, 3, 3b and 7 are scored by their honest scorer alone (`honestScore` in
+`stage-runner.ts`; a missing score is reported as "Scoring failed", never replaced by a vanity score); the vanity scorers
+for those phases (setting, cast, locations, background, hard-logic, narrative) and their worker adapters are deleted,
+with `ProseScorer` (its last caller was v1). Phases 2b, 2d and 6.5 keep their vanity scorer until they get honest
+tables (SCO-Q07). MEASURED: on the 4 golden bundles the honest-only scores equal the old `enforce` arm exactly.
+
+## Addendum — owner decision 9: one boolean vocabulary (2026-10-01)
+
+Every boolean flag read accepts **`1|true|yes|on`** as on and **`0|false|no|off`** as off, case-insensitive and
+trimmed; any other value logs `[flags] NAME="value" is not a recognised value` once per flag and reads as the flag's
+default. The reader is `readBooleanFlag(name, default)` in `@cml/cml` (`packages/cml/src/flags.ts`); the worker's
+`envOn` / `envNotOff` and `readModeFlag` use it or its off-list, and `parseBooleanEnv` is gone. Converted from a
+`"true"`-only or `"1"`-only read: `NOVELTY_SKIP`, `RESUME_DRY`, `REPLAY_DRY`, `CML_SKIP_ENV_FILES`,
+`AGENT_PROFILES_PARALLEL`, `AGENT9_FOLD_SUSPECT_CLEARANCES` (both readers), `AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK`,
+`AGENT7_STRUCTURED_OUTPUT`, `RUBRIC_STRUCTURAL_CAPS_A68`, `ENABLE_SCORING` (dropped `y`/`n`); `LLM_HTTP_TRANSPORT` reads
+the same on-list inline (llm-client has no `@cml/cml` dependency). MEASURED: `.env.local` sets only canonical values
+for these flags, so no current configuration changes. `flags:check` and `flags:runtime` recognise `readBooleanFlag("X"`
+as a read of X (known positive: a planted unregistered read is reported by both).
+
+## Addendum — owner decision 12, CR-30: three dead arms retired (2026-10-01)
+
+Each was unset in `.env` and `.env.local` and its retired arm never ran at default; the default arm is what remains.
+
+| Flag | Retired arm | Evidence |
+|---|---|---|
+| `AGENT5_ENABLE_LLM_RETRIES` | six Agent 5 LLM-regeneration branches (`agent5/extraction.ts` ×3, `coverage-retries.ts` ×2, `evidence-remediation.ts` ×1), −368 lines | default OFF since the deterministic mode (A5-Q06); the default-ON red-herring floor is not under it and stays |
+| `AGENT_PRE9_ENABLE_CONTRACT_RECOVERY` | the OFF ("fail-fast") arm at seven sites (Agents 1, 2, 3, 7 ×4) | default ON, any unrecognised value read ON (A7-Q01) |
+| `CML_REPAIR_MODE` | the node-scoped patch engine (`agent4-patch.ts`, its test and shadow script) | default `rewrite`, never run in a pipeline; offline (heuristic proposer) it fixed 0 of 2 errors on the corpus's one real failing CML (A34-Q03) |
+
+## Addendum — owner decision 12: the verified-fix batch (2026-10-01)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `CML_VERIFIED_FIXES` | unset → **off** | OFF | **Owner decision 12 (CR-07 / CR-29).** One switch for every verified-bug fix that changes a prompt or a run outcome on the default path, so ONE matched pair reads the batch (OWNER-DECISIONS §12). `verifiedFixesEnabled()` in `@cml/cml`; each gated site names its ledger item, and documentation/code-review/DECISION-12.md lists them. OFF is byte-identical (replay fixtures). The read needs owner approval of a paid matched pair. |
+
+## Addendum — owner decision A6-Q01: Agent 6 stops reading `AGENT_PRE9_ENABLE_LLM_RETRIES` (2026-10-02)
+
+Owner decision A6-Q01 (2026-10-02): Agent 6 no longer reads `AGENT_PRE9_ENABLE_LLM_RETRIES`; its retry arm (~990 lines:
+−1,031 / +43 across `agent6-run.ts` and `agent6/*.ts`, plus ~780 test lines) is retired — 0 of 70 archived runs ever
+ran it. Agent 3 still reads the flag (`agent3-run.ts` → `preAgent9LlmRetriesEnabled()`, and Agent 8's novelty retry
+through it), so the flag and its register row stay.
+
+Retired, exactly as owner decision 7 retired the phase-score retry path: the fair-play re-audit + clue-regeneration
+loop (`max_fair_play_attempts`), the blind-reader LLM remediation cycles (`max_remediation_cycles`), the structural CML
+revision through Agent 4, the `clue_only` targeted regeneration (`max_total_attempts_with_targeted_regen`), the WP8A
+backstop re-audit, the fair-play feedback payload (`deriveRequiredCluePhrases`, `buildFairPlayFeedbackPayload`), and the
+retry budget and cost meter that only those retries charged (`max_retry_cost_usd`). The default path is unchanged: one
+audit, the deterministic blind-reader rescue, and the structural-failure classification and warnings.
+
+## Addendum — owner decision A5-Q04: the red-herring top-up after separation (2026-10-02)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `AGENT5_RED_HERRING_TOPUP` | unset → **off** | OFF | **Owner decision A5-Q04.** `topUpRedHerringsAfterSeparation` (`apps/worker/src/jobs/agents/agent5/red-herring-topup.ts`), called in `agent5-run.ts` right after `separateRedHerringsFromSolution`. Red herrings are lost to that deterministic pruner, not to the model (6 of 61 projects since 2026-08-03 shipped 0 while the model had returned 2; the floor, which runs before the pruner, fired 0 times). ON, when fewer than `RED_HERRING_BUDGET` (2) survive: ONE call on Agent 5's client and label (`Agent5-ClueExtraction`, so `AGENT5_MODEL` routing and the `agent5_clues` cost bucket apply) asking only for the missing ones, carrying the false assumption and the inference-step correction words the pruner scores against; the reply goes through the same separation (on the new entries alone) and survivors are appended; one `[A5-Q04] …` warning per run it fires on. Never aborts. OFF: no call, no warning, clues untouched (byte-identical). Reads at call time via `readBooleanFlag`. Fires on ~10% of runs when ON (INFERRED from 6/61); a flip needs a probe. |
+
+## Addendum — owner decision 12, CR-28 deferrals: the non-prose prompt trims (2026-10-02)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `CML_PROMPT_TRIMS` | unset → **off** | OFF | **Owner decision 12, CR-28 deferrals, built 2026-10-02: token trims in non-prose prompts, OFF; each changes a prompt on every run, so the read is a paid probe.** `promptTrimsEnabled()` in `@cml/cml`, read at call time. ON: Agent 5 static sections first (A5-16), unread `status`/`audit` output instructions dropped, each restated contract stated once, the CULPRIT-UNIQUE / FIRST-ATTEMPT RED HERRING lines shipped on the first pass (A5-10, A5-Q03); Agent 3 rule 4 states the required_evidence contract once and the uniqueness seed moves after the static rules (A34-14); Agent 2c sensory-format and F30-5 rules stated once, example phrases its distinctness rule forbids replaced (A1X-11a); Agent 8 stops asking for the five fields it recomputes and no longer requires `status` in the reply (A1X-11c); Agent 2b paragraph repairs run concurrently (A1X-11e). OFF is byte-identical (old-dist vs new-dist over archived inputs). |
+
+## Addendum — A5-15 / A5-Q07: Agent 5's checklist promoted to `@cml/clue-spec` (2026-10-02)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `AGENT5_CLUE_SPEC_CHECKLIST` | unset → **off** | OFF | **A5-15 / A5-Q07, owner: build the promotion now, its paid read later.** `clueSpecChecklistEnabled()` in `@cml/cml`, read at call time. ON: Agent 5's "Mandatory Clue Requirements" block is a projection of `deriveClueSpec(cml).clueSlots` (`packages/prompts-llm/src/agent5/clue-spec-checklist.ts`) — one line per slot, clue-spec's evidenceType / placement / category / step / keyTerms, in the existing line format; sentences shared with the legacy block are word for word. MEASURED over the 69 archived CMLs: slot count equal in 7/69 (legacy 1,305 lines, clue-spec 1,427); category disagrees on 187 of 566 per-step slots and 357 of 1,031 matched slots (method tell 69/69, culprit-direct 69/69, discriminating 26/69, mechanism 6/69, eliminations 0/189); ON drops the legacy contradiction-anchor, unique-means, premeditation and elimination-chain lines and adds the flaw and clincher slots. OFF is byte-identical (old-dist vs new-dist, 828 prompts, 0 diffs; flag=1 control 69/69 differ). **Settling probe:** one matched pair (`RESUME_REDO=clues`, Agent 5 onward against byte-identical upstream) reading clue coverage and the release gate; if the probe never runs, the flag stays OFF and the legacy block remains the checklist. |

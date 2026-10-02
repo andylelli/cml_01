@@ -13,8 +13,8 @@
 import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { isDetectiveMember, isVictimMember, verifiedFixesEnabled, promptTrimsEnabled } from "@cml/cml";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { WorldDocumentResult } from "./types/world-document.js";
 import { getGenerationParams } from "@cml/story-validation";
 
@@ -231,11 +231,16 @@ export interface WorldBuilderInputs {
   model?: string;
   runId?: string;
   projectId?: string;
-  retryFeedback?: string;   // Scoring feedback from a previous failed attempt
   onProgress?: (phase: string, message: string) => void;
 }
 
-const WORLD_BUILDER_SYSTEM = `You are the World Builder for a mystery story.
+/**
+ * A6-17 (CR-28, CML_PROMPT_TRIMS): the arc word minimum was hard-coded "300" here while the user message
+ * and both retry texts render `getArcDescParams().prompt`. Flag OFF renders the literal 300 (byte-identical
+ * to the old constant); ON renders the configured value so the system prompt and the retries agree.
+ */
+function renderWorldBuilderSystem(arcWords: number): string {
+  return `You are the World Builder for a mystery story.
 
 Your role is to synthesise all structured information about the story — its cast, setting, era,
 locations, plot logic, and clues — into a single coherent World Document. This document will be
@@ -244,10 +249,10 @@ grounded in every specific fact provided.
 
 Critical constraints:
   - storyEmotionalArc.arcDescription is your most important output field. Budget your tokens
-    for it before writing shorter fields. It MUST be at least 300 words written across multiple
+    for it before writing shorter fields. It MUST be at least ${arcWords} words written across multiple
     clearly distinct paragraphs — not a dense single block. Trace the full emotional journey:
     opening atmosphere → rising unease → first investigative turn → mid-story revelation →
-    second pivot → pre-climax pressure → climax → resolution. A response shorter than 300 words
+    second pivot → pre-climax pressure → climax → resolution. A response shorter than ${arcWords} words
     will fail validation. Count your words before finalising this field.
   - JSON arrays must contain ONLY objects of the specified type. Never add strings, notes,
     comments, or placeholder text inside characterPortraits, characterVoiceSketches,
@@ -271,6 +276,13 @@ Critical constraints:
   - FIRST-PASS CONTRACT: include all required humourPlacementMap scene positions exactly once in the initial response.
 
 You will produce a single JSON object. Return only the JSON. No preamble, no commentary.`;
+}
+
+const WORLD_BUILDER_SYSTEM = renderWorldBuilderSystem(300);
+
+function worldBuilderSystem(): string {
+  return promptTrimsEnabled() ? renderWorldBuilderSystem(getArcDescParams().prompt) : WORLD_BUILDER_SYSTEM;
+}
 
 // A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): the World Builder is explicitly
 // forbidden from inventing clues or describing any clue "in specific forensic detail", so it does not
@@ -305,9 +317,51 @@ function summarizeClueDistribution(clueDistribution: any): unknown {
   };
 }
 
+/**
+ * CR-03: an upstream artifact carries its own run telemetry at the top level — `cost` and
+ * `durationMs` (MEASURED on run_7b1ec2ef: both in TEMPORAL_CONTEXT and BACKGROUND_CONTEXT). Serialised
+ * whole, a wall-clock number reaches the model and makes this prompt differ between two runs of the same
+ * case. `AGENT65_OMIT_RUN_TELEMETRY=true` drops those two root keys; default OFF (ADR-0004). Nested
+ * keys are left alone — `cost` inside a profile is story content.
+ */
+const RUN_TELEMETRY_KEYS = ['cost', 'durationMs'] as const;
+function withoutRunTelemetry<T>(artifact: T): T {
+  if (process.env.AGENT65_OMIT_RUN_TELEMETRY !== 'true') return artifact;
+  if (!artifact || typeof artifact !== 'object' || Array.isArray(artifact)) return artifact;
+  const copy: Record<string, unknown> = { ...(artifact as Record<string, unknown>) };
+  for (const k of RUN_TELEMETRY_KEYS) delete copy[k];
+  return copy as T;
+}
+
+/**
+ * A6-17 (CR-28, CML_PROMPT_TRIMS): CASE keys the World Builder is sent without needing — only the instructions to
+ * OTHER agents: `quality_controls` (Agents 3/5) and `prose_requirements` (Agent 9's scene contracts).
+ *
+ * The solution half (`hidden_model`, `inference_path`, `constraint_space`, `discriminating_test`, `fair_play`,
+ * `red_herrings`) is KEPT on purpose. MEASURED over 65 archived World Documents: phrases traceable only to those
+ * sections appear 150 times in revealImplications and 244 in storyEmotionalArc, and discriminating_test wording in
+ * 38 of 65 documents — the reveal draws on them. Dropping them saves a fraction of a penny per call and risks the
+ * reveal, so it is not done; quality_controls had 0 hits. Compact JSON carries most of the saving.
+ */
+const WORLD_BUILDER_CASE_OMIT = [
+  'quality_controls',
+  'prose_requirements',
+] as const;
+
+function projectCaseForWorldBuilder(caseSection: unknown): unknown {
+  if (!caseSection || typeof caseSection !== 'object' || Array.isArray(caseSection)) return caseSection;
+  const copy: Record<string, unknown> = { ...(caseSection as Record<string, unknown>) };
+  for (const k of WORLD_BUILDER_CASE_OMIT) delete copy[k];
+  return copy;
+}
+
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
-  const { gate: ARC_DESC_GATE, prompt: ARC_DESC_PROMPT } = getArcDescParams();
-  const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
+  const { prompt: ARC_DESC_PROMPT } = getArcDescParams();
+  // A6-17 (CR-28, CML_PROMPT_TRIMS): compact JSON (the indentation was ~15% of the INPUTS) and the CASE projection.
+  const trims = promptTrimsEnabled();
+  const json = (value: unknown): string => (trims ? JSON.stringify(value) : JSON.stringify(value, null, 2));
+  const rawCase = (inputs.caseData as any)?.CASE ?? inputs.caseData;
+  const caseSection = trims ? projectCaseForWorldBuilder(rawCase) : rawCase;
   const lockedFacts = inputs.hardLogicDevices?.lockedFacts
     ?? inputs.hardLogicDevices?.devices?.flatMap((d: any) => d.lockedFacts ?? [])
     ?? [];
@@ -315,25 +369,25 @@ function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
   return `## INPUTS
 
 ### CASE
-${JSON.stringify(caseSection, null, 2)}
+${json(caseSection)}
 
 ### CHARACTER_PROFILES
-${JSON.stringify(inputs.characterProfiles?.profiles ?? inputs.characterProfiles, null, 2)}
+${json(withoutRunTelemetry(inputs.characterProfiles?.profiles ?? inputs.characterProfiles))}
 
 ### LOCATION_PROFILES
-${JSON.stringify(inputs.locationProfiles, null, 2)}
+${json(withoutRunTelemetry(inputs.locationProfiles))}
 
 ### TEMPORAL_CONTEXT
-${JSON.stringify(inputs.temporalContext, null, 2)}
+${json(withoutRunTelemetry(inputs.temporalContext))}
 
 ### BACKGROUND_CONTEXT
-${JSON.stringify(inputs.backgroundContext, null, 2)}
+${json(withoutRunTelemetry(inputs.backgroundContext))}
 
 ### LOCKED_FACTS
-${JSON.stringify(lockedFacts, null, 2)}
+${json(lockedFacts)}
 
 ### CLUE_DISTRIBUTION (summary — counts + id/placement/category only; no forensic detail)
-${JSON.stringify(summarizeClueDistribution(inputs.clueDistribution ?? null), null, 2)}
+${json(summarizeClueDistribution(inputs.clueDistribution ?? null))}
 
 ---
 
@@ -728,17 +782,23 @@ function chooseBreakMomentCharacter(caseData: CaseData): string {
       : [],
   );
 
+  // A6-D02 (owner decision 12, CML_VERIFIED_FIXES): CASE.cast carries role_archetype, not role — ask the shared
+  // predicates, which read both, so the default break-moment character is never the detective or the victim.
+  const fixA6D02 = verifiedFixesEnabled();
+  const isDetective = (member: any) =>
+    fixA6D02 ? isDetectiveMember(member) : (member?.role ?? '').toLowerCase() === 'detective';
+  const isVictim = (member: any) =>
+    fixA6D02 ? isVictimMember(member) : (member?.role ?? '').toLowerCase() === 'victim';
+
   const preferred = cast.find((member: any) => {
     const name = typeof member?.name === 'string' ? member.name.trim() : '';
-    const role = (member?.role ?? '').toLowerCase();
-    return !!name && !culpritSet.has(name) && role !== 'detective' && role !== 'victim';
+    return !!name && !culpritSet.has(name) && !isDetective(member) && !isVictim(member);
   });
   if (preferred?.name) return preferred.name;
 
   const fallback = cast.find((member: any) => {
     const name = typeof member?.name === 'string' ? member.name.trim() : '';
-    const role = (member?.role ?? '').toLowerCase();
-    return !!name && role !== 'victim';
+    return !!name && !isVictim(member);
   });
   return fallback?.name ?? 'A key witness';
 }
@@ -934,32 +994,30 @@ export async function generateWorldDocument(
   inputs.onProgress?.('world-builder', 'Building world document...');
 
   const messages: Message[] = [
-    { role: 'system', content: WORLD_BUILDER_SYSTEM },
+    { role: 'system', content: worldBuilderSystem() },
   ];
-
-  // If a previous attempt failed, prepend scoring feedback as a multi-turn preamble so
-  // the model enters the generation phase already aware of what needs correcting.
-  if (inputs.retryFeedback) {
-    messages.push({
-      role: 'user',
-      content: `PREVIOUS_ATTEMPT_FAILED — Retry guidance:\n\n${inputs.retryFeedback}`,
-    });
-    messages.push({
-      role: 'assistant',
-      content: 'Understood. I will review the scoring feedback and regenerate the World Document, correcting all identified issues.',
-    });
-  }
 
   messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
 
   let lastError: Error | null = null;
+  // CR-19 (ORC-03 / A1X-09): what this function's own calls cost, summed from 0 in call order. This was
+  // `byAgent["Agent65-WorldBuilder"]` read back from the tracker; the two are the same number bit for bit
+  // because this function is the label's only charger and runs once per run on a fresh client (runStage,
+  // no scoring retry since owner decision 7) — pinned in llm-client chat-response-cost.test.ts.
+  let spent = 0;
+  // A6-03 (owner decision 12, CML_VERIFIED_FIXES): what kind of failure lastError is, so the retry asks for
+  // length only after a length failure. Read only with the flag ON.
+  let lastFailureKind: WorldBuilderFailureKind = 'validation-other';
   const caseTheme = String((inputs.caseData as any)?.CASE?.meta?.theme ?? '').trim();
 
   // Max 3 attempts: attempt 1 is the initial generation; attempts 2 and 3 are retries.
   // Having a 3rd attempt ensures that when attempt 1 fails for reason X (JSON/schema/cast),
   // attempt 2 can fix X while still potentially producing short arcDescription, and
   // attempt 3 can then correct the arcDescription specifically.
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  // A6-14: attempts, temperature and max_tokens come from generation-params.yaml (3 / 0.7 / 12000).
+  const wb = getGenerationParams().agent65_world_builder.params;
+  const lastAttempt = wb.generation.default_max_attempts;
+  for (let attempt = 1; attempt <= lastAttempt; attempt++) {
     let attemptMessages = messages;
 
     /**
@@ -987,9 +1045,17 @@ export async function generateWorldDocument(
      * for everything ungated to be terse — while KEEPING the required-field checklist, because a
      * truncated response is an incomplete one too.
      */
-    const previousWasTruncation = Boolean(lastError && /truncat/i.test(lastError.message));
+    const fixA603 = verifiedFixesEnabled();
+    const previousWasTruncation = fixA603
+      ? Boolean(lastError) && lastFailureKind === 'truncation'
+      : Boolean(lastError && /truncat/i.test(lastError.message));
 
-    if (attempt > 1 && lastError) {
+    if (attempt > 1 && lastError && fixA603 && !previousWasTruncation) {
+      attemptMessages = [
+        ...messages,
+        { role: 'user' as const, content: buildClassifiedRetryMessage(lastFailureKind, lastError.message) },
+      ];
+    } else if (attempt > 1 && lastError) {
       // On retry, append error context and mandatory reminders as a user message.
       // arcDescription minimum is ALWAYS included regardless of what caused the previous failure,
       // because a prior failure on a different check can leave arcDescription unaddressed.
@@ -1033,7 +1099,7 @@ export async function generateWorldDocument(
 
     const response = await client.chat({
       messages: attemptMessages,
-      temperature: 0.7,
+      temperature: wb.model.temperature,
       /**
        * A_74 §9.6 — was 6000, and the prompt cannot fit inside it.
        *
@@ -1044,7 +1110,7 @@ export async function generateWorldDocument(
        * a failed run. Raising it costs nothing on runs that do not need it — output is billed on
        * tokens produced, not on the limit requested.
        */
-      maxTokens: 12000,
+      maxTokens: wb.model.max_tokens,
       jsonMode: true,
       logContext: {
         runId: inputs.runId ?? '',
@@ -1054,215 +1120,242 @@ export async function generateWorldDocument(
       },
     });
 
-    let parsed: WorldDocumentResult;
-    try {
-      // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
-      if (response.content && looksTruncatedJson(response.content) ) {
-        try { parsed = JSON.parse(response.content); }
-        catch { throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair"); }
-      } else {
-        const repaired = jsonrepair(response.content);
-        parsed = JSON.parse(repaired);
-      }
-    } catch (parseError) {
-      lastError = new Error(`JSON parse failure on attempt ${attempt}: ${parseError}`);
-      if (attempt === 3) {
-        throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      }
-      continue;
+    spent += response.cost ?? 0;
+
+    // A6-12: parse, then the deterministic validator; one failure path for all of them.
+    const parsed = parseWorldBuilderResponse(response, attempt);
+    const verdict = parsed.ok
+      ? validateWorldDocument(parsed.doc, inputs, { attempt, cost: spent, durationMs: Date.now() - start, caseTheme })
+      : parsed;
+    if (verdict.ok) {
+      inputs.onProgress?.('world-builder', 'World document complete');
+      return verdict.doc;
     }
-
-    // ── Deterministic pre-validation patches ────────────────────────────────
-    // Applied immediately after parse — before schema or content gates — so that
-    // recoverable LLM defects never burn an inner-loop retry attempt.
-
-    parsed = normalizeWorldDocumentStructure(parsed, inputs);
-
-    // Inject cost/duration
-    const costTracker = client.getCostTracker();
-    const costNum = costTracker?.getSummary().byAgent["Agent65-WorldBuilder"] ?? 0;
-    parsed.cost = costNum;
-    parsed.durationMs = Date.now() - start;
-
-    // Schema validation
-    const schemaValidation = validateArtifact('world_document', parsed);
-    if (!schemaValidation.valid) {
-      const errorSummary = schemaValidation.errors.slice(0, 6).join('; ');
-      lastError = new Error(`Schema validation failed on attempt ${attempt}: ${errorSummary}`);
-      if (attempt === 3) {
-        throw new Error(`Agent 6.5 World Builder failed schema validation: ${errorSummary}`);
-      }
-      continue;
-    }
-
-    // Cast coverage check (victim-exempt — see enforceCastCoverage)
-    const castMembers: Array<{ name: string; role?: string; role_archetype?: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
-    if (castMembers.length > 0) {
-      const coverage = enforceCastCoverage(parsed, castMembers);
-      if (!coverage.ok) {
-        lastError = new Error(coverage.error);
-        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-        continue;
-      }
-      if (coverage.missingVictimNames.length > 0) {
-        console.log(
-          `[Agent 6.5 (World Builder)] victim-exempt cast coverage: accepted without ` +
-          `${coverage.missingVictimNames.join(', ')} (downstream consumers tolerate absence)`
-        );
-      }
-    }
-
-    // 2. Complete humourPlacementMap: add any missing positions and fill empty rationales.
-    //    This prevents both the "missing positions" and "empty rationale" retry paths
-    //    without needing a second LLM call.
-    (parsed as any).humourPlacementMap = completeHumourPlacementMap(parsed.humourPlacementMap);
-
-    // humourPlacementMap safety-net gates (should never fire after the patch above).
-    const humourMap = Array.isArray(parsed.humourPlacementMap) ? parsed.humourPlacementMap : [];
-    const presentPositions = humourMap.map((entry: any) => entry?.scenePosition).filter((v: any) => typeof v === 'string');
-    const seenPositions = new Set<string>();
-    const duplicatePositions = new Set<string>();
-    for (const position of presentPositions) {
-      if (seenPositions.has(position)) duplicatePositions.add(position);
-      seenPositions.add(position);
-    }
-
-    const missingPositions = REQUIRED_HUMOUR_SCENE_POSITIONS.filter((position) => !seenPositions.has(position));
-    if (missingPositions.length > 0) {
-      lastError = new Error(
-        `humourPlacementMap missing required scenePosition values: ${missingPositions.join(', ')}`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    if (duplicatePositions.size > 0) {
-      lastError = new Error(
-        `humourPlacementMap has duplicate scenePosition values: ${Array.from(duplicatePositions).join(', ')}`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    const missingRationaleIndex = humourMap.findIndex((entry: any) => {
-      return typeof entry?.rationale !== 'string' || entry.rationale.trim().length === 0;
-    });
-    if (missingRationaleIndex !== -1) {
-      const badPosition = humourMap[missingRationaleIndex]?.scenePosition ?? `index_${missingRationaleIndex}`;
-      lastError = new Error(
-        `humourPlacementMap[${missingRationaleIndex}] (${badPosition}) has an empty rationale`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    // 3. Force validationConfirmations all to true.  Each confirmation corresponds
-    //    to a constraint that is already checked deterministically in this function;
-    //    the LLM self-assessment is unreliable and adds no additional safety.
-    if (parsed.validationConfirmations && typeof parsed.validationConfirmations === 'object') {
-      const confirmKeys = [
-        'noNewCharacterFacts', 'noNewPlotFacts', 'castComplete',
-        'eraSpecific', 'lockedFactsPreserved', 'humourMapComplete',
-      ];
-      for (const key of confirmKeys) {
-        (parsed.validationConfirmations as any)[key] = true;
-      }
-    }
-
-    // validationConfirmations safety-net gate (should never fire after the patch above).
-    const confirmations = parsed.validationConfirmations ?? {};
-    const failedConfirmations = Object.entries(confirmations)
-      .filter(([, v]) => v !== true)
-      .map(([k, v]) => `${k}: ${v}`);
-    if (failedConfirmations.length > 0) {
-      lastError = new Error(
-        `World Builder self-validation failures: ${failedConfirmations.join('; ')}`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    // arcDescription word count gate — hard floor at `gate` words; prompt targets gate+buffer.
-    // 4. Apply enforceArcDescriptionFloor before the gate: synthesises from turningPoints when
-    //    the LLM writes fewer words than required, which is the dominant retry cause.
-    const { gate: arcDescGate, prompt: arcDescPromptTarget } = getArcDescParams();
-    const arcRaw = parsed.storyEmotionalArc?.arcDescription ?? '';
-    const arcExpanded = enforceArcDescriptionFloor(
-      arcRaw,
-      arcDescGate,
-      parsed.storyEmotionalArc?.turningPoints ?? [],
-      parsed.storyTheme,
-      parsed.storyEmotionalArc?.dominantRegister,
-    );
-    const arcDesc = forceMultiParagraphArcDescription(arcExpanded);
-    const arcDescCapped = clampToMaxWordsPreservingParagraphs(arcDesc, arcDescPromptTarget);
-    if (parsed.storyEmotionalArc && arcDescCapped) {
-      parsed.storyEmotionalArc.arcDescription = arcDescCapped;
-    }
-    const arcDescWordCount = countWords(arcDescCapped);
-    if (arcDescWordCount < arcDescGate) {
-      lastError = new Error(
-        `storyEmotionalArc.arcDescription is too short (${arcDescWordCount} words; ` +
-        `minimum ${arcDescGate}, target ${arcDescPromptTarget}). ` +
-        `Write at least ${arcDescPromptTarget} words across multiple paragraphs — ` +
-        `trace opening emotional register → rising tension → first turn → mid-point → ` +
-        `second turn → pre-climax → climax → resolution. A single dense paragraph is not enough.`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    const arcParagraphs = paragraphCount(arcDescCapped);
-    if (arcParagraphs < MIN_ARC_PARAGRAPHS) {
-      lastError = new Error(
-        `storyEmotionalArc.arcDescription must be multi-paragraph (found ${arcParagraphs}; minimum ${MIN_ARC_PARAGRAPHS})`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    // storyTheme word count gate — hard floor and target at 25 words.
-    // Deterministically expand near-threshold outputs so we do not fail on
-    // stylistic brevity when semantic content is otherwise valid.
-    parsed.storyTheme = enforceStoryThemeFloor(
-      parsed.storyTheme,
-      STORY_THEME_GATE,
-      caseTheme,
-      parsed.storyEmotionalArc?.dominantRegister,
-    );
-    const storyTheme = typeof parsed.storyTheme === 'string' ? parsed.storyTheme : '';
-    const storyThemeWordCount = countWords(storyTheme);
-    if (storyThemeWordCount < STORY_THEME_GATE) {
-      lastError = new Error(
-        `storyTheme is too short (${storyThemeWordCount} words; minimum ${STORY_THEME_GATE}, target ${STORY_THEME_TARGET}). ` +
-        `Write a complete sentence with a subject, main clause, and a nuanced qualifier about the ` +
-        `story's deeper meaning — not a title, fragment, or noun phrase.`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    // revealImplications word count gate
-    parsed.revealImplications = enforceRevealImplicationsFloor(
-      parsed.revealImplications,
-      REVEAL_IMPLICATIONS_GATE,
-      parsed.storyTheme,
-      parsed.storyEmotionalArc?.dominantRegister,
-    );
-    const revealImplicationsWordCount = countWords(parsed.revealImplications);
-    if (revealImplicationsWordCount < REVEAL_IMPLICATIONS_GATE) {
-      lastError = new Error(
-        `revealImplications is too short (${revealImplicationsWordCount} words; minimum ${REVEAL_IMPLICATIONS_GATE})`
-      );
-      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-      continue;
-    }
-
-    inputs.onProgress?.('world-builder', 'World document complete');
-    return parsed;
+    lastError = new Error(verdict.failure.message);
+    lastFailureKind = verdict.failure.kind;
+    if (attempt === lastAttempt) throw new Error(verdict.failure.fatal);
   }
 
   throw new Error(`Agent 6.5 World Builder failed after 3 attempts: ${lastError?.message}`);
+}
+
+/** A6-03 — why a World Builder attempt failed. */
+type WorldBuilderFailureKind = 'truncation' | 'parse' | 'validation-length' | 'validation-other';
+
+/**
+ * A6-12 — one failed attempt: its kind (A6-03), the message the next attempt's retry prompt carries, and the
+ * message thrown when it was the last attempt.
+ */
+interface WorldBuildFailure {
+  kind: WorldBuilderFailureKind;
+  message: string;
+  fatal: string;
+}
+
+type WorldBuildVerdict =
+  | { ok: true; doc: WorldDocumentResult }
+  | { ok: false; failure: WorldBuildFailure };
+
+function worldBuildFailure(
+  kind: WorldBuilderFailureKind,
+  message: string,
+  fatal = `Agent 6.5 World Builder failed: ${message}`,
+): WorldBuildVerdict {
+  return { ok: false, failure: { kind, message, fatal } };
+}
+
+const CONFIRMATION_KEYS = [
+  'noNewCharacterFacts', 'noNewPlotFacts', 'castComplete',
+  'eraSpecific', 'lockedFactsPreserved', 'humourMapComplete',
+] as const;
+
+/** A6-12 — the response to a parsed document, or a parse/truncation failure. */
+function parseWorldBuilderResponse(
+  response: { content: string; finishReason?: string },
+  attempt: number,
+): WorldBuildVerdict {
+  // A6-03: the transport's own word for a completion-limit stop (Azure "length", Anthropic "max_tokens").
+  const responseTruncated = response.finishReason === 'length' || response.finishReason === 'max_tokens';
+  try {
+    // CR-20: the one parse ladder. A_65b Ph8 — truncation guard before repair (phantom-structure
+    // risk, the a3c2973f class); not on an empty payload, whose jsonrepair error the retry prompt carries.
+    const parsedJson = parseLlmJson<WorldDocumentResult>(response.content, { guard: Boolean(response.content) });
+    if (parsedJson.truncated) throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
+    if (parsedJson.data === undefined) throw parsedJson.repairError;
+    return { ok: true, doc: parsedJson.data };
+  } catch (parseError) {
+    const message = `JSON parse failure on attempt ${attempt}: ${parseError}`;
+    return worldBuildFailure(responseTruncated || /truncat/i.test(message) ? 'truncation' : 'parse', message);
+  }
+}
+
+/**
+ * A6-12 — the World Builder's deterministic validator: normalise, stamp, then the gates that can still fail.
+ * Mutates and returns `parsed`. No LLM call; the only side effect is the victim-exempt log line.
+ *
+ * Gates deleted here, each proved unreachable in agent65-world-builder-properties.test.ts:
+ *  - humourPlacementMap missing / duplicate positions and empty rationale: `normalizeWorldDocumentStructure`
+ *    runs `completeHumourPlacementMap`, whose output is always the 12 positions once each, every rationale
+ *    non-empty; schema validation and cast coverage never touch the map. The second completion that used to
+ *    run here was a no-op (the function is idempotent).
+ *  - validationConfirmations: the normaliser always yields exactly the six keys, and all six are forced true.
+ *  - revealImplications length: once the storyTheme gate has passed (>= 25 words), the reveal floor appends at
+ *    least 103 words of its own, past the 90-word gate.
+ * Kept: schema, cast coverage, arc length (reachable when arc_description_gate is configured above the
+ * 203 words the fallback padding guarantees; 200 ships), arc paragraphs, storyTheme length.
+ */
+function validateWorldDocument(
+  parsed: WorldDocumentResult,
+  inputs: Pick<WorldBuilderInputs, 'caseData' | 'temporalContext'>,
+  ctx: { attempt: number; cost: number; durationMs: number; caseTheme: string },
+): WorldBuildVerdict {
+  // ── Deterministic pre-validation patches ────────────────────────────────
+  // Applied immediately after parse — before schema or content gates — so that
+  // recoverable LLM defects never burn an inner-loop retry attempt.
+  const doc = normalizeWorldDocumentStructure(parsed, inputs);
+
+  // Inject cost/duration
+  doc.cost = ctx.cost;
+  doc.durationMs = ctx.durationMs;
+
+  // Schema validation
+  const schemaValidation = validateArtifact('world_document', doc);
+  if (!schemaValidation.valid) {
+    const errorSummary = schemaValidation.errors.slice(0, 6).join('; ');
+    return worldBuildFailure(
+      'validation-other',
+      `Schema validation failed on attempt ${ctx.attempt}: ${errorSummary}`,
+      `Agent 6.5 World Builder failed schema validation: ${errorSummary}`,
+    );
+  }
+
+  // Cast coverage check (victim-exempt — see enforceCastCoverage)
+  const castMembers: Array<{ name: string; role?: string; role_archetype?: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
+  if (castMembers.length > 0) {
+    const coverage = enforceCastCoverage(doc, castMembers);
+    if (!coverage.ok) return worldBuildFailure('validation-other', coverage.error as string);
+    if (coverage.missingVictimNames.length > 0) {
+      console.log(
+        `[Agent 6.5 (World Builder)] victim-exempt cast coverage: accepted without ` +
+        `${coverage.missingVictimNames.join(', ')} (downstream consumers tolerate absence)`
+      );
+    }
+  }
+
+  // Force validationConfirmations all to true. Each confirmation corresponds to a constraint that is
+  // already checked deterministically in this function; the LLM self-assessment is unreliable and adds
+  // no additional safety. The normaliser guarantees the object and its six keys.
+  for (const key of CONFIRMATION_KEYS) {
+    doc.validationConfirmations[key] = true;
+  }
+
+  // arcDescription word count gate — hard floor at `gate` words; prompt targets gate+buffer.
+  // enforceArcDescriptionFloor runs before the gate: it synthesises from turningPoints when
+  // the LLM writes fewer words than required, which was the dominant retry cause.
+  const { gate: arcDescGate, prompt: arcDescPromptTarget } = getArcDescParams();
+  const arcRaw = doc.storyEmotionalArc?.arcDescription ?? '';
+  const arcExpanded = enforceArcDescriptionFloor(
+    arcRaw,
+    arcDescGate,
+    doc.storyEmotionalArc?.turningPoints ?? [],
+    doc.storyTheme,
+    doc.storyEmotionalArc?.dominantRegister,
+  );
+  const arcDesc = forceMultiParagraphArcDescription(arcExpanded);
+  const arcDescCapped = clampToMaxWordsPreservingParagraphs(arcDesc, arcDescPromptTarget);
+  if (doc.storyEmotionalArc && arcDescCapped) {
+    doc.storyEmotionalArc.arcDescription = arcDescCapped;
+  }
+  const arcDescWordCount = countWords(arcDescCapped);
+  if (arcDescWordCount < arcDescGate) {
+    return worldBuildFailure(
+      'validation-length',
+      `storyEmotionalArc.arcDescription is too short (${arcDescWordCount} words; ` +
+      `minimum ${arcDescGate}, target ${arcDescPromptTarget}). ` +
+      `Write at least ${arcDescPromptTarget} words across multiple paragraphs — ` +
+      `trace opening emotional register → rising tension → first turn → mid-point → ` +
+      `second turn → pre-climax → climax → resolution. A single dense paragraph is not enough.`,
+    );
+  }
+
+  const arcParagraphs = paragraphCount(arcDescCapped);
+  if (arcParagraphs < MIN_ARC_PARAGRAPHS) {
+    return worldBuildFailure(
+      'validation-length',
+      `storyEmotionalArc.arcDescription must be multi-paragraph (found ${arcParagraphs}; minimum ${MIN_ARC_PARAGRAPHS})`,
+    );
+  }
+
+  // storyTheme word count gate — hard floor and target at 25 words.
+  // Deterministically expand near-threshold outputs so we do not fail on
+  // stylistic brevity when semantic content is otherwise valid.
+  doc.storyTheme = enforceStoryThemeFloor(
+    doc.storyTheme,
+    STORY_THEME_GATE,
+    ctx.caseTheme,
+    doc.storyEmotionalArc?.dominantRegister,
+  );
+  const storyThemeWordCount = countWords(doc.storyTheme);
+  if (storyThemeWordCount < STORY_THEME_GATE) {
+    return worldBuildFailure(
+      'validation-length',
+      `storyTheme is too short (${storyThemeWordCount} words; minimum ${STORY_THEME_GATE}, target ${STORY_THEME_TARGET}). ` +
+      `Write a complete sentence with a subject, main clause, and a nuanced qualifier about the ` +
+      `story's deeper meaning — not a title, fragment, or noun phrase.`,
+    );
+  }
+
+  // revealImplications floor — no gate: with storyTheme past its gate the floor always clears 90 words.
+  doc.revealImplications = enforceRevealImplicationsFloor(
+    doc.revealImplications,
+    REVEAL_IMPLICATIONS_GATE,
+    doc.storyTheme,
+    doc.storyEmotionalArc?.dominantRegister,
+  );
+
+  return { ok: true, doc };
+}
+
+/**
+ * A6-03 (owner decision 12, CML_VERIFIED_FIXES): the retry message for a non-truncation failure. The length
+ * demands ("MUST be at least…", "a single dense paragraph is not enough") go only with a LENGTH failure — the
+ * padding floors make the length gates near-unreachable, and asking for more words after any other failure
+ * pushed the next response toward the completion ceiling.
+ */
+function buildClassifiedRetryMessage(kind: WorldBuilderFailureKind, errorMessage: string): string {
+  const lead = kind === 'parse'
+    ? `The previous response was not valid JSON:\n${errorMessage}\n\n`
+    : `The previous response failed validation with this error:\n${errorMessage}\n\n`;
+  const lengthLines = kind === 'validation-length'
+    ? `- storyEmotionalArc.arcDescription MUST be at least ${getArcDescParams().prompt} words (target ${getArcDescParams().prompt + 50}). ` +
+      `Count every word before submitting. A single dense paragraph is not enough — ` +
+      `write multiple paragraphs tracing the emotional journey from opening through climax to resolution.\n` +
+      `- storyTheme MUST be at least 25 words — a complete sentence with a subject, main clause, and nuanced qualifier. Not a title or fragment.\n` +
+      `- revealImplications MUST be at least ${REVEAL_IMPLICATIONS_GATE} words\n`
+    : '';
+  return lead +
+    `Please correct the issues and return a valid JSON object. Mandatory checks:\n` +
+    `- All required fields are present\n` +
+    `- characterPortraits has one entry per cast member\n` +
+    `- characterVoiceSketches has one entry per cast member\n` +
+    `- characterPortraits and characterVoiceSketches preserve CASE.cast name order exactly\n` +
+    `- humourPlacementMap has all 12 scene positions, each with a non-empty rationale string\n` +
+    `- Every humourPlacementMap entry must have a "rationale" field — this is required even for "forbidden" entries\n` +
+    `- humourPlacementMap must include each required scenePosition exactly once (no missing/duplicate positions)\n` +
+    `- validationConfirmations all set to true\n` +
+    lengthLines +
+    `- Return only the JSON object, no preamble`;
+}
+
+/**
+ * A6-Q02 (owner decision 12, CML_VERIFIED_FIXES): the World Document a run continues with when the World Builder
+ * fails all its attempts — the structural normaliser over an empty document (every field defaulted from the case and
+ * temporal context), as the review recommended. The caller decides whether to use it and warns.
+ */
+export function degradedWorldDocument(
+  inputs: Pick<WorldBuilderInputs, 'caseData' | 'temporalContext'>,
+): WorldDocumentResult {
+  return normalizeWorldDocumentStructure({} as WorldDocumentResult, inputs);
 }
 
 export const __testables = {
@@ -1280,4 +1373,12 @@ export const __testables = {
   buildDefaultStoryEmotionalArc,
   normalizeWorldDocumentStructure,
   enforceCastCoverage,
+  withoutRunTelemetry,
+  buildWorldBuilderUserMessage,
+  worldBuilderSystem,
+  projectCaseForWorldBuilder,
+  WORLD_BUILDER_CASE_OMIT,
+  buildClassifiedRetryMessage,
+  parseWorldBuilderResponse,
+  validateWorldDocument,
 };

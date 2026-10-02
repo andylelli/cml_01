@@ -6,6 +6,7 @@ import {
   GenerationDiagnostic,
 } from './types.js';
 import { calculateGrade, passesThreshold } from './thresholds.js';
+import { deriveRunOutcome } from './run-outcome.js';
 import { RetryManager } from './retry-manager.js';
 
 /**
@@ -17,6 +18,8 @@ export interface GenerationMetadata {
   completed_at?: Date;
   user_id?: string;
   seed_mystery?: string;
+  /** SCO-Q08 (owner decision 8): false when ENABLE_SCORING is off — the report is still written, marked unscored. */
+  scoring_enabled?: boolean;
 }
 
 /**
@@ -39,41 +42,55 @@ export class ScoreAggregator {
   private retryManager?: RetryManager;
 
   constructor(
-    thresholdConfig: ThresholdConfig = { mode: 'standard' },
+    thresholdConfig: ThresholdConfig = {},
     retryManager?: RetryManager
   ) {
-    this.thresholdConfig = thresholdConfig;
+    // SCO-Q03: `mode` is accepted and ignored (one threshold table); the report records only the overrides.
+    this.thresholdConfig = thresholdConfig.overrides ? { overrides: thresholdConfig.overrides } : {};
     this.retryManager = retryManager;
   }
 
   /**
    * Add a phase score to the aggregation
-   * @param agent - Agent identifier (e.g., 'agent4-hard-logic')
+   * @param agent - Agent identifier (e.g., 'agent3b_hard_logic_devices')
    * @param phaseName - Human-readable phase name (e.g., 'Hard Logic Devices')
    * @param score - The phase score
    * @param durationMs - Time taken for this phase
    * @param cost - Cost of this phase (LLM tokens, etc.)
    * @param errors - Any errors encountered
    */
-  addPhaseScore(
+  /**
+   * The phase report both add and upsert record: the decision from the one threshold resolver, the
+   * score's `passed` normalised to it, retry bookkeeping. SCO-05: this was a 33-line clone in each method.
+   *
+   * SCO-D03: a scorer's own pass rule can be stricter or looser than the threshold (Agent 6.5 passes at
+   * 70, the report bar is 75). When the threshold fails a score the scorer passed, the scorer wrote no
+   * failure_reason, and the report showed a failed phase with none; it now says why.
+   */
+  private buildPhaseReport(
     agent: string,
     phaseName: string,
     score: PhaseScore,
     durationMs: number,
-    cost: number = 0,
-    errors?: string[]
-  ): void {
+    cost: number,
+    errors?: string[],
+  ): PhaseReport {
     const threshold = this.getThresholdForAgent(agent);
-    const passed = passesThreshold(score, this.thresholdConfig);
+    // SCO-D12: a check that did not run neither passes nor fails a bar; it is recorded as not failed so it
+    // cannot fail `phase_thresholds_met`, and generateReport leaves it out of every aggregate.
+    const passed = score.not_applicable ? true : passesThreshold(score, this.thresholdConfig);
     const retryCount = this.retryManager?.getRetryCount(agent) || 0;
     const maxRetries = this.retryManager?.getMaxRetries(agent) || 0;
     const retryHistory = this.retryManager?.getRetryHistory(agent) || [];
 
     // Normalise score.passed to match the authoritative passesThreshold result
     // so score.passed and phase.passed always tell the same story in the report.
-    const normalisedScore: PhaseScore = { ...score, passed };
+    const normalisedScore: PhaseScore =
+      !passed && !score.failure_reason
+        ? { ...score, passed, failure_reason: `Score ${score.total}/100 below the ${threshold} phase threshold` }
+        : { ...score, passed };
 
-    const report: PhaseReport = {
+    return {
       agent,
       phase_name: phaseName,
       score: normalisedScore,
@@ -87,8 +104,17 @@ export class ScoreAggregator {
       retry_history: retryHistory.length > 0 ? retryHistory : undefined,
       errors: errors && errors.length > 0 ? errors : undefined,
     };
+  }
 
-    this.phases.push(report);
+  addPhaseScore(
+    agent: string,
+    phaseName: string,
+    score: PhaseScore,
+    durationMs: number,
+    cost: number = 0,
+    errors?: string[]
+  ): void {
+    this.phases.push(this.buildPhaseReport(agent, phaseName, score, durationMs, cost, errors));
   }
 
   /**
@@ -105,29 +131,7 @@ export class ScoreAggregator {
     cost: number = 0,
     errors?: string[]
   ): void {
-    const threshold = this.getThresholdForAgent(agent);
-    const passed = passesThreshold(score, this.thresholdConfig);
-    const retryCount = this.retryManager?.getRetryCount(agent) || 0;
-    const maxRetries = this.retryManager?.getMaxRetries(agent) || 0;
-    const retryHistory = this.retryManager?.getRetryHistory(agent) || [];
-
-    const normalisedScore: PhaseScore = { ...score, passed };
-
-    const report: PhaseReport = {
-      agent,
-      phase_name: phaseName,
-      score: normalisedScore,
-      duration_ms: durationMs,
-      cost,
-      threshold,
-      passed,
-      tests: normalisedScore.tests,
-      retry_count: retryCount > 0 ? retryCount : undefined,
-      max_retries: retryCount > 0 ? maxRetries : undefined,
-      retry_history: retryHistory.length > 0 ? retryHistory : undefined,
-      errors: errors && errors.length > 0 ? errors : undefined,
-    };
-
+    const report = this.buildPhaseReport(agent, phaseName, score, durationMs, cost, errors);
     const existingIndex = this.phases.findIndex(p => p.agent === agent);
     if (existingIndex >= 0) {
       this.phases[existingIndex] = report;
@@ -179,130 +183,23 @@ export class ScoreAggregator {
     const completedAt = metadata.completed_at || new Date();
     const totalDuration = completedAt.getTime() - metadata.started_at.getTime();
 
-    // Calculate overall score (average of phase totals)
-    const phaseScores = this.phases.map((p) => p.score.total);
+    // Calculate overall score (average of phase totals). SCO-D12: a phase whose check did not run
+    // (`not_applicable`, e.g. a skipped novelty audit) is reported but is not part of any aggregate.
+    const scoredPhases = this.phases.filter((p) => !p.score.not_applicable);
+    const phaseScores = scoredPhases.map((p) => p.score.total);
     const overallScore =
       phaseScores.length > 0
         ? phaseScores.reduce((sum, score) => sum + score, 0) / phaseScores.length
         : 0;
 
-    const overallGrade = calculateGrade(overallScore);
 
-    // Determine if all phases passed threshold. This is not the final run status,
-    // because release-gate hard stops can still force failed/aborted outcomes.
-    const phaseThresholdPassed = this.phases.every((p) => p.passed);
-
-    const releaseGateDiagnostic = this.diagnostics.find(
-      (d) => d.diagnostic_type === 'release_gate_summary'
-    );
-    const releaseGateDetails =
-      (releaseGateDiagnostic?.details as Record<string, unknown> | undefined) ?? {};
-    const releaseGateStatusRaw = releaseGateDetails['validation_status'];
-    const releaseGateHardStopCount = Number(
-      releaseGateDetails['release_gate_hard_stop_count'] ?? 0
-    );
-    const releaseGateWarningCount = Number(
-      releaseGateDetails['release_gate_warning_count'] ?? 0
-    );
-
-    const inferredDeterministicHardGateFailure = this.phases.some((phase) => {
-      const failureReason = String(phase.score.failure_reason ?? '').toLowerCase();
-      const phaseErrors = Array.isArray(phase.errors)
-        ? phase.errors.join(' ').toLowerCase()
-        : '';
-      return (
-        phase.passed === false &&
-        (/gate failed|hard gate|hard-stop|hard stop/.test(failureReason) ||
-          /gate failed|hard gate|hard-stop|hard stop/.test(phaseErrors))
-      );
-    });
-
-    const infraSignalPattern =
-      /(\[infra[_\-\s]?precheck\]|infra[_\-\s]?failure|enotfound|eai_again|dns\s+resolution\s+failed|azure\s+endpoint\s+dns|etimedout|econnreset|socket\s+hang\s+up)/i;
-    const inferredInfraFailure = this.phases.some((phase) => {
-      const failureReason = String(phase.score.failure_reason ?? '');
-      const phaseErrors = Array.isArray(phase.errors)
-        ? phase.errors.join(' ')
-        : '';
-      return infraSignalPattern.test(failureReason) || infraSignalPattern.test(phaseErrors);
-    }) || this.diagnostics.some((diagnostic) => {
-      const payload = [
-        diagnostic.key,
-        diagnostic.diagnostic_type,
-        JSON.stringify(diagnostic.details ?? {}),
-      ].join(' ');
-      return infraSignalPattern.test(payload);
-    });
-
-    const effectiveReleaseGateHardStopCount = Math.max(
-      releaseGateHardStopCount,
-      inferredDeterministicHardGateFailure ? 1 : 0,
-    );
-
-    const effectiveReleaseGateStatusRaw =
-      releaseGateStatusRaw === 'passed' || releaseGateStatusRaw === 'failed'
-        ? releaseGateStatusRaw
-        : inferredDeterministicHardGateFailure
-          ? 'failed'
-          : releaseGateStatusRaw;
-    // A hard stop ALWAYS fails the gate. `validation_status` is the story-validation pipeline's
-    // verdict, not the gate's — run a3c2973f validated clean (0 issues) yet hard-stopped on NSD
-    // clue visibility, and trusting the raw field verbatim produced the contradictory surface
-    // `release_gate_outcome: { status: "passed", hard_stop_count: 1 }` on an aborted run.
-    // Ledger P0.2 (run f90e5f09): warnings WITHOUT a hard stop are a SHIPPED needs-review gate
-    // ('warning'), not 'failed' — the story exists and was scored; run_outcome stays phase-driven.
-    const releaseGateStatus: 'passed' | 'warning' | 'failed' | 'unknown' =
-      effectiveReleaseGateHardStopCount > 0
-        ? 'failed'
-        : effectiveReleaseGateStatusRaw === 'passed' || effectiveReleaseGateStatusRaw === 'failed'
-          ? effectiveReleaseGateStatusRaw
-          : releaseGateWarningCount > 0
-            ? 'warning'
-            : this.diagnostics.some((d) => d.diagnostic_type === 'release_gate_summary')
-              ? 'passed'
-              : 'unknown';
-
-    // A_65b Ph1.3 (reliability plan) — run_outcome derives from the P0.2 definition: the release
-    // gate ∈ {passed, warning} means the story SHIPPED ⇒ 'passed'. The old phase-threshold branch
-    // stamped 'failed' on 21 shipped runs (the M1v2-2 artifact) and every corpus scan had to know
-    // that folklore to read outcomes correctly. Phase thresholds are demoted to their own field
-    // (`phase_thresholds_met`) — an advisory quality signal, never a run-failure signal. The
-    // unknown-gate fallback stays phase-driven (no gate evidence → the old conservative read).
-    const runOutcome: GenerationReport['run_outcome'] =
-      inferredInfraFailure
-        ? 'infra_failure'
-        : effectiveReleaseGateHardStopCount > 0
-        ? 'aborted'
-        : releaseGateStatus === 'failed'
-          ? 'failed'
-        : releaseGateStatus === 'passed' || releaseGateStatus === 'warning'
-          ? 'passed'
-        : phaseThresholdPassed
-          ? 'passed'
-          : 'failed';
-
+    // SCO-05: the outcome derivation lives in run-outcome.ts, a pure function of phases and diagnostics.
+    const {
+      phaseThresholdPassed, releaseGateDetails, releaseGateWarningCount, effectiveReleaseGateHardStopCount,
+      releaseGateStatus, runOutcome, runOutcomeReason, normalizedDisplayStatus,
+    } = deriveRunOutcome(this.phases, this.diagnostics);
     // Canonical report pass/fail now derives from run_outcome only.
     const passed = runOutcome === 'passed';
-
-    const runOutcomeReason =
-      runOutcome === 'infra_failure'
-        ? 'Infrastructure failure (DNS/connectivity)'
-        : runOutcome === 'aborted'
-        ? inferredDeterministicHardGateFailure
-          ? 'Deterministic hard gate failure'
-          : 'Release gate hard-stop'
-        : runOutcome === 'failed' && releaseGateStatus === 'failed'
-          ? 'Release gate failed'
-        : runOutcome === 'failed'
-          ? 'One or more phases failed threshold'
-        // A_71 — say so when 'passed' came from the phase-threshold fallback rather than from a
-        // scored gate. `unknown` means no gate evidence was recorded at all, so this run is NOT
-        // shipped by the P0.2 definition even though the outcome reads 'passed'; leaving the
-        // reason blank is what made the two readings look like a contradiction rather than a
-        // documented fallback (A_70 §4).
-        : runOutcome === 'passed' && releaseGateStatus === 'unknown'
-          ? 'Phase thresholds met; no release-gate evidence recorded (ship status unconfirmed)'
-          : undefined;
 
     /**
      * The headline cannot claim more than the DELIVERABLE earned.
@@ -378,15 +275,15 @@ export class ScoreAggregator {
     const resolvedDelta = Math.max(0, preRepairTotal - releaseGateTotal);
 
     // Calculate summary statistics
-    const phasesPassed = this.phases.filter((p) => p.passed).length;
-    const phasesFailed = this.phases.filter((p) => !p.passed).length;
+    const phasesPassed = scoredPhases.filter((p) => p.passed).length;
+    const phasesFailed = scoredPhases.filter((p) => !p.passed).length;
     const passRate =
-      this.phases.length > 0
-        ? parseFloat(((phasesPassed / this.phases.length) * 100).toFixed(1))
+      scoredPhases.length > 0
+        ? parseFloat(((phasesPassed / scoredPhases.length) * 100).toFixed(1))
         : 0;
 
     // Find weakest and strongest phases (by phase_name for readability)
-    const sortedPhases = [...this.phases].sort(
+    const sortedPhases = [...scoredPhases].sort(
       (a, b) => a.score.total - b.score.total
     );
     const weakestPhase = sortedPhases[0]?.phase_name ?? sortedPhases[0]?.score.agent;
@@ -405,14 +302,6 @@ export class ScoreAggregator {
     // Calculate total cost
     const totalCost = this.phases.reduce((sum, p) => sum + p.cost, 0);
 
-    const normalizedDisplayStatus =
-      runOutcome === 'aborted' || runOutcome === 'infra_failure'
-        ? runOutcome
-        : effectiveReleaseGateHardStopCount > 0 || releaseGateStatus === 'failed' && releaseGateWarningCount === 0
-          ? 'failed'
-          : releaseGateWarningCount > 0
-            ? 'warning'
-            : runOutcome;
     const normalizedStatusDiagnostic: GenerationDiagnostic = {
       key: 'normalized_run_status',
       agent: 'scoring',
@@ -486,7 +375,7 @@ export class ScoreAggregator {
       summary: {
         phases_passed: phasesPassed,
         phases_failed: phasesFailed,
-        total_phases: this.phases.length,
+        total_phases: scoredPhases.length, // SCO-D12: N/A phases are in `phases`, not counted
         pass_rate: passRate,
         weakest_phase: weakestPhase,
         strongest_phase: strongestPhase,
@@ -497,6 +386,13 @@ export class ScoreAggregator {
       threshold_config: this.thresholdConfig,
     };
 
+    if (metadata.scoring_enabled === false) {
+      // SCO-Q08: no phase was scored, so a 0 average would read as an F. Say so instead.
+      report.scoring_enabled = false;
+      report.overall_grade = 'N/A';
+      if (report.scoring_outcome) report.scoring_outcome.grade = 'N/A';
+      report.run_outcome_reason = `Phase scoring off (ENABLE_SCORING); ${report.run_outcome_reason ?? ''}`.trim();
+    }
     return report;
   }
 
@@ -520,18 +416,8 @@ export class ScoreAggregator {
       return ORCHESTRATOR_THRESHOLDS[agent];
     }
 
-    // Mode-based floor for everything else
-    const mode = this.thresholdConfig.mode;
-    if (mode === 'strict') return 85;
-    if (mode === 'lenient') return 65;
-    return 75; // standard
-  }
-
-  /**
-   * Get current phases (useful for debugging)
-   */
-  getPhases(): PhaseReport[] {
-    return [...this.phases];
+    // SCO-Q03: one floor for everything else (the strict / lenient modes are deleted)
+    return 75;
   }
 
   /**
@@ -542,33 +428,4 @@ export class ScoreAggregator {
     this.diagnostics = [];
   }
 
-  /**
-   * Get phase count
-   */
-  getPhaseCount(): number {
-    return this.phases.length;
-  }
-
-  /**
-   * Check if any phases have failed
-   */
-  hasFailures(): boolean {
-    return this.phases.some((p) => !p.passed);
-  }
-
-  /**
-   * Get failed phases
-   */
-  getFailedPhases(): PhaseReport[] {
-    return this.phases.filter((p) => !p.passed);
-  }
-
-  /**
-   * Get current overall score (before final report generation)
-   */
-  getCurrentOverallScore(): number {
-    if (this.phases.length === 0) return 0;
-    const sum = this.phases.reduce((acc, p) => acc + p.score.total, 0);
-    return sum / this.phases.length;
-  }
 }

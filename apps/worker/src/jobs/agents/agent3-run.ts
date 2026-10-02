@@ -6,272 +6,36 @@
  * audit (Agent 8) with one retry on failure, and writes ctx.cml + ctx.noveltyAudit.
  */
 
-import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
-import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
+import { generateCML, findUnplantedDiscriminatingClues, type CMLGenerationResult } from "@cml/prompts-llm";
 import { checkTemporalClosure, isTemporalClosureCheckEnabled,
   deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled,
   analyseTimeline, buildCaseModel, isCaseLogicEnabled, summariseTimeline,
   analyseProof, clearedBySceneOf, summariseProof } from "@cml/cml";
-import {
-  checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
-  isChronologyEnabled, renderCaseTimes, renderPlannedCulpritAlibi, summariseChronology,
+import { parseClockTime, buildCaseScopedLockedFacts,
 } from "@cml/cml";
-import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
-  alibiSpanFromWindow,
-  isValidAlibiSpan,
-  repairActualCovered,
-  renderAlibiWindow,
-} from "@cml/cml";
-import type { PhaseScore, TestResult } from "@cml/story-validation";
-import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
-import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
-import fs from "fs/promises";
-import path from "path";
-import { effectiveNoveltyThreshold, resolveNoveltyMode, loadNoveltyLedger } from "../novelty-ledger.js";
+import type { PhaseScore } from "@cml/story-validation";
+import { scoreRealCml } from "@cml/story-validation";
+import { type OrchestratorContext, preAgent9LlmRetriesEnabled, honestScore } from "./shared.js";
 // A_74 §8 DE3 — the bridge from the cross-run ledger into the structural judge's corpus.
-import { priorRunFingerprints, cellRepeatDepth } from "../prior-run-fingerprints.js";
-import { resolveWorkspaceRoot } from "../novelty-ledger.js";
-import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
-
-function buildEvidenceFallback(step: any, stepIndex: number): string {
-  const observation = String(step?.observation ?? "").trim();
-  const correction = String(step?.correction ?? "").trim();
-  const effect = String(step?.effect ?? "").trim();
-  const source = observation || correction || effect;
-  if (source.length > 0) {
-    return `Corroborating evidence for step ${stepIndex}: ${source.slice(0, 140)}`;
-  }
-  return `Corroborating evidence for inference step ${stepIndex}.`;
-}
-
-function repairInferenceRequiredEvidence(cml: any): number {
-  const caseBlock = cml?.CASE ?? cml;
-  const steps = caseBlock?.inference_path?.steps;
-  if (!Array.isArray(steps)) {
-    return 0;
-  }
-
-  let repairedCount = 0;
-  for (let i = 0; i < steps.length; i += 1) {
-    const step = steps[i];
-    if (!step || typeof step !== "object") continue;
-    if (Array.isArray(step.required_evidence) && step.required_evidence.length > 0) continue;
-
-    step.required_evidence = [buildEvidenceFallback(step, i + 1)];
-    repairedCount += 1;
-  }
-
-  return repairedCount;
-}
-
-/**
- * ── T2 FLOOR: DERIVE THE STRUCTURED ALIBI SPAN ONCE, HERE ────────────────────────────────────────
- *
- * `checkCaseTimelineDeception` prefers `cast[].alibi_span` over parsing `alibi_window`. That only
- * helps cases which HAVE a span, and every case on disk was authored before spans existed.
- *
- * This is the migration, and its placement is the point: the parse happens exactly ONCE, at Agent 3,
- * where a failure is cheap and — via `AGENT3_ALIBI_UNREADABLE_GATE` — visible. Everything downstream
- * reads numbers. That is what "no parser needed for our own facts" actually requires; a structured
- * field the model may or may not emit is not enough on its own.
- *
- * MEASURED before this existed: 6 of the 52 stored cases (12%) had a culprit whose window could not
- * be read at all, so the deception check was silent on one case in eight, and the four failures had
- * four different causes. Run 89022 scored 85/100 with its staged time of death OUTSIDE the culprit's
- * own alibi and nothing said so.
- *
- * NEVER OVERWRITES a span the model authored — a derived value must not silently replace a declared
- * one — and never invents a span from a window it cannot read. A window that stays unreadable is
- * still unreadable, and still reported; this floor closes the gap for the 88% it CAN read, not the
- * 12% it cannot.
- */
-/**
- * ── REPAIR `actual_covered` RATHER THAN ABORT ON IT ─────────────────────────────────────────────
- *
- * The culprit's alibi covering the REAL time of death makes the concealment incoherent, and Agent 3
- * will not fix it: MEASURED on runs 22362 and 25586 it returned the IDENTICAL broken case on all
- * three attempts, with feedback naming the exact correction. 25586 then aborted having paid for four
- * artifacts.
- *
- * The arithmetic is trivial and cannot fail — see `repairActualCovered`, verified 4 of 4 against every
- * stored case with this shape. So the window is trimmed and the PROSE IS RE-RENDERED FROM THE TRIMMED
- * NUMBER, which is the one thing that makes this safe: value and words come out of a single function,
- * so the repair cannot leave the case saying 5:00–6:00 while the arithmetic believes 5:00–5:30. That
- * drift is the defect this project has met three times in other clothes.
- *
- * Requires a span, so it rides with `AGENT3_ALIBI_SPAN_FLOOR`. Repairs the CULPRIT only: a witness
- * whose alibi covers the real time of death is not a contradiction, it is a witness.
- */
-export function repairCulpritAlibiCoverage(cml: any): Array<{ name: string; before: string; after: string }> {
-  const caseBlock = cml?.CASE ?? cml;
-  const mech = caseBlock?.hidden_model?.mechanism ?? {};
-  const apparent = parseClockTime(mech.apparent_time_of_death);
-  const actual = parseClockTime(mech.actual_time_of_death);
-  if (apparent === null || actual === null) return [];
-
-  const culprits: string[] = (caseBlock?.culpability?.culprits ?? []).map((n: unknown) => String(n ?? "").trim());
-  const repaired: Array<{ name: string; before: string; after: string }> = [];
-
-  for (const member of Array.isArray(caseBlock?.cast) ? caseBlock.cast : []) {
-    if (!member || typeof member !== "object") continue;
-    if (!culprits.includes(String(member.name ?? "").trim())) continue;
-    if (!isValidAlibiSpan(member.alibi_span)) continue;
-
-    const fixed = repairActualCovered(member.alibi_span, apparent, actual);
-    if (!fixed) continue;
-
-    const before = String(member.alibi_window ?? "");
-    member.alibi_span = fixed;
-    member.alibi_window = renderAlibiWindow(fixed);   // one function, so they cannot disagree
-    repaired.push({ name: String(member.name ?? "?"), before, after: member.alibi_window });
-  }
-  return repaired;
-}
-
-export function deriveAlibiSpans(cml: any): { derived: number; unreadable: string[] } {
-  const caseBlock = cml?.CASE ?? cml;
-  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
-  let derived = 0;
-  const unreadable: string[] = [];
-
-  for (const member of cast) {
-    if (!member || typeof member !== "object") continue;
-    if (isValidAlibiSpan(member.alibi_span)) continue;          // declared wins over derived
-    const window = String(member.alibi_window ?? member.alibiWindow ?? "").trim();
-    if (!window) continue;
-    const span = alibiSpanFromWindow(window);
-    if (!span) { unreadable.push(`${String(member.name ?? "?")}: ${JSON.stringify(window)}`); continue; }
-    member.alibi_span = span;
-    derived += 1;
-  }
-  return { derived, unreadable };
-}
-
-function applyCmlRepairAndRevalidate(
-  cmlResult: Awaited<ReturnType<typeof generateCML>>,
-  ctx: OrchestratorContext,
-  phase: string,
-): Awaited<ReturnType<typeof generateCML>> {
-  // A_53 P6 (inference-required-evidence-not-repaired-on-valid-path): repair empty required_evidence
-  // UNCONDITIONALLY — a schema-VALID CML can still ship steps with required_evidence:[] (Agent 5
-  // depends on it), so the prior early return on validity caused silent fair-play data loss. Only the
-  // re-validation outcome is gated.
-  const wasValid = cmlResult.validation.valid;
-  /**
-   * T2 — structure the alibi window before anything downstream reads it.
-   *
-   * FLAG-GATED, and it should have been from the start. Shipping this unflagged was a mistake: the
-   * span feeds `checkCaseTimelineDeception`, so deriving spans STRENGTHENS a gate, and a change that
-   * alters how often a gate fires is exactly what this project's flag discipline exists to control.
-   *
-   * MEASURED on run 25586: the floor derived 4 spans, the gate then saw `actual_covered` — the real
-   * time of death (5:45) inside the culprit's own alibi (5:00–6:00), a genuine defect — Agent 3 failed
-   * to fix it across all THREE attempts producing the identical case each time, and the run aborted
-   * having paid for four artifacts. The detection was right and the outcome was still a lost run.
-   *
-   * OFF restores the pre-2026-09-05 baseline exactly. ON is worth having again once `actual_covered`
-   * has a deterministic repair — trimming the culprit's window to exclude the real time of death is
-   * always satisfiable when apparent and actual differ — because then a defect the model cannot fix
-   * stops costing the whole run.
-   */
-  /**
-   * A_90 Move 2 — runs BEFORE T2 so that, with both on, T2 finds nothing left to trim. Keeps every
-   * culprit window that already satisfies the two invariants; renders the rest from the numbers with
-   * the model's location kept. MEASURED over the archive with production flags: clears 15 of 15
-   * flagged cases and touches 0 of 38 clean ones. The former abort on these codes becomes a repair.
-   */
-  let renderedByA90 = 0;
-  if (isAlibiPlanEnabled()) {
-    for (const change of renderPlannedCulpritAlibi(cmlResult.cml as any)) {
-      renderedByA90 += 1;
-      ctx.warnings.push(
-        `[A_90 alibi-plan] ${change.name}'s alibi window (${change.reason}) rendered from the two death times, ` +
-          `location kept: ${JSON.stringify(change.before)} -> ${JSON.stringify(change.after)}.`,
-      );
-    }
-  }
-  const spanFloorOn = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "");
-  const spans = spanFloorOn
-    ? deriveAlibiSpans(cmlResult.cml as any)
-    : { derived: 0, unreadable: [] as string[] };
-  if (spans.derived > 0 || spans.unreadable.length > 0) {
-    ctx.warnings.push(
-      `[T2 alibi-span] derived ${spans.derived} structured span(s) from prose windows` +
-        (spans.unreadable.length
-          ? `; ${spans.unreadable.length} window(s) UNREADABLE and left without one: ${spans.unreadable.join(" | ")}`
-          : "; every window read"),
-    );
-  }
-  /**
-   * Gated on the FLAG, not on `spans.derived > 0`.
-   *
-   * FOUND BY AUDIT 2026-09-05. The first version ran the repair only when the floor had derived at
-   * least one span — so a case where the model AUTHORED its spans (nothing to derive) never got
-   * repaired, which is precisely the case T2 is building towards. `repairCulpritAlibiCoverage` is
-   * already a no-op without a valid span, so calling it under the flag is both safe and correct.
-   */
-  if (spanFloorOn) {
-    const coverage = repairCulpritAlibiCoverage(cmlResult.cml as any);
-    for (const r of coverage) {
-      ctx.warnings.push(
-        `[T2 alibi-repair] ${r.name}'s alibi covered the REAL time of death, which Agent 3 does not fix ` +
-          `on retry (measured: identical case on all 3 attempts, twice). Trimmed deterministically and ` +
-          `the window re-rendered from the number: ${JSON.stringify(r.before)} -> ${JSON.stringify(r.after)}.`,
-      );
-    }
-  }
-  /**
-   * A_90 Moves 1 and 3 — the chronology as the case states it, against the device's solved clock:
-   * the one spelling rewrite that cannot manufacture a contradiction, then telemetry. Findings are
-   * not errors here; `AGENT3_CHRONOLOGY_ERRORS` raises them inside generateCML's own loop instead,
-   * where they reach the retry and Agent 4 rather than an abort.
-   */
-  if (isChronologyEnabled()) {
-    try {
-      const caseBlock = (cmlResult.cml as any)?.CASE ?? cmlResult.cml;
-      const facts = (ctx.lockedFactRegistry ?? []) as any[];
-      const chrono = deriveCaseChronology(caseBlock, facts);
-      for (const change of renderCaseTimes(caseBlock, chrono)) {
-        renderedByA90 += 1;
-        ctx.warnings.push(
-          `[A_90 chronology] respelled ${change.path}: ${JSON.stringify(change.before)} -> ${JSON.stringify(change.after)} (${change.reason}).`,
-        );
-      }
-      const anchoring = findUnanchoredClockValues(caseBlock, chrono);
-      const findings = checkChronologyCoherence(caseBlock, chrono, facts);
-      ctx.warnings.push(`[A_90 chronology] ${phase}: ${summariseChronology(chrono, anchoring, findings)}`);
-    } catch (error) {
-      ctx.warnings.push(`[A_90 chronology] telemetry failed during ${phase}: ${(error as Error).message}`);
-    }
-  }
-
-  const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
-  if (repairedCount === 0 && renderedByA90 === 0) {
-    return cmlResult;
-  }
-
-  const repairedValidation = validateCml(cmlResult.cml as any);
-  if (!repairedValidation.valid) {
-    // Repair didn't yield a valid document — preserve the prior result/validation.
-    return cmlResult;
-  }
-
-  if (repairedCount > 0) {
-    ctx.warnings.push(
-      `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase}` +
-        (wasValid ? "." : " and recovered schema validity."),
-    );
-  }
-  if (renderedByA90 > 0 && !wasValid) {
-    ctx.warnings.push(
-      `[A_90] ${renderedByA90} rendered value(s) recovered validity during ${phase} — the run continues where it used to abort.`,
-    );
-  }
-  return {
-    ...cmlResult,
-    validation: repairedValidation,
-  };
-}
+// A34-03: no worker-agent -> worker-agent import; the pure helper lives in @cml/cml.
+import { writeLockedFactsArtifact } from "./agent3b/locked-fact-registry.js";
+import { stripLeadingArticleFromLockedValue } from "@cml/cml";
+import {
+  applyCmlRepairAndRevalidate,
+  reportNormalizationNotes,
+  buildCmlGenerationRequest,
+  checkVictimCulpritCollision,
+} from "./agent3/cml-acceptance.js";
+import {
+  runNoveltyPhase,
+  scoreNoveltyPhase,
+} from "./agent8-run.js";
+// Re-exported so existing importers of this module keep their path.
+export {
+  buildCmlGenerationRequest,
+  deriveAlibiSpans,
+  repairCulpritAlibiCoverage,
+} from "./agent3/cml-acceptance.js";
 
 /**
  * Do the case's temporal anchors agree with the times the story will actually print?
@@ -345,94 +109,55 @@ export function checkLockedFactTimeAlignment(ctx: OrchestratorContext): string[]
   return findings;
 }
 
-/**
- * Exported for `harness:agent3:direct`. The harness must build the SAME request production does —
- * a copy would test a prompt nobody runs, which is the divergence trap this repo has paid for
- * repeatedly (`restated-facts-must-be-generated-and-checked`).
- */
-export function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints: any) {
-  const setting = ctx.setting!;
-  const cast = ctx.cast!;
-  const backgroundContext = ctx.backgroundContext!;
-  const hardLogicDevices = ctx.hardLogicDevices!;
-  const hardLogicDirectives = ctx.hardLogicDirectives!;
-
-  return {
-    decade: setting.setting.era.decade,
-    location: setting.setting.location.description,
-    institution: setting.setting.location.type,
-    tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
-    weather: setting.setting.atmosphere.weather,
-    socialStructure: setting.setting.era.socialNorms.join(", "),
-    theme:
-      ctx.inputs.theme && ctx.inputs.theme.trim().length > 0
-        ? `${ctx.inputs.theme} | hard-logic modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`
-        : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
-    castSize: cast.cast.characters.length,
-    castNames: cast.cast.characters.map((c: any) => c.name),
-    castGenders: Object.fromEntries(cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender])),
-    detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
-    victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
-    complexityLevel: hardLogicDirectives.complexityLevel,
-    mechanismFamilies: hardLogicDirectives.mechanismFamilies,
-    primaryAxis: ctx.primaryAxis,
-    hardLogicModes: hardLogicDirectives.hardLogicModes,
-    difficultyMode: hardLogicDirectives.difficultyMode,
-    hardLogicDevices: hardLogicDevices.devices,
-    // REVIEW_04 §11.2 B1 — the device's locked times, so Agent 3 does not author a second clock.
-    // Self-gating: `buildCMLPrompt` ignores them unless AGENT3_DEVICE_TIME_BINDING is on, and the
-    // registry is empty unless `enableLockedFactRegistry` populated it.
-    lockedFacts: ctx.lockedFactRegistry,
-    backgroundContext,
-    noveltyConstraints,
-    runId: ctx.runId,
-    projectId: ctx.projectId || "",
-  };
-}
-
-/**
- * F1b: Validate that no culprit in culpability.culprits[] has role="victim" in the cast.
- * When the CML generator incorrectly assigns the victim as the culprit, Agent 9's
- * enforceCulpritEvidencePresence will inject an accusation for a dead character — producing
- * a story where the victim is simultaneously dead in Ch1 and accused in the final chapter.
- * Returns a list of collision messages (empty = clean).
- */
-function checkVictimCulpritCollision(cml: any): string[] {
-  const culprits: string[] = Array.isArray(cml?.CASE?.culpability?.culprits)
-    ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim()).filter(Boolean)
-    : [];
-  if (culprits.length === 0) return [];
-
-  const victimNames = new Set<string>(
-    ((cml?.CASE?.cast ?? []) as any[])
-      .filter((c: any) => {
-        // Generated CML uses role_archetype ("victim", "the victim").
-        // Example YAMLs may use the legacy `role` field — check both.
-        // A_53 P4 (Pattern D): exact-match the controlled vocabulary, never substring — otherwise
-        // "victim's confidant"/"victim advocate" false-positive as the victim.
-        const ra = String(c.role_archetype ?? '').trim().toLowerCase().replace(/^the\s+/, '');
-        const roleField = String(c.role ?? '').trim().toLowerCase();
-        return ra === 'victim' || roleField === 'victim';
-      })
-      .map((c: any) => String(c.name ?? '').trim().toLowerCase())
-  );
-
-  return culprits
-    .filter((name) => victimNames.has(name.toLowerCase()))
-    .map((name) => `CML victim/culprit collision: "${name}" is listed as both a victim (role=victim in cast) and a culprit (culpability.culprits). This will cause an impossible story — accusation injected for a dead character.`);
-}
-
 export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
-  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
 
   // ── Agent 3: CML generation ────────────────────────────────────────────────
+  let cmlResult = await generateAcceptedCml(ctx);
+
+  // F1b: Victim/culprit collision check — retry once with explicit exclusions before failing.
+  cmlResult = await retryOnVictimCulpritCollision(ctx, cmlResult);
+
+  ctx.reportProgress("cml", "Mystery structure generated and validated", 50);
+
+  // ── CML quality score ─────────────────────────────────────────────────────
+  await scoreCmlPhase(ctx, cmlResult);
+
+  // ── Agent 8: Novelty Audit ─────────────────────────────────────────────────
+  // A_53 P6 (novelty-audit-is-NOT-disabled-live): resolve the default threshold from the SINGLE
+  // source of truth (getGenerationParams, already clamped [0,1]) instead of a hardcoded 0.9 that
+  // silently diverged from the YAML. Explicit ctx.inputs / env still override.
+  cmlResult = await runNoveltyPhase(ctx, retriesEnabled, cmlResult);
+
+  // ── Novelty phase score ───────────────────────────────────────────────────
+  await scoreNoveltyPhase(ctx);
+
+  // A_50 §9.3 fix #2 — observability: flag discriminating-test evidence that is NOT planted before
+  // the reveal scene (the probe's "reveal uses evidence not planted earlier"). Non-fatal — surfaces
+  // the gap for fair-play/repair without aborting; the contract fix lives in the Agent 3 prompt.
+  try {
+    const { unplanted, unmapped } = findUnplantedDiscriminatingClues(ctx.cml);
+    if (unplanted.length > 0) {
+      ctx.warnings.push(
+        `[agent3-discriminating-planting] (pre-repair snapshot; Agent 6 reschedules) ${unplanted.length} discriminating clue(s) not planted before the reveal scene` +
+          `${unmapped.length ? ` (${unmapped.length} absent from clue_to_scene_mapping)` : ""}: ${unplanted.join(", ")} — ` +
+          `reveal may rely on unplanted evidence (fair-play risk).`,
+      );
+    }
+  } catch { /* best-effort observability */ }
+
+  extendLockedFactRegistryWithCaseFacts(ctx);
+  reportTemporalClosure(ctx);
+  reportCaseLogic(ctx);
+}
+
+async function generateAcceptedCml(ctx: OrchestratorContext) {
   const cmlStart = Date.now();
   let cmlResult = await generateCML(
     ctx.client,
     buildCmlGenerationRequest(ctx, ctx.noveltyConstraints),
-    ctx.examplesRoot,
+    ctx.examplesRoot
   );
 
   cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "initial CML generation");
@@ -448,13 +173,7 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push(`Agent 3 time-model split: ${finding}.`);
   }
 
-  // What normalization had to INVENT because the model did not supply it. The culprit is the one
-  // that matters: on run 20260802-1654 the model returned `culprits: []`, normalization filled it
-  // positionally with the falsely-accused suspect, and the run shipped, scored 80, and had the
-  // resulting defect attributed to the prose. A fabricated answer must never read like a decided one.
-  for (const note of cmlResult.normalizationNotes ?? []) {
-    ctx.warnings.push(`Agent 3 normalization: ${note}`);
-  }
+  reportNormalizationNotes(ctx, cmlResult); // what normalization invented (see the function)
 
   if (!cmlResult.validation.valid) {
     if (cmlResult.degraded) {
@@ -483,21 +202,20 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
        * "validation invalid", because the general case cannot be proven unrepairable from here.
        */
       const UNREPAIRABLE_DEGRADE_CODES = ["apparent_not_covered", "actual_covered", "times_identical"];
-      const fatal = unresolved.filter((e) =>
-        UNREPAIRABLE_DEGRADE_CODES.some((code) => String(e).includes(code)),
+      const fatal = unresolved.filter((e) => UNREPAIRABLE_DEGRADE_CODES.some((code) => String(e).includes(code))
       );
       if (fatal.length > 0) {
         fatal.forEach((e) => ctx.errors.push(`Agent 3: unrepairable CML defect — ${e}`));
         throw new Error(
           `CML generation failed validation: ${fatal.length} unrepairable defect(s) that Agent 9's ` +
-            `preflight will reject and no downstream pass can fix — aborting here rather than after ` +
-            `five more paid agents. First: ${String(fatal[0]).slice(0, 200)}`,
+          `preflight will reject and no downstream pass can fix — aborting here rather than after ` +
+          `five more paid agents. First: ${String(fatal[0]).slice(0, 200)}`
         );
       }
 
       ctx.warnings.push(
         `Agent 4: CML degraded — proceeding with ${unresolved.length} unresolved validation warning(s) (ran out of revision budget).`,
-        ...unresolved.slice(0, 10).map((e) => `Agent 4 unresolved: ${e}`),
+        ...unresolved.slice(0, 10).map((e) => `Agent 4 unresolved: ${e}`)
       );
       ctx.revisedByAgent4 = true;
       ctx.revisionAttempts = cmlResult.revisionDetails?.attempts;
@@ -536,14 +254,12 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   for (const finding of checkLockedFactTimeAlignment(ctx)) {
     ctx.warnings.push(`[A_80 F13] locked-fact/CML time alignment: ${finding}`);
   }
+  return cmlResult;
+}
 
-  // F1b: Victim/culprit collision check — retry once with explicit exclusions before failing.
+async function retryOnVictimCulpritCollision(ctx: OrchestratorContext, cmlResult: CMLGenerationResult) {
   const initialCollisions = checkVictimCulpritCollision(ctx.cml);
   if (initialCollisions.length > 0) {
-    if (!contractRecoveryEnabled) {
-      initialCollisions.forEach((msg) => ctx.errors.push(`Agent 3: ${msg}`));
-      throw new Error("CML generation produced a victim/culprit collision (contract recovery disabled)");
-    }
     const victimNames: string[] = ((ctx.cast as any)?.cast?.crimeDynamics?.victimCandidates ?? []).map(String).filter(Boolean);
     const detectiveNames: string[] = ((ctx.cast as any)?.cast?.crimeDynamics?.detectiveCandidates ?? []).map(String).filter(Boolean);
     const exclusionNames = [...new Set([...victimNames, ...detectiveNames])];
@@ -554,11 +270,12 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       await generateCML(
         ctx.client,
         { ...buildCmlGenerationRequest(ctx, ctx.noveltyConstraints), culpritExclusionNames: exclusionNames },
-        ctx.examplesRoot,
+        ctx.examplesRoot
       ),
       ctx,
-      "collision-repair retry",
+      "collision-repair retry"
     );
+    reportNormalizationNotes(ctx, retryResult, "collision-repair retry"); // A34-D06
     // A_53 P3 (collision-retry-cost-double-count): retryResult.cost is the CUMULATIVE byAgent total,
     // so accumulating double-counts the first generation — assign, like the novelty-retry path below.
     ctx.agentCosts["agent3_cml"] = retryResult.cost;
@@ -572,406 +289,30 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     ctx.cml = retryResult.cml as any;
     cmlResult = retryResult;
   }
+  return cmlResult;
+}
 
-  ctx.reportProgress("cml", "Mystery structure generated and validated", 50);
-
-  // ── CML quality score ─────────────────────────────────────────────────────
+async function scoreCmlPhase(ctx: OrchestratorContext, cmlResult: CMLGenerationResult) {
   if (ctx.enableScoring && ctx.scoreAggregator) {
-    const cmlRevisedByAgent4 = cmlResult.revisedByAgent4 ?? false;
-    const cmlDegraded = cmlResult.degraded ?? false;
-    const cmlAttemptCount = cmlResult.attempt ?? 1;
-    const cmlRepairCount = cmlResult.revisionDetails?.attempts ?? (cmlRevisedByAgent4 ? 1 : 0);
-    // GRADED quality (redesign §6/§9.2): replace the binary 60-vs-100 penalty with a score derived
-    // from how much repair was actually needed — each targeted patch/revision costs points (floored),
-    // and a degraded CML (shipped with unresolved validation warnings) takes an honest deeper cut.
-    let cmlQualityScore = 100;
-    if (cmlRevisedByAgent4) {
-      cmlQualityScore = Math.max(55, 100 - Math.min(40, Math.max(1, cmlRepairCount) * 12));
+    void cmlResult;
+    // Owner decision 8 (SCO-Q01): scoreRealCml alone. The vanity score hardcoded validation, completeness
+    // and consistency to 100 and took quality from the Agent-4 repair count; the count stays in the warnings.
+    let cmlScore: PhaseScore;
+    try {
+      cmlScore = honestScore(() => scoreRealCml(ctx.cml), "agent3-cml");
+    } catch (error) {
+      ctx.warnings.push(`CML Generation: Scoring failed - ${(error as Error).message} - continuing without retry`);
+      return;
     }
-    if (cmlDegraded) {
-      cmlQualityScore = Math.min(cmlQualityScore, 45);
-    }
-    const cmlTotal = Math.round(100 * 0.5 + cmlQualityScore * 0.3 + 100 * 0.2);
-    // T3.5: the vanity score hardcodes validation/completeness/consistency = 100 and derives quality
-    // only from the Agent-4 repair COUNT. applyHonestScorer swaps in scoreRealCml (content assertions
-    // on the CASE block) when HONEST_SCORERS=enforce; default OFF keeps this byte-identical.
-    const vanityCmlScore: PhaseScore = {
-      agent: "agent3-cml-generation",
-      validation_score: 100,
-      quality_score: cmlQualityScore,
-      completeness_score: 100,
-      consistency_score: 100,
-      total: cmlTotal,
-      grade: (cmlTotal >= 90 ? "A" : cmlTotal >= 80 ? "B" : cmlTotal >= 70 ? "C" : cmlTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
-      passed: true,
-      tests: [
-        {
-          name: "Schema validation",
-          category: "validation" as const,
-          passed: true,
-          score: 100,
-          weight: 2,
-          message: `Valid after ${cmlAttemptCount} attempt(s)`,
-        },
-        {
-          name: "Structural revision (Agent 4)",
-          category: "quality" as const,
-          passed: !cmlRevisedByAgent4 && !cmlDegraded,
-          score: cmlQualityScore,
-          weight: 1,
-          message: cmlDegraded
-            ? `Shipped with ${cmlResult.unresolvedLogicWarnings?.length ?? 0} unresolved validation warning(s) after ${cmlRepairCount} repair(s)`
-            : cmlRevisedByAgent4
-            ? `Required ${cmlRepairCount} targeted repair(s)/revision(s)`
-            : "No structural revision needed",
-        },
-      ],
-    };
-    const cmlScore = applyHonestScorer(vanityCmlScore, () => scoreRealCml(ctx.cml), ctx.warnings, "agent3-cml");
     ctx.scoreAggregator.upsertPhaseScore(
       "agent3_cml",
       "CML Generation",
       cmlScore,
       ctx.agentDurations["agent3_cml"] ?? 0,
-      ctx.agentCosts["agent3_cml"] ?? 0,
+      ctx.agentCosts["agent3_cml"] ?? 0
     );
     try { await ctx.savePartialReport(); } catch { /* best-effort */ }
   }
-
-  // ── Agent 8: Novelty Audit ─────────────────────────────────────────────────
-  // A_53 P6 (novelty-audit-is-NOT-disabled-live): resolve the default threshold from the SINGLE
-  // source of truth (getGenerationParams, already clamped [0,1]) instead of a hardcoded 0.9 that
-  // silently diverged from the YAML. Explicit ctx.inputs / env still override.
-  const noveltyThresholdDefault =
-    getGenerationParams().agent8_novelty.params.thresholds.similarity_threshold_default;
-  const baseSimilarityThreshold =
-    typeof ctx.inputs.similarityThreshold === "number"
-      ? ctx.inputs.similarityThreshold
-      : Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || noveltyThresholdDefault);
-  // T1.6: when NOVELTY_CROSS_RUN is on, cap the threshold so the audit actually fires (the static
-  // default ≥1.0 deliberately skips it). Default-OFF ⇒ threshold and skip behaviour are unchanged.
-  const similarityThreshold = effectiveNoveltyThreshold(baseSimilarityThreshold);
-  // A_53 P7: NOVELTY_MODE=off skips the audit entirely (single source for on/off/active).
-  const noveltyMode = resolveNoveltyMode();
-  const shouldSkipNovelty =
-    Boolean(ctx.inputs.skipNoveltyCheck) || similarityThreshold >= 1 || noveltyMode === "off";
-
-  // A_56 8-A — deterministic-corpus novelty judge via the LLM skeleton-extractor (SHADOW). This is the
-  // only path that can produce the hand-authored `false_assumption_pattern` / `inference_shape` labels
-  // the structural judge gates on (a deterministic skeleton scores `distinct` for everything). It LOGS
-  // the structural verdict next to the LLM audit and NEVER blocks/skips — gated by NOVELTY_SKELETON_JUDGE
-  // (off|shadow, default shadow). Fully guarded: any error is swallowed so it can't break a run, and it
-  // shares the seed corpus with the LLM audit. Promote to gating only after the shadow telemetry shows it
-  // tracks the LLM auditor (see the novelty-judge-needs-skeleton-extractor memory).
-  /**
-   * A_86 item 49 — shadow, and it has never gated a run.
-   *
-   * Left at `shadow` rather than flipped to `off`: unlike the rubric scorer this one is CHEAP and it
-   * is the only thing that would catch a structural clone, which the deterministic skeleton cannot
-   * (it reports "distinct" every time, because the corpus's belief/inference labels are hand
-   * authored). Turning it off to save ~0.3% would remove the only real novelty check. `=off` is
-   * available when credits are short, and its spend is now in the run summary's shadow line.
-   */
-  const skeletonJudgeMode = (process.env.NOVELTY_SKELETON_JUDGE ?? "shadow").toLowerCase();
-  if (skeletonJudgeMode !== "off" && noveltyMode !== "off") {
-    try {
-      const sjStart = Date.now();
-      const extract = createSkeletonExtractor(
-        (chatArgs) =>
-          ctx.client.chat({
-            ...chatArgs,
-            model: chatArgs.model ?? process.env.NOVELTY_SKELETON_MODEL,
-            logContext: { agent: "NoveltySkeletonJudge", runId: ctx.runId, projectId: ctx.projectId || "unknown" },
-          } as any),
-        { model: process.env.NOVELTY_SKELETON_MODEL },
-      );
-      const skeleton = await extract(ctx.cml, ctx.runId);
-      // A_74 §8 DE3 — the judge finally sees this pipeline's own history, not just seeds + cliches.
-      const priorRecords = await loadNoveltyLedger();
-      const priors = priorRunFingerprints(priorRecords);
-      const verdict = judgeNovelty(skeleton, loadReferenceCorpus(priors));
-      const cell = cellRepeatDepth(priorRecords, skeleton.axis, skeleton.mechanism_family);
-      ctx.agentDurations["agent8_skeleton_judge"] = Date.now() - sjStart;
-      /**
-       * A_74 §8 DE3 — REPEAT DEPTH, printed next to the verdict on purpose.
-       *
-       * `severity` scores a candidate that shares BOTH axis and mechanism_family with a prior run as
-       * `distinct` (sharesBelief false, trickShared 1 — it falls through both branches). So a run can
-       * be the ninth consecutive time-of-death trick and still be pronounced distinct. Printing the
-       * depth beside the verdict is what makes that visible; the threshold itself is left alone while
-       * the judge is in shadow.
-       */
-      console.warn(
-        `[DE3 cell] axis=${cell.axis} family=${cell.family} — this cell has been shipped ` +
-          `${cell.depth}/${cell.window} recent run(s)` +
-          (cell.sinceLastUse === null ? " (NEVER used before)" : `, last used ${cell.sinceLastUse} run(s) ago`) +
-          (cell.depth >= 3 ? " — REPEAT: the verdict below is not measuring this." : ""),
-      );
-      console.info(
-        `[Novelty skeleton-judge SHADOW] ${verdict.verdict} — ` +
-          (verdict.nearest
-            ? `nearest ${verdict.nearest.corpus}:${verdict.nearest.id} (${verdict.nearest.relation})`
-            : "no corpus") +
-          `; skeleton=${JSON.stringify(skeleton)}; ${verdict.divergence_directive}`,
-      );
-      /**
-       * A_74 §8 DE3 / §8.1.5 — PERSIST IT. The judge has run in shadow by default for a long time,
-       * printing `skeleton={...}` to a console nobody kept and calling `upsertDiagnostic`, and the
-       * surviving run report contains no occurrence of `skeleton`, `false_assumption_pattern` or
-       * `inference_shape`. A shadow deployment that produces no retrievable dataset is paying for
-       * calls and buying nothing. This writes one small file per run, next to the other run artefacts.
-       */
-      try {
-        // Same anchoring as the ledger: walk from this module, never from cwd (A_73 §12.1).
-        const logsDir = path.join(resolveWorkspaceRoot(), "apps", "worker", "logs");
-        await fs.mkdir(logsDir, { recursive: true });
-        await fs.writeFile(
-          path.join(logsDir, `novelty-skeleton-${ctx.runId}.json`),
-          JSON.stringify({ runId: ctx.runId, recordedAt: new Date().toISOString(), skeleton, verdict, cell, priorCorpusSize: priors.length }, null, 2),
-          "utf-8",
-        );
-      } catch (e) {
-        console.warn(`[DE3] skeleton not persisted: ${(e as Error).message}`);
-      }
-      ctx.scoreAggregator?.upsertDiagnostic(
-        "novelty_skeleton_judge",
-        "NoveltySkeletonJudge",
-        "Novelty (skeleton, shadow)",
-        verdict.verdict,
-        { skeleton, verdict },
-      );
-      if (verdict.verdict !== "distinct") {
-        ctx.warnings.push(
-          `[Novelty skeleton-judge SHADOW] ${verdict.verdict} vs ${verdict.nearest?.id ?? "?"}: ${verdict.divergence_directive}`,
-        );
-      }
-    } catch (e) {
-      console.warn(`[Novelty skeleton-judge SHADOW] skipped: ${(e as Error).message}`);
-    }
-  }
-
-  if (!shouldSkipNovelty) {
-    ctx.reportProgress("novelty", "Checking novelty vs seed patterns...", 52);
-
-    const runNoveltyAudit = async (candidate: any) => {
-      const noveltyStart = Date.now();
-      const result = await auditNovelty(ctx.client, {
-        generatedCML: candidate,
-        seedCMLs: ctx.seedEntries.map((s: any) => s.cml),
-        similarityThreshold,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
-      ctx.agentCosts["agent8_novelty"] = result.cost;
-      ctx.agentDurations["agent8_novelty"] = Date.now() - noveltyStart;
-      return result;
-    };
-
-    ctx.noveltyAudit = await runNoveltyAudit(ctx.cml);
-
-    if (ctx.noveltyAudit!.status === "fail" && retriesEnabled) {
-      ctx.warnings.push("Agent 8: Novelty audit failed; regenerating CML with stronger divergence constraints");
-      ctx.noveltyAudit!.violations.forEach((v: string) => ctx.warnings.push(`  - ${v}`));
-
-      const strongerConstraints = {
-        ...ctx.noveltyConstraints,
-        areas: Array.from(
-          new Set([
-            ...ctx.noveltyConstraints.areas,
-            "culprit identity and motive structure",
-            "constraint-space shape and contradictions",
-            "discriminating test trigger conditions",
-          ])
-        ),
-        avoidancePatterns: Array.from(
-          new Set([
-            ...ctx.noveltyConstraints.avoidancePatterns,
-            ...ctx.noveltyAudit!.violations,
-            ...ctx.noveltyAudit!.warnings,
-            ...ctx.noveltyAudit!.recommendations,
-            `Most similar seed: ${ctx.noveltyAudit!.mostSimilarSeed}`,
-          ])
-        ).slice(0, 16),
-      };
-
-      ctx.reportProgress("cml", "Regenerating CML with stronger novelty constraints...", 54);
-      const cmlRetryStart = Date.now();
-      cmlResult = await generateCML(
-        ctx.client,
-        buildCmlGenerationRequest(ctx, strongerConstraints),
-        ctx.examplesRoot,
-      );
-
-      cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "novelty retry CML generation");
-
-      ctx.agentCosts["agent3_cml"] = cmlResult.cost;
-      ctx.agentDurations["agent3_cml"] += Date.now() - cmlRetryStart;
-
-      if (!cmlResult.validation.valid) {
-        ctx.errors.push("Agent 3: Generated invalid CML after novelty retry");
-        throw new Error("CML generation failed validation after novelty retry");
-      }
-
-      ctx.cml = cmlResult.cml as any;
-
-      // F1b: Repeat collision check after novelty retry.
-      const retryCollisions = checkVictimCulpritCollision(ctx.cml);
-      if (retryCollisions.length > 0) {
-        retryCollisions.forEach((msg) => ctx.errors.push(`Agent 3: ${msg}`));
-        throw new Error("CML novelty retry produced a victim/culprit collision — cannot proceed");
-      }
-
-      ctx.noveltyAudit = await runNoveltyAudit(ctx.cml);
-    } else if (ctx.noveltyAudit!.status === "fail") {
-      ctx.warnings.push(
-        "Agent 8: Novelty audit failed (deterministic mode: novelty retry disabled); applying warning/hard-fail policy to current output"
-      );
-    }
-
-    if (ctx.noveltyAudit!.status === "fail") {
-      // A_53 P7 (audit-runs-but-is-toothless-warning-only): NOVELTY_MODE governs the verdict.
-      // active = a confirmed clone blocks (sets `blocking` for the orchestrator binding gate AND
-      // throws, unless forceWarnings overrides); shadow (default) = downgrade to a warning.
-      if (noveltyMode === "active") {
-        ctx.noveltyAudit = { ...ctx.noveltyAudit!, blocking: true };
-        if (!ctx.inputs.forceWarnings) {
-          ctx.errors.push("Agent 8: Novelty audit FAILED (NOVELTY_MODE=active) - too similar to seed patterns");
-          ctx.noveltyAudit.violations.forEach((v: string) => ctx.errors.push(`  - ${v}`));
-          throw new Error("Novelty audit failed (NOVELTY_MODE=active)");
-        }
-        ctx.warnings.push("Agent 8: Novelty audit failed (NOVELTY_MODE=active) but forceWarnings override is set; continuing.");
-        ctx.noveltyAudit = { ...ctx.noveltyAudit!, status: "warning", blocking: true };
-      } else {
-        ctx.warnings.push(`Agent 8: Novelty audit failed (NOVELTY_MODE=${noveltyMode}); continuing with warning`);
-        ctx.noveltyAudit!.violations.forEach((v: string) => ctx.warnings.push(`  - ${v}`));
-        ctx.noveltyAudit = { ...ctx.noveltyAudit!, status: "warning" };
-      }
-    } else if (ctx.noveltyAudit!.status === "warning") {
-      ctx.warnings.push("Agent 8: Moderate similarity detected");
-      ctx.noveltyAudit!.warnings.forEach((w: string) => ctx.warnings.push(`  - ${w}`));
-    }
-
-    // Pillar 3 (Unit 3.3): flag blocking when gate is active and status is warning.
-    // Covers both native-warning and fail-downgraded-to-warning paths above.
-    if (ctx.inputs.enableBindingGates && ctx.noveltyAudit!.status === "warning") {
-      ctx.noveltyAudit = { ...ctx.noveltyAudit!, blocking: true };
-    }
-
-    ctx.reportProgress(
-      "novelty_math" as any,
-      `Novelty math: weights plot 0.30, character 0.25, setting 0.15, solution 0.25, structural 0.05 | threshold ${similarityThreshold.toFixed(2)} | most similar ${ctx.noveltyAudit!.mostSimilarSeed} (${ctx.noveltyAudit!.highestSimilarity.toFixed(2)})`,
-      57
-    );
-    ctx.reportProgress("novelty", `Novelty check: ${ctx.noveltyAudit!.status}`, 58);
-  } else {
-    ctx.reportProgress(
-      "novelty",
-      similarityThreshold >= 1 ? "Novelty check skipped (threshold >= 1.0)" : "Novelty check skipped",
-      58
-    );
-  }
-
-  // ── Novelty phase score ───────────────────────────────────────────────────
-  if (ctx.enableScoring && ctx.scoreAggregator) {
-    if (ctx.noveltyAudit) {
-      const highestSim = ctx.noveltyAudit.highestSimilarity ?? 0;
-      const noveltyStatus = ctx.noveltyAudit.status;
-      const noveltyTotal = noveltyStatus === "pass"
-        ? Math.max(80, Math.round((1 - highestSim) * 100))
-        : noveltyStatus === "warning" ? 70 : 45;
-      const noveltyViolationTests: TestResult[] = ctx.noveltyAudit.violations.map((v: string) => ({
-        name: "Novelty violation",
-        category: "quality" as const,
-        passed: false,
-        score: 0,
-        weight: 0.5,
-        message: v,
-      }));
-      ctx.scoreAggregator.upsertPhaseScore(
-        "agent8_novelty",
-        "Novelty Audit",
-        {
-          agent: "agent8-novelty-audit",
-          // Floor validation_score at 60 when the novelty check passes so it
-          // satisfies COMPONENT_MINIMUMS.validation_score (= 60).  A failing
-          // story (highestSim ≥ 0.90) already produces a raw score of ≤ 10,
-          // which correctly fails the component minimum without the floor.
-          validation_score: noveltyStatus !== "fail"
-            ? Math.max(60, Math.round((1 - highestSim) * 100))
-            : Math.round((1 - highestSim) * 100),
-          quality_score: ctx.noveltyAudit.violations.length === 0 ? 100 : Math.max(0, 100 - ctx.noveltyAudit.violations.length * 20),
-          completeness_score: 100,
-          consistency_score: 100,
-          total: noveltyTotal,
-          grade: (noveltyTotal >= 90 ? "A" : noveltyTotal >= 80 ? "B" : noveltyTotal >= 70 ? "C" : noveltyTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
-          passed: noveltyStatus !== "fail",
-          failure_reason: noveltyStatus === "fail"
-            ? `Too similar to seed patterns (${Math.round(highestSim * 100)}% match with "${ctx.noveltyAudit.mostSimilarSeed}")`
-            : undefined,
-          tests: [
-            {
-              name: "Similarity below threshold",
-              category: "validation" as const,
-              passed: noveltyStatus !== "fail",
-              score: Math.round((1 - highestSim) * 100),
-              weight: 2,
-              message: `${Math.round(highestSim * 100)}% similar to "${ctx.noveltyAudit.mostSimilarSeed}" — ${noveltyStatus}`,
-            },
-            ...noveltyViolationTests,
-          ],
-        },
-        ctx.agentDurations["agent8_novelty"] ?? 0,
-        ctx.agentCosts["agent8_novelty"] ?? 0,
-      );
-    } else {
-      // Novelty check skipped
-      ctx.scoreAggregator.upsertPhaseScore(
-        "agent8_novelty",
-        "Novelty Audit",
-        {
-          agent: "agent8-novelty-audit",
-          validation_score: 100,
-          quality_score: 100,
-          completeness_score: 100,
-          consistency_score: 100,
-          total: 100,
-          grade: "A" as PhaseScore["grade"],
-          passed: true,
-          tests: [
-            {
-              name: "Novelty check",
-              category: "validation" as const,
-              passed: true,
-              score: 100,
-              weight: 1,
-              message: "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)",
-            },
-          ],
-        },
-        0,
-        0,
-      );
-    }
-    try { await ctx.savePartialReport(); } catch { /* best-effort */ }
-  }
-
-  // A_50 §9.3 fix #2 — observability: flag discriminating-test evidence that is NOT planted before
-  // the reveal scene (the probe's "reveal uses evidence not planted earlier"). Non-fatal — surfaces
-  // the gap for fair-play/repair without aborting; the contract fix lives in the Agent 3 prompt.
-  try {
-    const { unplanted, unmapped } = findUnplantedDiscriminatingClues(ctx.cml);
-    if (unplanted.length > 0) {
-      ctx.warnings.push(
-        `[agent3-discriminating-planting] (pre-repair snapshot; Agent 6 reschedules) ${unplanted.length} discriminating clue(s) not planted before the reveal scene` +
-          `${unmapped.length ? ` (${unmapped.length} absent from clue_to_scene_mapping)` : ""}: ${unplanted.join(", ")} — ` +
-          `reveal may rely on unplanted evidence (fair-play risk).`,
-      );
-    }
-  } catch { /* best-effort observability */ }
-
-  extendLockedFactRegistryWithCaseFacts(ctx);
-  reportTemporalClosure(ctx);
-  reportCaseLogic(ctx);
 }
 
 /**

@@ -3,21 +3,19 @@
  * This is the CORE agent - the backbone of the mystery generation system
  */
 
-import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
+import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { resolveDesignModel } from "./utils/model-tiers.js";
 import {
-  validateCml, isVictimArchetype, parseClockTime, parseDurationMinutes,
+  validateCml, parseClockTime, parseDurationMinutes,
   checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
   isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
-  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair,
+  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled, promptTrimsEnabled,
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
-import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { loadYamlReply, parseLlmJson } from "./shared/llm-json.js";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
@@ -34,7 +32,6 @@ import {
   CML_2_0_SCHEMA_SUMMARY,
   AXIS_TYPE_DESCRIPTIONS,
 } from "./shared/schemas.js";
-import { groundDiscriminatingKnowledgeRevealed } from "./shared/grounding.js";
 import {
   loadSeedCMLFiles,
   extractStructuralPatterns,
@@ -43,38 +40,14 @@ import {
   seedSelectionKey,
   libraryRoot,
 } from "./utils/seed-loader.js";
-import { join } from "path";
-import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
 
-import { orphanedMeansLinkTraces, provesTheAct } from "./agent3-means-link.js";
-import { actWindowNote, deathMethodWoundSiteNote } from "./agent3-case-shape-notes.js";
-// L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
-// fallback when the model didn't author CASE.death_method. Mirrors DEATH_METHOD_CANON in
-// agent9-prose/prompt-builder and DEATH_METHOD_TOKENS in rubric-score/facts (kept local to avoid a
-// cross-package coupling from Agent 3 into the prose layer; the three are unified in ANALYSIS_48 T3).
-// ONE vocabulary, in shared/death-method-patterns.ts. This file used to keep its own copy and the
-// two had drifted (see that module). Only the WORDING is local, because the two consumers want
-// different registers.
-const DEATH_METHOD_WORDING: Record<DeathMethodKind, string> = {
-  stabbing: "stabbing",
-  gunshot: "gunshot",
-  strangulation: "strangulation",
-  poisoning: "poisoning",
-  blunt_force: "a blunt-force blow",
-  drowning: "drowning",
-  fall: "a fall",
-  suffocation: "suffocation",
-  electrocution: "electrocution",
-  burning: "burning",
-};
-
-/** Returns a physical manner-of-death phrase from the crime subtype/category, or "" if none matches. */
-export const deriveDeathMethodFromCrimeClass = (subtype: string, category: string): string => {
-  const haystack = `${subtype} ${category}`;
-  const kind = classifyDeathMethod(haystack);
-  return kind ? DEATH_METHOD_WORDING[kind] : "";
-};
-
+import {
+  normalizeCmlForGeneration,
+} from "./cml/normalize.js";
+// Re-exported so existing importers of this module keep their path.
+export {
+  deriveDeathMethodFromCrimeClass,
+} from "./cml/normalize.js";
 // A_53 P10 (seed-loader-recompute-per-generate-call): memoize the seed library load+extract+format
 // keyed by (examplesDir, primaryAxis). generateCML rebuilds the prompt on each collision/novelty
 // retry, which otherwise re-reads and re-parses the entire seed library up to 3×/run for an input
@@ -478,6 +451,24 @@ Binding rules — these values are settled and the case must be built around the
   reproduces them exactly, and two spellings of one hour read to a reader as two different times.${buildDeviceArithmeticRule(lockedFacts)}${buildAlibiPlanRule(lockedFacts)}${buildChronologyRule(lockedFacts as ReadonlyArray<ChronologyFactInput>)}`
       : "";
 
+  // A34-D11 (owner decision 12, CML_VERIFIED_FIXES): the skeleton tells Agent 3 to leave evidence_clues empty
+  // (Agent 5 back-fills it); two rules demanded it non-empty. Flag ON, the rules agree with the skeleton.
+  const fixA34D11 = verifiedFixesEnabled();
+  const evidenceCluesConstraint = fixA34D11
+    ? "- Leave discriminating_test.evidence_clues empty (Agent 5 back-fills it with the planted clue IDs); any clue ID you do list must appear in prose_requirements.clue_to_scene_mapping."
+    : "- Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.";
+  const evidenceTraceabilityRule = fixA34D11
+    ? "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues may be left empty — Agent 5 back-fills it with the planted clue IDs; any clue ID you do list must appear in prose_requirements.clue_to_scene_mapping."
+    : "    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.";
+
+  // A34-14 (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time. ON: rule 4 states the
+  // required_evidence anti-abstraction contract once (the union of both copies' examples), and the per-run
+  // uniqueness seed moves from offset ~7.9k to the end of the developer message, after the static rules.
+  // OFF: byte-identical. Independent of fixA34D11 above — those lines are rule 9e and the hard constraints.
+  const trims = promptTrimsEnabled();
+  const uniquenessSeedBlock = `**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
+Use this seed to ensure the case details and logic differ meaningfully from prior runs.`;
+
   const backgroundGroundingSection = `
 **Background Context Artifact (must remain separate from mechanism logic)**:
 ${backgroundContextText}
@@ -518,10 +509,9 @@ The following plot elements are permanently banned because they will trigger a n
 - Culprit who is the victim's spouse or domestic partner using household poisoning
 
 If two or more of the above are present, the story will be rejected. Design around different motive structures: blackmail, professional rivalry, silencing a witness, concealing a past crime, jealousy unrelated to inheritance. Use non-domestic murder mechanisms from the hard-logic device list.
-
-**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
-Use this seed to ensure the case details and logic differ meaningfully from prior runs.
-
+${trims ? "" : `
+${uniquenessSeedBlock}
+`}
 ---
 
 **Era Constraints**:
@@ -566,7 +556,11 @@ ${INFERENCE_PATH_QUALITY}
 4. required_evidence must list 2-4 CML facts per step. These are the facts that 
    Agent 5 MUST surface as clues for the reader. If you cannot list concrete evidence, 
    the observation is too abstract - rewrite it.
-  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
+${trims ? `  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
+  - Each required_evidence item must name at least one concrete anchor from CML context (person, object, document, location, timestamp/time phrase, physical trace, access record, witness statement).
+  - Reject placeholders and generic summaries (for example: "timeline discrepancy", "suspicious behavior", "hidden motive", "motive pressure", "detective insight", "inconsistency", "anomaly").
+  - Reject detective-only private cognition or behavioral shorthand as evidence (for example: "he seems guilty", "she appears nervous", "signals of guilt", "suspicious reactions", "observed defensiveness", "confession").
+  - If a step cannot be supported by 2-4 concrete entries, rewrite the step so concrete evidence exists before final output.` : `  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
   - Each required_evidence item must name at least one concrete anchor from CML context (person, object, document, location, timestamp/time phrase, physical trace, access record, witness statement).
   - Reject placeholders and generic summaries (for example: "timeline discrepancy", "suspicious behavior", "motive pressure", "detective insight", "inconsistency", "anomaly").
   - Reject detective-only private cognition phrasing (for example: "he seems guilty", "she appears nervous") as evidence.
@@ -575,7 +569,7 @@ ${INFERENCE_PATH_QUALITY}
   "suspicious behavior", "hidden motive", "detective insight"). Each entry must name
   a concrete artifact, witness statement, document, timestamp, physical trace, or access record.
   Do NOT use detective-only behavioral shorthand as evidence (for example: "signals of guilt",
-  "suspicious reactions", "observed defensiveness", or "confession").
+  "suspicious reactions", "observed defensiveness", or "confession").`}
 5. The constraint_space MUST contain at least one contradiction per inference step - 
    a pair of facts that create logical tension the reader can resolve
 6. The discriminating_test.design MUST reference specific evidence the reader has 
@@ -596,7 +590,7 @@ Quality bar:
 Hard constraints learned from failures:
 - Keep required setting fields non-empty, including CASE.meta.setting.institution.
 - Use canonical enum vocabulary consistently; avoid ad-hoc variant labels.
-- Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.
+${evidenceCluesConstraint}
 - Ensure each inference step has concrete required_evidence that downstream clue extraction can convert directly to clues.
 - Use era-appropriate worded time references in narrative-facing evidence text (for example, "ten minutes to eleven", not "10:50 PM").
 - Ensure each inference effect is consistent with final culprit assignment; do not eliminate the declared culprit in any inference step.
@@ -650,7 +644,11 @@ Before finalizing, run a silent checklist:
 - required setting fields (including institution) are non-empty
 - canonical enum forms only
 - narrative-facing time references are era-appropriate and written in words
-- inference effects do not contradict culprit assignment`;
+- inference effects do not contradict culprit assignment${trims ? `
+
+---
+
+${uniquenessSeedBlock}` : ""}`;
 
   const requiredSkeleton = `
 **Required YAML Skeleton (do not omit any keys)**:
@@ -925,7 +923,7 @@ ${hardLogicDeviceText}
       ✗ WRONG: Detective privately deduces premeditation; reader sees it only at confrontation → Information Parity 0/100
       ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs eight minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
       ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
-    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.
+${evidenceTraceabilityRule}
     f. ANTI-ABSTRACTION: If discriminating_test.design references mechanism details (for example clock spring marks, forged signatures, key transfer, poison preparation, altered ledger entries), those exact details must already appear as concrete required_evidence in earlier inference steps.
     g. FACT-FORWARD TEST DESIGN: Do not stop at procedure wrappers ("reenactment", "staged", "under scrutiny", "surrounding events"). The design sentence must explicitly name the contradiction or mechanism fact being proven from earlier evidence.
     h. UNIQUE-MEANS DISCRIMINATOR (critical — closes the "unfair reveal"): if the concealment mechanism requires a special skill, tool, access, or knowledge to execute (e.g. clock-tampering needs clockwork/horological knowledge; a forged ledger needs bookkeeping access; a poison needs pharmaceutical know-how), then an EARLY or MID inference step MUST establish — as concrete reader_observable required_evidence — that the CULPRIT uniquely possessed that capability AND that the other suspects did not. The reveal/discriminating test may rely only on this PLANTED means-discriminator. NEVER introduce the culprit's special capability ("only X had the mechanical knowledge", "only X could read the dining log") for the first time at the reveal — that is the #1 fair-play failure. Add an evidence_clue for it in clue_to_scene_mapping at an early/mid scene.
@@ -997,12 +995,6 @@ export async function generateCML(
   // Build prompt
   const prompt = buildCMLPrompt(inputs, examplesDir);
 
-  const ensureObject = (value: unknown) =>
-    value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
-  const ensureArray = (value: unknown) => (Array.isArray(value) ? value : []);
-  const ensureString = (value: unknown, fallback: string) =>
-    typeof value === "string" && value.trim() ? value : fallback;
-
   /**
    * What normalization had to invent because the model did not supply it.
    *
@@ -1013,612 +1005,14 @@ export async function generateCML(
   const normalizationNotes: string[] = [];
 
   const normalizeCml = (raw: Record<string, unknown>) => {
-    const cml = ensureObject(raw);
-    cml.CML_VERSION = 2.0;
-
-    const caseBlock = ensureObject(cml.CASE);
-    cml.CASE = caseBlock;
-
-    const meta = ensureObject(caseBlock.meta);
-    caseBlock.meta = meta;
-    meta.title = ensureString(meta.title, "Untitled Mystery");
-    meta.author = ensureString(meta.author, "CML Generator");
-    meta.license = ensureString(meta.license, "CC-BY-4.0");
-
-    const era = ensureObject(meta.era);
-    meta.era = era;
-    era.decade = ensureString(era.decade, inputs.decade);
-    era.realism_constraints = ensureArray(era.realism_constraints);
-
-    const setting = ensureObject(meta.setting);
-    meta.setting = setting;
-    setting.location = ensureString(setting.location, inputs.location);
-    setting.institution = ensureString(setting.institution, inputs.institution);
-
-    const crimeClass = ensureObject(meta.crime_class);
-    meta.crime_class = crimeClass;
-    crimeClass.category = ensureString(crimeClass.category, "murder");
-    crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
-
-    const castArray = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
-    const names = inputs.castNames?.length ? inputs.castNames : castArray.map((c) => (c as any)?.name).filter(Boolean);
-    const normalizedCast = (names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean)).map((name, index) => {
-      const existing = ensureObject(castArray[index]);
-      const eligibility = ensureString(existing.culprit_eligibility, "eligible");
-      const normalizedEligibility = ["eligible", "ineligible", "locked"].includes(eligibility)
-        ? eligibility
-        : "eligible";
-      const culpability = ensureString(existing.culpability, "unknown");
-      const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
-        ? culpability
-        : "unknown";
-      return {
-        name: ensureString(existing.name, name || `Suspect ${index + 1}`),
-        age_range: ensureString(existing.age_range, "adult"),
-        role_archetype: ensureString(existing.role_archetype, "suspect"),
-        relationships: ensureArray(existing.relationships),
-        public_persona: ensureString(existing.public_persona, "reserved"),
-        private_secret: ensureString(existing.private_secret, "keeps a secret"),
-        motive_seed: ensureString(existing.motive_seed, "inheritance"),
-        motive_strength: ensureString(existing.motive_strength, "moderate"),
-        alibi_window: ensureString(existing.alibi_window, "evening"),
-        access_plausibility: ensureString(existing.access_plausibility, "medium"),
-        opportunity_channels: ensureArray(existing.opportunity_channels),
-        behavioral_tells: ensureArray(existing.behavioral_tells),
-        stakes: ensureString(existing.stakes, "reputation"),
-        evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
-        culprit_eligibility: normalizedEligibility,
-        culpability: normalizedCulpability,
-        gender: existing.gender || inputs.castGenders?.[name] || undefined,
-      };
-    });
-
-    const roleIncludes = (role: unknown, tokens: string[]) => {
-      const text = String(role ?? "").toLowerCase();
-      return tokens.some((token) => text.includes(token));
-    };
-
-    // Wave 1 integrity lock: when a victim archetype is supplied, force the matching cast
-    // entry to victim role and make them ineligible as culprit.
-    const victimHint = String(inputs.victimArchetype ?? "").trim().toLowerCase();
-    if (victimHint) {
-      const hintedVictim = normalizedCast.find((member) =>
-        String(member.name ?? "").trim().toLowerCase() === victimHint,
-      );
-      if (hintedVictim) {
-        hintedVictim.role_archetype = "victim";
-        hintedVictim.culprit_eligibility = "ineligible";
-        hintedVictim.culpability = "innocent";
-      }
-    }
-
-    // Any character explicitly marked victim in the cast must remain ineligible and innocent.
-    for (const member of normalizedCast) {
-      if (roleIncludes(member.role_archetype, ["victim"])) {
-        member.culprit_eligibility = "ineligible";
-        member.culpability = "innocent";
-      }
-    }
-
-    caseBlock.cast = normalizedCast;
-
-    const culpability = ensureObject(caseBlock.culpability);
-    caseBlock.culpability = culpability;
-    const detectiveNameSet = new Set(
-      normalizedCast
-        .filter((member) => roleIncludes(member.role_archetype, ["detective", "investigator", "inspector"]))
-        .map((member) => String(member.name ?? "").trim().toLowerCase()),
-    );
-    const victimNameSet = new Set(
-      normalizedCast
-        .filter((member) => roleIncludes(member.role_archetype, ["victim"]))
-        .map((member) => String(member.name ?? "").trim().toLowerCase()),
-    );
-
-    const rawCulprits = ensureArray(culpability.culprits)
-      .map((name) => String(name ?? "").trim())
-      .filter(Boolean);
-
-    const validCulprits = rawCulprits.filter((name) => {
-      const lowered = name.toLowerCase();
-      if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
-      const castEntry = normalizedCast.find((member) => String(member.name ?? "").trim().toLowerCase() === lowered);
-      if (!castEntry) return false;
-      return castEntry.culprit_eligibility === "eligible";
-    });
-
-    /**
-     * THE FALLBACK THAT DECIDES THE MYSTERY, and until 2026-08-03 it did so silently and positionally.
-     *
-     * MEASURED (run_20260802-1654, external 80/100): the model returned `culprits: []` — it never
-     * decided who did it — and this fallback took the FIRST culprit-eligible cast member. That was
-     * Captain Ivor Hale, who is also `false_solution.accused_suspect`. The story therefore staged its
-     * deliberate wrong accusation against the actual murderer, and the external reviewer's complaint
-     * was verbatim: "Chapter 6 accuses Hale, but Hale is guilty."
-     *
-     * Two changes, and both matter:
-     *   1. PREFERENCE ORDER, not position. A cast member the model actually marked guilty, or locked
-     *      as the culprit, is a real answer; first-in-array is a coin toss the reader can feel.
-     *   2. THE FALSELY ACCUSED IS EXCLUDED. Picking them is self-contradictory by construction — and
-     *      it is the one wrong answer the genre punishes hardest.
-     *
-     * The fabrication is still permitted (removing it outright would convert a recoverable defect
-     * into an abort, which ADR-0003 forbids and which 1-in-2 observed runs would have hit), but it is
-     * now RECORDED in `normalizationNotes`, and `validateCml` independently rejects a culprit who is
-     * the accused — so Agent 4 gets a chance to replace the guess with a decision.
-     */
-    const accusedKey = String(
-      ensureObject(caseBlock.false_solution).accused_suspect ?? "",
-    ).trim().toLowerCase();
-    const isCandidate = (member: any, allowAccused: boolean): boolean => {
-      const lowered = String(member?.name ?? "").trim().toLowerCase();
-      if (!lowered) return false;
-      if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
-      if (!allowAccused && accusedKey && lowered === accusedKey) return false;
-      return member.culprit_eligibility === "eligible" || member.culprit_eligibility === "locked";
-    };
-    const fallbackCulprit =
-      normalizedCast.find((m) => m.culpability === "guilty" && isCandidate(m, true)) ??
-      normalizedCast.find((m) => m.culprit_eligibility === "locked" && isCandidate(m, true)) ??
-      normalizedCast.find((m) => isCandidate(m, false)) ??
-      normalizedCast.find((m) => isCandidate(m, true));
-
-    const normalizedCulprits = validCulprits.length > 0
-      ? [validCulprits[0]]
-      : fallbackCulprit
-        ? [String(fallbackCulprit.name)]
-        : [normalizedCast[0]?.name ?? "Unknown"].filter(Boolean);
-
-    if (validCulprits.length === 0) {
-      // A run must never be readable as "the model chose this culprit" when this code did.
-      normalizationNotes.push(
-        `Agent 3 returned no usable culprit (culprits=[${rawCulprits.join(", ")}]); normalization ` +
-          `assigned "${normalizedCulprits[0] ?? "(none)"}" from the cast. The case did not decide its own answer.`,
-      );
-    }
-
-    culpability.culprits = normalizedCulprits;
-    culpability.culprit_count = normalizedCulprits.length;
-
-    const normalizedCulpritSet = new Set(normalizedCulprits.map((name) => name.toLowerCase()));
-    for (const member of normalizedCast) {
-      const lowered = String(member.name ?? "").trim().toLowerCase();
-      if (!lowered) continue;
-      if (normalizedCulpritSet.has(lowered)) {
-        member.culpability = "guilty";
-        member.culprit_eligibility = "eligible";
-      } else if (member.culpability === "guilty") {
-        member.culpability = "unknown";
-      }
-    }
-
-    const surface = ensureObject(caseBlock.surface_model);
-    caseBlock.surface_model = surface;
-    const surfaceNarrative = ensureObject(surface.narrative);
-    surface.narrative = surfaceNarrative;
-    surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "A mystery unfolds.");
-    surface.accepted_facts = ensureArray(surface.accepted_facts);
-    surface.inferred_conclusions = ensureArray(surface.inferred_conclusions);
-
-    const hidden = ensureObject(caseBlock.hidden_model);
-    caseBlock.hidden_model = hidden;
-    const hiddenMechanism = ensureObject(hidden.mechanism);
-    hidden.mechanism = hiddenMechanism;
-    hiddenMechanism.description = ensureString(hiddenMechanism.description, "Poisoned tea.");
-    hiddenMechanism.delivery_path = ensureArray(hiddenMechanism.delivery_path);
-    // A_71 — false-time direction fields. Default to "" (not a placeholder time): an absent time must
-    // read as "this concealment does not fake a time", which checkTimelineDeception treats as
-    // nothing-to-check. Inventing a default here would fabricate a coherence claim the case never made.
-    hiddenMechanism.actual_time_of_death = ensureString(hiddenMechanism.actual_time_of_death, "");
-    hiddenMechanism.apparent_time_of_death = ensureString(hiddenMechanism.apparent_time_of_death, "");
-    const hiddenOutcome = ensureObject(hidden.outcome);
-    hidden.outcome = hiddenOutcome;
-    hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");
-
-    // L1 (ANALYSIS_48 T1.1): guarantee a PHYSICAL manner of death so the prose resolveDeathMethod chain
-    // and the rubric weak-murder-method grader always have a token to enforce. Prefer the model's
-    // authored value; else derive from the crime classification; else a neutral physical default. Kept
-    // separate from hidden_model.mechanism (the concealment trick) — the reveal must name the killing.
-    const authoredDeathMethod = ensureString(caseBlock.death_method, "").trim();
-    caseBlock.death_method =
-      authoredDeathMethod ||
-      deriveDeathMethodFromCrimeClass(
-        ensureString(crimeClass.subtype, ""),
-        ensureString(crimeClass.category, ""),
-      ) ||
-      "poisoning";
-
-    const falseAssumption = ensureObject(caseBlock.false_assumption);
-    caseBlock.false_assumption = falseAssumption;
-    falseAssumption.statement = ensureString(falseAssumption.statement, "Death was natural.");
-    falseAssumption.type = ensureString(falseAssumption.type, inputs.primaryAxis);
-    falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
-    falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
-
-    // SWEEP A — normalise the Golden Age genre structures so they are always present and
-    // schema-valid. Defaults are derived from existing CASE data; the LLM is asked to author
-    // richer versions (see prompt). The genre validator enforces quality (≥2 herrings with
-    // innocent explanations, a false solution with a flaw, culprit inside the closed circle).
-    const castEntries: any[] = Array.isArray(caseBlock.cast) ? (caseBlock.cast as any[]) : [];
-    const culpritNamesForGenre: string[] = Array.isArray((caseBlock.culpability as any)?.culprits)
-      ? ((caseBlock.culpability as any).culprits as any[]).map((n) => String(n).trim()).filter(Boolean)
-      : [];
-    const roleOf = (entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
-    const suspectNamesForGenre: string[] = castEntries
-      .filter((e) => !roleOf(e).includes("detective") && !isVictimArchetype(roleOf(e)))
-      .map((e) => String(e?.name ?? "").trim())
-      .filter(Boolean);
-    const innocentSuspect = suspectNamesForGenre.find((n) => !culpritNamesForGenre.includes(n));
-
-    // Chapter-pointer fields are optional numbers; the LLM often emits strings ("Chapter 6", "6").
-    // Coerce to an integer chapter number, or undefined when no number is present (validator skips
-    // undefined optional fields). Prevents "must be number" validation failures.
-    const coerceChapter = (value: unknown): number | undefined => {
-      if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
-      if (typeof value === "string") {
-        const match = value.match(/\d+/);
-        if (match) return parseInt(match[0], 10);
-      }
-      return undefined;
-    };
-
-    // closed_circle
-    const closedCircle = ensureObject(caseBlock.closed_circle);
-    caseBlock.closed_circle = closedCircle;
-    const declaredCircle = ensureArray(closedCircle.suspects).map((n) => String(n).trim()).filter(Boolean);
-    closedCircle.suspects = declaredCircle.length > 0
-      ? Array.from(new Set(declaredCircle))
-      : Array.from(new Set(suspectNamesForGenre));
-    closedCircle.rationale = ensureString(
-      closedCircle.rationale,
-      "The suspects are bound together by the central situation and none could have come from outside it.",
-    );
-
-    // false_solution
-    const falseSolution = ensureObject(caseBlock.false_solution);
-    caseBlock.false_solution = falseSolution;
-    falseSolution.accused_suspect = ensureString(
-      falseSolution.accused_suspect,
-      innocentSuspect || suspectNamesForGenre[0] || "an innocent member of the circle",
-    );
-    falseSolution.supporting_points = ensureArray(falseSolution.supporting_points);
-    if ((falseSolution.supporting_points as any[]).length === 0) {
-      falseSolution.supporting_points = [
-        ensureString(falseAssumption.why_it_seems_reasonable, "Their motive and opportunity look strongest on the surface."),
-      ];
-    }
-    falseSolution.the_one_flaw = ensureString(
-      falseSolution.the_one_flaw,
-      ensureString(falseAssumption.what_it_hides, "It cannot account for the one physical fact the detective fixes on."),
-    );
-    const refutedChapter = coerceChapter(falseSolution.refuted_in_chapter);
-    if (refutedChapter === undefined) {
-      delete falseSolution.refuted_in_chapter;
-    } else {
-      falseSolution.refuted_in_chapter = refutedChapter;
-    }
-
-    // red_herrings — coerce to a well-formed array; guarantee an innocent_explanation per entry.
-    const rawHerrings = ensureArray(caseBlock.red_herrings) as any[];
-    caseBlock.red_herrings = rawHerrings.map((h, idx) => {
-      const obj = (h && typeof h === "object") ? h as Record<string, unknown> : {};
-      return {
-        id: ensureString(obj.id, `red_herring_${idx + 1}`),
-        description: ensureString(obj.description, "A suspicious circumstance that draws the eye."),
-        points_at_suspect: typeof obj.points_at_suspect === "string" ? obj.points_at_suspect : undefined,
-        innocent_explanation: ensureString(
-          obj.innocent_explanation,
-          "It has an innocent explanation unrelated to the crime, revealed before the solution.",
-        ),
-        resolved_in_chapter: coerceChapter(obj.resolved_in_chapter),
-      };
-    });
-
-    const constraintSpace = ensureObject(caseBlock.constraint_space);
-    caseBlock.constraint_space = constraintSpace;
-
-    // A_102 §8 — does the case connect the culprit to the ACT? The only copy of this check lived in
-    // the harness, and the paid run on seed 61062 shipped a means-link trace naming a suspect the
-    // same case marks innocent with nothing noticing. NOTE ONLY: no retry, no abort — a gate that
-    // drives retries costs +2.43 register points on the retried chapter (B1). The run log carries it
-    // under this label so a paid run is judged by the instrument that scored the harness.
-    {
-      const meansLink = provesTheAct(caseBlock);
-      normalizationNotes.push(`[A_102 means-link] ${meansLink.verdict}: ${meansLink.detail.replace(/\s+/g, " ")}`);
-      // 17-hitting-90 P3.1 / P3.2 — two more shapes the readers asked the case for, as notes only.
-      for (const note of [deathMethodWoundSiteNote(caseBlock.death_method), actWindowNote(caseBlock)]) {
-        if (note) normalizationNotes.push(note);
-      }
-      if (validCulprits.length === 0) {
-        const orphaned = orphanedMeansLinkTraces(caseBlock, rawCulprits.map(String), normalizedCulprits);
-        if (orphaned.length > 0) {
-          normalizationNotes.push(
-            `[A_102 means-link] ORPHANED: normalization reassigned the culprit to "${normalizedCulprits[0]}" but ` +
-              `${orphaned.length} trace(s) still name the model's original culprit: ` +
-              `${orphaned.map((t) => `"${t}"`).join("; ")}. Those traces now point at an innocent.`,
-          );
-        }
-      }
-    }
-    const constraintTime = ensureObject(constraintSpace.time);
-    constraintSpace.time = constraintTime;
-    constraintTime.anchors = ensureArray(constraintTime.anchors);
-    constraintTime.windows = ensureArray(constraintTime.windows);
-    constraintTime.contradictions = ensureArray(constraintTime.contradictions);
-    const constraintAccess = ensureObject(constraintSpace.access);
-    constraintSpace.access = constraintAccess;
-    constraintAccess.actors = ensureArray(constraintAccess.actors);
-    constraintAccess.objects = ensureArray(constraintAccess.objects);
-    constraintAccess.permissions = ensureArray(constraintAccess.permissions);
-    const constraintPhysical = ensureObject(constraintSpace.physical);
-    constraintSpace.physical = constraintPhysical;
-    constraintPhysical.laws = ensureArray(constraintPhysical.laws);
-    constraintPhysical.traces = ensureArray(constraintPhysical.traces);
-    const constraintSocial = ensureObject(constraintSpace.social);
-    constraintSpace.social = constraintSocial;
-    constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
-    constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
-
-    const inferencePath = ensureObject(caseBlock.inference_path);
-    caseBlock.inference_path = inferencePath;
-    const originalStepCount = Array.isArray(inferencePath.steps) ? inferencePath.steps.length : 0;
-    if (originalStepCount < 3) {
-      // A_53 P2 (repair-not-abort): synthesize the missing steps from THIS case's own constraint
-      // anchors + mechanism (never a fixed plot), pad to the floor of 3, and warn — so Agent 4 sees a
-      // structurally-valid artifact instead of the run dying inside normalize. Evidence on synthesized
-      // steps is repaired downstream by repairInferenceRequiredEvidence.
-      const steps: any[] = Array.isArray(inferencePath.steps) ? [...inferencePath.steps] : [];
-      const anchors = [
-        ...ensureArray(constraintTime.anchors),
-        ...ensureArray(constraintTime.windows),
-        ...ensureArray(constraintTime.contradictions),
-        ...ensureArray(constraintAccess.actors),
-        ...ensureArray(constraintAccess.objects),
-        ...ensureArray(constraintAccess.permissions),
-        ...ensureArray(constraintPhysical.laws),
-        ...ensureArray(constraintPhysical.traces),
-        ...ensureArray(constraintSocial.trust_channels),
-        ...ensureArray(constraintSocial.authority_sources),
-      ]
-        .map((entry) => ensureString(entry, "").trim())
-        .filter((entry) => entry.length > 0);
-      const mechanismHint = ensureString(
-        ensureObject(ensureObject(caseBlock.hidden_model).mechanism).description,
-        "",
-      ).trim();
-      while (steps.length < 3) {
-        const i = steps.length;
-        const anchor = anchors[i % Math.max(anchors.length, 1)];
-        steps.push({
-          observation: anchor && anchor.length > 0
-            ? anchor
-            : `Observation ${i + 1}: a concrete scene-level detail is established on the page.`,
-          correction: mechanismHint
-            ? `Re-read against the established mechanism (${mechanismHint}), this detail revises the surface sequence.`
-            : `Correction ${i + 1}: the surface reading of this detail is revised by the on-page evidence.`,
-          effect: "The set of viable explanations narrows toward a single testable hypothesis.",
-          required_evidence: [],
-          reader_observable: true,
-        });
-      }
-      inferencePath.steps = steps;
-      console.warn(
-        `[agent3-cml] inference_path had ${originalStepCount} step(s); synthesized ${3 - originalStepCount} ` +
-        `from this case's constraint anchors to reach the floor of 3 (repair-not-abort).`,
-      );
-    }
-    // Ensure each step has required_evidence array and reader_observable
-    for (const step of inferencePath.steps as any[]) {
-      if (!Array.isArray(step.required_evidence)) {
-        step.required_evidence = [];
-      }
-      if (typeof step.reader_observable !== "boolean") {
-        step.reader_observable = true;
-      }
-    }
-
-    const discriminatingTest = ensureObject(caseBlock.discriminating_test);
-    caseBlock.discriminating_test = discriminatingTest;
-    const method = ensureString(discriminatingTest.method, "trap");
-    discriminatingTest.method = [
-      "reenactment",
-      "trap",
-      "constraint_proof",
-      "administrative_pressure",
-    ].includes(method)
-      ? method
-      : "trap";
-    discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
-    discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
-    discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
-    discriminatingTest.evidence_clues = ensureArray(discriminatingTest.evidence_clues)
-      .map((id) => String(id ?? "").trim())
-      .filter((id) => id.length > 0);
-
-    // Deterministic pre-check: keep knowledge_revealed grounded in reader-visible
-    // inference evidence before schema/fair-play validation.
-    groundDiscriminatingKnowledgeRevealed(caseBlock);
-
-    const fairPlay = ensureObject(caseBlock.fair_play);
-    caseBlock.fair_play = fairPlay;
-    fairPlay.all_clues_visible = typeof fairPlay.all_clues_visible === "boolean" ? fairPlay.all_clues_visible : true;
-    fairPlay.no_special_knowledge_required =
-      typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
-    fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
-    fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
-    fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
-
-    const qualityControls = ensureObject(caseBlock.quality_controls);
-    caseBlock.quality_controls = qualityControls;
-    const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
-    qualityControls.inference_path_requirements = inferenceRequirements;
-    inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
-    inferenceRequirements.max_steps =
-      typeof inferenceRequirements.max_steps === "number"
-        ? inferenceRequirements.max_steps
-        : config.inference_requirements.default_max_steps;
-    inferenceRequirements.require_observation_correction_effect =
-      typeof inferenceRequirements.require_observation_correction_effect === "boolean"
-        ? inferenceRequirements.require_observation_correction_effect
-        : true;
-
-    const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
-    qualityControls.clue_visibility_requirements = clueVisibility;
-    clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
-    clueVisibility.essential_clues_before_test =
-      typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
-    clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
-    clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
-    clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
-
-    const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
-    qualityControls.discriminating_test_requirements = discriminatingRequirements;
-    const timing = ensureString(discriminatingRequirements.timing, "early_act3");
-    discriminatingRequirements.timing = ["late_act2", "early_act3", "mid_act3"].includes(timing)
-      ? timing
-      : "early_act3";
-    discriminatingRequirements.must_reference_inference_step =
-      typeof discriminatingRequirements.must_reference_inference_step === "boolean"
-        ? discriminatingRequirements.must_reference_inference_step
-        : true;
-
-    // ── Deterministic suspect_clearance_scenes gap-fill ──────────────────────
-    // Agent 3 LLM frequently omits one or more non-culprit suspects from
-    // prose_requirements.suspect_clearance_scenes.  When a suspect is missing,
-    // no clearance obligation is ever injected into prose prompts, and the
-    // SuspectClosureValidator release gate fails even though the clues exist.
-    // This patch ensures EVERY non-culprit, non-detective suspect has an entry.
-    const proseRequirements = ensureObject(caseBlock.prose_requirements);
-    caseBlock.prose_requirements = proseRequirements;
-    const existingClearances: any[] = ensureArray(proseRequirements.suspect_clearance_scenes);
-
-    // Identify which suspects already have a clearance entry (by name).
-    const clearedNames = new Set<string>(
-      existingClearances
-        .filter((e: any) => e && typeof e.suspect_name === "string")
-        .map((e: any) => (e.suspect_name as string).trim().toLowerCase())
-    );
-
-    // Derive culprit and detective sets from the normalized cast.
-    const culpritSet = new Set<string>(
-      ensureArray(culpability.culprits)
-        .filter((n: unknown) => typeof n === "string")
-        .map((n: unknown) => (n as string).trim().toLowerCase())
-    );
-    const detectiveRoles = new Set(["detective", "investigator", "inspector"]);
-    const detectiveCastNames = new Set<string>(
-      (normalizedCast as any[])
-        .filter((c: any) => {
-          const ra = String(c.role_archetype ?? c.role ?? "").toLowerCase();
-          return [...detectiveRoles].some((r) => ra.includes(r));
-        })
-        .map((c: any) => (c.name as string).trim().toLowerCase())
-    );
-
-    // A_50 §9: drop any LLM-authored clearance for the CULPRIT (or detective) — the gap-fill below
-    // already skips them on ADD, but the LLM's original list was written back UNFILTERED, leaving a
-    // culprit-clearance that causes cleared_culprit_conflict. Remove them at the source.
-    for (let i = existingClearances.length - 1; i >= 0; i -= 1) {
-      const n = String(existingClearances[i]?.suspect_name ?? "").trim().toLowerCase();
-      if (n && (culpritSet.has(n) || detectiveCastNames.has(n))) existingClearances.splice(i, 1);
-    }
-
-    // Determine a sensible default scene for gap-filled clearances:
-    // one scene before the culprit revelation scene (which is late Act 3).
-    /**
-     * A_87 P3 — the `|| 3` / `|| 6` defaults were a SECOND BODY of the prompt's worked example.
-     *
-     * A ref the model omitted was silently invented as act 3 / scene 6 — the identical fiction the
-     * prompt supplied, so an absent ref and a copied one were indistinguishable downstream.
-     *
-     * The constants are KEPT: a gap-filled clearance still needs some coordinate, and there is no
-     * better one available here (Agent 7 has not run, so no real scene namespace exists yet). What
-     * changes is that their use is now AUDIBLE instead of silent — which is the whole defect.
-     *
-     * MEASURED: no archived run omits this field, so this branch is a no-op on all 45 — which is
-     * exactly why it could carry a wrong constant for the life of the project unnoticed.
-     */
-    const revealRefRaw = (typeof proseRequirements.culprit_revelation_scene === "object" &&
-      proseRequirements.culprit_revelation_scene !== null)
-      ? (proseRequirements.culprit_revelation_scene as any)
-      : null;
-    const revealActNum: number = Number(revealRefRaw?.act_number) || 3;
-    const revealSceneNum: number = Number(revealRefRaw?.scene_number) || 6;
-    if (!revealRefRaw) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        "[A_87] culprit_revelation_scene absent from the case; clearance scenes fall back to " +
-          "act 3 / scene 6, which resolves against no outline. The clearance coordinates for this " +
-          "run are guesses.",
-      );
-    }
-    const clearanceActNum = revealActNum;
-    // A_67 FIX-1(c): fold gap-filled clearances INTO the reveal / discriminating-test scene (where the
-    // reveal already eliminates non-culprits on-page) instead of stamping them all onto a dedicated
-    // pre-reveal scene — the structural root of the duplicate "clearance chapter" the probe reads flag.
-    // Default-off (probe before default-on); when off, the historical (reveal − 1) coordinate is kept.
-    const foldSuspectClearances =
-      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
-    const clearanceSceneNum = foldSuspectClearances ? revealSceneNum : Math.max(1, revealSceneNum - 1);
-
-    // Build a lookup of clue IDs that appear to eliminate each suspect.
-    const clueToSceneMapping: any[] = ensureArray(proseRequirements.clue_to_scene_mapping);
-    const suspectEliminationClues: Map<string, string[]> = new Map();
-    for (const clueEntry of clueToSceneMapping) {
-      if (!clueEntry || typeof clueEntry !== "object") continue;
-      const clueId = String(clueEntry.clue_id ?? "").trim();
-      if (!clueId) continue;
-      // Look for any cast name mentioned in this clue entry.
-      const entryText = JSON.stringify(clueEntry).toLowerCase();
-      for (const castMember of normalizedCast as any[]) {
-        const nameLower = String(castMember.name ?? "").trim().toLowerCase();
-        if (!nameLower || culpritSet.has(nameLower) || detectiveCastNames.has(nameLower)) continue;
-        const surname = nameLower.split(" ").pop() ?? nameLower;
-        if (entryText.includes(nameLower) || entryText.includes(surname)) {
-          if (!suspectEliminationClues.has(nameLower)) suspectEliminationClues.set(nameLower, []);
-          suspectEliminationClues.get(nameLower)!.push(clueId);
-        }
-      }
-    }
-
-    // Add missing entries.
-    let gapFillCount = 0;
-    for (const castMember of normalizedCast as any[]) {
-      const nameLower = String(castMember.name ?? "").trim().toLowerCase();
-      if (!nameLower) continue;
-      if (culpritSet.has(nameLower) || detectiveCastNames.has(nameLower)) continue;
-      if (clearedNames.has(nameLower)) continue;
-
-      // Derive clearance method from the suspect's alibi_window if available.
-      const alibiWindow = ensureString(castMember.alibi_window, "");
-      const clearanceMethod = alibiWindow
-        ? `Alibi confirmed: ${alibiWindow}`
-        : "Alibi confirmed by corroborating witness";
-
-      existingClearances.push({
-        suspect_name: castMember.name,
-        act_number: clearanceActNum,
-        scene_number: clearanceSceneNum,
-        clearance_method: clearanceMethod,
-        supporting_clues: suspectEliminationClues.get(nameLower) ?? [],
-      });
-      gapFillCount += 1;
-    }
-
-    proseRequirements.suspect_clearance_scenes = existingClearances;
-
-    if (gapFillCount > 0) {
-      // Log is not available here; the caller will surface this in warnings.
-      // The patch is silent — it corrects the LLM output without burning a retry attempt.
-    }
-
-    return cml;
+    return normalizeCmlForGeneration(raw, inputs, normalizationNotes, config);
   };
 
   let lastError: Error | undefined;
   let lastValidation: any = { valid: false, errors: ["No attempts made"] };
 
   for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
+    normalizationNotes.length = 0; // A34-07: notes describe the attempt that produces the result, not discarded ones
     try {
       // Generate CML
       const retryContextMessage =
@@ -1651,110 +1045,7 @@ export async function generateCML(
       });
 
       // Parse JSON/YAML
-      let cml: any;
-      let jsonParseError: Error | undefined;
-      let yamlParseError: Error | undefined;
-      const sanitizeYaml = (raw: string) =>
-        raw
-          .split("\n")
-          .map((line) => {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith("#")) return line;
-
-            const doubleQuoteMatch = line.match(/^([\s\S]*?:\s*"(?:[^"\\]|\\.)*")\s+(.+)$/);
-            if (doubleQuoteMatch && !doubleQuoteMatch[2].trimStart().startsWith("#")) {
-              return doubleQuoteMatch[1];
-            }
-
-            const singleQuoteMatch = line.match(/^([\s\S]*?:\s*'(?:[^'\\]|\\.)*')\s+(.+)$/);
-            if (singleQuoteMatch && !singleQuoteMatch[2].trimStart().startsWith("#")) {
-              return singleQuoteMatch[1];
-            }
-
-            if (!trimmed.includes(":")) {
-              const isListItem = trimmed.startsWith("-") || trimmed.startsWith("[") || trimmed.startsWith("{");
-              if (!isListItem) {
-                const indentMatch = line.match(/^(\s*)/);
-                const indent = indentMatch ? indentMatch[1] : "";
-                return `${indent}# ${trimmed}`;
-              }
-            }
-
-            return line;
-          })
-          .join("\n");
-
-      const tryParseJson = (raw: string): any => {
-        try {
-          return JSON.parse(raw);
-        } catch (error) {
-          jsonParseError = error as Error;
-        }
-
-        // A_65b Ph8 — truncation guard on THE CML BOUNDARY: jsonrepair closes a completion-limit
-        // truncated payload into a valid-looking case with silently missing tail sections (the
-        // phantom-clue class, a3c2973f, at the highest-stakes boundary). A truncated payload is
-        // REFUSED, routing to the existing parse-failure retry path instead of ingesting a phantom.
-        if (looksTruncatedJson(raw)) {
-          jsonParseError = new Error(
-            "CML payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk); treat as parse failure",
-          );
-          return undefined;
-        }
-
-        try {
-          const repaired = jsonrepair(raw);
-          return JSON.parse(repaired);
-        } catch {
-          // ignore repair failure
-        }
-
-        const trimmed = raw.trim();
-        const start = trimmed.indexOf("{");
-        const end = trimmed.lastIndexOf("}");
-        if (start !== -1 && end > start) {
-          const candidate = trimmed.slice(start, end + 1);
-          try {
-            return JSON.parse(candidate);
-          } catch (error) {
-            jsonParseError = error as Error;
-          }
-
-          try {
-            const repaired = jsonrepair(candidate);
-            return JSON.parse(repaired);
-          } catch {
-            // ignore repair failure
-          }
-        }
-
-        return undefined;
-      };
-
-      const modelName = response.model || "unknown";
-      cml = tryParseJson(response.content);
-
-      if (!cml) {
-        try {
-          const sanitized = sanitizeYaml(response.content);
-          cml = parseYAML(sanitized);
-
-          await logger.logResponse({
-            runId: inputs.runId,
-            projectId: inputs.projectId,
-            agent: "Agent3-CMLGenerator",
-            operation: "parse_output_sanitized",
-            model: modelName,
-            success: true,
-            validationStatus: "pass",
-            retryAttempt: attempt,
-            latencyMs: Date.now() - startTime,
-            metadata: { note: "YAML sanitized after parse failure" },
-          });
-        } catch (error) {
-          yamlParseError = error as Error;
-        }
-      }
+      const { cml, jsonParseError, yamlParseError, modelName } = await parseCmlReply(response, logger, inputs, attempt, startTime);
 
       if (!cml) {
         const jsonMessage = jsonParseError ? jsonParseError.message : "Unknown JSON parse error";
@@ -1888,162 +1179,7 @@ export async function generateCML(
         });
 
         try {
-          // CML_REPAIR_MODE = patch | rewrite | shadow.
-          //  - patch:  node-scoped targeted patches first (redesign §4.2/§9.2); avoids re-emitting the
-          //            whole 8000-token doc to fix one field. On full resolution returns immediately.
-          //  - rewrite: legacy whole-CML revision (the default — preserves prior score behavior).
-          //  - shadow: run patching for telemetry only and ALWAYS use the legacy rewrite result.
-          // A_53 P9 (full-rewrite-resends-entire-cml-each-pass): the patch engine is the efficiency
-          // win, but it is a SCORE-SENSITIVE default change (it produces a different CML revision path),
-          // so A_53 integration keeps the default at "rewrite" until an A/B validates patch quality —
-          // set CML_REPAIR_MODE=patch to opt in. (See ANALYSIS_53 integration note.)
-          const repairMode = (process.env.CML_REPAIR_MODE ?? "rewrite").trim().toLowerCase();
-          // A_53 P9 (patch-then-rewrite-double-spend): hold the partially-repaired CML from a
-          // non-resolving patch pass so the legacy rewrite continues from patch progress instead of
-          // discarding it and re-revising the ORIGINAL cml. Null when patch didn't run/produce output.
-          let patchedSoFar: Record<string, unknown> | undefined;
-          if (repairMode === "patch" || repairMode === "shadow") {
-            try {
-              const patchResult = await patchCmlNode({
-                cml: cml as Record<string, unknown>,
-                propose: makeLlmPatchProposer(client, { runId: inputs.runId, projectId: inputs.projectId }),
-                maxPatches: 16,
-              });
-              // A_53 P9 (patch-then-rewrite-double-spend): remember the (partially) repaired doc; it is
-              // used below as the rewrite seed when patch couldn't fully resolve, so applied patches are
-              // not thrown away. (shadow mode intentionally ignores this and rewrites from original.)
-              if (repairMode === "patch") {
-                patchedSoFar = patchResult.cml as Record<string, unknown>;
-              }
-              await logger.logResponse({
-                runId: inputs.runId,
-                projectId: inputs.projectId,
-                agent: "Agent3-CMLGenerator",
-                operation: "cml_targeted_patch",
-                model: modelName,
-                success: patchResult.validation.valid,
-                validationStatus: patchResult.validation.valid ? "pass" : "fail",
-                retryAttempt: attempt,
-                latencyMs: Date.now() - startTime,
-                metadata: {
-                  mode: repairMode,
-                  errorsBefore: validation.errors.length,
-                  errorsAfter: patchResult.validation.errors.length,
-                  patchesApplied: patchResult.applied.length,
-                  contractRejections: patchResult.rejected.length,
-                },
-              });
-              if (repairMode === "patch" && patchResult.validation.valid) {
-                // A_53 P6 (grounding-mutation-after-validation): the patch may have re-mutated
-                // discriminating_test / inference_path — re-ground knowledge_revealed then re-validate
-                // ONCE so grounding never ships stale after a mutation. (required_evidence is repaired
-                // downstream by applyCmlRepairAndRevalidate in agent3-run.) Keep the patched validation
-                // if re-grounding somehow regresses it.
-                const patchedCaseBlock = (patchResult.cml as any)?.CASE ?? patchResult.cml;
-                groundDiscriminatingKnowledgeRevealed(patchedCaseBlock as Record<string, unknown>);
-                const regrounded = validateCml(patchResult.cml as any);
-                return {
-                  cml: patchResult.cml,
-                  validation: regrounded.valid ? regrounded : patchResult.validation,
-                  normalizationNotes: [...normalizationNotes],
-                  attempt: resolvedMaxAttempts + 1,
-                  latencyMs: Date.now() - startTime,
-                  cost: client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0,
-                  revisedByAgent4: true,
-                  revisionDetails: {
-                    attempts: patchResult.applied.length,
-                    revisionsApplied: patchResult.applied.map((a) => `patched ${a.path} (${a.nodeBytes}b)`),
-                  },
-                };
-              }
-              // shadow mode, or patch mode that didn't fully resolve → fall through to legacy rewrite.
-            } catch (patchErr) {
-              await logger.logError({
-                runId: inputs.runId,
-                projectId: inputs.projectId,
-                agent: "Agent3-CMLGenerator",
-                operation: "cml_targeted_patch_error",
-                errorMessage: (patchErr as Error).message,
-              });
-              // fall through to legacy rewrite on any patch-path error
-            }
-          }
-
-          const revisionResult = await reviseCml(client, {
-            originalPrompt: {
-              system: prompt.system, 
-              developer: prompt.developer || "", 
-              user: prompt.user 
-            },
-            // A_53 P9 (patch-then-rewrite-double-spend): seed the rewrite with patch progress when a
-            // patch pass ran but didn't fully resolve; else the original parse. Preserves applied
-            // patches instead of re-revising from scratch.
-            invalidCml: yaml.dump(patchedSoFar ?? cml),
-            validationErrors: validation.errors,
-            attempt: 1,
-            runId: inputs.runId,
-            projectId: inputs.projectId,
-          });
-
-          // Agent 4 succeeded! Return the fixed CML
-          const totalLatency = Date.now() - startTime;
-          const costTracker = client.getCostTracker();
-          const totalCost = costTracker.getSummary().byAgent["Agent3-CMLGenerator"] || 0;
-          const revisionCost = costTracker.getSummary().byAgent["Agent4-Revision"] || 0;
-
-          await logger.logResponse({
-            runId: inputs.runId,
-            projectId: inputs.projectId,
-            agent: "Agent3-CMLGenerator",
-            operation: "generate_cml_with_revision",
-            model: modelName,
-            success: true,
-            validationStatus: "pass",
-            retryAttempt: attempt,
-            latencyMs: totalLatency,
-            metadata: {
-              agent3Attempts: resolvedMaxAttempts,
-              agent4Attempts: revisionResult.attempt,
-              totalRevisions: revisionResult.revisionsApplied.length,
-              agent3Cost: totalCost,
-              agent4Cost: revisionCost,
-              totalCost: totalCost + revisionCost,
-              axis: inputs.primaryAxis,
-            },
-          });
-
-          if (revisionResult.degraded) {
-            // Graceful degrade: revision ran out of budget but returned best-so-far. Carry the
-            // unresolved warnings forward and PROCEED rather than killing the run.
-            await logger.logResponse({
-              runId: inputs.runId,
-              projectId: inputs.projectId,
-              agent: "Agent3-CMLGenerator",
-              operation: "generate_cml_degraded",
-              model: modelName,
-              success: false,
-              validationStatus: "fail",
-              retryAttempt: attempt,
-              latencyMs: totalLatency,
-              metadata: { unresolvedWarnings: revisionResult.unresolvedLogicWarnings?.length ?? 0 },
-            });
-          }
-
-          return {
-            cml: revisionResult.cml,
-            validation: revisionResult.validation,
-            normalizationNotes: [...normalizationNotes],
-            attempt: resolvedMaxAttempts + revisionResult.attempt,
-            latencyMs: totalLatency,
-            cost: totalCost + revisionCost,
-            revisedByAgent4: true,
-            revisionDetails: {
-              attempts: revisionResult.attempt,
-              revisionsApplied: revisionResult.revisionsApplied,
-            },
-            degraded: revisionResult.degraded,
-            unresolvedLogicWarnings: revisionResult.unresolvedLogicWarnings,
-          };
+          return await escalateToRevision({ attempt, client, cml, inputs, logger, modelName, normalizationNotes, prompt, resolvedMaxAttempts, startTime, validation });
         } catch (revisionError) {
           // Agent 4 also failed - throw with context
           await logger.logError({
@@ -2087,3 +1223,140 @@ export async function generateCML(
   // Should not reach here, but just in case
   throw lastError || new Error(`CML generation failed: ${lastValidation.errors.join("; ")}`);
 }
+
+/**
+ * A34-07 — one Agent 3 reply to a CML: the JSON ladder, then the YAML fallback. Moved out of the attempt loop;
+ * the loop retries when neither parses.
+ */
+async function parseCmlReply(response: Awaited<ReturnType<AzureOpenAIClient["chatWithRetry"]>>, logger: ReturnType<AzureOpenAIClient["getLogger"]>, inputs: CMLPromptInputs, attempt: number, startTime: number) {
+  let cml: any;
+  let jsonParseError: Error | undefined;
+  let yamlParseError: Error | undefined;
+  // CR-20: the one parse ladder — guarded, then the outermost {…} span, strict then repaired.
+  const tryParseJson = (raw: string): any => {
+    const parsed = parseLlmJson(raw, { guard: true, extract: "strict+repair" });
+    if (parsed.truncated) {
+      // A_65b Ph8 — truncation guard on THE CML BOUNDARY: jsonrepair closes a completion-limit
+      // truncated payload into a valid-looking case with silently missing tail sections (the
+      // phantom-clue class, a3c2973f, at the highest-stakes boundary). A truncated payload is
+      // REFUSED, routing to the existing parse-failure retry path instead of ingesting a phantom.
+      jsonParseError = new Error(
+        "CML payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk); treat as parse failure"
+      );
+    } else if (parsed.parseError) {
+      jsonParseError = parsed.parseError;
+    }
+    return parsed.data;
+  };
+
+  const modelName = response.model || "unknown";
+  cml = tryParseJson(response.content);
+
+  if (!cml) {
+    try {
+      const reply = loadYamlReply(response.content, (text) => parseYAML(text));
+      cml = reply.value;
+
+      await logger.logResponse({
+        runId: inputs.runId,
+        projectId: inputs.projectId,
+        agent: "Agent3-CMLGenerator",
+        operation: "parse_output_sanitized",
+        model: modelName,
+        success: true,
+        validationStatus: "pass",
+        retryAttempt: attempt,
+        latencyMs: Date.now() - startTime,
+        metadata: { note: reply.sanitized ? "YAML sanitized after parse failure" : "YAML reply parsed as written" },
+      });
+    } catch (error) {
+      yamlParseError = error as Error;
+    }
+  }
+  return { cml, jsonParseError, yamlParseError, modelName };
+}
+
+/**
+ * A34-07 — Agent 3's last attempt failed validation: repair the CML with Agent 4 and return the result.
+ * Moved out of generateCML's attempt loop; its caller logs and rethrows whatever this throws.
+ *
+ * A34-Q03 (owner decision 12, CR-30): the node-scoped patch engine (CML_REPAIR_MODE=patch|shadow, never the
+ * default, never run in a pipeline) is retired; Agent 4 rewrites. Offline verdict before deletion: on the one real
+ * failing CML in the corpus it fixed 0 of 2 errors (both A_90 chronology errors that span two nodes).
+ */
+async function escalateToRevision({ attempt, client, cml, inputs, logger, modelName, normalizationNotes, prompt, resolvedMaxAttempts, startTime, validation }: { attempt: number; client: AzureOpenAIClient; cml: any; inputs: CMLPromptInputs; logger: ReturnType<AzureOpenAIClient["getLogger"]>; modelName: string; normalizationNotes: string[]; prompt: PromptMessages; resolvedMaxAttempts: number; startTime: number; validation: ReturnType<typeof validateCml> }) {
+  const revisionResult = await reviseCml(client, {
+    primaryAxis: inputs.primaryAxis, // A34-08
+    originalPrompt: {
+      system: prompt.system, 
+      developer: prompt.developer || "", 
+      user: prompt.user 
+    },
+    invalidCml: yaml.dump(cml),
+    validationErrors: validation.errors,
+    attempt: 1,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+  });
+
+  // Agent 4 succeeded! Return the fixed CML
+  const totalLatency = Date.now() - startTime;
+  const costTracker = client.getCostTracker();
+  const totalCost = costTracker.getSummary().byAgent["Agent3-CMLGenerator"] || 0;
+  const revisionCost = costTracker.getSummary().byAgent["Agent4-Revision"] || 0;
+
+  await logger.logResponse({
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    agent: "Agent3-CMLGenerator",
+    operation: "generate_cml_with_revision",
+    model: modelName,
+    success: true,
+    validationStatus: "pass",
+    retryAttempt: attempt,
+    latencyMs: totalLatency,
+    metadata: {
+      agent3Attempts: resolvedMaxAttempts,
+      agent4Attempts: revisionResult.attempt,
+      totalRevisions: revisionResult.revisionsApplied.length,
+      agent3Cost: totalCost,
+      agent4Cost: revisionCost,
+      totalCost: totalCost + revisionCost,
+      axis: inputs.primaryAxis,
+    },
+  });
+
+  if (revisionResult.degraded) {
+    // Graceful degrade: revision ran out of budget but returned best-so-far. Carry the
+    // unresolved warnings forward and PROCEED rather than killing the run.
+    await logger.logResponse({
+      runId: inputs.runId,
+      projectId: inputs.projectId,
+      agent: "Agent3-CMLGenerator",
+      operation: "generate_cml_degraded",
+      model: modelName,
+      success: false,
+      validationStatus: "fail",
+      retryAttempt: attempt,
+      latencyMs: totalLatency,
+      metadata: { unresolvedWarnings: revisionResult.unresolvedLogicWarnings?.length ?? 0 },
+    });
+  }
+
+  return {
+    cml: revisionResult.cml,
+    validation: revisionResult.validation,
+    normalizationNotes: [...normalizationNotes],
+    attempt: resolvedMaxAttempts + revisionResult.attempt,
+    latencyMs: totalLatency,
+    cost: totalCost + revisionCost,
+    revisedByAgent4: true,
+    revisionDetails: {
+      attempts: revisionResult.attempt,
+      revisionsApplied: revisionResult.revisionsApplied,
+    },
+    degraded: revisionResult.degraded,
+    unresolvedLogicWarnings: revisionResult.unresolvedLogicWarnings,
+  };
+}
+

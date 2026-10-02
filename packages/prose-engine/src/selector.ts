@@ -70,7 +70,8 @@ import {
   witDensity,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { chapterMentionsRequiredClue, tokenMatchesText } from "@cml/prompts-llm";
+import { chapterMentionsRequiredClue } from "@cml/prompts-llm";
+import { keyTermHits } from "./clue-terms.js";
 import { indexChapters } from "./chapter-index.js";
 import { namesAsCulprit } from "./culprit.js";
 
@@ -219,7 +220,7 @@ export const checkHardGates = (
       const present = clueDistribution
         ? chapterMentionsRequiredClue(body, surface.id, clueDistribution as never, castNames)
         : surface.keyTerms.length > 0 &&
-          surface.keyTerms.filter((t) => tokenMatchesText(t, body.toLowerCase())).length >=
+          keyTermHits(surface.keyTerms, body.toLowerCase(), "stemmed") >=
             Math.max(2, Math.ceil(surface.keyTerms.length * 0.5));
       if (!present) {
         hits.push({ kind: "clue_missing", chapter, detail: `${surface.id}: ${surface.keyTerms.slice(0, 4).join(", ")}` });
@@ -255,7 +256,7 @@ export const checkHardGates = (
        */
       if (!owed || owed.keyTerms.length < 4) continue;
       const lowered = body.toLowerCase();
-      const hitTerms = owed.keyTerms.filter((t) => tokenMatchesText(t, lowered)).length;
+      const hitTerms = keyTermHits(owed.keyTerms, lowered, "stemmed");
       if (hitTerms >= Math.max(4, Math.ceil(owed.keyTerms.length * 0.9))) {
         hits.push({ kind: "clue_early", chapter, detail: `${withheld.what} is owed to chapter ${withheld.until}` });
       }

@@ -1,0 +1,1049 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2b — not JSON ×3 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "a4f986a014872e23",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "b40563fe1278a992",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "b40563fe1278a992",
+      "retryAttempt": 3,
+    },
+  ],
+  "logs": [
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
+  ],
+  "threw": "[Agent 2b (Character Profiles)] Validation retry exhausted without any generated result",
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2b — shaped ×3 (schema misses feed the retry prompt) 1`] = `
+{
+  "artifact": "ef78ca4cda6b8732",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "a4f986a014872e23",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 3,
+    },
+    {
+      "agent": "Agent2b-ProfileRepair",
+      "messages": "6baa043564b1062e",
+      "retryAttempt": 1,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "durationMs",
+    "profiles",
+  ],
+  "logs": [
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 1/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "warn: [Agent 2b] Character profiles validation warnings:
+- profiles[0].characterName is not defined in schema (unexpected field)",
+    "error: [Agent 2b] Character profiles failed validation after 3 attempts:
+- status is required
+- profiles[0].name is required",
+    "log: [Agent 2b] Repaired missing paragraphs for "Ann Lee"",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2b — sloppy (trailing comma) 1`] = `
+{
+  "artifact": "ef78ca4cda6b8732",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "a4f986a014872e23",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 3,
+    },
+    {
+      "agent": "Agent2b-ProfileRepair",
+      "messages": "6baa043564b1062e",
+      "retryAttempt": 1,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "durationMs",
+    "profiles",
+  ],
+  "logs": [
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 1/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "warn: [Agent 2b] Character profiles validation warnings:
+- profiles[0].characterName is not defined in schema (unexpected field)",
+    "error: [Agent 2b] Character profiles failed validation after 3 attempts:
+- status is required
+- profiles[0].name is required",
+    "log: [Agent 2b] Repaired missing paragraphs for "Ann Lee"",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2b — structural miss, then shaped 1`] = `
+{
+  "artifact": "ef78ca4cda6b8732",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "a4f986a014872e23",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bf20c3bb14a3c760",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 3,
+    },
+    {
+      "agent": "Agent2b-ProfileRepair",
+      "messages": "6baa043564b1062e",
+      "retryAttempt": 1,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "durationMs",
+    "profiles",
+  ],
+  "logs": [
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: Invalid character profiles output: missing profiles",
+    "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "warn: [Agent 2b] Character profiles validation warnings:
+- profiles[0].characterName is not defined in schema (unexpected field)",
+    "error: [Agent 2b] Character profiles failed validation after 3 attempts:
+- status is required
+- profiles[0].name is required",
+    "log: [Agent 2b] Repaired missing paragraphs for "Ann Lee"",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2b — truncated, then shaped 1`] = `
+{
+  "artifact": "ef78ca4cda6b8732",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "a4f986a014872e23",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "b40563fe1278a992",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2b-CharacterProfiles",
+      "messages": "bfb1479f07986248",
+      "retryAttempt": 3,
+    },
+    {
+      "agent": "Agent2b-ProfileRepair",
+      "messages": "6baa043564b1062e",
+      "retryAttempt": 1,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "durationMs",
+    "profiles",
+  ],
+  "logs": [
+    "warn: [Agent 2b (Character Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2b (Character Profiles)] Retrying after generation error...",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2b (Character Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2b (Character Profiles)] Previous errors: status is required,profiles[0].name is required",
+    "warn: [Agent 2b (Character Profiles)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2b (Character Profiles)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "warn: [Agent 2b] Character profiles validation warnings:
+- profiles[0].characterName is not defined in schema (unexpected field)",
+    "error: [Agent 2b] Character profiles failed validation after 3 attempts:
+- status is required
+- profiles[0].name is required",
+    "log: [Agent 2b] Repaired missing paragraphs for "Ann Lee"",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2c — not JSON ×3 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "db1160f80eb18b09",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "ab77195774b532c0",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "ab77195774b532c0",
+      "retryAttempt": 3,
+    },
+  ],
+  "logs": [
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
+  ],
+  "threw": "[Agent 2c (Location Profiles)] Validation retry exhausted without any generated result",
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2c — shaped ×3 (schema misses feed the retry prompt) 1`] = `
+{
+  "artifact": "e16fc423a68a2606",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "db1160f80eb18b09",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "atmosphere",
+    "cost",
+    "durationMs",
+    "keyLocations",
+    "primary",
+  ],
+  "logs": [
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 1/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 2/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 3/3: 26 error(s)",
+    "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 26 error(s).",
+    "error: [Agent 2c] Location profiles failed validation after 3 attempts:
+- status is required
+- primary.type is required
+- primary.summary is required
+- primary.visualDescription is required
+- primary.atmosphere is required
+- keyLocations[0].name is required
+- keyLocations[0].type is required
+- keyLocations[0].purpose is required
+- keyLocations[0].visualDetails is required
+- keyLocations[0].sensoryDetails is required
+- keyLocations[0].accessControl is required
+- keyLocations[0].paragraphs is required
+- keyLocations[1].name is required
+- keyLocations[1].type is required
+- keyLocations[1].purpose is required
+- keyLocations[1].visualDetails is required
+- keyLocations[1].sensoryDetails is required
+- keyLocations[1].accessControl is required
+- keyLocations[1].paragraphs is required
+- keyLocations[2].name is required
+- keyLocations[2].type is required
+- keyLocations[2].purpose is required
+- keyLocations[2].visualDetails is required
+- keyLocations[2].sensoryDetails is required
+- keyLocations[2].accessControl is required
+- keyLocations[2].paragraphs is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2c — sloppy (trailing comma) 1`] = `
+{
+  "artifact": "e16fc423a68a2606",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "db1160f80eb18b09",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "atmosphere",
+    "cost",
+    "durationMs",
+    "keyLocations",
+    "primary",
+  ],
+  "logs": [
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 1/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 2/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 3/3: 26 error(s)",
+    "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 26 error(s).",
+    "error: [Agent 2c] Location profiles failed validation after 3 attempts:
+- status is required
+- primary.type is required
+- primary.summary is required
+- primary.visualDescription is required
+- primary.atmosphere is required
+- keyLocations[0].name is required
+- keyLocations[0].type is required
+- keyLocations[0].purpose is required
+- keyLocations[0].visualDetails is required
+- keyLocations[0].sensoryDetails is required
+- keyLocations[0].accessControl is required
+- keyLocations[0].paragraphs is required
+- keyLocations[1].name is required
+- keyLocations[1].type is required
+- keyLocations[1].purpose is required
+- keyLocations[1].visualDetails is required
+- keyLocations[1].sensoryDetails is required
+- keyLocations[1].accessControl is required
+- keyLocations[1].paragraphs is required
+- keyLocations[2].name is required
+- keyLocations[2].type is required
+- keyLocations[2].purpose is required
+- keyLocations[2].visualDetails is required
+- keyLocations[2].sensoryDetails is required
+- keyLocations[2].accessControl is required
+- keyLocations[2].paragraphs is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2c — structural miss, then shaped 1`] = `
+{
+  "artifact": "e16fc423a68a2606",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "db1160f80eb18b09",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "45c2144d8b7fec25",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "atmosphere",
+    "cost",
+    "durationMs",
+    "keyLocations",
+    "primary",
+  ],
+  "logs": [
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: Invalid location profiles output: missing primary location",
+    "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 2/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 3/3: 26 error(s)",
+    "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 26 error(s).",
+    "error: [Agent 2c] Location profiles failed validation after 3 attempts:
+- status is required
+- primary.type is required
+- primary.summary is required
+- primary.visualDescription is required
+- primary.atmosphere is required
+- keyLocations[0].name is required
+- keyLocations[0].type is required
+- keyLocations[0].purpose is required
+- keyLocations[0].visualDetails is required
+- keyLocations[0].sensoryDetails is required
+- keyLocations[0].accessControl is required
+- keyLocations[0].paragraphs is required
+- keyLocations[1].name is required
+- keyLocations[1].type is required
+- keyLocations[1].purpose is required
+- keyLocations[1].visualDetails is required
+- keyLocations[1].sensoryDetails is required
+- keyLocations[1].accessControl is required
+- keyLocations[1].paragraphs is required
+- keyLocations[2].name is required
+- keyLocations[2].type is required
+- keyLocations[2].purpose is required
+- keyLocations[2].visualDetails is required
+- keyLocations[2].sensoryDetails is required
+- keyLocations[2].accessControl is required
+- keyLocations[2].paragraphs is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2c — truncated, then shaped 1`] = `
+{
+  "artifact": "e16fc423a68a2606",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "db1160f80eb18b09",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "ab77195774b532c0",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2c-LocationProfiles",
+      "messages": "644d5ed724fa0568",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "atmosphere",
+    "cost",
+    "durationMs",
+    "keyLocations",
+    "primary",
+  ],
+  "logs": [
+    "warn: [Agent 2c (Location Profiles)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2c (Location Profiles)] Retrying after generation error...",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 2/3: 26 error(s)",
+    "log: [Agent 2c (Location Profiles)] Retrying with validation feedback...",
+    "log: [Agent 2c (Location Profiles)] Previous errors: status is required,primary.type is required,primary.summary is required,primary.visualDescription is required,primary.atmosphere is required",
+    "warn: [Agent 2c (Location Profiles)] Validation failed on attempt 3/3: 26 error(s)",
+    "error: [Agent 2c (Location Profiles)] Validation failed after 3 attempts. Returning last result with 26 error(s).",
+    "error: [Agent 2c] Location profiles failed validation after 3 attempts:
+- status is required
+- primary.type is required
+- primary.summary is required
+- primary.visualDescription is required
+- primary.atmosphere is required
+- keyLocations[0].name is required
+- keyLocations[0].type is required
+- keyLocations[0].purpose is required
+- keyLocations[0].visualDetails is required
+- keyLocations[0].sensoryDetails is required
+- keyLocations[0].accessControl is required
+- keyLocations[0].paragraphs is required
+- keyLocations[1].name is required
+- keyLocations[1].type is required
+- keyLocations[1].purpose is required
+- keyLocations[1].visualDetails is required
+- keyLocations[1].sensoryDetails is required
+- keyLocations[1].accessControl is required
+- keyLocations[1].paragraphs is required
+- keyLocations[2].name is required
+- keyLocations[2].type is required
+- keyLocations[2].purpose is required
+- keyLocations[2].visualDetails is required
+- keyLocations[2].sensoryDetails is required
+- keyLocations[2].accessControl is required
+- keyLocations[2].paragraphs is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2d — not JSON ×3 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0edcfecfe09f4f95",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0e59d07729ceeff0",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0e59d07729ceeff0",
+      "retryAttempt": 3,
+    },
+  ],
+  "logs": [
+    "warn: [Agent 2d (Temporal Context)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2d (Temporal Context)] Retrying after generation error...",
+    "warn: [Agent 2d (Temporal Context)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2d (Temporal Context)] Retrying after generation error...",
+    "warn: [Agent 2d (Temporal Context)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "error: [Agent 2d (Temporal Context)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
+  ],
+  "threw": "[Agent 2d (Temporal Context)] Validation retry exhausted without any generated result",
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2d — shaped ×3 (schema misses feed the retry prompt) 1`] = `
+{
+  "artifact": "73f21c5a368b5482",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0edcfecfe09f4f95",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "cultural",
+    "currentAffairs",
+    "durationMs",
+    "fashion",
+    "paragraphs",
+    "seasonal",
+    "specificDate",
+  ],
+  "logs": [
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 1/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 2/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 3/3: 23 error(s)",
+    "error: [Agent 2d (Temporal Context)] Validation failed after 3 attempts. Returning last result with 23 error(s).",
+    "error: [Agent 2d] Temporal context failed validation after 3 attempts:
+- status is required
+- specificDate.era is required
+- seasonal.season is required
+- seasonal.month is required
+- seasonal.weather is required
+- seasonal.daylight is required
+- seasonal.holidays is required
+- seasonal.seasonalActivities is required
+- fashion.mensWear is required
+- fashion.womensWear is required
+- fashion.trendsOfTheMoment is required
+- fashion.socialExpectations is required
+- currentAffairs.majorEvents is required
+- currentAffairs.politicalClimate is required
+- currentAffairs.economicConditions is required
+- currentAffairs.socialIssues is required
+- currentAffairs.internationalNews is required
+- cultural.entertainment is required
+- cultural.literature is required
+- cultural.technology is required
+- cultural.dailyLife is required
+- socialAttitudes is required
+- atmosphericDetails is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2d — sloppy (trailing comma) 1`] = `
+{
+  "artifact": "73f21c5a368b5482",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0edcfecfe09f4f95",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "cultural",
+    "currentAffairs",
+    "durationMs",
+    "fashion",
+    "paragraphs",
+    "seasonal",
+    "specificDate",
+  ],
+  "logs": [
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 1/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 2/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 3/3: 23 error(s)",
+    "error: [Agent 2d (Temporal Context)] Validation failed after 3 attempts. Returning last result with 23 error(s).",
+    "error: [Agent 2d] Temporal context failed validation after 3 attempts:
+- status is required
+- specificDate.era is required
+- seasonal.season is required
+- seasonal.month is required
+- seasonal.weather is required
+- seasonal.daylight is required
+- seasonal.holidays is required
+- seasonal.seasonalActivities is required
+- fashion.mensWear is required
+- fashion.womensWear is required
+- fashion.trendsOfTheMoment is required
+- fashion.socialExpectations is required
+- currentAffairs.majorEvents is required
+- currentAffairs.politicalClimate is required
+- currentAffairs.economicConditions is required
+- currentAffairs.socialIssues is required
+- currentAffairs.internationalNews is required
+- cultural.entertainment is required
+- cultural.literature is required
+- cultural.technology is required
+- cultural.dailyLife is required
+- socialAttitudes is required
+- atmosphericDetails is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2d — structural miss, then shaped 1`] = `
+{
+  "artifact": "73f21c5a368b5482",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0edcfecfe09f4f95",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "8a6e4dc109ab8547",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "cultural",
+    "currentAffairs",
+    "durationMs",
+    "fashion",
+    "paragraphs",
+    "seasonal",
+    "specificDate",
+  ],
+  "logs": [
+    "warn: [Agent 2d (Temporal Context)] Generation error on attempt 1/3: Invalid temporal context output: missing specific date",
+    "log: [Agent 2d (Temporal Context)] Retrying after generation error...",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 2/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 3/3: 23 error(s)",
+    "error: [Agent 2d (Temporal Context)] Validation failed after 3 attempts. Returning last result with 23 error(s).",
+    "error: [Agent 2d] Temporal context failed validation after 3 attempts:
+- status is required
+- specificDate.era is required
+- seasonal.season is required
+- seasonal.month is required
+- seasonal.weather is required
+- seasonal.daylight is required
+- seasonal.holidays is required
+- seasonal.seasonalActivities is required
+- fashion.mensWear is required
+- fashion.womensWear is required
+- fashion.trendsOfTheMoment is required
+- fashion.socialExpectations is required
+- currentAffairs.majorEvents is required
+- currentAffairs.politicalClimate is required
+- currentAffairs.economicConditions is required
+- currentAffairs.socialIssues is required
+- currentAffairs.internationalNews is required
+- cultural.entertainment is required
+- cultural.literature is required
+- cultural.technology is required
+- cultural.dailyLife is required
+- socialAttitudes is required
+- atmosphericDetails is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2d — truncated, then shaped 1`] = `
+{
+  "artifact": "73f21c5a368b5482",
+  "attempts": undefined,
+  "calls": [
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0edcfecfe09f4f95",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "0e59d07729ceeff0",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2d-TemporalContext",
+      "messages": "060f292c33a4b99e",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "cost",
+    "cultural",
+    "currentAffairs",
+    "durationMs",
+    "fashion",
+    "paragraphs",
+    "seasonal",
+    "specificDate",
+  ],
+  "logs": [
+    "warn: [Agent 2d (Temporal Context)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2d (Temporal Context)] Retrying after generation error...",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 2/3: 23 error(s)",
+    "log: [Agent 2d (Temporal Context)] Retrying with validation feedback...",
+    "log: [Agent 2d (Temporal Context)] Previous errors: status is required,specificDate.era is required,seasonal.season is required,seasonal.month is required,seasonal.weather is required",
+    "warn: [Agent 2d (Temporal Context)] Validation failed on attempt 3/3: 23 error(s)",
+    "error: [Agent 2d (Temporal Context)] Validation failed after 3 attempts. Returning last result with 23 error(s).",
+    "error: [Agent 2d] Temporal context failed validation after 3 attempts:
+- status is required
+- specificDate.era is required
+- seasonal.season is required
+- seasonal.month is required
+- seasonal.weather is required
+- seasonal.daylight is required
+- seasonal.holidays is required
+- seasonal.seasonalActivities is required
+- fashion.mensWear is required
+- fashion.womensWear is required
+- fashion.trendsOfTheMoment is required
+- fashion.socialExpectations is required
+- currentAffairs.majorEvents is required
+- currentAffairs.politicalClimate is required
+- currentAffairs.economicConditions is required
+- currentAffairs.socialIssues is required
+- currentAffairs.internationalNews is required
+- cultural.entertainment is required
+- cultural.literature is required
+- cultural.technology is required
+- cultural.dailyLife is required
+- socialAttitudes is required
+- atmosphericDetails is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2e — not JSON ×3 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "c214ad082620e5ea",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "878e57497048dd8a",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "878e57497048dd8a",
+      "retryAttempt": 3,
+    },
+  ],
+  "logs": [
+    "warn: [Agent 2e (Background Context)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2e (Background Context)] Retrying after generation error...",
+    "warn: [Agent 2e (Background Context)] Generation error on attempt 2/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2e (Background Context)] Retrying after generation error...",
+    "warn: [Agent 2e (Background Context)] Generation error on attempt 3/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "error: [Agent 2e (Background Context)] Validation failed after 3 attempts. Returning last result with 1 error(s).",
+  ],
+  "threw": "[Agent 2e (Background Context)] Validation retry exhausted without any generated result",
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2e — shaped ×3 (schema misses feed the retry prompt) 1`] = `
+{
+  "artifact": "1086b27e484d40ed",
+  "attempts": 3,
+  "calls": [
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "c214ad082620e5ea",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "attempt",
+    "backgroundContext",
+    "cost",
+    "durationMs",
+  ],
+  "logs": [
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 1/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2e (Background Context)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "error: [Agent 2e] Background context failed validation after 3 attempts:
+- era is required
+- setting is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2e — sloppy (trailing comma) 1`] = `
+{
+  "artifact": "1086b27e484d40ed",
+  "attempts": 3,
+  "calls": [
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "c214ad082620e5ea",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "attempt",
+    "backgroundContext",
+    "cost",
+    "durationMs",
+  ],
+  "logs": [
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 1/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2e (Background Context)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "error: [Agent 2e] Background context failed validation after 3 attempts:
+- era is required
+- setting is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2e — structural miss, then shaped 1`] = `
+{
+  "artifact": "1086b27e484d40ed",
+  "attempts": 3,
+  "calls": [
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "c214ad082620e5ea",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "a6788e464e1d96f6",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "attempt",
+    "backgroundContext",
+    "cost",
+    "durationMs",
+  ],
+  "logs": [
+    "warn: [Agent 2e (Background Context)] Generation error on attempt 1/3: Invalid background context output: missing status=ok",
+    "log: [Agent 2e (Background Context)] Retrying after generation error...",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2e (Background Context)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "error: [Agent 2e] Background context failed validation after 3 attempts:
+- era is required
+- setting is required",
+  ],
+}
+`;
+
+exports[`context generators characterisation (CR-20 / A1X-03) > 2e — truncated, then shaped 1`] = `
+{
+  "artifact": "1086b27e484d40ed",
+  "attempts": 3,
+  "calls": [
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "c214ad082620e5ea",
+      "retryAttempt": 1,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "878e57497048dd8a",
+      "retryAttempt": 2,
+    },
+    {
+      "agent": "Agent2e-BackgroundContext",
+      "messages": "2417350fae925957",
+      "retryAttempt": 3,
+    },
+  ],
+  "cost": 0.03,
+  "keys": [
+    "attempt",
+    "backgroundContext",
+    "cost",
+    "durationMs",
+  ],
+  "logs": [
+    "warn: [Agent 2e (Background Context)] Generation error on attempt 1/3: LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair",
+    "log: [Agent 2e (Background Context)] Retrying after generation error...",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 2/3: 2 error(s)",
+    "log: [Agent 2e (Background Context)] Retrying with validation feedback...",
+    "log: [Agent 2e (Background Context)] Previous errors: era is required,setting is required",
+    "warn: [Agent 2e (Background Context)] Validation failed on attempt 3/3: 2 error(s)",
+    "error: [Agent 2e (Background Context)] Validation failed after 3 attempts. Returning last result with 2 error(s).",
+    "error: [Agent 2e] Background context failed validation after 3 attempts:
+- era is required
+- setting is required",
+  ],
+}
+`;

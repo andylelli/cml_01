@@ -4,13 +4,14 @@
  * Expands cast details into full narrative profiles.
  */
 
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateArtifact } from "@cml/cml";
+import { promptTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { CastDesign } from "./agent2-cast.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface CharacterProfileOutput {
   name: string;
@@ -139,7 +140,30 @@ export const isTicTemplateBanEnabled = (env: NodeJS.ProcessEnv = process.env): b
 
 import { humourBand, resolveHumourLevel } from "./humour-level.js";
 
-export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
+/**
+ * A1X-D11 (owner decision 12, CML_VERIFIED_FIXES): the cast member a profile describes, by the profile's own
+ * name (case-insensitive); the same index only when no name matches. Flag OFF: always the same index.
+ */
+export const castMemberForProfile = (
+  inputs: CharacterProfilesInputs,
+  profile: { name?: unknown } | undefined,
+  index: number,
+) => {
+  const characters = inputs.cast.characters;
+  if (verifiedFixesEnabled()) {
+    const key = typeof profile?.name === "string" ? profile.name.trim().toLowerCase() : "";
+    const byName = key ? characters.find((c) => String(c?.name ?? "").trim().toLowerCase() === key) : undefined;
+    if (byName) return byName;
+  }
+  return characters[index];
+};
+
+export const buildProfilesPrompt = (
+  inputs: CharacterProfilesInputs,
+  previousErrors?: string[],
+  // A1X-D11: the previous attempt's profiles, so a profiles[i] error names the profile's own character.
+  previousProfiles?: ReadonlyArray<{ name?: unknown }>,
+) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
@@ -156,7 +180,7 @@ export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErr
     const match = err.match(/^profiles\[(\d+)\]\.(.*)/);
     if (match) {
       const idx = parseInt(match[1], 10);
-      const character = inputs.cast.characters[idx];
+      const character = castMemberForProfile(inputs, previousProfiles?.[idx], idx);
       const name = character?.name ?? `character at index ${idx}`;
       return `The profile for "${name}" is missing or incomplete: ${match[2]} — ensure this character has a full "paragraphs" array of 4–6 narrative paragraphs (~${inputs.targetWordCount ?? 1000} words total).`;
     }
@@ -342,7 +366,7 @@ async function repairMissingParagraphs(
   profile: CharacterProfileOutput,
   characterIndex: number
 ): Promise<CharacterProfileOutput> {
-  const character = inputs.cast.characters[characterIndex];
+  const character = castMemberForProfile(inputs, profile, characterIndex); // A1X-D11
   const tone = inputs.tone ?? "Cozy";
   const targetWordCount = inputs.targetWordCount ?? 1000;
   const title = (inputs.caseData as any)?.CASE?.meta?.title ?? "Untitled Mystery";
@@ -379,11 +403,12 @@ async function repairMissingParagraphs(
   });
 
   let parsed: { paragraphs?: string[] };
-  try {
-    parsed = JSON.parse(response.content);
-  } catch {
-    parsed = JSON.parse(jsonrepair(response.content));
-  }
+  // CR-20: the one parse ladder. Guarded since owner decision 3 (ORC-Q03): a truncated reply is refused,
+  // not closed by jsonrepair into a profile with phantom paragraphs; the caller logs and moves on.
+  const parsedJson = parseLlmJson<{ paragraphs?: string[] }>(response.content, { guard: true });
+  if (parsedJson.truncated) throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
+  if (parsedJson.data === undefined) throw parsedJson.repairError;
+  parsed = parsedJson.data;
 
   if (!Array.isArray(parsed.paragraphs) || parsed.paragraphs.length === 0) {
     throw new Error(
@@ -399,91 +424,61 @@ export async function generateCharacterProfiles(
   inputs: CharacterProfilesInputs,
   maxAttempts?: number
 ): Promise<CharacterProfilesResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2b_profiles.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  let lastProfiles: CharacterProfileOutput[] | undefined;
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs } = await generateJsonArtifact<Omit<CharacterProfilesResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2b (Character Profiles)",
-    validationFn: (data) => {
-      // Validate against character_profiles schema
-      const validationPayload = {
-        ...(data as Record<string, unknown>),
-        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
-        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
-      };
-      const validation = validateArtifact("character_profiles", validationPayload);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildProfilesPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2b-CharacterProfiles",
-          retryAttempt: attempt,
-        },
-      });
-
-      let profiles: Omit<CharacterProfilesResult, "cost" | "durationMs">;
-      try {
-        profiles = JSON.parse(response.content);
-      } catch (error) {
-        const repaired = jsonrepair(response.content);
-        profiles = JSON.parse(repaired);
-      }
-
+    label: "Agent2b-CharacterProfiles",
+    logName: "[Agent 2b] Character profiles",
+    schema: "character_profiles",
+    withRunMeta: true,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: true, // owner decision 3 (ORC-Q03)
+    buildMessages: (previousErrors) => buildProfilesPrompt(inputs, previousErrors, lastProfiles).messages,
+    structuralCheck: (profiles) => {
       if (!Array.isArray(profiles.profiles) || profiles.profiles.length === 0) {
         throw new Error("Invalid character profiles output: missing profiles");
       }
-
-      const costTracker = client.getCostTracker();
-      const cost = costTracker.getSummary().byAgent["Agent2b-CharacterProfiles"] || 0;
-
-      return { result: profiles, cost };
+      lastProfiles = profiles.profiles; // A1X-D11: the attempt whose validation errors feed the next prompt
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2b] Character profiles validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2b] Character profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as CharacterProfilesResult;
+  const validatedResult = result as CharacterProfilesResult;
 
   // Targeted repair: if any profile is still missing paragraphs (e.g. due to token
   // budget truncation on the last profile), repair each one with a focused single-profile call
-  if (Array.isArray(validatedResult.profiles)) {
+  // A1X-11(e) (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time: ON, the independent repairs run
+  // concurrently — same prompts, same per-profile writes and logs; only the order of the calls changes.
+  if (Array.isArray(validatedResult.profiles) && promptTrimsEnabled()) {
+    const profiles = validatedResult.profiles;
+    await Promise.all(
+      profiles.map(async (p, i) => {
+        if (p.paragraphs && p.paragraphs.length > 0) return;
+        try {
+          profiles[i] = await repairMissingParagraphs(client, inputs, p, i);
+          console.log(
+            `[Agent 2b] Repaired missing paragraphs for "${castMemberForProfile(inputs, p, i)?.name ?? `profile[${i}]`}"`
+          );
+        } catch (repairErr) {
+          console.error(
+            `[Agent 2b] Could not repair paragraphs for profile[${i}]: ${repairErr}`
+          );
+        }
+      }),
+    );
+  } else if (Array.isArray(validatedResult.profiles)) {
     for (let i = 0; i < validatedResult.profiles.length; i++) {
       const p = validatedResult.profiles[i];
       if (!p.paragraphs || p.paragraphs.length === 0) {
         try {
           validatedResult.profiles[i] = await repairMissingParagraphs(client, inputs, p, i);
           console.log(
-            `[Agent 2b] Repaired missing paragraphs for "${inputs.cast.characters[i]?.name ?? `profile[${i}]`}"`
+            `[Agent 2b] Repaired missing paragraphs for "${castMemberForProfile(inputs, p, i)?.name ?? `profile[${i}]`}"`
           );
         } catch (repairErr) {
           console.error(
@@ -496,7 +491,7 @@ export async function generateCharacterProfiles(
 
   return {
     ...validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
   };
 }

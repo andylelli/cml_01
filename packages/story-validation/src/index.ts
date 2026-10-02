@@ -60,3 +60,6 @@ export { semanticValidateDiscriminatingTest, semanticValidateSuspectElimination,
 // A_61 RC5.3 — the deterministic dialogue-distinctiveness (voice idiolect) gate.
 export { validateDialogueIdiolect } from './dialogue-idiolect-validator.js';
 export type { DialogueVoiceCapsule, DialogueIdiolectResult, DialogueIdiolectIssue } from './dialogue-idiolect-validator.js';
+
+// A1X-08 (CR-17): the one month→season table; prompts-llm's temporal anchor and Agent 2d read it from here.
+export { MONTH_TO_SEASON, type CanonicalSeason } from './temporal-consistency.js';

@@ -15,8 +15,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { isInjectedSentence } from "../prose-contract/injected-sentences.js";
 
-import { isInjectedSentence } from '../agent9-prose/injection-templates.js';
 
 describe('the live deterministic-repair injections are recognised', () => {
   it('catches the discriminating-test paste, both ternary branches', () => {

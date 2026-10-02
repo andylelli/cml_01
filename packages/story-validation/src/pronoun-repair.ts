@@ -298,8 +298,6 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const DIRECTIONAL_OBJECT_VERBS =
-  'turned?\\s+to(?:ward)?s?|looked?\\s+(?:at|to(?:ward)?s?)|gaz(?:ed|ing)\\s+at|stared?\\s+at|faced|spoke\\s+to|addressed|greeted|nodded\\s+(?:to|at)|gestured\\s+(?:to|at)|glanced?\\s+at|smiled\\s+at';
 
 const PERCEPTION_VERBS =
   'saw|sees|seeing|watch(?:ed|es|ing)?|notic(?:ed|es|ing)?|not(?:ed|es|ing)|observ(?:ed|es|ing)?|regard(?:ed|s|ing)?|stud(?:ied|ies|ying)|glimps(?:ed|es|ing)?|spot(?:ted|s|ting)?|eyed|eyeing|perceiv(?:ed|es|ing)?|mark(?:ed|ing)?|discern(?:ed|s|ing)?|sens(?:ed|es|ing)?|caught';

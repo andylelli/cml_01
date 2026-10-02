@@ -430,3 +430,52 @@ describe("agent65 enforceCastCoverage — legacy `role` fallback + the exact rec
     expect(verdict.error).toContain("count (2)");
   });
 });
+
+describe("agent65 withoutRunTelemetry (CR-03, AGENT65_OMIT_RUN_TELEMETRY)", () => {
+  const { withoutRunTelemetry, buildWorldBuilderUserMessage } = __testables;
+  // The shape MEASURED on run_7b1ec2ef: telemetry at the artifact's root, story content below it.
+  const temporal = { status: "ok", specificDate: { year: 1930, month: "June" }, prices: [{ item: "tea", cost: "4d" }], cost: 0.003407112, durationMs: 8 };
+  const background = { status: "ok", backdropSummary: "A seaside hotel.", cost: 0.006936832, durationMs: 5 };
+  const withFlag = <T>(value: string | undefined, fn: () => T): T => {
+    const prev = process.env.AGENT65_OMIT_RUN_TELEMETRY;
+    if (value === undefined) delete process.env.AGENT65_OMIT_RUN_TELEMETRY; else process.env.AGENT65_OMIT_RUN_TELEMETRY = value;
+    try { return fn(); } finally { if (prev === undefined) delete process.env.AGENT65_OMIT_RUN_TELEMETRY; else process.env.AGENT65_OMIT_RUN_TELEMETRY = prev; }
+  };
+  const prompt = () => buildWorldBuilderUserMessage({ temporalContext: temporal, backgroundContext: background } as any);
+
+  it("is a no-op when the flag is unset (default OFF: the prompt keeps its bytes)", () => {
+    withFlag(undefined, () => {
+      expect(withoutRunTelemetry(temporal)).toBe(temporal);
+      expect(prompt()).toContain('"durationMs": 8');
+    });
+  });
+
+  it("drops root cost and durationMs when ON, and keeps nested story content", () => {
+    withFlag("true", () => {
+      const out = withoutRunTelemetry(temporal) as any;
+      expect(out.cost).toBeUndefined();
+      expect(out.durationMs).toBeUndefined();
+      expect(out.prices[0].cost).toBe("4d");
+      expect(temporal.durationMs).toBe(8); // the artifact itself is not mutated
+      const p = prompt();
+      expect(p).not.toMatch(/"durationMs"|"cost": 0\.00/);
+      expect(p).toContain('"cost": "4d"');
+    });
+  });
+
+  it("makes the prompt independent of wall-clock telemetry", () => {
+    withFlag("true", () => {
+      const a = prompt();
+      const b = buildWorldBuilderUserMessage({ temporalContext: { ...temporal, durationMs: 5 }, backgroundContext: { ...background, durationMs: 11 } } as any);
+      expect(a).toBe(b);
+    });
+  });
+
+  it("leaves arrays and non-objects alone", () => {
+    withFlag("true", () => {
+      const arr = [{ cost: 1 }];
+      expect(withoutRunTelemetry(arr)).toBe(arr);
+      expect(withoutRunTelemetry(null)).toBeNull();
+    });
+  });
+});

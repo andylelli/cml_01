@@ -13,7 +13,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { isStripBeatTitlesEnabled, stripBeatPrefixFromTitle, deriveStoryTitle } from "@cml/prompts-llm";
+import { assembleScoringChapterTexts, isStripBeatTitlesEnabled, stripBeatPrefixFromTitle, deriveStoryTitle } from "@cml/prompts-llm";
 
 /** Fold smart punctuation to ASCII — the corpus is compared as text, and quote style is noise. */
 export const normalizeStoryText = (s: unknown): string =>
@@ -27,21 +27,13 @@ export const normalizeStoryText = (s: unknown): string =>
 /**
  * Plain prose join — exactly the text the live shadow scorer rubric-scores.
  *
- * This must stay identical to `assembleFullProse` in the orchestrator: the rubric judge's marks are
- * only comparable across runs if every path feeds it the same rendering of the same chapters.
+ * ORC-07: ONE body. The rubric judge's marks are only comparable across runs if every path feeds it
+ * the same rendering of the same chapters, so this delegates to the assembly the orchestrator's rubric
+ * scoring and the dual-value ship-scope detector already share (A_64 §2), instead of keeping a
+ * hand-copied twin "in line by a comment".
  */
 export function assembleFullProse(prose: unknown): string {
-  const chapters = Array.isArray((prose as any)?.chapters) ? (prose as any).chapters : [];
-  return chapters
-    .map((c: any) => {
-      const body = Array.isArray(c?.paragraphs)
-        ? c.paragraphs.join("\n\n")
-        : String(c?.content ?? c?.text ?? "");
-      const title = c?.title ? `${c.title}\n\n` : "";
-      return `${title}${body}`.trim();
-    })
-    .filter(Boolean)
-    .join("\n\n");
+  return assembleScoringChapterTexts((prose as any)?.chapters).join("\n\n");
 }
 
 export function storyFolderName(d: Date): string {

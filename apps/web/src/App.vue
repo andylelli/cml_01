@@ -9,6 +9,7 @@ import { useUiState, type Mode } from "./composables/useUiState";
 import { logActivity, type Project } from "./services/api";
 import { useSessionState } from "./composables/useSessionState";
 import type { MysterySpec } from "./spec/vocabulary";
+import { brand } from "./design/brand";
 import CaseView from "./views/CaseView.vue";
 import CasesView from "./views/CasesView.vue";
 import CreateView from "./views/CreateView.vue";
@@ -53,9 +54,23 @@ const projectName = ref("");
 const openCase = ref<{ id: string; name: string } | null>(null);
 
 const openCaseFile = (project: Project) => {
-	openCase.value = { id: project.id, name: project.name };
+	openCase.value = { id: project.id, name: project.title || project.name };
 	view.value = "case";
 };
+
+/** The case view reports the story's title when it lands; the nav tab is named from it. */
+const onCaseTitled = (title: string) => {
+	if (openCase.value && openCase.value.name !== title) openCase.value = { ...openCase.value, name: title };
+};
+
+/** The browser tab names the case being read; everywhere else it is the product. */
+watch(
+	() => (view.value === "case" && openCase.value ? `${openCase.value.name} · ${brand.documentTitle}` : brand.documentTitle),
+	(title) => {
+		document.title = title;
+	},
+	{ immediate: true },
+);
 
 const flow = useCreateFlow({
 	existingProjectId: () => null, // every generation opens its own case
@@ -187,6 +202,7 @@ const revealWorkshop = () => {
 			:project-name="openCase.name"
 			@back="view = 'cases'"
 			@open-workshop="revealWorkshop"
+			@titled="onCaseTitled"
 		/>
 
 		<WorkshopView v-else-if="view === 'workshop'" @open-create="view = 'create'" />

@@ -15,6 +15,7 @@
  * tests / when no injector is supplied.
  */
 
+import { findUnplantedDiscriminatingClues } from "@cml/cml";
 import { nameAppearsInProse } from "./facts.js";
 
 /** Result of the three structural verifiers + the per-flag citation check. */
@@ -41,71 +42,19 @@ export interface StructuralVerdict {
   duplicateRevealChapters?: number[];
 }
 
-/** Minimal shape of `findUnplantedDiscriminatingClues`'s return — the CASE-level structural ordering check. */
-export interface UnplantedCluesLike {
-  unplanted: string[];
-  unmapped: string[];
-  testSceneKey: number | null;
-}
-
-/** Injectable seam: the real `findUnplantedDiscriminatingClues` from @cml/prompts-llm, or the local fallback. */
-export type FindUnplantedFn = (caseInput: unknown) => UnplantedCluesLike;
-
 export interface VerifyStructureInput {
   cml: unknown;
   /** The assembled prose, split into chapters in order (chapters[0] is Chapter 1). */
   chapters: string[];
   victimName?: string;
-  /** Injected `findUnplantedDiscriminatingClues`; falls back to the local mirror when absent. */
-  findUnplanted?: FindUnplantedFn;
 }
 
+/** Act/scene to one sortable number (act × 100 + scene), as the planting check orders scenes. */
 const sceneOrderKey = (actNumber: unknown, sceneNumber: unknown): number => {
   const act = Number(actNumber);
   const scene = Number(sceneNumber);
   return (Number.isFinite(act) ? act : 0) * 100 + (Number.isFinite(scene) ? scene : 0);
 };
-
-/**
- * Local mirror of `@cml/prompts-llm.findUnplantedDiscriminatingClues` (A_50 §9.3 #2). Kept byte-for-byte
- * faithful to its placement logic so the package needs no heavy dependency; the orchestrator injects the
- * real function in production so the two never drift on a live run.
- */
-export function findUnplantedDiscriminatingCluesLocal(caseInput: any): UnplantedCluesLike {
-  const caseBlock = caseInput?.CASE ?? caseInput ?? {};
-  const evidenceClues: string[] = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
-    ? caseBlock.discriminating_test.evidence_clues.map((x: unknown) => String(x ?? "").trim()).filter(Boolean)
-    : [];
-
-  const testScene = caseBlock?.prose_requirements?.discriminating_test_scene;
-  const testSceneKey =
-    testScene && (testScene.act_number !== undefined || testScene.scene_number !== undefined)
-      ? sceneOrderKey(testScene.act_number, testScene.scene_number)
-      : null;
-
-  const placement = new Map<string, number>();
-  const mapping: any[] = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
-    ? caseBlock.prose_requirements.clue_to_scene_mapping
-    : [];
-  for (const entry of mapping) {
-    const id = String(entry?.clue_id ?? "").trim();
-    if (id) placement.set(id, sceneOrderKey(entry?.act_number, entry?.scene_number));
-  }
-
-  const unplanted: string[] = [];
-  const unmapped: string[] = [];
-  for (const clue of evidenceClues) {
-    if (!placement.has(clue)) {
-      unmapped.push(clue);
-      unplanted.push(clue);
-      continue;
-    }
-    if (testSceneKey !== null && placement.get(clue)! >= testSceneKey) {
-      unplanted.push(clue);
-    }
-  }
-  return { unplanted, unmapped, testSceneKey };
-}
 
 function unwrapCase(cml: unknown): Record<string, any> {
   if (cml && typeof cml === "object") {
@@ -354,7 +303,6 @@ export function verifyStructure(input: VerifyStructureInput): StructuralVerdict 
   const caseData = unwrapCase(input.cml);
   const chapters = Array.isArray(input.chapters) ? input.chapters : [];
   const chaptersLower = chapters.map((c) => String(c ?? "").toLowerCase());
-  const find = input.findUnplanted ?? findUnplantedDiscriminatingCluesLocal;
 
   const verdict: StructuralVerdict = {
     unplantedEvidence: [],
@@ -370,12 +318,7 @@ export function verifyStructure(input: VerifyStructureInput): StructuralVerdict 
   verdict.testChapter = testChapter;
 
   if (evidenceClues.length > 0) {
-    let caseUnplanted: UnplantedCluesLike;
-    try {
-      caseUnplanted = find(input.cml);
-    } catch {
-      caseUnplanted = findUnplantedDiscriminatingCluesLocal(input.cml);
-    }
+    const caseUnplanted = findUnplantedDiscriminatingClues(input.cml); // CR-16 (A34-10): the one body, in @cml/cml
     const caseUnplantedSet = new Set(caseUnplanted.unplanted.map((c) => String(c).trim()));
 
     const unplanted: string[] = [];

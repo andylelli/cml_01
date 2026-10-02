@@ -748,7 +748,7 @@ export const parseDurationMinutes = (raw: unknown): number | null => {
  * A minute count as an era word-form numeral: 25 → "twenty-five", 40 → "forty", 14 → "fourteen".
  *
  * Locked-fact values are printed into the prose VERBATIM, and this project's era rule forbids digits
- * there (`wordifyLockedFactValue`, agent3b-run.ts). A repair that wrote "25 minutes" would satisfy the
+ * there (`wordifyLockedFactValue`, locked-facts.ts). A repair that wrote "25 minutes" would satisfy the
  * arithmetic and break the register, which is the trade this function exists to refuse.
  */
 export const spellMinuteCount = (n: number): string | null => {

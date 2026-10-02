@@ -1,14 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { selectDepthBeat, selectWitBeat } from "../prose-contract/beats.js";
 
-import {
-  buildDepthBeatLines,
-  buildWitBeatLines,
-  isDepthBeatEnabled,
-  isWitBeatEnabled,
-  selectDepthBeat,
-  selectWitBeat,
-} from "../agent9-prose/obligation-block.js";
-import { HUMOUR_STYLES } from "../agent9-prose/prompt-blocks.js";
 
 /**
  * A_91 — wit and depth as per-chapter OPERATIONS.
@@ -55,55 +47,5 @@ describe("selectWitBeat / selectDepthBeat — deterministic, one per chapter", (
       if (w && d && w === d) collisions += 1;
     }
     expect(collisions).toBeLessThanOrEqual(4);
-  });
-
-  it("an empty or humourless cast yields no beat, and the block stays silent", () => {
-    expect(selectWitBeat([], 1)).toBeUndefined();
-    expect(selectWitBeat([{ name: "X", humourStyle: "none", humourLevel: 0 }], 1)).toBeUndefined();
-    expect(buildWitBeatLines(undefined, HUMOUR_STYLES)).toEqual([]);
-    expect(buildDepthBeatLines(undefined)).toEqual([]);
-  });
-});
-
-describe("the beats are countable operations, not rates", () => {
-  it("the wit beat names the character, the style, its definition, and the three forbidden places", () => {
-    const lines = buildWitBeatLines(selectWitBeat(cast, 1), HUMOUR_STYLES).join("\n");
-    expect(lines).toContain("Percival Thorne");
-    expect(lines).toContain("exactly one remark");
-    expect(lines).toContain("dry wit");
-    expect(lines).toContain(HUMOUR_STYLES.dry_wit);
-    expect(lines).toContain("no other character is funny in this chapter");
-    expect(lines).toContain("SKIP the beat entirely rather than force it");
-    // never a rate
-    expect(lines).not.toMatch(/every \d|per \d|\d%/);
-  });
-
-  it("the depth beat shows the trait and forbids explaining it in the same breath", () => {
-    const beat = selectDepthBeat(cast, 1);
-    const lines = buildDepthBeatLines(beat).join("\n");
-    expect(lines).toContain(beat!.name.toUpperCase());
-    expect(lines).toContain("shown once and not explained");
-    expect(lines).toContain("Do NOT narrate the cause in the same paragraph");
-    expect(lines).toContain("ONE line of their own dialogue");
-    expect(lines).toContain("never to explain their behaviour");
-  });
-});
-
-describe("flags are read at call time", () => {
-  it("both default off", () => {
-    const saved = [process.env.AGENT9_WIT_BEAT, process.env.AGENT9_DEPTH_BEAT];
-    try {
-      delete process.env.AGENT9_WIT_BEAT;
-      delete process.env.AGENT9_DEPTH_BEAT;
-      expect(isWitBeatEnabled()).toBe(false);
-      expect(isDepthBeatEnabled()).toBe(false);
-      process.env.AGENT9_WIT_BEAT = "true";
-      process.env.AGENT9_DEPTH_BEAT = "1";
-      expect(isWitBeatEnabled()).toBe(true);
-      expect(isDepthBeatEnabled()).toBe(true);
-    } finally {
-      if (saved[0] === undefined) delete process.env.AGENT9_WIT_BEAT; else process.env.AGENT9_WIT_BEAT = saved[0];
-      if (saved[1] === undefined) delete process.env.AGENT9_DEPTH_BEAT; else process.env.AGENT9_DEPTH_BEAT = saved[1];
-    }
   });
 });

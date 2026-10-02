@@ -573,3 +573,37 @@ describe("Agent 3 culprit fallback (run-1654 defect)", () => {
     expect((result.normalizationNotes ?? []).join(" ")).not.toMatch(/did not decide/);
   });
 });
+
+/**
+ * A34-07 (MEASURED): normalizationNotes lived outside the attempt loop, so a note from a DISCARDED attempt
+ * reached the result. Attempt 1 fabricated a culprit and failed validation; attempt 2 decided its own
+ * culprit; the returned notes still said "did not decide its own answer". Notes now describe only the
+ * attempt that produced the result.
+ */
+describe("Agent 3 normalization notes are per attempt (A34-07)", () => {
+  it("drops the notes of an attempt that was discarded", async () => {
+    const undecided = buildValidCml() as any;
+    undecided.CASE.cast = [
+      { name: "Eleanor Voss", role_archetype: "detective", culprit_eligibility: "eligible", culpability: "unknown" },
+      { name: "Dr. Mallory Finch", role_archetype: "victim", culprit_eligibility: "ineligible", culpability: "unknown" },
+      { name: "Captain Ivor Hale", role_archetype: "suspect", culprit_eligibility: "eligible", culpability: "unknown" },
+      { name: "Beatrice Quill", role_archetype: "suspect", culprit_eligibility: "eligible", culpability: "unknown" },
+    ];
+    const decided = JSON.parse(JSON.stringify(undecided));
+    decided.CASE.culpability = { culprit_count: 1, culprits: ["Beatrice Quill"] };
+    undecided.CASE.culpability = { culprit_count: 1, culprits: [] };
+    delete undecided.CASE.inference_path; // fails validation, so attempt 1 is discarded
+    const client = makeMockClientForAgent3Fallback(JSON.stringify(decided), JSON.stringify(decided));
+    client.chatWithRetry.mockResolvedValueOnce({ model: "test-model", content: JSON.stringify(undecided), latencyMs: 1, finishReason: "stop" });
+    const result = await generateCML(client as any, {
+      decade: "1930s", location: "Seaside hotel", institution: "Hotel", tone: "Classic Golden Age", weather: "Rain",
+      socialStructure: "Rigid class hierarchy", primaryAxis: "temporal", castSize: 4,
+      castNames: ["Eleanor Voss", "Dr. Mallory Finch", "Captain Ivor Hale", "Beatrice Quill"], detectiveType: "Amateur",
+      victimArchetype: "Dr. Mallory Finch", complexityLevel: "moderate", mechanismFamilies: ["clock manipulation"],
+      runId: "notes-per-attempt-run", projectId: "notes-per-attempt-project",
+    } as any, undefined, 2);
+    expect(client.chatWithRetry).toHaveBeenCalledTimes(2);
+    expect((result.cml as any).CASE.culpability.culprits).toEqual(["Beatrice Quill"]);
+    expect((result.normalizationNotes ?? []).join(" ")).not.toMatch(/did not decide its own answer/);
+  });
+});

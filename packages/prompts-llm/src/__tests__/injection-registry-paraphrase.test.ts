@@ -13,8 +13,8 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { isInjectedSentence } from "../prose-contract/injected-sentences.js";
 
-import { isInjectedSentence } from "../agent9-prose/injection-templates.js";
 
 describe("isInjectedSentence — the paraphrased clue-inference line", () => {
   it("recognises the real shipped sentences it used to miss", () => {

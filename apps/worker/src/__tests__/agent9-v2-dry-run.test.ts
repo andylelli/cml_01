@@ -15,7 +15,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildContractInput, generateBookV2, isProseEngineV2 } from "../jobs/agents/agent9-v2/run.js";
+import { buildContractInput, generateBookV2 } from "../jobs/agents/agent9-v2/run.js";
 import { hashContract } from "../jobs/agents/agent9-v2/checkpoint.js";
 import { resetRoleCache, resolveRole, roleLabel } from "../jobs/agents/agent9-v2/roles.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
@@ -110,7 +110,7 @@ const fakeContext = (source: Record<string, unknown> | null = artifacts): Orches
   } as unknown as OrchestratorContext;
 };
 
-const KEYS = ["PROSE_ENGINE", "PROSE_V2_DRY", "PROSE_V2_WRITER", "PROSE_V2_DRAFTS", "AGENT3_CASE_LOGIC"] as const;
+const KEYS = ["PROSE_V2_DRY", "PROSE_V2_WRITER", "PROSE_V2_DRAFTS", "AGENT3_CASE_LOGIC"] as const;
 const saved = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
 afterEach(() => {
   // `process.env.X = undefined` writes the STRING "undefined", which is how the first cut of this
@@ -120,16 +120,6 @@ afterEach(() => {
     else process.env[key] = saved[key];
   }
   resetRoleCache();
-});
-
-describe("the switch", () => {
-  it("is OFF unless the environment says v2, so v1 is untouched by default", () => {
-    delete process.env.PROSE_ENGINE;
-    expect(isProseEngineV2()).toBe(false);
-    expect(isProseEngineV2({ PROSE_ENGINE: "v1" } as NodeJS.ProcessEnv)).toBe(false);
-    expect(isProseEngineV2({ PROSE_ENGINE: "v2" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(isProseEngineV2({ PROSE_ENGINE: " V2 " } as NodeJS.ProcessEnv)).toBe(true);
-  });
 });
 
 describe("the roles", () => {

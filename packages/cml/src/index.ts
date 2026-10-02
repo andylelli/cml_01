@@ -20,7 +20,17 @@ import {
 
 export const packageName = "@cml/cml";
 export { validateCml };
-export { isVictimArchetype, isDetectiveArchetype, roleTextsOf } from "./roles.js";
+export { FLAG_ON_VALUES, FLAG_OFF_VALUES, readBooleanFlag, verifiedFixesEnabled, promptTrimsEnabled, clueSpecChecklistEnabled } from "./flags.js";
+export { CANONICAL_CLUE_ID_RE, escapeRegExp } from "./text-patterns.js";
+export { isVictimArchetype, isDetectiveArchetype, roleTextsOf, CAST_ROLE_ENUM, explicitRoleOf, isDetectiveMember, isVictimMember, isIdentityRoleWinsEnabled, resolveIdentity } from "./roles.js";
+export type { CastRole } from "./roles.js";
+export { surname, namesMatch, nameAppearsAsWord } from "./identity.js";
+export { SOURCE_PATH_FAMILIES, WORKER_LEGAL_SOURCE_PATTERNS, SOURCE_PATH_PROMPT_ROOTS, SOURCE_PATH_RETRY_TEMPLATES, enumerateSourcePaths, sourcePathPattern } from "./source-paths.js";
+export type { SourcePathFamily } from "./source-paths.js";
+export { findUnplantedDiscriminatingClues } from "./discriminating-planting.js";
+export type { UnplantedDiscriminatingClues } from "./discriminating-planting.js";
+// A34-03 — the pure locked-fact registry helpers (wording normalisation, implied-interval shape).
+export { numberToWordsSmall, wordifyLockedFactValue, stripLeadingArticleFromLockedValue, impliedIntervalFactId } from "./locked-facts.js";
 // X51 (REVIEW_11 §8.1) — case-scoped locked facts: the weapon and each suspect's alibi location.
 export { buildCaseScopedLockedFacts, extractWeaponFromDeathMethod, extractAlibiLocation } from "./case-locked-facts.js";
 export type { CaseScopedLockedFact } from "./case-locked-facts.js";
@@ -104,6 +114,23 @@ export function getInferencePath(cml: CaseData): InferencePath {
 // Type alias for CML data structure (used by agents)
 // Keep backward-compatible any export
 export type CaseData = any;
+
+// A5-04 / A6-18 — the typed read view of `CASE`: `caseOf(cml)` is `(cml as any)?.CASE ?? cml`, typed.
+export { caseOf } from "./case-view.js";
+export type {
+  CaseView,
+  CaseCastMember,
+  CaseInferenceStep,
+  CaseDiscriminatingTest,
+  CaseFalseAssumption,
+  CaseFalseSolution,
+  CaseRedHerring,
+  CaseConstraintSpace,
+  CaseClueSceneMapping,
+  CaseProseRequirements,
+  CaseQualityControls,
+  CaseLockedFact,
+} from "./case-view.js";
 
 // Alias for validateCml function (used by agents)
 export { validateCml as validateCaseData };

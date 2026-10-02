@@ -18,6 +18,8 @@ const gradeColors: Record<string, string> = {
   C: "bg-warn-wash text-warn",
   D: "bg-warn-wash text-warn",
   F: "bg-danger-wash text-danger",
+  // SCO-D12: a phase that did not run (e.g. a skipped novelty audit) is N/A — neutral, not a fail.
+  "N/A": "bg-surface-sunken text-ink-soft",
 };
 
 const scoreBarColor = (score: number) => {

@@ -27,7 +27,7 @@ export interface PhaseScore {
   completeness_score: number;
   consistency_score: number;
   total: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | 'N/A';   // 'N/A' only with `not_applicable` (SCO-D12)
   passed: boolean;
   tests: TestResult[];
   breakdown?: any;
@@ -35,6 +35,13 @@ export interface PhaseScore {
   // Component pass/fail status
   component_failures?: string[];  // List of components below minimum (e.g., ["completeness (40 < 60)"])
   failure_reason?: string;        // Human-readable reason for failure
+
+  /**
+   * SCO-D12 (owner decision, 2026-10-02): the check did not run (e.g. a skipped novelty audit). The phase is
+   * recorded for the record but graded 'N/A' and EXCLUDED from the report's overall mean, its weakest /
+   * strongest phase and its pass / fail counts. Absent = the phase was scored.
+   */
+  not_applicable?: boolean;
 }
 
 /**
@@ -44,11 +51,8 @@ export interface ScoringContext {
   // Previous phase outputs for consistency checks
   previous_phases: Record<string, any>;
   
-  // CML data for validation
-  cml: CMLData;
-  
-  // Configuration
-  threshold_config: ThresholdConfig;
+  // CML data for validation. Absent for the phases scored before the CML exists (1, 2, 2c, 2d, 2e, 3b).
+  cml?: CMLData;
 
   // Story length selection — drives chapter counts and word count targets
   targetLength?: 'short' | 'medium' | 'long';
@@ -82,7 +86,12 @@ export interface Scorer<TInput, TOutput> {
  * Threshold configuration for pass/fail determination
  */
 export interface ThresholdConfig {
-  mode: 'strict' | 'standard' | 'lenient';
+  /**
+   * SCO-Q03 (2026-10-02): the strict / lenient modes are deleted; there is one threshold table. Accepted and
+   * IGNORED so existing callers (`new ScoreAggregator({ mode: "standard" })`) and archived reports still type.
+   * @deprecated — no effect.
+   */
+  mode?: 'standard';
   overrides?: Record<string, number>;
 }
 
@@ -179,6 +188,8 @@ export interface GenerationReport {
   // "failed" in every scan) now lives honestly in `phase_thresholds_met`.
   run_outcome?: RunOutcome;
   run_outcome_reason?: string;
+  /** SCO-Q08 (owner decision 8): false when phase scoring was off; the grades then read 'N/A'. Absent = scored. */
+  scoring_enabled?: boolean;
   /** A_65b Ph1.3 — the old phase-threshold verdict, demoted to its own field: true when every
    *  phase met its threshold. Advisory quality signal; NEVER a run-failure signal. */
   phase_thresholds_met?: boolean;

@@ -1,8 +1,8 @@
 /**
  * Per-agent model router.
  *
- * WHY. `resolveStageModel` (prompts-llm/agent9-prose/model-tiering.ts) tiers Agent 9 into
- * generate / regen / polish. Every OTHER agent — 1, 2, 2b, 2c, 2d, 2e, 3, 3b, 5, 6, 6.5, 7, 8, and
+ * WHY. (Historical: v1's `resolveStageModel` tiered Agent 9 into generate / regen / polish; it was deleted with
+ * v1.) Every OTHER agent — 1, 2, 2b, 2c, 2d, 2e, 3, 3b, 5, 6, 6.5, 7, 8, and
  * the rubric judge — passes no `model` at all and falls through to the caller's default deployment.
  * So a run has one knob for its most expensive stage and none for the other twenty.
  *
@@ -23,8 +23,10 @@
  * resolves inside the client at the one line where the model is chosen, and no agent call site
  * changes. Fifteen edits become one, and an agent added tomorrow is routed without being told to be.
  *
- * PRECEDENCE, deliberately: an explicit `options.model` always wins. Agent 9's stage tiering passes
- * its model explicitly, so this router can never override a decision that layer already made.
+ * PRECEDENCE (owner decision 12, ORC-Q07, 2026-10-01): a set override outranks an explicit `options.model`.
+ * It used to be the other way round, and eleven call sites pass the design tier or the base deployment
+ * explicitly, so `AGENT1_MODEL`, `AGENT3_MODEL`, `AGENT6_MODEL` … could never apply. The v1 stage tiering that
+ * precedence protected was deleted with v1 (owner decision 1).
  *
  * NAMING. `Agent2c-LocationProfiles` → `AGENT2C_MODEL`; `Agent65-WorldBuilder` → `AGENT65_MODEL`;
  * `RubricScorer` → `RUBRIC_SCORER_MODEL`. Unset → the caller's default, so with nothing configured

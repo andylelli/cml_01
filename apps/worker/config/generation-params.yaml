@@ -125,11 +125,9 @@ agent6_fairplay:
         max_tokens: 1500
       pass_criteria:
         min_confidence: likely
-        max_remediation_cycles: 1
-    retries:
-      max_fair_play_attempts: 2
-      max_total_attempts_with_targeted_regen: 3
-      max_retry_cost_usd: 0.15
+    # max_remediation_cycles and the retries block (max_fair_play_attempts,
+    # max_total_attempts_with_targeted_regen, max_retry_cost_usd) were removed 2026-10-02:
+    # Agent 6's LLM-retry arm that read them was retired (owner decision A6-Q01, a2a0615c).
 
 agent7_narrative:
   status: implemented
@@ -146,11 +144,14 @@ agent7_narrative:
 agent65_world_builder:
   status: implemented
   params:
+    # A6-14 (2026-09-29): these three are now READ by agent65-world-builder.ts. They were parsed and
+    # ignored while the code hard-coded 0.7 / 12000 / 3 — and this file still said 6000, the ceiling
+    # A_74 §9.6 raised because the response cannot fit in it. Set to what the code has run with.
     model:
       temperature: 0.7
-      max_tokens: 6000
+      max_tokens: 12000
     generation:
-      default_max_attempts: 2
+      default_max_attempts: 3
     quality:
       # Hard floor for arcDescription (words). Responses below this fail the gate.
       # Supported range: 50 - 1000

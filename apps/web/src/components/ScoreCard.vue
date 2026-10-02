@@ -125,7 +125,7 @@ const runOutcomeClass = (report: GenerationReport) => {
           <span v-if="loading" class="text-xs text-ink-faint animate-pulse">Refreshing…</span>
         </div>
         <div class="mt-1 text-xs text-ink-soft">{{ formatDate(report.generated_at) }}</div>
-        <div class="mt-1 text-xs text-ink-soft">Mode: <span class="font-medium capitalize">{{ report.threshold_config.mode }}</span></div>
+        <!-- SCO-Q03 (2026-10-02): the strict / lenient threshold modes are deleted; there is no mode to show. -->
       </div>
       <div class="flex items-center gap-3">
         <!-- Large grade badge -->

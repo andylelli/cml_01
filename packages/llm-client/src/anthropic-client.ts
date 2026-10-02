@@ -241,7 +241,8 @@ export class AnthropicClient {
         });
       }
 
-      return { content, usage, model, finishReason, latencyMs };
+      // CR-19 — `cost` is the tracker's own figure for this call (see ChatResponse.cost).
+      return { content, usage, model, finishReason, latencyMs, cost: estimatedCost };
     } catch (error) {
       const latencyMs = Date.now() - startTime;
       const err = error as Error & { name?: string; status?: number };

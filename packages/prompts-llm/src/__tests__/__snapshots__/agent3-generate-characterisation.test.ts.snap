@@ -1,0 +1,187 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateCML characterisation (A34-07) > invalid on every attempt; Agent 4 fails, degrade off 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "7bdd3fc742f8a839",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "bcc0de4160498842",
+      "via": "chat",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "822f9f9a55c7d016",
+      "via": "chat",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "657015df9a950b4c",
+      "via": "chat",
+    },
+  ],
+  "threw": "CML generation failed after Agent 3 (2 attempts) and Agent 4 revision. Original errors: CASE.inference_path.steps[0].required_evidence is missing or empty — each step needs at least 1 evidence item; CASE.inference_path.steps[1].required_evidence is missing or empty — each step needs at least 1 evide",
+}
+`;
+
+exports[`generateCML characterisation (A34-07) > invalid on every attempt; Agent 4 fails, degrade on 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "7bdd3fc742f8a839",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "bcc0de4160498842",
+      "via": "chat",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "822f9f9a55c7d016",
+      "via": "chat",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "657015df9a950b4c",
+      "via": "chat",
+    },
+  ],
+  "result": {
+    "attempt": 5,
+    "cml": "33702fbaa6e14e9a",
+    "degraded": false,
+    "errors": 0,
+    "notes": [
+      "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Martha Hale" from the cast. The case did not decide its own answer.",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
+      "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
+    ],
+    "revisedByAgent4": true,
+    "valid": true,
+  },
+}
+`;
+
+exports[`generateCML characterisation (A34-07) > invalid on every attempt; Agent 4 rewrites it valid 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "7bdd3fc742f8a839",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent4-Revision",
+      "messages": "bcc0de4160498842",
+      "via": "chat",
+    },
+  ],
+  "result": {
+    "attempt": 3,
+    "cml": "5aa5313f77f1d116",
+    "degraded": false,
+    "errors": 0,
+    "notes": [
+      "Agent 3 returned no usable culprit (culprits=[]); normalization assigned "Martha Hale" from the cast. The case did not decide its own answer.",
+      "Agent 3 authored no death_method and crime_class "unspecified" names no manner of death; left unset.",
+      "[A_102 means-link] UNKNOWN: the case records no death_method",
+      "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
+    ],
+    "revisedByAgent4": true,
+    "valid": true,
+  },
+}
+`;
+
+exports[`generateCML characterisation (A34-07) > parse failure on every attempt 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "85a8af20914eb4a1",
+      "via": "chatWithRetry",
+    },
+  ],
+  "threw": "Output parsing failed after 2 attempts: CML payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk); treat as parse failure",
+}
+`;
+
+exports[`generateCML characterisation (A34-07) > parse failure, then valid 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "85a8af20914eb4a1",
+      "via": "chatWithRetry",
+    },
+  ],
+  "result": {
+    "attempt": 2,
+    "cml": "286a751f40422633",
+    "degraded": false,
+    "errors": 0,
+    "notes": [
+      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
+      "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
+    ],
+    "revisedByAgent4": false,
+    "valid": true,
+  },
+}
+`;
+
+exports[`generateCML characterisation (A34-07) > valid on the first attempt 1`] = `
+{
+  "calls": [
+    {
+      "agent": "Agent3-CMLGenerator",
+      "messages": "c9c6b81484488834",
+      "via": "chatWithRetry",
+    },
+  ],
+  "result": {
+    "attempt": 1,
+    "cml": "286a751f40422633",
+    "degraded": false,
+    "errors": 0,
+    "notes": [
+      "[A_102 means-link] UNKNOWN: death_method names no instrument to trace: "strangulation"",
+      "[17-hitting-90 P3.2] constraint_space.time.windows states no window about the act with two ends — the reveal has no opening and closing time to give",
+    ],
+    "revisedByAgent4": false,
+    "valid": true,
+  },
+}
+`;

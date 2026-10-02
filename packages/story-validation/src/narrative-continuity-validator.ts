@@ -6,7 +6,6 @@
 import type { Validator, Story, ValidationResult, ValidationError } from './types.js';
 import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
-const DISAPPEARANCE_TERMS = /\b(disappear(?:ed|ance)?|missing|vanished|gone without trace)\b/i;
 export const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b/i;
 // A_53 P5 (missing-bridge-false-positive-body-discovery): a plain discovery-of-body sentence — "they
 // found her body at the foot of the cliff", "the corpse was discovered" — IS a valid disappearance→

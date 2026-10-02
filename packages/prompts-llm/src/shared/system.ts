@@ -31,17 +31,6 @@ Your role is to:
 
 You output valid CML 2.0 YAML only. No explanations or commentary outside the structure.`;
 
-export const GROUNDING_PRINCIPLE = `**CRITICAL: No New Facts Downstream**
-
-When deriving content from CML, you must:
-- Only reveal facts already present in the CML document
-- Never add new information, clues, or plot points
-- Ground every element in specific CML sections (reference paths)
-- Preserve logical consistency with the CML's constraint space
-- Respect the false assumption and inference path structure
-
-Every piece of content must trace back to the CML. Think of the CML as the complete iceberg - your job is to decide what portion to reveal above water, not to add more ice.`;
-
 export const FAIR_PLAY_CHECKLIST = `Fair-Play Requirements:
 ✓ All clues available before solution reveal
 ✓ Load-bearing clues appear early (first 1/3 of story)

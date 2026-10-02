@@ -44,7 +44,7 @@ describe("withValidationRetry", () => {
     expect(generateFn).toHaveBeenNthCalledWith(2, 2, ["err-1"]);
 
     expect(result.attempts).toBe(2);
-    expect(result.totalCost).toBeCloseTo(0.3);
+    expect(result.totalCost).toBeCloseTo(0.2); // running totals 0.1 then 0.2: the latest, not their sum (was 0.3)
     expect(result.result).toEqual({ value: "attempt-2" });
     expect(result.validationResult.valid).toBe(false);
     expect(result.validationResult.errors).toEqual(["err-2"]);

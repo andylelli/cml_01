@@ -5,14 +5,12 @@
  * from hard-logic mechanism ideation.
  */
 
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
-import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { CastDesign } from "./agent2-cast.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface BackgroundContextArtifact {
   status: "ok";
@@ -123,48 +121,23 @@ export async function generateBackgroundContext(
   inputs: BackgroundContextInputs,
   maxAttempts?: number,
 ): Promise<BackgroundContextResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2e_background_context.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs, attempts } = await generateJsonArtifact<BackgroundContextArtifact>(client, {
     agentName: "Agent 2e (Background Context)",
-    validationFn: (data) => {
-      const validation = validateArtifact("background_context", data);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildBackgroundContextPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2e-BackgroundContext",
-          retryAttempt: attempt,
-        },
-      });
-
-      let parsed: BackgroundContextArtifact;
-      try {
-        parsed = JSON.parse(response.content) as BackgroundContextArtifact;
-      } catch {
-        // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
-        if (looksTruncatedJson(response.content)) {
-          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
-        }
-        parsed = JSON.parse(jsonrepair(response.content)) as BackgroundContextArtifact;
-      }
-
+    label: "Agent2e-BackgroundContext",
+    logName: "[Agent 2e] Background context",
+    schema: "background_context",
+    withRunMeta: false,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: true,
+    buildMessages: (previousErrors) => buildBackgroundContextPrompt(inputs, previousErrors).messages,
+    structuralCheck: (parsed) => {
       if (!parsed || parsed.status !== "ok") {
         throw new Error("Invalid background context output: missing status=ok");
       }
@@ -174,36 +147,14 @@ export async function generateBackgroundContext(
       if (!Array.isArray(parsed.castAnchors) || parsed.castAnchors.length === 0) {
         throw new Error("Invalid background context output: missing castAnchors");
       }
-
-      const cost = client.getCostTracker().getSummary().byAgent["Agent2e-BackgroundContext"] || 0;
-
-      return { result: parsed, cost };
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2e] Background context validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2e] Background context failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as BackgroundContextArtifact;
+  const validatedResult = result as BackgroundContextArtifact;
 
   return {
     backgroundContext: validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
-    attempt: retryResult.attempts,
+    attempt: attempts,
   };
 }

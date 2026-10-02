@@ -18,6 +18,8 @@ export type ApiHealth = {
 export type Project = {
   id: string;
   name: string;
+  /** The story's title once the pipeline has written one; `name` is the spec label it was created under. */
+  title?: string | null;
   status?: string;
   createdAt?: string;
 };
@@ -135,7 +137,9 @@ export const runPipeline = async (projectId: string) => {
     method: "POST",
   });
   if (!response.ok) {
-    throw new Error(`Run pipeline failed (${response.status})`);
+    // 409: another run is executing (owner decision 11) — show the server's reason, not a bare status.
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(response.status === 409 && body?.error ? body.error : `Run pipeline failed (${response.status})`);
   }
   return response.json() as Promise<{ status: string; projectId: string; runId?: string }>;
 };

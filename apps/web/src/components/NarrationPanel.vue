@@ -26,7 +26,7 @@ import {
  * money against a real Azure account and "about 70p" is the kind of thing you
  * want to see rather than discover.
  */
-const props = defineProps<{ projectId: string; hasStory: boolean }>();
+const props = defineProps<{ projectId: string; hasStory: boolean; storyTitle?: string | null }>();
 
 const status = ref<{ configured: boolean; keySource: string; region: string } | null>(null);
 const voices = ref<NarrationVoice[]>([]);
@@ -156,7 +156,7 @@ watch(() => props.projectId, load);
 			<AudioPlayer
 				v-if="done && job"
 				:src="narrationAudioUrl(projectId)"
-				:title="job.title"
+				:title="storyTitle || job.title"
 				:chapters="job.outputs?.chapters ?? []"
 				:duration-hint="job.durationSeconds"
 				:remember-as="projectId"

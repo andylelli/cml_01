@@ -17,11 +17,10 @@
  * verify with a checker, not another LLM.)
  */
 
-import type { CastDesign, CharacterProfile } from "./agent2-cast.js";
+import type { CastDesign, CharacterProfile } from "./agent2-cast-types.js";
 
 const MOTIVE_STRENGTHS = new Set(["weak", "moderate", "strong", "compelling"]);
 const ACCESS_PLAUSIBILITIES = new Set(["impossible", "unlikely", "possible", "easy"]);
-const TENSIONS = new Set(["none", "low", "moderate", "high"]);
 // A_73 §40 — binary, matching agent2-cast, the drift detectors and the period the novels are set in.
 const GENDERS = new Set(["male", "female"]);
 

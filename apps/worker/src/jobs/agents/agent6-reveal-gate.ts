@@ -13,7 +13,9 @@
  * blind-reader guess and decides shadow (warn) vs enforce (block, never throw).
  */
 
+import { DEATH_METHOD_TOKENS } from "@cml/rubric-score";
 import type { CaseData } from "@cml/cml";
+import { surname, verifiedFixesEnabled } from "@cml/cml";
 // A_53 P4 (Pattern D): the word-boundary/surname matcher lives in a shared module now; re-exported
 // here for this file's existing importers.
 import { namesMatch } from "./identity-match.js";
@@ -76,24 +78,9 @@ const DEATH_TOKEN_STOPWORDS = new Set([
   "killed", "killing", "victim", "method", "cause", "manner", "means", "fatal", "fatally",
 ]);
 
-/**
- * Curated death-method → synonym-stem map (mirrors `resolveDeathMethodTokens` in
- * packages/rubric-score/src/facts.ts; kept local to avoid a worker→rubric-score dependency). This
- * fixes both the false negatives (a "stabbing" deduced via "knife") and the false positives that a
- * blind 4-char-prefix match produced ("gunshot"→"guns" matching "the guns were locked away"). NB:
- * "wound" is deliberately excluded — it collides with the past tense of "wind" (clock tampering).
- */
-const DEATH_METHOD_TOKENS: Array<[RegExp, string[]]> = [
-  [/stab|knif|blade/i, ["stab", "blade", "knife", "dagger"]],
-  [/shoot|shot|gun|firearm|pistol|revolver/i, ["shot", "gunshot", "bullet", "firearm", "pistol"]],
-  [/strangl|garrot|throttl/i, ["strangl", "throttl", "garrot"]],
-  [/poison|arsenic|cyanide|toxin/i, ["poison", "arsenic", "cyanide", "toxin"]],
-  [/bludgeon|blunt|cudgel/i, ["bludgeon", "blunt", "blow"]],
-  [/drown/i, ["drown"]],
-  [/smother|suffocat|asphyxiat/i, ["smother", "suffocat", "asphyxiat"]],
-  [/electrocut/i, ["electrocut"]],
-  [/burn|arson/i, ["burn"]],
-];
+// A6-19 (CR-31): the curated death-method → synonym-stem map is rubric-score's own table, imported rather than
+// copied (it was a byte-identical copy "kept local to avoid a dependency" the worker already has). It fixes both a
+// "stabbing" deduced via "knife" and the false "gunshot"→"guns" prefix match; "wound" is excluded (past tense of wind).
 
 /** Resolve the death-method string: CASE.death_method → crime_class.subtype → category. */
 export const resolveDeathMethodString = (cml: CaseData | undefined | null): string => {
@@ -182,7 +169,43 @@ export interface RevealVerdictInput {
   culprit: string;
   /** Optional: the intended false-solution suspect (CASE.false_solution.accused_suspect). */
   falseSolutionSuspect?: string;
+  /**
+   * A6-D07: the cast names, so a surname-only match can be refused when another member shares the surname.
+   * Read only with CML_VERIFIED_FIXES on; omitted = the shared-surname rule cannot be applied.
+   */
+  castNames?: string[];
 }
+
+const fullNameKey = (value: string | undefined): string =>
+  String(value ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+
+/**
+ * A6-D07 (owner decision 12, CML_VERIFIED_FIXES): does the early+mid reader's guess name the culprit?
+ * OFF: `namesMatch` — exact, or the same surname — so with two Carters in the cast a guess of the OTHER
+ * Carter was read as naming the culprit, and in enforce mode that blocks the run.
+ * ON: a guess matches by the full name (exact, or the culprit's full name as whole words inside the guess,
+ * e.g. "Dr. John Carter"), or by surname only when no OTHER cast member shares that surname. Without a cast
+ * list there is nothing to disambiguate against, and the OFF rule stands.
+ */
+export const guessNamesCulprit = (guess: string, culprit: string, castNames?: string[]): boolean => {
+  if (!verifiedFixesEnabled() || !Array.isArray(castNames) || castNames.length === 0) {
+    return namesMatch(guess, culprit);
+  }
+  const g = fullNameKey(guess);
+  const c = fullNameKey(culprit);
+  if (!g || !c) return false;
+  if (g === c) return true;
+  if (c.includes(" ")) {
+    const escaped = c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`).test(g)) return true;
+  }
+  if (!namesMatch(guess, culprit)) return false;
+  const sn = surname(culprit);
+  // The culprit's own cast entry may carry an honorific the CML culprit string lacks ("Dr. John Carter").
+  const isCulpritEntry = (k: string) => k === c || k.endsWith(` ${c}`) || c.endsWith(` ${k}`);
+  const othersSharingSurname = castNames.filter((n) => !isCulpritEntry(fullNameKey(n)) && surname(n) === sn);
+  return othersSharingSurname.length === 0;
+};
 
 export interface RevealVerdict {
   verdict: "pass" | "too_obvious";
@@ -196,7 +219,7 @@ export interface RevealVerdict {
  */
 export const evaluateRevealVerdict = (input: RevealVerdictInput): RevealVerdict => {
   const reasons: string[] = [];
-  if (namesMatch(input.earlyMidGuess, input.culprit)) {
+  if (guessNamesCulprit(input.earlyMidGuess, input.culprit, input.castNames)) { // A6-D07
     reasons.push(
       `Blind reader named the true culprit "${input.culprit}" from early+mid clues alone ` +
         `(guessed "${input.earlyMidGuess}") — the reveal is too obvious.`,

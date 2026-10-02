@@ -11,6 +11,7 @@
 import { PhaseScore, TestResult } from '../types.js';
 import { pass, fail, partial } from '../scorer-utils.js';
 import { assembleHonestScore, normalizeAtom } from '../honest-scorer.js';
+import { verifiedFixesEnabled } from '@cml/cml';
 
 type AnyRec = Record<string, any>;
 
@@ -37,7 +38,11 @@ export function scoreRealCml(cml: any): PhaseScore {
 
   // ── Validation ── the load-bearing structural blocks must exist with content
   const dt = C.discriminating_test ?? {};
-  const dtOk = nonEmpty(dt.design) && nonEmpty(dt.knowledge_revealed) && arr(dt.evidence_clues).length > 0;
+  // A34-D11 (CML_VERIFIED_FIXES): with the batch on, Agent 3 is told what its own skeleton says — leave
+  // evidence_clues empty, Agent 5 back-fills it — so the check must not fail it for obeying. MEASURED: 2 of 2 ON runs
+  // (seeds 5670, 82094) scored 82 on exactly this, the OFF run 99. Agent 5's own contracts still require the ids.
+  const evidenceOk = arr(dt.evidence_clues).length > 0 || verifiedFixesEnabled();
+  const dtOk = nonEmpty(dt.design) && nonEmpty(dt.knowledge_revealed) && evidenceOk;
   tests.push(dtOk
     ? pass('Discriminating test', 'validation', 1.5)
     : fail('Discriminating test', 'validation', 1.5, 'discriminating_test missing design/knowledge/evidence_clues', 'critical'));

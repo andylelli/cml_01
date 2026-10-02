@@ -30,7 +30,7 @@ const ORDER = [
   "@cml/novelty",
   // depend on leaves
   "@cml/cml",
-  "@cml/rubric-score",       // → prose-guard
+  "@cml/rubric-score",       // → prose-guard, cml
   "@cml/story-validation",   // → cml, llm-client
   // depend on the above
   "@cml/prompts-llm",        // → cml, llm-client, period-kb, story-validation, prose-guard

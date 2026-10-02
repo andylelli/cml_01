@@ -1,0 +1,58 @@
+/**
+ * Owner decision 9 (2026-10-01, ORC-Q05) — ONE boolean-flag vocabulary.
+ *
+ * The code review counted eight: some reads accepted only "true", some only "1", one also "y"/"n", most
+ * `1|true|yes|on` — so `AGENT7_STRUCTURED_OUTPUT=on` read as OFF. Now every converted read accepts
+ * `1|true|yes|on` as on and `0|false|no|off` as off (case-insensitive, trimmed); anything else is warned
+ * about once per flag and falls back to the flag's default. The raw value each run saw is recorded in the run's
+ * flag record (CR-22), so the change is auditable run by run. Read at call time (ADR-0004).
+ */
+export const FLAG_ON_VALUES: readonly string[] = ["1", "true", "yes", "on"];
+export const FLAG_OFF_VALUES: readonly string[] = ["0", "false", "no", "off"];
+
+const warned = new Set<string>();
+
+export function readBooleanFlag(name: string, defaultValue: boolean, env: Record<string, string | undefined> = process.env): boolean {
+  const raw = String(env[name] ?? "").trim().toLowerCase();
+  if (!raw) return defaultValue;
+  if (FLAG_ON_VALUES.includes(raw)) return true;
+  if (FLAG_OFF_VALUES.includes(raw)) return false;
+  if (!warned.has(name)) {
+    warned.add(name);
+    console.warn(`[flags] ${name}=${JSON.stringify(env[name])} is not a recognised value (1|true|yes|on or 0|false|no|off); using its default (${defaultValue ? "on" : "off"}).`);
+  }
+  return defaultValue;
+}
+
+/**
+ * Owner decision 12 (CR-07 / CR-29, 2026-10-01): ONE flag for the batch of verified-bug fixes that change a prompt or
+ * a run outcome on the default path, so a single matched pair can read them together (OWNER-DECISIONS §12). Each
+ * gated site names its ledger item; the list is documentation/code-review/DECISION-12.md. Default OFF: with it
+ * unset every prompt and outcome is byte-identical (the replay fixtures pin this).
+ */
+export function verifiedFixesEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("CML_VERIFIED_FIXES", false, env);
+}
+
+/**
+ * Owner decision 12, CR-28 deferrals (built 2026-10-02): token trims in the NON-prose prompts — Agent 5 (A5-16
+ * static-first ordering, A5-10/A5-Q03 unread status/audit output dropped and each contract stated once, the two
+ * first-attempt contract lines shipped on the first pass), Agent 3 (A34-14 required_evidence contract once, the
+ * uniqueness seed after the static rules), Agent 2c / Agent 8 / Agent 2b (A1X-11 a, c, e). Default OFF: with it
+ * unset every prompt is byte-identical. Each trim changes a prompt on every run, so the read is a paid probe.
+ * Read at call time (ADR-0004).
+ */
+export function promptTrimsEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("CML_PROMPT_TRIMS", false, env);
+}
+
+/**
+ * A5-15 / A5-Q07 (owner: build the promotion now, read it later). ON: Agent 5's "Mandatory Clue Requirements"
+ * checklist is a projection of `@cml/clue-spec`'s `deriveClueSpec(cml).clueSlots` — the deriver the worker runs
+ * only in shadow — instead of `generateExplicitClueRequirements`. Measured over the 69 archived CMLs, the two
+ * derivations agree on slot count in 7 and on per-step category in 379 of 566 slots, so ON changes the checklist
+ * of every case. Default OFF: with it unset the prompt is byte-identical. Read at call time (ADR-0004).
+ */
+export function clueSpecChecklistEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("AGENT5_CLUE_SPEC_CHECKLIST", false, env);
+}

@@ -105,6 +105,8 @@ export const useWorkshopState = () => {
     fairPlayReport,
     outlineData,
     synopsisData,
+    storyTitle: loadedStoryTitle,
+    loadedProjectId,
     proseData,
     characterProfilesData,
     backgroundContextData,
@@ -265,6 +267,10 @@ export const useWorkshopState = () => {
   const isCreatingProject = ref(false);
   const projectName = ref("Golden Age Prototype");
   const projectId = ref<string | null>(null);
+  /** The story's title, only when the shared store holds THIS console's project. */
+  const storyTitle = computed(() =>
+    projectId.value && loadedProjectId.value === projectId.value ? loadedStoryTitle.value : null,
+  );
   const projectIdInput = ref("");
   const latestSpecId = ref<string | null>(null);
   /**
@@ -1423,6 +1429,7 @@ export const useWorkshopState = () => {
     showRedHerrings,
     showShortcutHelp,
     spec,
+    storyTitle,
     synopsisData,
     synopsisSummary,
     tabStatuses,

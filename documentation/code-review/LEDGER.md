@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 5 | 12 | 0 | 17 |
-| open | 185 | 127 | 72 | 384 |
+| closed | 187 | 138 | 72 | 397 |
+| open | 3 | 1 | 0 | 4 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -20,37 +20,37 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR | items | closed | keys |
 |---|---:|---:|---|
 | CR-02 | 1 | 1 | A9W-19 |
-| CR-03 | 5 | 0 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
+| CR-03 | 5 | 5 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
-| CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
-| CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
-| CR-08 | 13 | 0 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
-| CR-09 | 1 | 0 | A9W-12 |
-| CR-10 | 5 | 0 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
-| CR-11 | 3 | 0 | A9G-15 A9G-Q03 ORC-10 |
-| CR-12 | 17 | 1 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
-| CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
-| CR-14 | 3 | 0 | A34-01 A34-D16 A34-Q01 |
-| CR-15 | 11 | 0 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
-| CR-16 | 25 | 0 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
-| CR-17 | 28 | 0 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
-| CR-18 | 23 | 0 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
-| CR-19 | 7 | 1 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
-| CR-20 | 10 | 0 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
-| CR-21 | 5 | 0 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
-| CR-22 | 8 | 0 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
-| CR-23 | 6 | 0 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
-| CR-24 | 5 | 0 | A7-01 A7-05 A7-12 A34-04 A34-12 |
-| CR-25 | 9 | 0 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
-| CR-26 | 7 | 0 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
-| CR-27 | 14 | 0 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
-| CR-28 | 19 | 0 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
-| CR-29 | 20 | 1 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
-| CR-30 | 21 | 0 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
-| CR-31 | 27 | 0 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
-| CR-32 | 10 | 2 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
-| CR-33 | 13 | 0 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
-| CR-34 | 3 | 0 | A9W-17 A6-16 A6-Q03 |
+| CR-06 | 22 | 22 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
+| CR-07 | 43 | 42 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
+| CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
+| CR-09 | 1 | 1 | A9W-12 |
+| CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
+| CR-11 | 3 | 3 | A9G-15 A9G-Q03 ORC-10 |
+| CR-12 | 17 | 14 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
+| CR-13 | 12 | 12 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
+| CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
+| CR-15 | 11 | 11 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
+| CR-16 | 25 | 25 | A9G-11 A9V-04 A9V-Q02 A5-02 A5-03 A5-07 A5-08 A5-15 A5-D03 A5-D09 A5-Q01 A5-Q04 A5-Q05 A5-Q07 A6-04 A6-09 A6-D06 A6-D09 A7-06 A7-D07 A7-Q04 A34-10 A34-Q04 SCO-06 SCO-Q04 |
+| CR-17 | 28 | 28 | A9W-02 A9W-03 A9W-08 A9W-D04 A9W-Q01 A9W-Q02 A9G-09 A9G-D03 A9G-D05 A9G-Q02 A9P-01 A9P-D08 A9P-Q06 A9V-05 A9V-D03 A9V-D04 A9V-Q03 A5-D07 A7-13 A7-D08 A34-03 A34-D02 A34-Q02 A1X-08 A1X-Q04 ORC-08 ORC-D05 ORC-Q04 |
+| CR-18 | 23 | 23 | A7-07 A7-D04 A34-11 A34-D09 A1X-12 A1X-D05 A1X-Q02 SCO-02 SCO-04 SCO-05 SCO-07 SCO-08 SCO-09 SCO-10 SCO-D03 SCO-D04 SCO-D06 SCO-D08 SCO-D12 SCO-Q02 SCO-Q03 SCO-Q07 SCO-Q08 |
+| CR-19 | 7 | 7 | A9G-D09 A6-D01 A34-D15 A1X-09 A1X-D08 ORC-03 ORC-D12 |
+| CR-20 | 10 | 10 | A9V-14 A9V-Q06 A5-D10 A7-10 A34-06 A34-D07 A1X-03 A1X-D09 ORC-04 ORC-Q03 |
+| CR-21 | 5 | 5 | A34-07 A1X-02 A1X-05 A1X-06 ORC-02 |
+| CR-22 | 8 | 8 | A9W-13 A9G-08 A9G-D06 A9P-14 A9V-D13 A7-08 ORC-05 ORC-Q05 |
+| CR-23 | 6 | 6 | A9W-06 A9W-10 A9R-01 A9R-05 A9R-06 A7-02 |
+| CR-24 | 5 | 5 | A7-01 A7-05 A7-12 A34-04 A34-12 |
+| CR-25 | 9 | 9 | A5-01 A5-12 A5-D06 A6-01 A6-06 A6-12 A6-13 A6-D05 ORC-01 |
+| CR-26 | 7 | 7 | A9W-01 A9G-01 A9G-02 A9G-05 A9G-10 A9G-D10 ORC-16 |
+| CR-27 | 14 | 14 | A9P-02 A9P-05 A9P-06 A9P-09 A9P-11 A9P-D10 A9P-Q04 A9V-02 A9V-11 A9V-D12 A5-09 A6-11 A7-09 SCO-03 |
+| CR-28 | 19 | 19 | A9G-16 A9P-03 A9P-04 A9P-07 A9P-08 A9P-10 A9P-12 A9P-D02 A9P-Q01 A9P-Q02 A9P-Q03 A9P-Q07 A9R-14 A5-10 A5-16 A5-Q03 A6-17 A34-14 A1X-11 |
+| CR-29 | 20 | 20 | A9G-06 A9G-07 A9G-D08 A9G-Q04 A9R-03 A9R-08 A9R-D05 A9R-Q01 A5-11 A5-D04 A6-02 A6-03 A6-Q01 A6-Q02 A34-09 A34-D08 A34-D12 A1X-10 A1X-D10 A1X-Q07 |
+| CR-30 | 21 | 21 | A9W-Q03 A9G-03 A9G-13 A9G-D01 A9G-Q01 A9G-Q05 A9P-15 A9P-Q05 A9V-Q05 A9R-Q04 A5-Q06 A7-Q01 A7-Q03 A34-05 A34-Q03 A1X-15 A1X-Q05 A1X-Q06 SCO-01 SCO-Q01 SCO-Q05 |
+| CR-31 | 27 | 27 | A9W-07 A9W-09 A9W-11 A9W-16 A9G-17 A9V-03 A9V-06 A9V-07 A9V-08 A9V-09 A9V-10 A9V-D05 A9V-D07 A9V-D08 A9V-D09 A9V-Q04 A9R-02 A9R-12 A9R-D01 A9R-D02 A9R-Q02 A9R-Q05 A5-14 A6-08 A6-19 A1X-07 ORC-13 |
+| CR-32 | 10 | 10 | A9G-D02 A9R-10 A9R-D06 A6-Q04 A34-D13 A34-Q05 A1X-D06 ORC-14 ORC-D08 ORC-Q07 |
+| CR-33 | 13 | 13 | A9W-D06 A9W-Q05 A9R-07 A9R-D09 A9R-D10 A6-15 A7-11 A7-Q02 A34-D06 A1X-D12 ORC-12 ORC-D09 ORC-Q06 |
+| CR-34 | 3 | 3 | A9W-17 A6-16 A6-Q03 |
 
 ## Decision sheet — open owner questions by CR
 
@@ -58,536 +58,464 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | CR | Key | Question | Answer |
 |---|---|---|---|
-| CR-03 | ORC-Q02 | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
-| CR-06 | SCO-Q06 | Canonical fair-play weighting for the diagnostic: 35/35/15/15? |  |
-| CR-07 | A1X-Q03 | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
-| CR-07 | A5-Q02 | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
-| CR-07 | A7-Q05 | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
-| CR-07 | ORC-Q01 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
-| CR-11 | A9G-Q03 | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
-| CR-12 | A1X-Q01 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
-| CR-12 | A9R-Q03 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observation)? |  |
-| CR-12 | A9W-Q04 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
-| CR-14 | A34-Q01 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
-| CR-15 | A9G-Q06 | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? |  |
-| CR-15 | A9V-Q01 | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. |  |
-| CR-16 | A34-Q04 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |
-| CR-16 | A5-Q01 | Should CASE.death_method be a legal sourceInCML in the worker (A_67 FIX-2's intent)? |  |
-| CR-16 | A5-Q04 | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
-| CR-16 | A5-Q05 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? |  |
-| CR-16 | A5-Q07 | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
-| CR-16 | A7-Q04 | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
-| CR-16 | A9V-Q02 | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) |  |
-| CR-16 | SCO-Q04 | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? |  |
-| CR-17 | A1X-Q04 | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? |  |
-| CR-17 | A34-Q02 | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
-| CR-17 | A9G-Q02 | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
-| CR-17 | A9P-Q06 | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? |  |
-| CR-17 | A9V-Q03 | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? |  |
-| CR-17 | A9W-Q01 | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into fresh-run prompts behind a probe? |  |
-| CR-17 | A9W-Q02 | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the embargo? |  |
-| CR-17 | ORC-Q04 | ORC-08: which arc-position formula is canonical? |  |
-| CR-18 | A1X-Q02 | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
-| CR-18 | SCO-Q02 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
-| CR-18 | SCO-Q03 | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
-| CR-18 | SCO-Q07 | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
-| CR-18 | SCO-Q08 | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
-| CR-20 | A9V-Q06 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? |  |
-| CR-20 | ORC-Q03 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. |  |
-| CR-22 | ORC-Q05 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis-registered flags in §6? |  |
-| CR-27 | A9P-Q04 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
-| CR-28 | A5-Q03 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
-| CR-28 | A9P-Q01 | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8 still matter. |  |
-| CR-28 | A9P-Q02 | Which copy of the outcome contract stays — system or user (A9P-07)? |  |
-| CR-28 | A9P-Q03 | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? |  |
-| CR-28 | A9P-Q07 | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? |  |
-| CR-29 | A1X-Q07 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
-| CR-29 | A6-Q01 | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait for the redesign? |  |
-| CR-29 | A6-Q02 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already yields a complete default document. Should a failed generation degrade to that, with a floor warning? |  |
-| CR-29 | A9G-Q04 | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? |  |
-| CR-29 | A9R-Q01 | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acceptable as the deciding evidence? |  |
-| CR-30 | A1X-Q05 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
-| CR-30 | A1X-Q06 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| CR-30 | A34-Q03 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
-| CR-30 | A5-Q06 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
-| CR-30 | A7-Q01 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, and it costs about 70 lines of forks. |  |
-| CR-30 | A7-Q03 | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Should A7-01 wait for that decision, or proceed? This report recommends proceeding: the split makes a later delet… |  |
-| CR-30 | A9G-Q01 | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
-| CR-30 | A9G-Q05 | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? |  |
-| CR-30 | A9P-Q05 | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? |  |
-| CR-30 | A9R-Q04 | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? |  |
-| CR-30 | A9V-Q05 | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? |  |
-| CR-30 | A9W-Q03 | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guards), or retire them (ADR-0011 evidence: the policy history)? |  |
-| CR-30 | SCO-Q01 | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
-| CR-30 | SCO-Q05 | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
-| CR-31 | A9R-Q02 | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that paste? |  |
-| CR-31 | A9R-Q05 | Is the det-repair fallback's castNames omission (A9R-12) intended? |  |
-| CR-31 | A9V-Q04 | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? |  |
-| CR-32 | A34-Q05 | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
-| CR-32 | A6-Q04 | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
-| CR-32 | ORC-Q07 | ORC-14: should a per-agent model override outrank the design tier? |  |
-| CR-33 | A7-Q02 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the floor. |  |
-| CR-33 | A9W-Q05 | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? |  |
-| CR-33 | ORC-Q06 | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? |  |
-| CR-34 | A6-Q03 | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-02 shows is mostly discarded? |  |
 
 ## 01-agent9-worker
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9W-01 | P1 | R0→R1 | CR-26 | todo |  | runAgent9 → ~350-line coordinator over typed phase functions |  |
-| A9W-02 | P1 | R2 | CR-17 | todo |  | Two NarrativeState bodies; worker copy never reaches prompts |  |
-| A9W-03 | P1 | R0 then R2 | CR-17 | todo |  | Two Story Bibles; 11 worker regens run with beatSheet: [] (no embargo) |  |
-| A9W-04 | P1 | R1/R2 | CR-12 | todo |  | 9 derivations of victim/suspect/detective; 2 culprit-role repairers |  |
-| A9W-05 | P1 | R0 | CR-13 | todo |  | prose: any / validationReport: any discard existing types; 405 any |  |
-| A9W-06 | P1 | R0 | CR-23 | todo |  | Regen-stage wrapper repeated ×10 |  |
-| A9W-07 | P2 | R0 + R2 | CR-31 | todo |  | Clearance floor ×2 and evidence vocabulary ×3 |  |
-| A9W-08 | P2 | R2 | CR-17 | todo |  | Clock/duration parsing ×3; classifyFactValue ignores A_58 |  |
-| A9W-09 | P2 | R1 | CR-31 | todo |  | 7th copy of the opening-grounding vocabulary (X95 missed it) |  |
-| A9W-10 | P2 | R1 (+R2) | CR-23 | todo |  | Pronoun repair: 6 call sites, 4 guard policies, a package twin |  |
-| A9W-11 | P2 | R1 | CR-31 | todo |  | Injector floor chain ×3 with divergent guards, after the "last write" |  |
-| A9W-12 | P2 | R0 | CR-09 | todo |  | Helper layer (3,645 lines) → 12 modules behind re-export shims |  |
-| A9W-13 | P2 | R0 | CR-22 | todo |  | Flag surface has leaked back out of flags.ts |  |
-| A9W-14 | P2 | R0/R1 | CR-08 | todo |  | Compiler-proven dead code and a vestigial counter |  |
-| A9W-15 | P1 | R0 | CR-03 | todo |  | No test reaches runAgent9; golden ship-layer test first |  |
-| A9W-16 | P3 | R0/R1 | CR-31 | todo |  | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) |  |
-| A9W-17 | P3 | R1 | CR-34 | todo |  | Re-validation ×9 re-pays uncached semantic LLM fallbacks |  |
+| A9W-01 | P1 | R0→R1 | CR-26 | withdrawn | fd058f16 | runAgent9 → ~350-line coordinator over typed phase functions | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-02 | P1 | R2 | CR-17 | withdrawn | fd058f16 | Two NarrativeState bodies; worker copy never reaches prompts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-03 | P1 | R0 then R2 | CR-17 | withdrawn | fd058f16 | Two Story Bibles; 11 worker regens run with beatSheet: [] (no embargo) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-04 | P1 | R1/R2 | CR-12 | withdrawn | fd058f16 | 9 derivations of victim/suspect/detective; 2 culprit-role repairers | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-05 | P1 | R0 | CR-13 | withdrawn | fd058f16 | prose: any / validationReport: any discard existing types; 405 any | MOOT: agent9-run.ts is a 17-line v2 shim; agent9-v2 has 0 any; ProseGenerationResult is typed (prose-contract/types.ts). The earlier 'still applies after v1 deletion' note was wrong |
+| A9W-06 | P1 | R0 | CR-23 | withdrawn | fd058f16 | Regen-stage wrapper repeated ×10 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-07 | P2 | R0 + R2 | CR-31 | withdrawn | fd058f16 | Clearance floor ×2 and evidence vocabulary ×3 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-08 | P2 | R2 | CR-17 | withdrawn | fd058f16 | Clock/duration parsing ×3; classifyFactValue ignores A_58 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-09 | P2 | R1 | CR-31 | withdrawn | fd058f16 | 7th copy of the opening-grounding vocabulary (X95 missed it) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-10 | P2 | R1 (+R2) | CR-23 | withdrawn | fd058f16 | Pronoun repair: 6 call sites, 4 guard policies, a package twin | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-11 | P2 | R1 | CR-31 | withdrawn | fd058f16 | Injector floor chain ×3 with divergent guards, after the "last write" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-12 | P2 | R0 | CR-09 | withdrawn | fd058f16 | Helper layer (3,645 lines) → 12 modules behind re-export shims | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-13 | P2 | R0 | CR-22 | withdrawn | fd058f16 | Flag surface has leaked back out of flags.ts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code and a vestigial counter | unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only) |
+| A9W-15 | P1 | R0 | CR-03 | done | 1374e38e | No test reaches runAgent9; golden ship-layer test first | ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI |
+| A9W-16 | P3 | R0/R1 | CR-31 | withdrawn | fd058f16 | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-17 | P3 | R1 | CR-34 | withdrawn | fd058f16 | Re-validation ×9 re-pays uncached semantic LLM fallbacks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9W-18 | P3 | R1 | **—** | withdrawn |  | O(n²) cumulative chapter scoring — negligible | CPU is not a lever (README §3); negligible against LLM latency |
 | A9W-19 | P2 | R0 | CR-02 | done | 72265dfc | Growth guard: size ratchet in pretest | size-ratchet-check in pretest; known-positive probe caught +1 line in runAgent9 |
-| A9W-D01 |  |  | CR-07 | todo |  | Floor writes nonsense for distance values (MEASURED, offline dist probe): classifyFactValue bare-to rule (:1124) → "It was thirty paces to the gate b… |  |
-| A9W-D02 |  |  | CR-07 | todo |  | Curly-apostrophe o'clock facts never floor-injected (MEASURED): the class o['']clock (:1124) holds two ASCII ' (bytes checked); "eleven o’clock" → ge… |  |
-| A9W-D03 |  |  | CR-07 | todo |  | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… |  |
-| A9W-D04 |  |  | CR-17 | todo |  | Beat history and atom stamps never reach fresh-run prompts (A9W-02). High on data flow; prose impact UNVERIFIABLE. |  |
-| A9W-D05 |  |  | CR-07 | todo |  | Worker regens carry no culprit/mechanism embargo (A9W-03). High on code path; impact UNVERIFIABLE. |  |
-| A9W-D06 |  |  | CR-33 | todo |  | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… |  |
-| A9W-D07 |  |  | CR-07 | todo |  | Full-story diagnostic apply rewrites chapters after the release gate without re-validation (:7541-7557), against the parity invariant stated at :6605… |  |
-| A9W-D08 |  |  | CR-07 | todo |  | Schema-repair retry (:5558) regenerates from chapter 1 with the end-of-story narrativeState (advanced by the first pass's onBatchComplete) and drops… |  |
-| A9W-D09 |  |  | CR-07 | todo |  | Mojibake table: rows :35-36 of prose-text.ts match "â€" + ASCII " (bytes checked); the en-dash row is unreachable since the first commit, and CP1252… |  |
-| A9W-D10 |  |  | CR-12 | todo |  | Culprit lock truncates to one culprit (:1383-1387) while downstream code loops over culprits; possibly deliberate. Low. |  |
-| A9W-Q01 |  |  | CR-17 | todo |  | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into f… |  |
-| A9W-Q02 |  |  | CR-17 | todo |  | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the… |  |
-| A9W-Q03 |  |  | CR-30 | todo |  | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guar… |  |
-| A9W-Q04 |  |  | CR-12 | todo |  | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? |  |
-| A9W-Q05 |  |  | CR-33 | todo |  | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? |  |
+| A9W-D01 |  |  | CR-07 | withdrawn | fd058f16 | Floor writes nonsense for distance values (MEASURED, offline dist probe): classifyFactValue bare-to rule (:1124) → "It was thirty paces to the gate b… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D02 |  |  | CR-07 | withdrawn | fd058f16 | Curly-apostrophe o'clock facts never floor-injected (MEASURED): the class o['']clock (:1124) holds two ASCII ' (bytes checked); "eleven o’clock" → ge… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D03 |  |  | CR-07 | withdrawn | fd058f16 | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D04 |  |  | CR-17 | withdrawn | fd058f16 | Beat history and atom stamps never reach fresh-run prompts (A9W-02). High on data flow; prose impact UNVERIFIABLE. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D05 |  |  | CR-07 | withdrawn | fd058f16 | Worker regens carry no culprit/mechanism embargo (A9W-03). High on code path; impact UNVERIFIABLE. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D06 |  |  | CR-33 | withdrawn | fd058f16 | X4 telemetry is not emitted on the two throw paths (:6573, :7509 precede emitAgent9InjectorLintTelemetry at :7599), contrary to its own "emitted even… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D07 |  |  | CR-07 | withdrawn | fd058f16 | Full-story diagnostic apply rewrites chapters after the release gate without re-validation (:7541-7557), against the parity invariant stated at :6605… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D08 |  |  | CR-07 | withdrawn | fd058f16 | Schema-repair retry (:5558) regenerates from chapter 1 with the end-of-story narrativeState (advanced by the first pass's onBatchComplete) and drops… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D09 |  |  | CR-07 | withdrawn | fd058f16 | Mojibake table: rows :35-36 of prose-text.ts match "â€" + ASCII " (bytes checked); the en-dash row is unreachable since the first commit, and CP1252… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-D10 |  |  | CR-12 | withdrawn | fd058f16 | Culprit lock truncates to one culprit (:1383-1387) while downstream code loops over culprits; possibly deliberate. Low. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q01 |  |  | CR-17 | withdrawn | fd058f16 | NSD ownership (A9W-02): should the package own the NarrativeState outright (worker adopts it), accepting that atoms/beat history start flowing into f… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q02 |  |  | CR-17 | withdrawn | fd058f16 | Bible (A9W-03): build once in the worker and pass into generateProse, or once in the package and return it? Either way, should worker regens get the… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q03 |  |  | CR-30 | withdrawn | fd058f16 | Under pronoun_policy: verify, ~400 lines of worker deterministic pronoun code never run. Keep strict/relaxed as supported arms (then unify their guar… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q04 |  |  | CR-12 | withdrawn | fd058f16 | Is the single-culprit truncation in enforceCmlCulpritRoleIntegrity intended? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9W-Q05 |  |  | CR-33 | withdrawn | fd058f16 | May the report fields rewrite_pass_count (always 0) and the five duplicated telemetry fields be dropped from the diagnostics schema? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 02-agent9-generation
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9G-01 | P1 | R1 | CR-26 | todo |  | generateProse is a 2,661-LOC closure: decompose it into a ~150-line coordinator over explicit state types |  |
-| A9G-02 | P1 | R1 (+R2) | CR-26 | todo |  | Chapter acceptance has three bodies (main, exhaustion fallback, exception fallback) with divergent check sets |  |
-| A9G-03 | P1 | R2 | CR-30 | todo |  | buildEnhancedRetryFeedback and its satellites are unreachable at the live budget (commit 79524bd6, unflagged) |  |
-| A9G-04 | P1 | R1 → R2 | CR-15 | todo |  | Eleven classifiers of validator message strings; they measurably disagree |  |
-| A9G-05 | P1 | R1/R2 | CR-26 | todo |  | Boundary: NSD, pronoun sweep, resolution backstop, regen bible, flags and model tier are each decided on both sides |  |
-| A9G-06 | P1 | R2 | CR-29 | todo |  | Structural levers that would avoid retries (37% of prose prompt volume) |  |
-| A9G-07 | P2 | R2 | CR-29 | todo |  | One retry message has three authors: each error repeated 4×, 16 headers, contradictory draft instructions |  |
-| A9G-08 | P2 | R1 | CR-22 | todo |  | 7 env flags / 13 reads / 3 parse idioms; rollout flags re-derived; 2 rollout flags control nothing |  |
-| A9G-09 | P2 | R1/R2 | CR-17 | todo |  | Run-constant facts derived per call and in divergent ways; arc position has 6 bodies (loop and prompt disagree on 6/10 chapters) |  |
-| A9G-10 | P2 | R1 | CR-26 | todo |  | The post-LLM normalisation chain is written three times (main, expansion, polish), each slightly different |  |
-| A9G-11 | P2 | R2 | CR-16 | todo |  | The provisional score re-implements clue presence with a looser threshold and feeds the next prompt |  |
-| A9G-12 | P2 | R0 | CR-08 | todo |  | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports |  |
-| A9G-13 | P2 | R2 | CR-30 | todo |  | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry |  |
-| A9G-14 | P2 | R0/R1 | CR-13 | todo |  | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any |  |
-| A9G-15 | P2 | R0 | CR-11 | todo |  | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found |  |
-| A9G-16 | P2 | R2 | CR-28 | todo |  | context-management does no budgeting; its STORY TO DATE block (all prior text) bypasses budgeting |  |
-| A9G-17 | P3 | R1/R2 | CR-31 | todo |  | Vocabulary and regex copies: hard-coded atmosphere list (28 of 39 words), DT regex ×4, leakage regex ×2 |  |
-| A9G-D01 |  |  | CR-30 | todo |  | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… |  |
-| A9G-D02 |  |  | CR-32 | todo |  | The in-loop clue regen ignores the regen tier. makeRegenFn({ model: inputs.model }) (2741) runs on the generate deployment. The worker fixed its 10 s… |  |
-| A9G-D03 |  |  | CR-17 | todo |  | Deployed atoms and beat history never reach the in-loop prompt. Only the worker's NSD copy is stamped. The in-loop liveNarrativeState gets only the b… |  |
-| A9G-D04 |  |  | CR-06 | todo |  | A throw from onBatchComplete duplicates chapters. Chapters are pushed at 4027 before the awaited callback at 4183. A throw (for example the worker's… |  |
-| A9G-D05 |  |  | CR-17 | todo |  | The loop and the prompt builder disagree on arc position for 6/10 chapters (A9G-09). *High* that they differ, *medium* that it is unintended. |  |
-| A9G-D06 |  |  | CR-22 | todo |  | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… |  |
-| A9G-D07 |  |  | CR-15 | todo |  | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… |  |
-| A9G-D08 |  |  | CR-29 | todo |  | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… |  |
-| A9G-D09 |  |  | CR-19 | todo |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… |  |
-| A9G-D10 |  |  | CR-26 | todo |  | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… |  |
-| A9G-D11 |  |  | CR-10 | todo |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. |  |
-| A9G-D12 |  |  | CR-08 | todo |  | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. |  |
-| A9G-Q01 |  |  | CR-30 | todo |  | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
-| A9G-Q02 |  |  | CR-17 | todo |  | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
-| A9G-Q03 |  |  | CR-11 | todo |  | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? |  |
-| A9G-Q04 |  |  | CR-29 | todo |  | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? |  |
-| A9G-Q05 |  |  | CR-30 | todo |  | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? |  |
-| A9G-Q06 |  |  | CR-15 | todo |  | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? |  |
+| A9G-01 | P1 | R1 | CR-26 | withdrawn | fd058f16 | generateProse is a 2,661-LOC closure: decompose it into a ~150-line coordinator over explicit state types | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-02 | P1 | R1 (+R2) | CR-26 | withdrawn | fd058f16 | Chapter acceptance has three bodies (main, exhaustion fallback, exception fallback) with divergent check sets | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-03 | P1 | R2 | CR-30 | withdrawn | fd058f16 | buildEnhancedRetryFeedback and its satellites are unreachable at the live budget (commit 79524bd6, unflagged) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-04 | P1 | R1 → R2 | CR-15 | withdrawn | fd058f16 | Eleven classifiers of validator message strings; they measurably disagree | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-05 | P1 | R1/R2 | CR-26 | withdrawn | fd058f16 | Boundary: NSD, pronoun sweep, resolution backstop, regen bible, flags and model tier are each decided on both sides | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-06 | P1 | R2 | CR-29 | withdrawn | fd058f16 | Structural levers that would avoid retries (37% of prose prompt volume) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-07 | P2 | R2 | CR-29 | withdrawn | fd058f16 | One retry message has three authors: each error repeated 4×, 16 headers, contradictory draft instructions | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-08 | P2 | R1 | CR-22 | withdrawn | fd058f16 | 7 env flags / 13 reads / 3 parse idioms; rollout flags re-derived; 2 rollout flags control nothing | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-09 | P2 | R1/R2 | CR-17 | withdrawn | fd058f16 | Run-constant facts derived per call and in divergent ways; arc position has 6 bodies (loop and prompt disagree on 6/10 chapters) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-10 | P2 | R1 | CR-26 | withdrawn | fd058f16 | The post-LLM normalisation chain is written three times (main, expansion, polish), each slightly different | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-11 | P2 | R2 | CR-16 | withdrawn | fd058f16 | The provisional score re-implements clue presence with a looser threshold and feeds the next prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-12 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code: 43 unused import bindings, 16 dead forward edges, dead locals and exports | imports, clueErrors, bestAttemptErrorCount, empty if, escapeForRegex dup removed; chunkScenes already gone. Left (v1 generate.ts, refactor not fix): inline cost-sum dup, redundant 1725 branch, dangling doc comment, file-local exports (un-export at CR-09 split) |
+| A9G-13 | P2 | R2 | CR-30 | withdrawn | fd058f16 | Options with no setter: preferCompletionOnFailure abort branches, enableSurgicalFingerprintRetry | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-14 | P2 | R0/R1 | CR-13 | withdrawn | fd058f16 | Contract types restated inline 5×; untyped error tags, 2 of them write-only; 50 as any | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-15 | P2 | R0 | CR-11 | withdrawn | fd058f16 | S6 evidence: 67 forward edges, 16 dead, 25 type-only; a 4th back-edge found | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-16 | P2 | R2 | CR-28 | withdrawn | fd058f16 | context-management does no budgeting; its STORY TO DATE block (all prior text) bypasses budgeting | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-17 | P3 | R1/R2 | CR-31 | withdrawn | fd058f16 | Vocabulary and regex copies: hard-coded atmosphere list (28 of 39 words), DT regex ×4, leakage regex ×2 | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D01 |  |  | CR-30 | withdrawn | fd058f16 | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D02 |  |  | CR-32 | withdrawn | fd058f16 | The in-loop clue regen ignores the regen tier. makeRegenFn({ model: inputs.model }) (2741) runs on the generate deployment. The worker fixed its 10 s… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D03 |  |  | CR-17 | withdrawn | fd058f16 | Deployed atoms and beat history never reach the in-loop prompt. Only the worker's NSD copy is stamped. The in-loop liveNarrativeState gets only the b… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D04 |  |  | CR-06 | done | ec237e5a | A throw from onBatchComplete duplicates chapters. Chapters are pushed at 4027 before the awaited callback at 4183. A throw (for example the worker's… |  |
+| A9G-D05 |  |  | CR-17 | withdrawn | fd058f16 | The loop and the prompt builder disagree on arc position for 6/10 chapters (A9G-09). *High* that they differ, *medium* that it is unintended. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D06 |  |  | CR-22 | withdrawn | fd058f16 | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D07 |  |  | CR-15 | withdrawn | fd058f16 | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D08 |  |  | CR-29 | withdrawn | fd058f16 | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D09 |  |  | CR-19 | withdrawn | fd058f16 | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D10 |  |  | CR-26 | withdrawn | fd058f16 | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D11 |  |  | CR-10 | withdrawn | fd058f16 | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-D12 |  |  | CR-08 | done | bf3fefc9 | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. | BOMs and mojibake removed |
+| A9G-Q01 |  |  | CR-30 | withdrawn | fd058f16 | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q02 |  |  | CR-17 | withdrawn | fd058f16 | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q03 |  |  | CR-11 | withdrawn | fd058f16 | S6: does A9G-15's edge profile (types plus leaf constants, 11 non-leaf value sites) settle it in favour of a leaf prose-contracts package? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q04 |  |  | CR-29 | withdrawn | fd058f16 | Should residual classes that exhaustion accepts anyway stop consuming retries at attempts 1–2 (A9G-06 #2)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q05 |  |  | CR-30 | withdrawn | fd058f16 | Delete the preferCompletionOnFailure abort path as contrary to ADR-0003 (A9G-13)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9G-Q06 |  |  | CR-15 | withdrawn | fd058f16 | Should the registry's misroute corrections (A9G-04 step 2) ship as one flag or several? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 03-agent9-prompts
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9P-01 | P1 | R1 → R2 | CR-17 | todo |  | Bible facts re-derived 3–9× each in the prompt layer (ADR-0005); frozen objects built but unread |  |
-| A9P-02 | P1 | R1 | CR-27 | todo |  | No block interface: metadata in 4 places; ~50% of the prompt outside the block model |  |
-| A9P-03 | P1 | R1 model / R2 cap | CR-28 | todo |  | STORY TO DATE is not a block: 59% of the ch10 prompt, ≈99% of "fixed" growth, uncapped |  |
-| A9P-04 | P1 | R1 / R2 | CR-28 | todo |  | Stale caps + mid-word truncation: 3 blocks truncated in 40/40 and 32/32 prompts |  |
-| A9P-05 | P1 | R1 | CR-27 | todo |  | buildChapterObligationBlock: 14 params, 974 LOC, 557-line callback cc 137 |  |
-| A9P-06 | P1 | R1 | CR-27 | todo |  | buildProsePrompt: 943-LOC coordinator; unasserted .replace() splices |  |
-| A9P-07 | P2 | R2 | CR-28 | todo |  | CHAPTER OUTCOME CONTRACT concatenated twice (system + user) in every prompt |  |
-| A9P-08 | P2 | R2 | CR-28 | todo |  | 14 facts rendered 2–10× per prompt; four pairs disagree |  |
-| A9P-09 | P2 | R0 / R2 | CR-27 | todo |  | Prompt-as-code: ~29k chars of literals; humour/craft guides are a second body of notes/*.md |  |
-| A9P-10 | P2 | R1 + R2 | CR-28 | todo |  | Budget telemetry printed into the model's prompt; never reaches the report |  |
-| A9P-11 | P2 | R1 | CR-27 | todo |  | Stage-mode knowledge in 5 tables across 3 files, typed string |  |
-| A9P-12 | P2 | R2 | CR-28 | todo |  | R8 prefix cache defeated by budget drops of run-stable blocks |  |
-| A9P-13 | P2 | R0 | CR-13 | todo |  | Missing input types: CmlCase, ProseScene, unified CastMember; four artifacts any |  |
-| A9P-14 | P3 | R0/R1 | CR-22 | todo |  | 13 flags, 4 parse idioms, 8 read inline mid-function |  |
-| A9P-15 | P3 | R0 (owner) | CR-30 | todo |  | Unwired/write-only: opening-ideation.ts, prose-brief.ts, 3 StoryContract fields, 4 Bible fields |  |
-| A9P-16 | P3 | R0 | CR-08 | todo |  | Dead computation and orphaned docblocks |  |
-| A9P-D01 |  |  | CR-07 | todo |  | Pronoun rules 9–11 never reach the model — block truncated for every cast size, cut mid-word in rule 9; rule 10 lost since it was added; rule 11 (cas… |  |
-| A9P-D02 |  |  | CR-28 | todo |  | temporal_context season-lock rules 8–9 cut in 4/4 golden bundles (2.9–3.4k chars lost); location_profiles and usually first_appearance_contracts also… |  |
+| A9P-01 | P1 | R1 → R2 | CR-17 | withdrawn | fd058f16 | Bible facts re-derived 3–9× each in the prompt layer (ADR-0005); frozen objects built but unread | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-02 | P1 | R1 | CR-27 | withdrawn | fd058f16 | No block interface: metadata in 4 places; ~50% of the prompt outside the block model | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-03 | P1 | R1 model / R2 cap | CR-28 | withdrawn | fd058f16 | STORY TO DATE is not a block: 59% of the ch10 prompt, ≈99% of "fixed" growth, uncapped | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-04 | P1 | R1 / R2 | CR-28 | withdrawn | fd058f16 | Stale caps + mid-word truncation: 3 blocks truncated in 40/40 and 32/32 prompts | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-05 | P1 | R1 | CR-27 | withdrawn | fd058f16 | buildChapterObligationBlock: 14 params, 974 LOC, 557-line callback cc 137 | MOOT: buildChapterObligationBlock has 0 hits; what moved to prose-contract is unrelated. The earlier 'still applies' note was wrong |
+| A9P-06 | P1 | R1 | CR-27 | withdrawn | fd058f16 | buildProsePrompt: 943-LOC coordinator; unasserted .replace() splices | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-07 | P2 | R2 | CR-28 | withdrawn | fd058f16 | CHAPTER OUTCOME CONTRACT concatenated twice (system + user) in every prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-08 | P2 | R2 | CR-28 | withdrawn | fd058f16 | 14 facts rendered 2–10× per prompt; four pairs disagree | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-09 | P2 | R0 / R2 | CR-27 | withdrawn | fd058f16 | Prompt-as-code: ~29k chars of literals; humour/craft guides are a second body of notes/*.md | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-10 | P2 | R1 + R2 | CR-28 | withdrawn | fd058f16 | Budget telemetry printed into the model's prompt; never reaches the report | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-11 | P2 | R1 | CR-27 | withdrawn | fd058f16 | Stage-mode knowledge in 5 tables across 3 files, typed string | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-12 | P2 | R2 | CR-28 | withdrawn | fd058f16 | R8 prefix cache defeated by budget drops of run-stable blocks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-13 | P2 | R0 | CR-13 | withdrawn | fd058f16 | Missing input types: CmlCase, ProseScene, unified CastMember; four artifacts any | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-14 | P3 | R0/R1 | CR-22 | withdrawn | fd058f16 | 13 flags, 4 parse idioms, 8 read inline mid-function | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-15 | P3 | R0 (owner) | CR-30 | withdrawn | fd058f16 | Unwired/write-only: opening-ideation.ts, prose-brief.ts, 3 StoryContract fields, 4 Bible fields | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-16 | P3 | R0 | CR-08 | done | 3295ad4e bf3fefc9 | Dead computation and orphaned docblocks | unused imports removed, mojibake fixed. castCompositionRule KEPT: VERIFIED-BUGS #4 is the owner's CR-07 call. Orphaned docblocks and file-local exports: at the CR-27 / CR-09 split |
+| A9P-D01 |  |  | CR-07 | withdrawn | fd058f16 | Pronoun rules 9–11 never reach the model — block truncated for every cast size, cut mid-word in rule 9; rule 10 lost since it was added; rule 11 (cas… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D02 |  |  | CR-28 | withdrawn | fd058f16 | temporal_context season-lock rules 8–9 cut in 4/4 golden bundles (2.9–3.4k chars lost); location_profiles and usually first_appearance_contracts also… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9P-D03 |  |  | CR-07 | dup |  | precompileStoryContract({ castData: cml.CAST }) (agent9-run.ts:4491): no such key; victim fallback_unknown in 62/62 archived JSON; culpritAlibiWindow… | = A9W-D03 (cml.CAST) |
-| A9P-D04 |  |  | CR-07 | todo |  | Voice fragments unguarded in world_document while guarded in character_contracts (X43 half-applied). MEASURED. High. |  |
-| A9P-D05 |  |  | CR-07 | todo |  | Opening freshness exempts [object Object]: String(CASE.hidden_model.mechanism) (prompt-builder.ts:2239), but mechanism is an object (schema :157), so… |  |
-| A9P-D06 |  |  | CR-07 | todo |  | Placeholder clue ids (clue_id_1) shown by buildProseRequirements; the obligation block filters them. MEASURED in the 07-31 prompt. Medium. |  |
-| A9P-D07 |  |  | CR-07 | todo |  | Manner of death from raw subtype ‖ category (obligation-block.ts:916) can print "murder" or a setting label as the "manner of death". INFERRED. Mediu… |  |
-| A9P-D08 |  |  | CR-17 | todo |  | Arc position off by one between worker (agent9-run.ts:4603, 1-based) and prompt builder (0-based), so previousChapterArcPosition and currentArcPositi… |  |
-| A9P-D09 |  |  | CR-07 | todo |  | Case-specific hard bans (banned-phrases.ts:11: "quarter past three" families, getTieredBannedPhrasePolicy ignores its case argument) go into every pr… |  |
-| A9P-D10 |  |  | CR-27 | todo |  | Deleting notes/*.md silently removes humour_guide/craft_guide from every prompt (A9P-09). INFERRED. High, latent. |  |
-| A9P-D11 |  |  | CR-07 | todo |  | Literal backslashes (\") in pronoun rule 9–10 examples (prompt-blocks.ts:62); moot while truncated. Low. |  |
-| A9P-Q01 |  |  | CR-28 | todo |  | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8… |  |
-| A9P-Q02 |  |  | CR-28 | todo |  | Which copy of the outcome contract stays — system or user (A9P-07)? |  |
-| A9P-Q03 |  |  | CR-28 | todo |  | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? |  |
-| A9P-Q04 |  |  | CR-27 | todo |  | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? |  |
-| A9P-Q05 |  |  | CR-30 | todo |  | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? |  |
-| A9P-Q06 |  |  | CR-17 | todo |  | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? |  |
-| A9P-Q07 |  |  | CR-28 | todo |  | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? |  |
+| A9P-D04 |  |  | CR-07 | withdrawn | fd058f16 | Voice fragments unguarded in world_document while guarded in character_contracts (X43 half-applied). MEASURED. High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D05 |  |  | CR-07 | withdrawn | fd058f16 | Opening freshness exempts [object Object]: String(CASE.hidden_model.mechanism) (prompt-builder.ts:2239), but mechanism is an object (schema :157), so… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D06 |  |  | CR-07 | withdrawn | fd058f16 | Placeholder clue ids (clue_id_1) shown by buildProseRequirements; the obligation block filters them. MEASURED in the 07-31 prompt. Medium. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D07 |  |  | CR-07 | withdrawn | fd058f16 | Manner of death from raw subtype ‖ category (obligation-block.ts:916) can print "murder" or a setting label as the "manner of death". INFERRED. Mediu… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D08 |  |  | CR-17 | withdrawn | fd058f16 | Arc position off by one between worker (agent9-run.ts:4603, 1-based) and prompt builder (0-based), so previousChapterArcPosition and currentArcPositi… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D09 |  |  | CR-07 | withdrawn | fd058f16 | Case-specific hard bans (banned-phrases.ts:11: "quarter past three" families, getTieredBannedPhrasePolicy ignores its case argument) go into every pr… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D10 |  |  | CR-27 | withdrawn | fd058f16 | Deleting notes/*.md silently removes humour_guide/craft_guide from every prompt (A9P-09). INFERRED. High, latent. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-D11 |  |  | CR-07 | withdrawn | fd058f16 | Literal backslashes (\") in pronoun rule 9–10 examples (prompt-blocks.ts:62); moot while truncated. Low. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q01 |  |  | CR-28 | withdrawn | fd058f16 | STORY TO DATE policy: how many chapters verbatim, and are the rest summarised (A9P-03)? It decides whether the 24,000 ceiling, the craft floor and R8… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q02 |  |  | CR-28 | withdrawn | fd058f16 | Which copy of the outcome contract stays — system or user (A9P-07)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q03 |  |  | CR-28 | withdrawn | fd058f16 | Pronoun block: raise its cap or shorten the rules? Temporal block: move the season rules to the top or raise the cap (A9P-04)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q04 |  |  | CR-27 | withdrawn | fd058f16 | Canonical guide text: notes/*.md or the in-code condensations (A9P-09)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q05 |  |  | CR-30 | withdrawn | fd058f16 | ROADMAP-FROM-82 §4b and the prose-brief redesign: keep staged, or delete (A9P-15)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q06 |  |  | CR-17 | withdrawn | fd058f16 | For each divergent fact pair (A9P-01 step 2): which body wins — e.g. the Bible's evenly spaced arc positions or the prompt's thresholds? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9P-Q07 |  |  | CR-28 | withdrawn | fd058f16 | Should buildProseRequirements keep broadcasting every obligation to every chapter, given the obligation block's exclusivity design (A9P-08 item 2)? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 04-agent9-validation
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9V-01 | P1 | R1 → R2 | CR-15 | todo |  | Four failure vocabularies; lint/obligation types flattened to strings; 3 regex classifiers disagree (17/42 wrong gate, 8/42 unknown, 6/42 no family) |  |
-| A9V-02 | P1 | R1 | CR-27 | todo |  | lintBatchProse is ~21 independent rules in one closure; make it a rule table with ids and per-rule counters |  |
-| A9V-03 | P1 | R1 → R2 | CR-31 | todo |  | Audit/debug-note leak patterns in 4 bodies; the exhaustion pre-accept strip cannot remove what the lint flags (MEASURED) |  |
-| A9V-04 | P1 | R1 → R2 | CR-16 | todo |  | Clue presence: gate matcher vs scorer matcher (split brain) + 4 near-clone matchers in one file |  |
-| A9V-05 | P1 | R0 + R2 | CR-17 | todo |  | Season: detector (story-validation) vs repairer (lint.ts) use different "mechanical spring" rules; repairer corrupts evidence names (MEASURED); 3rd/4… |  |
-| A9V-06 | P2 | R2 | CR-31 | todo |  | Death-method surface predicate: gate ≠ grader despite the comment; gate vacuous on "with"/"head" (MEASURED) |  |
-| A9V-07 | P2 | R2 | CR-31 | todo |  | "Re-staged reveal" in 3 bodies, "culprit disclosure" in ~8; the generation gate is the loosest |  |
-| A9V-08 | P2 | R1 | CR-31 | todo |  | mechanism-detect.ts is a byte-identical copy of the rubric's detector; move to prose-guard |  |
-| A9V-09 | P2 | R2 | CR-31 | todo |  | Two classifyOpeningStyle bodies; lint's opening-sentence extractor cuts at "Dr." (MEASURED) |  |
-| A9V-10 | P2 | R1 → R2 | CR-31 | todo |  | Clearance *evidence* connectors: 3 private byte-identical copies + a shared export that disagrees with the release gate (MEASURED) |  |
-| A9V-11 | P2 | R1 | CR-27 | todo |  | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… |  |
-| A9V-12 | P2 | R2 | CR-15 | todo |  | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) |  |
-| A9V-13 | P3 | R0 | CR-08 | todo |  | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… |  |
-| A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks |  |
+| A9V-01 | P1 | R1 → R2 | CR-15 | withdrawn | fd058f16 | Four failure vocabularies; lint/obligation types flattened to strings; 3 regex classifiers disagree (17/42 wrong gate, 8/42 unknown, 6/42 no family) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-02 | P1 | R1 | CR-27 | withdrawn | fd058f16 | lintBatchProse is ~21 independent rules in one closure; make it a rule table with ids and per-rule counters | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-03 | P1 | R1 → R2 | CR-31 | withdrawn | fd058f16 | Audit/debug-note leak patterns in 4 bodies; the exhaustion pre-accept strip cannot remove what the lint flags (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-04 | P1 | R1 → R2 | CR-16 | done | ecb12773 | Clue presence: gate matcher vs scorer matcher (split brain) + 4 near-clone matchers in one file | keyTermHits names the selector's stemmed and the gate's substring rule; thresholds unchanged. Found: tokenMatchesText is not word-bounded |
+| A9V-05 | P1 | R0 + R2 | CR-17 | withdrawn | fd058f16 | Season: detector (story-validation) vs repairer (lint.ts) use different "mechanical spring" rules; repairer corrupts evidence names (MEASURED); 3rd/4… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-06 | P2 | R2 | CR-31 | withdrawn | fd058f16 | Death-method surface predicate: gate ≠ grader despite the comment; gate vacuous on "with"/"head" (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-07 | P2 | R2 | CR-31 | withdrawn | fd058f16 | "Re-staged reveal" in 3 bodies, "culprit disclosure" in ~8; the generation gate is the loosest | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-08 | P2 | R1 | CR-31 | withdrawn | fd058f16 | mechanism-detect.ts is a byte-identical copy of the rubric's detector; move to prose-guard | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-09 | P2 | R2 | CR-31 | withdrawn | fd058f16 | Two classifyOpeningStyle bodies; lint's opening-sentence extractor cuts at "Dr." (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-10 | P2 | R1 → R2 | CR-31 | withdrawn | fd058f16 | Clearance *evidence* connectors: 3 private byte-identical copies + a shared export that disagrees with the release gate (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-11 | P2 | R1 | CR-27 | withdrawn | fd058f16 | validateChapterPreCommitObligations → stage-mode rule table; split clue-validation.ts (8 responsibilities); derive stage mode once (4 derivation site… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-12 | P2 | R2 | CR-15 | withdrawn | fd058f16 | Name the trigger structurally: 12 of 22 lint messages and the premature-resolution rule quote nothing; one duplicated sentence → 3 issues (MEASURED) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-13 | P3 | R0 | CR-08 | done | 3295ad4e 094de134 | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… | mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param |
+| A9V-14 | P3 | R0 / R2 | CR-20 | withdrawn | fd058f16 | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9V-15 | P3 | R1 | **—** | withdrawn |  | CPU is negligible: 31 ms mean / 50 ms worst per lint call; ≈1.9 s per 60-call run | CPU is not a lever (README §3); ~2 s per run |
-| A9V-16 | P3 | R0 / R2 | CR-10 | todo |  | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt |  |
-| A9V-D01 |  |  | CR-15 | todo |  | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… |  |
-| A9V-D02 |  |  | CR-15 | todo |  | gate_outcomes in the report misattribute 17 of 42 message templates (control-plane leakage → completeness; "verbatim" → locked_fact_word_form) |  |
-| A9V-D03 |  |  | CR-17 | todo |  | Season repairer rewrites "broken spring fragment" → "broken autumn fragment" |  |
-| A9V-D04 |  |  | CR-17 | todo |  | Whole-story narrative-continuity validator still flags the mechanical spring (no case args, narrative-continuity-validator.ts:210) |  |
-| A9V-D05 |  |  | CR-31 | todo |  | proseSurfacesDeathMethod passes prose that never names the death for methods containing "with", "head" |  |
-| A9V-D06 |  |  | CR-15 | todo |  | Gender-collective rule fails valid prose ("Both men turned as she entered") and is typed debug_note_bleed, so it and the verdict-closer rule ride the… |  |
-| A9V-D07 |  |  | CR-31 | todo |  | extractOpeningSentence cuts at "Dr."/"Mr." |  |
-| A9V-D08 |  |  | CR-31 | todo |  | Exhaustion pre-accept strip cannot remove lint-only debug notes; keeps any mixed paragraph |  |
-| A9V-D09 |  |  | CR-31 | todo |  | Regen clearance validator accepts connectors ("witness", "saw") the release gate rejects |  |
-| A9V-D10 |  |  | CR-07 | todo |  | validateChecklistRequirements failure text is sent to the model as the DT checklist block |  |
-| A9V-D11 |  |  | CR-07 | todo |  | revealChapterText is documented as the reveal chapter but generate.ts passes all prior chapters joined, making the reveal-satisfied conjunction near-… |  |
-| A9V-D12 |  |  | CR-27 | todo |  | "back-to-back" opener-bypass prefix unreachable (sentence-dup rule co-fires with a non-bypass type) |  |
-| A9V-D13 |  |  | CR-22 | todo |  | ENABLE_PROSE_BLIND_READER invisible to flags:check |  |
-| A9V-Q01 |  |  | CR-15 | todo |  | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. |  |
-| A9V-Q02 |  |  | CR-16 | todo |  | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) |  |
-| A9V-Q03 |  |  | CR-17 | todo |  | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? |  |
-| A9V-Q04 |  |  | CR-31 | todo |  | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? |  |
-| A9V-Q05 |  |  | CR-30 | todo |  | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? |  |
-| A9V-Q06 |  |  | CR-20 | todo |  | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? |  |
+| A9V-16 | P3 | R0 / R2 | CR-10 | done | fdd6c939 | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt | compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07 |
+| A9V-D01 |  |  | CR-15 | withdrawn | fd058f16 | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D02 |  |  | CR-15 | withdrawn | fd058f16 | gate_outcomes in the report misattribute 17 of 42 message templates (control-plane leakage → completeness; "verbatim" → locked_fact_word_form) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D03 |  |  | CR-17 | withdrawn | fd058f16 | Season repairer rewrites "broken spring fragment" → "broken autumn fragment" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D04 |  |  | CR-17 | withdrawn | fd058f16 | Whole-story narrative-continuity validator still flags the mechanical spring (no case args, narrative-continuity-validator.ts:210) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D05 |  |  | CR-31 | withdrawn | fd058f16 | proseSurfacesDeathMethod passes prose that never names the death for methods containing "with", "head" | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D06 |  |  | CR-15 | withdrawn | fd058f16 | Gender-collective rule fails valid prose ("Both men turned as she entered") and is typed debug_note_bleed, so it and the verdict-closer rule ride the… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D07 |  |  | CR-31 | withdrawn | fd058f16 | extractOpeningSentence cuts at "Dr."/"Mr." | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D08 |  |  | CR-31 | withdrawn | fd058f16 | Exhaustion pre-accept strip cannot remove lint-only debug notes; keeps any mixed paragraph | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D09 |  |  | CR-31 | withdrawn | fd058f16 | Regen clearance validator accepts connectors ("witness", "saw") the release gate rejects | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D10 |  |  | CR-07 | withdrawn | fd058f16 | validateChecklistRequirements failure text is sent to the model as the DT checklist block | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D11 |  |  | CR-07 | withdrawn | fd058f16 | revealChapterText is documented as the reveal chapter but generate.ts passes all prior chapters joined, making the reveal-satisfied conjunction near-… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D12 |  |  | CR-27 | withdrawn | fd058f16 | "back-to-back" opener-bypass prefix unreachable (sentence-dup rule co-fires with a non-bypass type) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-D13 |  |  | CR-22 | done |  | ENABLE_PROSE_BLIND_READER invisible to flags:check | ENABLE_PROSE_BLIND_READER was named in the checker and registered in CR-06 (VERIFIED-BUGS #22); verify:flags clean |
+| A9V-Q01 |  |  | CR-15 | withdrawn | fd058f16 | For A9V-01 phase 2: should a lone clue-absent failure get the full retry budget (clue_timing)? Today it is unknown. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q02 |  |  | CR-16 | withdrawn | fd058f16 | Which body should own clue presence — the gate's chapter-level stemmed matcher or the scorer's paragraph-level one? (A_73 §4.2 is the same question.) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q03 |  |  | CR-17 | withdrawn | fd058f16 | Season repairer: when the case names a spring, should the floor ever rewrite bare "spring"? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q04 |  |  | CR-31 | withdrawn | fd058f16 | May the gate adopt geometry's disclosure/aftermath detectors (stricter than today) behind a flag? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q05 |  |  | CR-30 | withdrawn | fd058f16 | Retire rules whose counters stay at zero (near-vacuous stage wordlists, the adjacent-duplicate rule) once A9V-02 reports them? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9V-Q06 |  |  | CR-20 | withdrawn | fd058f16 | Is refusing truncated prose JSON (instead of repairing it) acceptable at the Agent 9 boundary? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 05-agent9-repair
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A9R-01 | P1 | R1 | CR-23 | todo |  | Registry is metadata, not dispatch: 1 dead entry, ≥4 live passes missing, 11 worker wrapper blocks untouched |  |
-| A9R-02 | P1 | R0 + R2 | CR-31 | todo |  | Floor templates and their recognisers have drifted: 8 of 11 live floor sentences evade the scaffold detector, 9 of 10 evade INJECTED_SENTENCE_PATTERNS |  |
-| A9R-03 | P1 | R1 → R2 | CR-29 | todo |  | Polish and validators fight by construction; rollback telemetry cannot show which validator |  |
-| A9R-04 | P1 | R0 → R2 | CR-12 | todo |  | "Suspect cleared" has 5 bodies and 2 evidence vocabularies; the suspect-elimination pass and floor disagree (A_64 F1's unfixed sibling) |  |
-| A9R-05 | P2 | R1 | CR-23 | todo |  | regen-integration.ts is six modules; the pass skeleton is repeated 13× |  |
-| A9R-06 | P2 | R1 | CR-23 | todo |  | Five independent "LLM rewrites a chapter" engines; truncation handled at one site, for one provider |  |
-| A9R-07 | P2 | R1 | CR-33 | todo |  | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes |  |
-| A9R-08 | P2 | R2 | CR-29 | todo |  | Regen retries resend a byte-identical prompt; insertion passes have no structural channel |  |
-| A9R-09 | P2 | R2 | CR-12 | todo |  | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies |  |
-| A9R-10 | P2 | R2 | CR-32 | todo |  | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier |  |
-| A9R-11 | P3 | R0/R1 | CR-08 | todo |  | Dead and vestigial: runClearanceRegenPass, applyClearancePatch, clueTerms, a 40-line boolean clone, 3 producer-less defect kinds |  |
-| A9R-12 | P3 | R1 | CR-31 | todo |  | Split deterministic-repair.ts; merge the two floor patch chains |  |
-| A9R-13 | P3 | R0 | CR-13 | todo |  | CaseData = any casts, 14× as const defect literals, a 10-positional-parameter LLM function |  |
-| A9R-14 | P3 | R2/R1 | CR-28 | todo |  | Regen prompt order defeats caching; atmosphere calls run serially; instruction and detail duplicated in the prompt |  |
-| A9R-D01 |  |  | CR-31 | todo |  | Scaffold detector blind to current floor templates (A9R-02). Since 07-17, 3 of 5 A1 sentence shapes evade it; since 07-31, all 3 clearance frames do.… |  |
-| A9R-D02 |  |  | CR-31 | todo |  | INJECTED_SENTENCE_PATTERNS misses 9 of 10 floor templates. A reveal delivered by the det-repair fallback reads met, not met_by_injection. High. |  |
-| A9R-D03 |  |  | CR-12 | todo |  | Suspect-elimination pass and floor disagree on scope, vocabulary and name matching (A9R-04). High on the code; frequency unmeasured. |  |
-| A9R-D04 |  |  | CR-07 | todo |  | Polish finish-reason check ignores Azure length/content_filter (post-pass-polish.ts:286). High. |  |
-| A9R-D05 |  |  | CR-29 | todo |  | clueTerms guard never wired. Neither runFullStoryRepetitionPolish (:685) nor full-story-diagnostic.ts:408 passes it, so the A_71 "clue reworded out"… |  |
+| A9R-01 | P1 | R1 | CR-23 | withdrawn | fd058f16 | Registry is metadata, not dispatch: 1 dead entry, ≥4 live passes missing, 11 worker wrapper blocks untouched | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-02 | P1 | R0 + R2 | CR-31 | withdrawn | fd058f16 | Floor templates and their recognisers have drifted: 8 of 11 live floor sentences evade the scaffold detector, 9 of 10 evade INJECTED_SENTENCE_PATTERNS | MOOT on the live path: the floor writers are deleted; INJECTED_SENTENCE_PATTERNS is read only by three offline eval scripts over archived books; v2 writes no deterministic sentences |
+| A9R-03 | P1 | R1 → R2 | CR-29 | withdrawn | fd058f16 | Polish and validators fight by construction; rollback telemetry cannot show which validator | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-04 | P1 | R0 → R2 | CR-12 | withdrawn | fd058f16 | "Suspect cleared" has 5 bodies and 2 evidence vocabularies; the suspect-elimination pass and floor disagree (A_64 F1's unfixed sibling) | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-05 | P2 | R1 | CR-23 | withdrawn | fd058f16 | regen-integration.ts is six modules; the pass skeleton is repeated 13× | MOOT: regen-integration.ts deleted; its survivor assembleScoringChapterTexts is already its own 26-line module |
+| A9R-06 | P2 | R1 | CR-23 | withdrawn | fd058f16 | Five independent "LLM rewrites a chapter" engines; truncation handled at one site, for one provider | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-07 | P2 | R1 | CR-33 | withdrawn | fd058f16 | Repair telemetry spread over 3 module-level stores; efficacy covers 2 of ~17 LLM repair passes | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-08 | P2 | R2 | CR-29 | withdrawn | fd058f16 | Regen retries resend a byte-identical prompt; insertion passes have no structural channel | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-09 | P2 | R2 | CR-12 | withdrawn | fd058f16 | Repair context re-derives Bible facts from raw CML; X50's ?? role bug survives in 4 copies | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-10 | P2 | R2 | CR-32 | withdrawn | fd058f16 | The clue regen ignores AGENT9_MODEL_REGEN and runs on the prose tier | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-11 | P3 | R0/R1 | CR-08 | done | 094de134 | Dead and vestigial: runClearanceRegenPass, applyClearancePatch, clueTerms, a 40-line boolean clone, 3 producer-less defect kinds | hasRepetitionRewriteRegression delegates to the reason fn; ClueRegenPassResult alias gone. runClearanceRegenPass and ProseDefectKind members belong to the regen registry (CR-23); applyClearancePatch param is v1 generate.ts (bug-fix-only) |
+| A9R-12 | P3 | R1 | CR-31 | withdrawn | fd058f16 | Split deterministic-repair.ts; merge the two floor patch chains | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-13 | P3 | R0 | CR-13 | withdrawn | fd058f16 | CaseData = any casts, 14× as const defect literals, a 10-positional-parameter LLM function | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-14 | P3 | R2/R1 | CR-28 | withdrawn | fd058f16 | Regen prompt order defeats caching; atmosphere calls run serially; instruction and detail duplicated in the prompt | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D01 |  |  | CR-31 | withdrawn | fd058f16 | Scaffold detector blind to current floor templates (A9R-02). Since 07-17, 3 of 5 A1 sentence shapes evade it; since 07-31, all 3 clearance frames do.… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D02 |  |  | CR-31 | withdrawn | fd058f16 | INJECTED_SENTENCE_PATTERNS misses 9 of 10 floor templates. A reveal delivered by the det-repair fallback reads met, not met_by_injection. High. | MOOT on the live path (as A9R-02): met_by_injection can fire only in the offline eval scripts |
+| A9R-D03 |  |  | CR-12 | withdrawn | fd058f16 | Suspect-elimination pass and floor disagree on scope, vocabulary and name matching (A9R-04). High on the code; frequency unmeasured. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D04 |  |  | CR-07 | withdrawn | fd058f16 | Polish finish-reason check ignores Azure length/content_filter (post-pass-polish.ts:286). High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D05 |  |  | CR-29 | withdrawn | fd058f16 | clueTerms guard never wired. Neither runFullStoryRepetitionPolish (:685) nor full-story-diagnostic.ts:408 passes it, so the A_71 "clue reworded out"… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 | A9R-D06 |  |  | CR-32 | dup |  | Clue regen on the prose tier despite AGENT9_MODEL_REGEN (A9R-10). High. | = A9R-10 |
 | A9R-D07 |  |  | CR-12 | dup |  | X50 ?? role bug in 4 suspect-set copies and the fallback investigator (A9R-09). Medium (depends on Agent 3 archetype strings). | = A9R-09 |
-| A9R-D08 |  |  | CR-07 | todo |  | Clue-paste lead skips A_68 title-casing (deterministic-repair.ts:346). Low–medium. |  |
-| A9R-D09 |  |  | CR-33 | todo |  | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. |  |
-| A9R-D10 |  |  | CR-33 | todo |  | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. |  |
-| A9R-Q01 |  |  | CR-29 | todo |  | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acce… |  |
-| A9R-Q02 |  |  | CR-31 | todo |  | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that… |  |
-| A9R-Q03 |  |  | CR-12 | todo |  | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observat… |  |
-| A9R-Q04 |  |  | CR-30 | todo |  | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? |  |
-| A9R-Q05 |  |  | CR-31 | todo |  | Is the det-repair fallback's castNames omission (A9R-12) intended? |  |
+| A9R-D08 |  |  | CR-07 | withdrawn | fd058f16 | Clue-paste lead skips A_68 title-casing (deterministic-repair.ts:346). Low–medium. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D09 |  |  | CR-33 | withdrawn | fd058f16 | Atmosphere efficacy counts chapters as calls (generate.ts:4504). High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-D10 |  |  | CR-33 | withdrawn | fd058f16 | The DT floor has no counter, and DeterministicRepairResult flags are dropped in production. High. | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q01 |  |  | CR-29 | withdrawn | fd058f16 | For A9R-03: gate polish off floor-touched chapters, or teach polish the must-survive tokens? Is the offline replay of the 08-26 polish responses acce… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q02 |  |  | CR-31 | withdrawn | fd058f16 | For A9R-02 R2: should the scaffold detector (and therefore the rubric cap) widen to the current templates, knowing it will lower scores on runs that… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q03 |  |  | CR-12 | withdrawn | fd058f16 | For A9R-04: which clearance vocabulary and scope is canonical, the regen's (paragraph, witness/saw) or the floor/lint's (chapter, constraint/observat… | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q04 |  |  | CR-30 | withdrawn | fd058f16 | Should runClearanceRegenPass be deleted, or wired as the per-chapter clearance pass the registry says exists? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
+| A9R-Q05 |  |  | CR-31 | withdrawn | fd058f16 | Is the det-repair fallback's castNames omission (A9R-12) intended? | MOOT: the v1 prose engine this reviews was deleted (owner decision 1, 2026-10-01); nothing it names survived into prose-contract/ |
 
 ## 06-agent5-clues
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A5-01 | P1 | R1 | CR-25 | todo |  | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… |  |
-| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo |  | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) |  |
-| A5-03 | P1 | R1 / R2 | CR-16 | todo |  | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies |  |
-| A5-04 | P1 | R1 | CR-13 | todo |  | Normalise LLM JSON at the parse boundary + typed case view (removes most any) |  |
-| A5-05 | P1 | R0 | CR-10 | todo |  | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) |  |
-| A5-06 | P1 | R1 | CR-15 | todo |  | Gate failures are strings; classifier covers 5 of ≥13 throws; Agent 6 regex branches dead |  |
-| A5-07 | P2 | R0/R1 | CR-16 | todo |  | Check/repair pairs re-implement the same predicate (5 pairs) |  |
-| A5-08 | P2 | R1 | CR-16 | todo |  | Synthesised-clue minting: ~7 bodies, 4 timeline builders, 2 direct-culprit synthesizers |  |
-| A5-09 | P2 | R1 | CR-27 | todo |  | buildCluePrompt (610 LOC, cc 102) → section builders + retry-feedback normaliser |  |
-| A5-10 | P2 | R2 | CR-28 | todo |  | Prompt asks for output nobody reads; proactive feedback has zero effect |  |
-| A5-11 | P2 | R2 | CR-29 | todo |  | Retries regenerate everything, statelessly, without locked facts or strict contract |  |
-| A5-12 | P2 | R1 | CR-25 | todo |  | WeakMap memos keyed on a CML that is mutated in place |  |
-| A5-13 | P2 | R0 | CR-08 | todo |  | Dead and vestigial code (compiler-proven and verified by grep) |  |
-| A5-14 | P2 | R0/R1 | CR-31 | todo |  | Vocabulary and tokenizer zoo (escape ×2, elimination regex ×3, step-from-path ×4, clue-id regex ×6) |  |
-| A5-15 | P2 | R2 | CR-16 | todo |  | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations |  |
-| A5-16 | P3 | R2 | CR-28 | todo |  | Stable prompt text sits after volatile CML text (prefix caching) |  |
+| A5-01 | P1 | R1 | CR-25 | done | ad612520 | runAgent5 → coordinator over ~12 phases with explicit state; P11 duplicates enforce… | runAgent5 -> 10 phases over Agent5Run/Agent5State; agent5-run.ts 1,961 -> 478 lines; phases in agents/agent5/ |
+| A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | done | 79e6d803 | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) | step 1 (R1) ec47208f: one source-path table in @cml/cml; step 2 DECIDED (owner decision 4): CASE.death_method is legal — validator, strict whitelist and prompt agree (79e6d803) |
+| A5-03 | P1 | R1 / R2 | CR-16 | done | 04e0bc58 | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies | R1: the three evidence-candidate scorers through clue-contracts/evidence-candidates.ts, each keeping its weights (tested against verbatim copies). Step 2 — one evidence-id policy applied once — is A5-Q05 (owner) |
+| A5-04 | P1 | R1 | CR-13 | done | 0ca80a5f | Normalise LLM JSON at the parse boundary + typed case view (removes most any) | caseOf/CaseView in @cml/cml; any 241→80 in Agent 5/6 + clue-contracts. Harness normaliser NOT unified: matches production on 0/101 archived payloads (recorded) |
+| A5-05 | P1 | R0 | CR-10 | done | fdd6c939 | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) | contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16) |
+| A5-06 | P1 | R1 | CR-15 | done | ecb12773 | Gate failures are strings; classifier covers 5 of ≥13 throws; Agent 6 regex branches dead | typed Agent5GateError at 11 sites; every label pinned unchanged (regex fallback for untyped) |
+| A5-07 | P2 | R0/R1 | CR-16 | done | 6d13cdf7 | Check/repair pairs re-implement the same predicate (5 pairs) | Selectors shared by each check and its repair (DT, mechanism, cast path, model audit, locked-fact pairs; findClueById, isEarlyOrMidPlacement). MEASURED 0 diffs over 4,680 old-vs-new cases, every probe fired, control 65 diffs (scripts/cr16-clue-contract-characterisation.mjs). ClueRequirement table not built: the slots share 2 rules and carry 22 distinct messages |
+| A5-08 | P2 | R1 | CR-16 | done | 9af9b5fd | Synthesised-clue minting: ~7 bodies, 4 timeline builders, 2 direct-culprit synthesizers | R1: openClueSynthesis (4 preludes) and appendToClueTimeline (3 appends) in clue-contracts/synthesis.ts; 0 diffs over 2,275 cases (scripts/cr16-synthesis-characterisation.mjs). R2, not built (OWNER): timeline computed from placements, one direct-culprit synthesiser, one backstop id family |
+| A5-09 | P2 | R1 | CR-27 | done | ecb12773 | buildCluePrompt (610 LOC, cc 102) → section builders + retry-feedback normaliser | buildCluePrompt split into section builders + retry-feedback normaliser; MEASURED 0 diffs / 9,240 comparisons, flag off and on |
+| A5-10 | P2 | R2 | CR-28 | done | 46ae2c05 | Prompt asks for output nobody reads; proactive feedback has zero effect | behind CML_PROMPT_TRIMS (OFF): unread status/audit asks dropped, contracts once; read = paid probe |
+| A5-11 | P2 | R2 | CR-29 | done | 55448eb5 | Retries regenerate everything, statelessly, without locked facts or strict contract | behind CML_VERIFIED_FIXES: every Agent 5 regeneration carries strictContract + lockedFacts (agent5/contract-payload.ts). Only the red-herring floor is live by default |
+| A5-12 | P2 | R1 | CR-25 | done | a2a0615c | WeakMap memos keyed on a CML that is mutated in place | DECIDED: compute fresh — with CML_VERIFIED_FIXES on, the four WeakMap memos are bypassed |
+| A5-13 | P2 | R0 | CR-08 | done | 5662ca4c 094de134 | Dead and vestigial code (compiler-proven and verified by grep) | WORD_TO_NUM, recomputeInferenceCoverageForAgent6, deriveClueDescription (+tests), 3 unused __testables members. RequiredClueSpec write-only fields NOT removed: the spec objects may be serialised into prompts — needs a replay check (CR-16) |
+| A5-14 | P2 | R0/R1 | CR-31 | done | ecb12773 | Vocabulary and tokenizer zoo (escape ×2, elimination regex ×3, step-from-path ×4, clue-id regex ×6) | CANONICAL_CLUE_ID_RE and escapeRegExp once in @cml/cml |
+| A5-15 | P2 | R2 | CR-16 | done | f40aa14c | generateExplicitClueRequirements vs @cml/clue-spec deriveClueSpec: two derivations | behind AGENT5_CLUE_SPEC_CHECKLIST (OFF): the checklist is a projection of deriveClueSpec; ON drops 4 of today's requirements — weigh before its read |
+| A5-16 | P3 | R2 | CR-28 | done | 46ae2c05 | Stable prompt text sits after volatile CML text (prefix caching) | behind CML_PROMPT_TRIMS: static sections first — cache-stable prefix 455→5,517 chars |
 | A5-17 | P3 | — | **—** | withdrawn |  | CPU: memo caches and O(n²) scans are negligible against LLM latency | CPU is not a lever (README §3) |
 | A5-D01 |  |  | CR-06 | done | pre-audit | AM/PM guard dead since 2026-08-21 — HIGH, MEASURED. agent5-run.ts:1971 contains literal 0x08 backspace | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |
-| A5-D02 |  |  | CR-06 | todo |  | Agent 5 cost double-counted — HIGH, INFERRED. extractClues returns the cumulative per-client total |  |
-| A5-D03 |  |  | CR-16 | todo |  | CASE.death_method prompt-legal, worker-illegal — HIGH, MEASURED (A5-02). |  |
-| A5-D04 |  |  | CR-29 | todo |  | Retries drop lockedFacts and strictContract — HIGH, INFERRED (A5-11). This includes the default-ON |  |
-| A5-D05 |  |  | CR-07 | todo |  | The floor discards P8's suspect backstops, and P8 is not re-run — MEDIUM-HIGH, INFERRED (:3817 then :3868). |  |
-| A5-D06 |  |  | CR-25 | todo |  | Stale memo after remap — MEDIUM, INFERRED. After remapMissing… rewrites evidence_clues (:4255), the |  |
-| A5-D07 |  |  | CR-17 | todo |  | Gate and prompt read different locked facts — MEDIUM. The prompt uses ctx.lockedFactRegistry (primary |  |
-| A5-D08 |  |  | CR-15 | todo |  | Agent 6 dead branches — HIGH, MEASURED via git (A5-06). |  |
-| A5-D09 |  |  | CR-16 | todo |  | Coverage snapshots diverge — LOW-MEDIUM. buildCoverageSnapshot (:3610) omits checkMechanismVisibility; |  |
-| A5-D10 |  |  | CR-20 | todo |  | No enum validation at parse — LOW-MEDIUM. A capitalised "Early" is dropped from clueTimeline and handled |  |
-| A5-Q01 |  |  | CR-16 | todo |  | Should CASE.death_method be a legal sourceInCML in the worker (A_67 FIX-2's intent)? |  |
-| A5-Q02 |  |  | CR-07 | todo |  | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? |  |
-| A5-Q03 |  |  | CR-28 | todo |  | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed |  |
-| A5-Q04 |  |  | CR-16 | todo |  | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? |  |
-| A5-Q05 |  |  | CR-16 | todo |  | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? |  |
-| A5-Q06 |  |  | CR-30 | todo |  | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode |  |
-| A5-Q07 |  |  | CR-16 | todo |  | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? |  |
+| A5-D02 |  |  | CR-06 | done | dff49644 | Agent 5 cost double-counted — HIGH, INFERRED. extractClues returns the cumulative per-client total |  |
+| A5-D03 |  |  | CR-16 | done | 79e6d803 | CASE.death_method prompt-legal, worker-illegal — HIGH, MEASURED (A5-02). | The worker no longer rewrites the key-tell clue off CASE.death_method (MEASURED before: logs/canary-95041.log) |
+| A5-D04 |  |  | CR-29 | done | 55448eb5 | Retries drop lockedFacts and strictContract — HIGH, INFERRED (A5-11). This includes the default-ON | behind CML_VERIFIED_FIXES (as A5-11) |
+| A5-D05 |  |  | CR-07 | done | 55448eb5 | The floor discards P8's suspect backstops, and P8 is not re-run — MEDIUM-HIGH, INFERRED (:3817 then :3868). | behind CML_VERIFIED_FIXES: suspect coverage re-runs after a floor regeneration |
+| A5-D06 |  |  | CR-25 | done | ecb12773 | Stale memo after remap — MEDIUM, INFERRED. After remapMissing… rewrites evidence_clues (:4255), the | behind CML_VERIFIED_FIXES: memo caches invalidated after the remap |
+| A5-D07 |  |  | CR-17 | done | ecb12773 | Gate and prompt read different locked facts — MEDIUM. The prompt uses ctx.lockedFactRegistry (primary | behind CML_VERIFIED_FIXES: gates read the facts the prompt sent (raw device facts when it sent none) |
+| A5-D08 |  |  | CR-15 | withdrawn | 3d63527f | Agent 6 dead branches — HIGH, MEASURED via git (A5-06). | DONE earlier: Agent 6's dead branches removed by A6-05 (3d63527f); comment at agent6/retry-contract.ts:390 |
+| A5-D09 |  |  | CR-16 | done | 12131e7c | Coverage snapshots diverge — LOW-MEDIUM. buildCoverageSnapshot (:3610) omits checkMechanismVisibility; | One body: buildCoverageSnapshot(cml, clues, { mechanismVisibility }) in clue-contracts/contracts.ts; Agent 5 passes false, Agent 6 true. MEASURED: Agent 5's copy feeds the coverage-retry PROMPT (agent5/extraction.ts violations list), so including checkMechanismVisibility there is R2 (a prompt change); the release gates read Agent 6's full snapshot, written last by runAgent6 — absorbed per WF-002 |
+| A5-D10 |  |  | CR-20 | done | 21992344 | No enum validation at parse — LOW-MEDIUM. A capitalised "Early" is dropped from clueTimeline and handled | category/placement/criticality lower-cased at parse; suspect-coverage eligibility lower-cased |
+| A5-Q01 |  |  | CR-16 | done | 79e6d803 | Should CASE.death_method be a legal sourceInCML in the worker (A_67 FIX-2's intent)? | DECIDED (owner decision 4): CASE.death_method is legal; workerLegal true, the enumerator always offers it; prompt, validator and strict whitelist name the same set |
+| A5-Q02 |  |  | CR-07 | done | 55448eb5 | What should the AM/PM guard detect, given that a naive fix aborts on "I am"? | DECIDED (decision 12, review's R2 recommendation): meridiem needs a clock number; also fixed 'a.m.' never matching; still behind AGENT5_MERIDIEM_CHECK |
+| A5-Q03 |  |  | CR-28 | done | 46ae2c05 | Keep asking the model for status, audit and inference, or wire consumers? Should the two suppressed | DECIDED (owner: best judgement): drop the unread fields; ship the two first-attempt lines on the first pass — behind CML_PROMPT_TRIMS |
+| A5-Q04 |  |  | CR-16 | done | a2a0615c | Red-herring floor: a targeted red-herring-only call, or move the floor before the deterministic phases? | DECIDED: a targeted red-herring top-up after separation, behind AGENT5_RED_HERRING_TOPUP (OFF); the evidence: red herrings are lost to deterministic pruning, not the model (6 of 61 projects) |
+| A5-Q05 |  |  | CR-16 | done | ec9904b2 | What is the one evidence-ID policy (≥1 / back-fill to 3 / ≥2), and at which stage is it applied once? | DECIDED (owner decision 6): at least two, once, before Agent 6 audits; Agents 5 and 6 apply one floor, the pre-prose gate reads only (it used to back-fill after the audit, 4/18 run logs) |
+| A5-Q06 |  |  | CR-30 | done | 4bd53121 | The six AGENT5_ENABLE_LLM_RETRIES branches (≈ 350 lines) have not run at default since the deterministic mode | DECIDED (decision 12, CR-30): AGENT5_ENABLE_LLM_RETRIES and its six branches retired (-368 lines); red-herring floor stays |
+| A5-Q07 |  |  | CR-16 | done | f40aa14c | When does @cml/clue-spec become the source of the prompt checklist (A5-15)? | DECIDED (owner: best judgement): built behind its own OFF flag now; its paid read is separate from the batch pair |
 
 ## 07-agent6-fairplay-worldbuilder
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A6-01 | P1 | R0→R1 | CR-25 | todo |  | runAgent6 → coordinator plus 7 phase modules over explicit state (30 shared bindings, 9 mutable) |  |
-| A6-02 | P1 | R2 | CR-29 | todo |  | Fair-play retry feedback is failure-agnostic: 0 of 12 violation-derived lines reach Agent 5 |  |
-| A6-03 | P1 | R2 | CR-29 | todo |  | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable |  |
-| A6-04 | P1 | R1 | CR-16 | todo |  | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently |  |
-| A6-05 | P1 | R1 | CR-08 | todo |  | Dead error-message classification ladder since 2b76cbfa (~52 lines) |  |
-| A6-06 | P2 | R0/R1 | CR-25 | todo |  | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) |  |
-| A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects |  |
-| A6-08 | P2 | R1/R2 | CR-31 | todo |  | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names |  |
-| A6-09 | P2 | R0/R1 | CR-16 | todo |  | Clue-synthesis helpers duplicated with Agent 5; the agent6→agent5 import edge should become a clue-contracts module |  |
-| A6-10 | P2 | R1 | CR-13 | todo |  | CML prompt-header projection: 6 bodies across 4 files; FA-1/2/5 fixes landed only in Agent 6 |  |
-| A6-11 | P2 | R0 | CR-27 | todo |  | buildDeveloperContext (301 LOC, cc 63): split derivation from rendering; triplicated clue formatter |  |
-| A6-12 | P2 | R1 | CR-25 | todo |  | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates |  |
-| A6-13 | P2 | R0 | CR-25 | todo |  | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested |  |
-| A6-14 | P2 | R0/R1 | CR-08 | todo |  | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) |  |
-| A6-15 | P2 | R2 (report-only) | CR-33 | todo |  | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) |  |
-| A6-16 | P3 | R2 | CR-34 | todo |  | LLM calls a deterministic check could avoid; independent calls made in sequence |  |
-| A6-17 | P3 | R2 | CR-28 | todo |  | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it |  |
-| A6-18 | P3 | R0/R1 | CR-13 | todo |  | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade |  |
-| A6-19 | P3 | R0/R2 | CR-31 | todo |  | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge |  |
-| A6-D01 |  |  | CR-19 | todo |  | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… |  |
-| A6-D02 |  |  | CR-07 | todo |  | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… |  |
-| A6-D03 |  |  | CR-12 | todo |  | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… |  |
-| A6-D04 |  |  | CR-12 | todo |  | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. |  |
-| A6-D05 |  |  | CR-25 | todo |  | Stale state after a CML revision (retries arm). P7's verdict and P10's inputs (:1720–1723) describe the pre-revision CML and clues. Medium confidence. |  |
-| A6-D06 |  |  | CR-16 | todo |  | The post-revision floor discards its repairs (:2308): no telemetry (ADR-0010). High confidence. |  |
-| A6-D07 |  |  | CR-12 | todo |  | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. |  |
-| A6-D08 |  |  | CR-07 | todo |  | The backstop can emit a "contradiction" clue with the same text as its observation clue when a step has no correction (:1057–1111). Low severity. |  |
-| A6-D09 |  |  | CR-16 | todo |  | synchronizeClueTraceabilityFromCurrentClues creates empty prose_requirements / discriminating_test_scene objects even on a no-op (:1227–1228). Low se… |  |
-| A6-Q01 |  |  | CR-29 | todo |  | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… |  |
-| A6-Q02 |  |  | CR-29 | todo |  | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already… |  |
-| A6-Q03 |  |  | CR-34 | todo |  | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-0… |  |
-| A6-Q04 |  |  | CR-32 | todo |  | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? |  |
+| A6-01 | P1 | R0→R1 | CR-25 | done | 71c3fdab | runAgent6 → coordinator plus 7 phase modules over explicit state (30 shared bindings, 9 mutable) | runAgent6 -> 7 phases over Agent6Run/Agent6State (checker-typed); agent6-run.ts 2,515 -> 935; agents/agent6/. The blind-reader remediation stays inline (conditional break/continue) |
+| A6-02 | P1 | R2 | CR-29 | done | 55448eb5 | Fair-play retry feedback is failure-agnostic: 0 of 12 violation-derived lines reach Agent 5 | failure-derived phrases first (≤8), then the contract lines, cap 16 — on the retries-on arm only |
+| A6-03 | P1 | R2 | CR-29 | done | 55448eb5 | Agent 6.5 retry feedback: outer loop discards it; inner generic branch pushes length for failures the floors made unreachable | outer half moot (decision 7) and dead branch deleted (4bd53121); inner retry text classified behind CML_VERIFIED_FIXES |
+| A6-04 | P1 | R1 | CR-16 | withdrawn | a2a0615c | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently | MOOT: the WP8A backstop re-audit (the ordering that disagreed 65/65) went with Agent 6's retry arm (A6-Q01); the remaining refresh sites are the pre-LLM and rescue orderings that agreed 65/65 |
+| A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
+| A6-06 | P2 | R0/R1 | CR-25 | withdrawn | a2a0615c | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) | MOOT: the blind-reader dedupe lived in the remediation loop deleted with the retry arm (A6-Q01) |
+| A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects | waits on decision 2's flip; the counter fired 3x on seed 82094, so it stays off |
+| A6-08 | P2 | R1/R2 | CR-31 | done | 0ca80a5f | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names | typed CriticalFairPlayRule + one predicate, matching unchanged. Defects recorded: case-sensitive match; the full-mode prompt asks for different rule names |
+| A6-09 | P2 | R0/R1 | CR-16 | done | 9af9b5fd | Clue-synthesis helpers duplicated with Agent 5; the agent6→agent5 import edge should become a clue-contracts module | R0: Agent 5's checker library moved to jobs/clue-contracts/ (12131e7c) — no agent6 module imports agent5; R1: shared synthesis prelude, bridge token list once, backstop push once (9af9b5fd). Open, R2: the elimination vocabulary divergence (structural audit accepts 'rules out'/'clears', isEliminationLike does not) |
+| A6-10 | P2 | R1 | CR-13 | done | ecb12773 | CML prompt-header projection: 6 bodies across 4 files; FA-1/2/5 fixes landed only in Agent 6 | one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320 |
+| A6-11 | P2 | R0 | CR-27 | done | ecb12773 | buildDeveloperContext (301 LOC, cc 63): split derivation from rendering; triplicated clue formatter | derive + render, one formatClueLine; duplicate "Essential Clues" listing left (prompt change) |
+| A6-12 | P2 | R1 | CR-25 | done | 46ae2c05 | generateWorldDocument (339 LOC, cc 52): pure validator with a typed failure; ~55 lines of unreachable safety-net gates | parse/validate split; 5 unreachable gates deleted with property-test proofs; 320-scenario characterisation byte-identical |
+| A6-13 | P2 | R0 | CR-25 | done | cee74c9d | Safety-net holes: structural audit untested; one test pins a local copy of the classifier; the 6.5 retry builder is untested | WP6A tests the production function; structural audit golden + known negative |
+| A6-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 094de134 3d63527f | Dead config, fields, imports and flag parsers (YAML still holds max_tokens: 6000) | Agent 6.5 reads temperature/max_tokens/attempts from YAML (set to 0.7/12000/3, was 6000/2 and ignored); unused imports; persistentRiskWarnings. Left: agent6/flags.ts getters (CR-22 RunConfig), unreachable escalation branches (with the redesign) |
+| A6-15 | P2 | R2 (report-only) | CR-33 | done | 6f233c91 | Warning channel erases floor firings from the report on passing runs (ADR-0003/0010) | the post-revision parity-bridge injection is persistent-risk (the backstop already was) |
+| A6-16 | P3 | R2 | CR-34 | withdrawn | a2a0615c | LLM calls a deterministic check could avoid; independent calls made in sequence | MOOT: the provisional audit and the retry-arm concurrency went with Agent 6's retry arm (A6-Q01) |
+| A6-17 | P3 | R2 | CR-28 | done | f40aa14c | World Builder prompt: 15% JSON whitespace; the solution half of CASE is sent to an agent forbidden to use it | behind CML_PROMPT_TRIMS: compact JSON + config word count + other agents' instructions dropped; the solution half KEPT (the reveal draws on it: 394 archived phrase hits) |
+| A6-18 | P3 | R0/R1 | CR-13 | done | 0ca80a5f | Types: CaseData = any, 15 (cml as any)?.CASE ?? cml, gratuitous casts, a local JSON-repair cascade | typed via caseOf (with A5-04); remaining any are the raw payload, feedback objects and client |
+| A6-19 | P3 | R0/R2 | CR-31 | done | 55448eb5 | Death-method vocabulary copied from rubric-score on a stale rationale; resolution semantics diverge | Agent 6 imports rubric-score's DEATH_METHOD_TOKENS (was a byte copy) |
+| A6-D01 |  |  | CR-19 | done | 03c4f5d3 | The retry budget never charges the first retry of each cost source. perCallCostDelta (:1477) sets its baseline on first observation, which happens *a… | DECIDED (owner decision 7): createRetryCostMeter charges each retry its own cost, first included (baseline from the cost tracker at budget creation, re-based after non-retry calls); pinned by agent6-retry-cost-meter.test.ts — SUPERSEDED 2026-10-02: the meter and its test went with Agent 6's retry arm (A6-Q01, a2a0615c); no retry budget remains to charge |
+| A6-D02 |  |  | CR-07 | done | 55448eb5 | The default break-moment character is the detective. chooseBreakMomentCharacter (agent65-world-builder.ts:731–742) filters on member.role, but CASE.c… | behind CML_VERIFIED_FIXES: break-moment default via the role predicates |
+| A6-D03 |  |  | CR-12 | done | 75a049ca | The structural audit treats the detective and victim as non-culprit suspects (:766–769). MEASURED: the detective appears in eliminationMissing on all… | the audit excludes detective and victim with the @cml/cml predicates (same set Agent 9 clears); report-only; golden diff = 4 detectives + 1 victim out of eliminationMissing |
+| A6-D04 |  |  | CR-12 | done | 0ca80a5f | The blind reader is told the detective and victim are "suspects" (:1721, agent6-fairplay.ts:911). Medium confidence on impact. | behind CML_VERIFIED_FIXES: the blind reader's suspects exclude detective and victim (released by decision 2) |
+| A6-D05 |  |  | CR-25 | withdrawn | a2a0615c | Stale state after a CML revision (retries arm). P7's verdict and P10's inputs (:1720–1723) describe the pre-revision CML and clues. Medium confidence. | MOOT: the stale verdict after a CML revision was on the retry arm, retired (A6-Q01) |
+| A6-D06 |  |  | CR-16 | done | 11384aaf | The post-revision floor discards its repairs (:2308): no telemetry (ADR-0010). High confidence. | the post-revision backstop's repairs are persistent-risk warnings |
+| A6-D07 |  |  | CR-12 | done | 0ca80a5f | T2.1 false positive on shared surnames (A6-07). With the reveal gate in enforce mode this can block. Medium confidence. | behind CML_VERIFIED_FIXES: surname match only when no other cast member shares it |
+| A6-D08 |  |  | CR-07 | done | 55448eb5 | The backstop can emit a "contradiction" clue with the same text as its observation clue when a step has no correction (:1057–1111). Low severity. | behind CML_VERIFIED_FIXES: no duplicate contradiction backstop clue |
+| A6-D09 |  |  | CR-16 | done | 46ae2c05 | synchronizeClueTraceabilityFromCurrentClues creates empty prose_requirements / discriminating_test_scene objects even on a no-op (:1227–1228). Low se… | behind CML_VERIFIED_FIXES: no empty discriminating_test_scene stub on a no-op |
+| A6-Q01 |  |  | CR-29 | done | a2a0615c | A6-02 and A6-03 change retry prompts only on the AGENT_PRE9_ENABLE_LLM_RETRIES arm. Is that arm still intended to be probed, or should its code wait… | DECIDED (owner, 2026-10-02, OPEN-QUESTIONS §1): retire. Agent 6's LLM-retry arm deleted (~990 source lines; ran in 0 of 70 archived runs); Agent 3 still reads AGENT_PRE9_ENABLE_LLM_RETRIES |
+| A6-Q02 |  |  | CR-29 | done | 55448eb5 | Agent 6.5 is treated as "creative texture" for scoring (A_53 P2), yet three parse failures abort the run. normalizeWorldDocumentStructure({}) already… | DECIDED (decision 12, review's recommendation): behind CML_VERIFIED_FIXES a World Builder failure degrades to degradedWorldDocument with an [A6-Q02] warning |
+| A6-Q03 |  |  | CR-34 | withdrawn | a2a0615c | Can the post-revision provisional audit (A6-16 #1) be replaced by the deterministic audit without a probe, given that its output feeds a payload A6-0… | MOOT: the provisional audit lived on Agent 6's retry arm, retired by A6-Q01 |
+| A6-Q04 |  |  | CR-32 | done | 69ed426b | Should AGENT6_MODEL be made effective, with separate labels for the auditor and the blind reader (the ".env.local.example" low-risk tail)? | AGENT6_MODEL now effective for both Agent 6 calls (override outranks tier). Separate auditor/blind-reader labels: not built (no recommendation; one variable serves both) |
 
 ## 08-agent7-narrative-geometry
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A7-01 | P1 | R0 (+R1 helper) | CR-24 | todo |  | Decompose runAgent7 (978 LOC, cc 159) into a coordinator over 14 phases in agent7/; real shared state is 8 locals |  |
-| A7-02 | P1 | R1 + R2 | CR-23 | todo |  | One outline-candidate pipeline for 8 call sites (inputs, accounting, normalise, validate, rescore) |  |
-| A7-03 | P1 | R1 then R2 | CR-13 | todo |  | One typed CaseBrief accessor for the CML-to-prompt summary shared by Agents 6/7/8 |  |
-| A7-04 | P2 | R0 | CR-13 | todo |  | 126 any: CaseData = any, SceneRef.scene: any, untyped lambdas over a typed outline, stamps missing from Scene |  |
-| A7-05 | P2 | R1 | CR-24 | todo |  | Outline-geometry primitives duplicated: act split ×4, tolerance check ×5, scene flatten ×13 + 4 flatteners |  |
-| A7-06 | P2 | R1 | CR-16 | todo |  | Two clue-coverage force-assigners, placement→act ×4 with divergent defaults, "clue-bearing" defined twice, GENERIC regex ×2 |  |
-| A7-07 | P2 | R1 | CR-18 | todo |  | Scoring twice: retry-scorer closure vs rescoreNarrative diverge; pacing path never rescores |  |
-| A7-08 | P2 | R0/R1/R2 | CR-22 | todo |  | Flags: runtime getters are correct; 4 parse idioms; contractRecoveryEnabled forks the function 4× for a dormant mode; retriesEnabled dead |  |
-| A7-09 | P2 | R0 / R2 | CR-27 | todo |  | buildUserRequest (333 LOC, 6 params) → section builders; prose-requirements block and clue-pacing rule sent twice in 125/125 prompts |  |
-| A7-10 | P2 | R1/R2 | CR-20 | todo |  | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape |  |
-| A7-11 | P1 | R1 (telemetry) | CR-33 | todo |  | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent |  |
-| A7-12 | P3 | R0 | CR-24 | todo |  | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items |  |
-| A7-13 | P3 | R2 | CR-17 | todo |  | Arc position computed 3 ways (A7 vs two in A9); 97/358 prose prompts carry two different emotional registers |  |
-| A7-14 | P3 | R0 | CR-13 | todo |  | Agent 7.5: minor type leaks only; leave structurally as is |  |
-| A7-D01 |  |  | CR-07 | todo |  | Agent 7's case summary is wrong on every CML-2.0 run. It prints "Victim: Unknown" and "Motive: Unknown motive"; the victim-exclusion block names "the… |  |
-| A7-D02 |  |  | CR-07 | todo |  | The schema-repair retry never synthesises missing act purpose (required by the YAML schema), so a retry that omits it hard-aborts at :1929-1932, alth… |  |
-| A7-D03 |  |  | CR-06 | todo |  | Agent-7 cost is double-counted. formatNarrative returns the cumulative per-agent total (agent7-narrative.ts:907, cost-tracker.ts:154); runAgent7 adds… |  |
-| A7-D04 |  |  | CR-18 | todo |  | The pacing path never rescores, so the reported agent-7 phase score describes a discarded outline after a pacing retry (4 sites); rescoreNarrative al… |  |
-| A7-D05 |  |  | CR-07 | todo |  | Five of seven outline-adoption routes skip schema validation, so an outline from a scene-count, coverage, pacing or remediation retry reaches Agent 9… |  |
-| A7-D06 |  |  | CR-06 | todo |  | A config inside the clamp bounds can hang the worker. act1_ratio and act2_ratio are each clamped to ≤ 0.8 (generation-params.ts:1147-1148), but their… |  |
-| A7-D07 |  |  | CR-16 | todo |  | Hallucinated clue IDs survive to Agent 9. They pass the pacing gate (raw non-empty count) and are stripped only on the pre-assignment path, which run… |  |
-| A7-D08 |  |  | CR-17 | todo |  | Emotional-register conflict. A7-13: 97/358 prose prompts carry two different registers for the same chapter. |  |
-| A7-D09 |  |  | CR-07 | todo |  | Gate-mode geometry repair may not persist or resume. In AGENT75_GEOMETRY=gate, the outline artifact is persisted (mystery-orchestrator.ts:1563) befor… |  |
-| A7-D10 |  |  | CR-06 | todo |  | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… |  |
-| A7-Q01 |  |  | CR-30 | todo |  | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… |  |
-| A7-Q02 |  |  | CR-33 | todo |  | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… |  |
-| A7-Q03 |  |  | CR-30 | todo |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… |  |
-| A7-Q04 |  |  | CR-16 | todo |  | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? |  |
-| A7-Q05 |  |  | CR-07 | todo |  | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. |  |
+| A7-01 | P1 | R0 (+R1 helper) | CR-24 | done | c5423dfd | Decompose runAgent7 (978 LOC, cc 159) into a coordinator over 14 phases in agent7/; real shared state is 8 locals | runAgent7 -> 12 phases over an Agent7Run object (TS extract-function), agent7-run.ts 3,100 -> 272 lines, 12 modules under agents/agent7/ |
+| A7-02 | P1 | R1 + R2 | CR-23 | done | 0ca80a5f | One outline-candidate pipeline for 8 call sites (inputs, accounting, normalise, validate, rescore) | behind CML_VERIFIED_FIXES: adoptOutlineCandidate at all 10 adoption points (normalise + warn-only schema) |
+| A7-03 | P1 | R1 then R2 | CR-13 | done | ecb12773 | One typed CaseBrief accessor for the CML-to-prompt summary shared by Agents 6/7/8 | CaseBrief = projectCaseForPrompt (with A6-10); the A7-D01 fix is behind CML_VERIFIED_FIXES |
+| A7-04 | P2 | R0 | CR-13 | done | 87ae5547 | 126 any: CaseData = any, SceneRef.scene: any, untyped lambdas over a typed outline, stamps missing from Scene | any 151→14; stamps typed; caseOf at 7 unwraps; JS identical but for those. Found: case-read fallbacks disagree; keyTerms/isDeathMethodTell read off clues lacking them |
+| A7-05 | P2 | R1 | CR-24 | done | 109d271b | Outline-geometry primitives duplicated: act split ×4, tolerance check ×5, scene flatten ×13 + 4 flatteners | computeActSceneCounts replaces 4 copies; the 13 inline flatMaps / countScenes helpers left (cosmetic) |
+| A7-06 | P2 | R1 | CR-16 | done | 11384aaf | Two clue-coverage force-assigners, placement→act ×4 with divergent defaults, "clue-bearing" defined twice, GENERIC regex ×2 | R1: one GENERIC_CONTRACT_VALUE_RE. R2 (owner, A7-Q04): one placement->act default; the raw clue-bearing count (A7-D07) |
+| A7-07 | P2 | R1 | CR-18 | done | ecb12773 | Scoring twice: retry-scorer closure vs rescoreNarrative diverge; pacing path never rescores | behind CML_VERIFIED_FIXES: rescoreNarrative uses scoreNarrativePhase (scene-count gate) |
+| A7-08 | P2 | R0/R1/R2 | CR-22 | done | 50b73fa7 | Flags: runtime getters are correct; 4 parse idioms; contractRecoveryEnabled forks the function 4× for a dormant mode; retriesEnabled dead | agent7/flags.ts on envOn/envNotOff (vocabulary unchanged); retriesEnabled already gone. OWNER: whether contract-recovery-off is still wanted (R2) |
+| A7-09 | P2 | R0 / R2 | CR-27 | done | ecb12773 | buildUserRequest (333 LOC, 6 params) → section builders; prose-requirements block and clue-pacing rule sent twice in 125/125 prompts | section builders, text moved verbatim; the duplicated prose-requirements / pacing rules left (prompt changes) |
+| A7-10 | P2 | R1/R2 | CR-20 | done | a2a0615c | agent7-narrative-schema.ts is a request schema, not a boundary parser; 3 drifted bodies of the outline shape | DECIDED: json-schema-to-ts FromSchema (declared, already installed) types the outline from its JSON schema; compile-time checks vs the hand-written types — no mismatch |
+| A7-11 | P1 | R1 (telemetry) | CR-33 | done | 6f233c91 | S7 is unblocked (cause fixed 08-04), but the counters cover 2 of ≥15 coercion sites; 2 sites are silent | formatNarrative's 5 coercion sites + the silent clue-id drop counted per site, at all 7 call sites, on a non-enumerable side channel; two silent sites warn; [R4] original keys unchanged. Not counted yet: the remaining sites the item lists in the v1 prose path and the Pillar-4/coverage patches (each already warns) |
+| A7-12 | P3 | R0 | CR-24 | done | 46ae2c05 | Post-commit stamps → agent7/stamps.ts with shared helpers; small dead/vestigial items | stamp helpers deduped, rename, tombstone trimmed |
+| A7-13 | P3 | R2 | CR-17 | withdrawn | fd058f16 | Arc position computed 3 ways (A7 vs two in A9); 97/358 prose prompts carry two different emotional registers | MOOT: the other two arc formulas were v1 (prompt-builder.ts, generate.ts); neither prose-engine nor agent9-v2 reads emotionalRegister/arcPosition; leftovers under ORC-08 |
+| A7-14 | P3 | R0 | CR-13 | done | ecb12773 | Agent 7.5: minor type leaks only; leave structurally as is | three casts removed |
+| A7-D01 |  |  | CR-07 | done | 55448eb5 | Agent 7's case summary is wrong on every CML-2.0 run. It prints "Victim: Unknown" and "Motive: Unknown motive"; the victim-exclusion block names "the… | behind CML_VERIFIED_FIXES (OFF): Agent 7's case summary reads CML 2.0 — victim via isVictimMember, motive = culprit's motive_seed, culprit a Suspect, victim in no list. Activation = the batch's matched-pair read (A7-Q05) |
+| A7-D02 |  |  | CR-07 | done | 55448eb5 | The schema-repair retry never synthesises missing act purpose (required by the YAML schema), so a retry that omits it hard-aborts at :1929-1932, alth… | behind CML_VERIFIED_FIXES: retry fills missing act purposes (fillMissingActPurposes) |
+| A7-D03 |  |  | CR-06 | done | dff49644 | Agent-7 cost is double-counted. formatNarrative returns the cumulative per-agent total (agent7-narrative.ts:907, cost-tracker.ts:154); runAgent7 adds… |  |
+| A7-D04 |  |  | CR-18 | done | ecb12773 | The pacing path never rescores, so the reported agent-7 phase score describes a discarded outline after a pacing retry (4 sites); rescoreNarrative al… | behind CML_VERIFIED_FIXES: clue-pacing rescoring on adoption |
+| A7-D05 |  |  | CR-07 | done | 55448eb5 | Five of seven outline-adoption routes skip schema validation, so an outline from a scene-count, coverage, pacing or remediation retry reaches Agent 9… | behind CML_VERIFIED_FIXES: committed outline schema-validated, warn-only |
+| A7-D06 |  |  | CR-06 | done | faeb6755 | A config inside the clamp bounds can hang the worker. act1_ratio and act2_ratio are each clamped to ≤ 0.8 (generation-params.ts:1147-1148), but their… |  |
+| A7-D07 |  |  | CR-16 | done | 0ca80a5f | Hallucinated clue IDs survive to Agent 9. They pass the pacing gate (raw non-empty count) and are stripped only on the pre-assignment path, which run… | behind CML_VERIFIED_FIXES: pacing counts only clue ids in the distribution |
+| A7-D08 |  |  | CR-17 | withdrawn | fd058f16 | Emotional-register conflict. A7-13: 97/358 prose prompts carry two different registers for the same chapter. | MOOT: the second register source was v1 |
+| A7-D09 |  |  | CR-07 | done | 55448eb5 | Gate-mode geometry repair may not persist or resume. In AGENT75_GEOMETRY=gate, the outline artifact is persisted (mystery-orchestrator.ts:1563) befor… | behind CML_VERIFIED_FIXES: gate-mode repairs re-persist the outline |
+| A7-D10 |  |  | CR-06 | done | 9801b481 | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… | fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields |
+| A7-Q01 |  |  | CR-30 | done | 4bd53121 | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… | DECIDED (decision 12, CR-30): AGENT_PRE9_ENABLE_CONTRACT_RECOVERY's fail-fast arm retired at 7 sites |
+| A7-Q02 |  |  | CR-33 | done | 6f233c91 | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… | DECIDED (decision 12, the review's recommendation): "consolidate plus per-site counters" — what A7-11 shipped (6f233c91) |
+| A7-Q03 |  |  | CR-30 | withdrawn |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… | MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-scheduler stays unwired, AGENT7_SCHEDULER_AUTHORITATIVE OFF |
+| A7-Q04 |  |  | CR-16 | done | a2a0615c | Which placement default is correct for a clue with missing placement: act 2 or act 3 (A7-06)? | DECIDED: act 2 — clue-pacing.ts now agrees with the other three sites (0 of 3,530 archived clues lack a placement) |
+| A7-Q05 |  |  | CR-07 | done |  | Approve a probe for the D1 fix (A7-03 step 2)? It changes Agent 7's prompt on every run. | READ: matched pair seed 82094 (OFF mystery-1790960614933 £0.95 / ON mystery-1790962241800 £0.93): both complete, gate warning, same cost; Agent 7 names the victim only ON. Batch + trims enabled in .env.local (flags kept) |
 
 ## 09-agent3-cml-agent4-revision
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A34-01 | P1 | R1 then R2 | CR-14 | todo |  | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge |  |
-| A34-02 | P1 | R2 | CR-12 | todo |  | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives |  |
-| A34-03 | P1 | R2 | CR-17 | todo |  | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones |  |
-| A34-04 | P1 | R1 (+R2 slice) | CR-24 | todo |  | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions |  |
-| A34-05 | P2 | R2 | CR-30 | todo |  | Patch engine never run in a pipeline; unregistered flag; dead result fields |  |
-| A34-06 | P2 | R1 (+R2) | CR-20 | todo |  | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs |  |
-| A34-07 | P2 | R1 | CR-21 | todo |  | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton |  |
-| A34-08 | P2 | R0 (+R2) | CR-07 | todo |  | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" |  |
-| A34-09 | P2 | R1 (+R2) | CR-29 | todo |  | Theme families derived 3×; retry feedback pollutes the theme lock (measured) |  |
-| A34-10 | P2 | R0/R1 | CR-16 | todo |  | Placement: planting check mirrored in rubric-score; case-soundness clones |  |
-| A34-11 | P2 | R1 (+R2) | CR-18 | todo |  | degraded is an optional boolean one of two callers ignores; X60 policy exists in one place |  |
-| A34-12 | P2 | R1 | CR-24 | todo |  | runAgent3b (325 LOC, cc 52): plausibility loop and registry build inline |  |
-| A34-13 | P3 | R0 | CR-08 | todo |  | Dead fields, dead writes, over-export, vestigial blocks |  |
-| A34-14 | P3 | R0 then R2 | CR-28 | todo |  | Prompt-as-code: 32k literal chars, volatile seed early, contract restated 2–3×, self-contradiction |  |
+| A34-01 | P1 | R1 then R2 | CR-14 | done | ac0c76d4 | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge | step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner) |
+| A34-02 | P1 | R2 | CR-12 | wip | 5aeaf992 | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | shadow counter: 3 disagreements over the seed-82094 pair, all agent2.victim — the model marked two members role:victim pre-normalisation; flipping would change who Agent 2 keeps. Flip NOT done |
+| A34-03 | P1 | R2 | CR-17 | done | ecb12773 | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones | pure locked-fact helpers in @cml/cml; numberToWordsSmall vs spellMinuteCount differ on 0 and 100-999 (not unified) |
+| A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
+| A34-05 | P2 | R2 | CR-30 | done | 4bd53121 | Patch engine never run in a pipeline; unregistered flag; dead result fields | patch engine retired (decision 12, CR-30): agent4-patch.ts, test, shadow script, CML_REPAIR_MODE |
+| A34-06 | P2 | R1 (+R2) | CR-20 | done | 8054d8a6 | LLM-output parsing cloned; Agent 4 copy lacks the A_65b truncation guard; 2 YAML libs | Agents 3/4 on the one ladder; sanitizeYaml (byte-identical) moved to shared/llm-json.ts. Not changed: Agent 3's YAML fallback parses with yaml, Agent 4's with js-yaml (js-yaml is declared now) — one library changes what a YAML payload parses to (R2) |
+| A34-07 | P2 | R1 | CR-21 | done | 9cc72b98 | generateCML (1,026 LOC, depth 7) and reviseCml (866) hand-roll one retry skeleton | notes leak fixed (fe4372dd); both loops characterised (13 scenarios) then escalation, reply parsing and degrade moved out: generateCML 440 -> 242, reviseCml 419 -> 329, snapshots unchanged. Not done: reviseCml's loop body mutates six locals (current CML, errors, streak, attempt...); a shared runCmlAttemptLoop needs those as a state object — deferred, the target sizes are within reach of that one step |
+| A34-08 | P2 | R0 (+R2) | CR-07 | done | ecb12773 | originalPrompt is read only as user.substring(0,200), mislabelled "Mystery Axis" | behind CML_VERIFIED_FIXES: Agent 4's Mystery Axis line prints primaryAxis (R0 step skipped: it saves no tokens) |
+| A34-09 | P2 | R1 (+R2) | CR-29 | done | 55448eb5 | Theme families derived 3×; retry feedback pollutes the theme lock (measured) | theme families ignore appended retry feedback (themeWithoutRetryFeedback); byte-identical without feedback |
+| A34-10 | P2 | R0/R1 | CR-16 | done | 891d6ea8 | Placement: planting check mirrored in rubric-score; case-soundness clones | planting check moved to @cml/cml; rubric-score's byte-for-byte mirror, the FindUnplantedFn seam and the try/catch fallback deleted (-130). Not done: the name->gender table and demoteDuplicateRoleHolders consolidation |
+| A34-11 | P2 | R1 (+R2) | CR-18 | done | 0ca80a5f | degraded is an optional boolean one of two callers ignores; X60 policy exists in one place | discriminated RevisionResult on a required degraded |
+| A34-12 | P2 | R1 | CR-24 | done | d292ff22 | runAgent3b (325 LOC, cc 52): plausibility loop and registry build inline | generateDevices and the registry phase extracted; registry closure -> agent3b/locked-fact-registry.ts. The plausibility gate stays inline (TS will not extract a range with conditional break/continue; the injected-loop rewrite is not a move) |
+| A34-13 | P3 | R0 | CR-08 | done | 094de134 | Dead fields, dead writes, over-export, vestigial blocks | gapFillCount + empty if removed. maxAttempts log already fixed on the live line. Unused exports: at the CR-24 split |
+| A34-14 | P3 | R0 then R2 | CR-28 | done | 46ae2c05 | Prompt-as-code: 32k literal chars, volatile seed early, contract restated 2–3×, self-contradiction | behind CML_PROMPT_TRIMS: rule 4 once, volatile seed last |
 | A34-D01 |  |  | CR-06 | done | pre-audit | checkLockedFactTimeAlignment reads ctx.cml before it is assigned, so it always returns [] | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |
-| A34-D02 |  |  | CR-17 | todo |  | Agent 9 prompts and enforces raw device locked facts (all devices), not the registry, so X38/C1/X51 don't reach its contract |  |
-| A34-D03 |  |  | CR-07 | todo |  | Positional gender lookup: if the model reorders the cast and omits gender, genders swap |  |
-| A34-D04 |  |  | CR-07 | todo |  | Cast truncated or padded to castNames length; extra model characters dropped positionally |  |
-| A34-D05 |  |  | CR-12 | todo |  | Last-resort culprit fallback can name the detective or victim |  |
-| A34-D06 |  |  | CR-33 | todo |  | normalizationNotes from discarded attempts leak; retries' notes never reach warnings |  |
-| A34-D07 |  |  | CR-20 | todo |  | Agent 4 parser has no truncation guard on a full-CML re-emission |  |
+| A34-D02 |  |  | CR-17 | withdrawn | fd058f16 | Agent 9 prompts and enforces raw device locked facts (all devices), not the registry, so X38/C1/X51 don't reach its contract | MOOT: v2 reads ctx.lockedFactRegistry (agent9-v2/run.ts:107,669) |
+| A34-D03 |  |  | CR-07 | done | 55448eb5 | Positional gender lookup: if the model reorders the cast and omits gender, genders swap | behind CML_VERIFIED_FIXES: gender by the member's own name |
+| A34-D04 |  |  | CR-07 | done | 55448eb5 | Cast truncated or padded to castNames length; extra model characters dropped positionally | behind CML_VERIFIED_FIXES: cast paired by name; extras kept with a note (unnamed extras dropped with a note) |
+| A34-D05 |  |  | CR-12 | done | 51664c31 | Last-resort culprit fallback can name the detective or victim | cannotBeCulprit (role or archetype) on both paths; Agent 3's last resort never the detective/victim, Agent 4 drops such a culprit (owner decision 5 §4). MEASURED: the old last resort named Holmes, Thorndyke x2, Philo Vance, Father Brown, John Straker on the harness's casts |
+| A34-D06 |  |  | CR-33 | done | ba1b5496 | normalizationNotes from discarded attempts leak; retries' notes never reach warnings | notes leak fixed fe4372dd; the retry CMLs' notes now reach warnings, labelled (ba1b5496) |
+| A34-D07 |  |  | CR-20 | done | 79e6d803 | Agent 4 parser has no truncation guard on a full-CML re-emission | Agent 4's parse ladder guarded (owner decision 3); a truncated full-CML re-emission is refused, a YAML reply reaches the (now lossless) YAML fallback |
 | A34-D08 |  |  | CR-29 | dup |  | Plausibility/scoring feedback pollutes the theme lock | = A34-09 |
-| A34-D09 |  |  | CR-18 | todo |  | Agent 6 installs a degraded or invalid revision (X60 reopened) |  |
-| A34-D10 |  |  | CR-07 | todo |  | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" |  |
-| A34-D11 |  |  | CR-07 | todo |  | A3 prompt contradicts itself on evidence_clues; normaliser defaults contradict the anti-trope list |  |
-| A34-D12 |  |  | CR-29 | todo |  | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) |  |
-| A34-D13 |  |  | CR-32 | todo |  | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" |  |
-| A34-D14 |  |  | CR-06 | todo |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
-| A34-D15 |  |  | CR-19 | todo |  | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost |  |
-| A34-D16 |  |  | CR-14 | todo |  | A3 normaliser drops the schema's canonical role/moral_complexity on every run |  |
-| A34-Q01 |  |  | CR-14 | todo |  | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
-| A34-Q02 |  |  | CR-17 | todo |  | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary |  |
-| A34-Q03 |  |  | CR-30 | todo |  | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B |  |
-| A34-Q04 |  |  | CR-16 | todo |  | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML |  |
-| A34-Q05 |  |  | CR-32 | todo |  | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? |  |
+| A34-D09 |  |  | CR-18 | done | 0ca80a5f | Agent 6 installs a degraded or invalid revision (X60 reopened) | a degraded/invalid revision is refused in Agent 6's structural retry (an OFF-by-default arm) |
+| A34-D10 |  |  | CR-07 | wip | 5aeaf992 | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" | waits on decision 2's flip, which the counter argues against (3 disagreements, seed 82094) |
+| A34-D11 |  |  | CR-07 | done | 55448eb5 | A3 prompt contradicts itself on evidence_clues; normaliser defaults contradict the anti-trope list | behind CML_VERIFIED_FIXES: the two contradicting rules now say Agent 5 back-fills evidence_clues (known positive: flag-on replay diverges here) |
+| A34-D12 |  |  | CR-29 | done | 55448eb5 | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) | behind CML_VERIFIED_FIXES: post-repair validation returned with the repaired CML |
+| A34-D13 |  |  | CR-32 | done | 69ed426b | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
+| A34-D14 |  |  | CR-06 | done | ec237e5a | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
+| A34-D15 |  |  | CR-19 | done | 50e05468 | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost | patch path adds the Agent4-Patch label |
+| A34-D16 |  |  | CR-14 | done | c7506ca7 | A3 normaliser drops the schema's canonical role/moral_complexity on every run | Agent 3's cast keeps role, moral_complexity and every other field the reply carried (owner decision 5 §2) |
+| A34-Q01 |  |  | CR-14 | done | 51664c31 | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral | DECIDED (owner decision 5): four sections, one commit each — neutral defaults (d5121540, 133/185 generate rows), schema fields preserved (c7506ca7, 167), case-insensitive enums (37a248bf, 6), culprit integrity both paths (51664c31, 26 + 1 revise); 0 revise rows moved by 1-3; replay 5/5 MATCH |
+| A34-Q02 |  |  | CR-17 | withdrawn | fd058f16 | Agent 9 and the registry (A34-03): should Agent 9 read ctx.lockedFactRegistry? If so, should secondary | MOOT: v2 already reads only the registry |
+| A34-Q03 |  |  | CR-30 | done | 4bd53121 | Patch engine (A34-05): promote after an offline corpus replay, or record a verdict and delete? A pipeline A/B | DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran |
+| A34-Q04 |  |  | CR-16 | withdrawn | fd058f16 | Structural repairs (A34-10): should repairCaseSoundness and the discriminator verifier run at CML | MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1) |
+| A34-Q05 |  |  | CR-32 | done | 69ed426b | Agent 4 model tier: should Agent 4 run on the design tier, as the YAML comment assumes? | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 
 ## 10-agents1-2-8-context
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A1X-01 | P1 | R0 move · R2 unify | CR-12 | todo |  | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 |  |
-| A1X-02 | P1 | R1 | CR-21 | todo |  | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) |  |
-| A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | todo |  | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) |  |
-| A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | todo |  | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies |  |
-| A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | todo |  | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls |  |
-| A1X-06 | P2 | R1 | CR-21 | todo |  | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting |  |
-| A1X-07 | P2 | R1 (R2 F5b) | CR-31 | todo |  | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire |  |
-| A1X-08 | P2 | R1 (R2 pin) | CR-17 | todo |  | Second month→season "single source of truth" in 2d; mandated date not enforced |  |
-| A1X-09 | P2 | R1 | CR-19 | todo |  | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 |  |
-| A1X-10 | P2 | R2 (R1 fold) | CR-29 | todo |  | Agent 1 repair ladder runs in the wrong order; blind re-roll; duplicated realism fold |  |
-| A1X-11 | P2 | R2 | CR-28 | todo |  | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields |  |
-| A1X-12 | P2 | R1 (R2 edges) | CR-18 | todo |  | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") |  |
-| A1X-13 | P2 | R0 | CR-10 | todo |  | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× |  |
-| A1X-14 | P3 | R0/R1 | CR-08 | todo |  | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo |  |
-| A1X-15 | P3 | R2 | CR-30 | todo |  | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) |  |
-| A1X-D01 |  |  | CR-07 | todo |  | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) |  |
-| A1X-D02 |  |  | CR-06 | todo |  | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
-| A1X-D03 |  |  | CR-07 | todo |  | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" |  |
-| A1X-D04 |  |  | CR-07 | todo |  | Agent 2 schema re-roll drops characterGenders (user gender lock); nothing enforces castGenders deterministically (comment at agent2-cast.ts:660-665 c… |  |
-| A1X-D05 |  |  | CR-18 | todo |  | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on |  |
-| A1X-D06 |  |  | CR-32 | todo |  | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) |  |
+| A1X-01 | P1 | R0 move · R2 unify | CR-12 | wip | 5aeaf992 | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | unify step in shadow; the counter fired 3x (agent2.victim, two role:victim members) — flip not done |
+| A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
+| A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | done | 5c6f6f9d | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) | generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0) |
+| A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | done | 4890dff0 | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies | R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers |
+| A1X-05 | P2 | R1 (R2 retry policy) | CR-21 | done | f57dae47 | designCast (426 LOC, cc 54, depth 7) → attempt loop over 4 named checks; blind legacy re-rolls | CAST_STEPS table, designCast 96 lines; characterisation snapshot of every retry path x flag off/on first (26/26 unchanged). OWNER (R2): skip the legacy re-roll for misses the final attempt fixes deterministically (up to 2 extra cast calls per miss) |
+| A1X-06 | P2 | R1 | CR-21 | done | cbe9e58a | Bounded quality-gate loop written twice (2b voice, 2c scene) with divergent cost accounting | runBoundedGate (agents/quality-gate.ts) for 2b voice, 2c scene, 3b plausibility; 2b error/cost drift removed; 5 mock-regenerator tests |
+| A1X-07 | P2 | R1 (R2 F5b) | CR-31 | done | ecb12773 | Sensory-phrase normalisation: 4 bodies, lives in Agent 9, dead fallback helper, no-op ignoreAtoms, F5b can't fire | unreachable buildLocationFallback deleted; ignoreAtoms is NOT a no-op (non-Latin room names) — kept |
+| A1X-08 | P2 | R1 (R2 pin) | CR-17 | done | 55448eb5 | Second month→season "single source of truth" in 2d; mandated date not enforced | one month→season table (story-validation); Agent 2d keeps its exact-name lookup and "fall" |
+| A1X-09 | P2 | R1 | CR-19 | done | 87ae5547 | "Cost of this call" re-derived from a cumulative tracker in 8 places; retries over-count; Agent 2 always 0 | with ORC-03: per-call cost exists; Agents 1/2/8 keep the cumulative read (charged more than once per run); Agent 2's always-0 was fixed earlier |
+| A1X-10 | P2 | R2 (R1 fold) | CR-29 | done | 0ca80a5f | Agent 1 repair ladder runs in the wrong order; blind re-roll; duplicated realism fold | behind CML_VERIFIED_FIXES: backfill before a paid re-roll; the runner delegates to the one backfillSetting |
+| A1X-11 | P2 | R2 | CR-28 | done | 46ae2c05 | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields | behind CML_PROMPT_TRIMS: 2c rules once + clean examples; Agent 8 drops recomputed fields; 2b repairs parallel |
+| A1X-12 | P2 | R1 (R2 edges) | CR-18 | done | ecb12773 | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") | one resolveNoveltyPolicy (identical under fail_delta 0.1); summariser fix is A1X-D03 behind the flag. Remaining clamp/rounding differences recorded |
+| A1X-13 | P2 | R0 | CR-10 | done | 9232c483 | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× | leaf agent2-cast-types.ts; checker imports it; cycle gone. BackgroundContextInput alias not done (3 bodies of the background type = CR-13 typed case view) |
+| A1X-14 | P3 | R0/R1 | CR-08 | done | 5662ca4c 3d63527f | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo | TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12) |
+| A1X-15 | P3 | R2 | CR-30 | done | 46ae2c05 | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) | the no-names branch deleted; with-names cast prompt byte-identical on 448 comparisons |
+| A1X-D01 |  |  | CR-07 | done | 55448eb5 | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) | Agent 2's victim fallback through resolveIdentity("agent2.victim") — shadow until CML_IDENTITY_ROLE_WINS flips |
+| A1X-D02 |  |  | CR-06 | done | ec237e5a | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
+| A1X-D03 |  |  | CR-07 | done | 55448eb5 | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" | behind CML_VERIFIED_FIXES: Agent 8 summariser reads CML 2.0 |
+| A1X-D04 |  |  | CR-07 | done | 2ad12d6c | Agent 2 schema re-roll drops characterGenders (user gender lock); nothing enforces castGenders deterministically (comment at agent2-cast.ts:660-665 c… | the re-roll still carries no genders in its prompt; applyCastGenders enforces castGenders on the finished cast (owner decision 10) |
+| A1X-D05 |  |  | CR-18 | done | 3d63527f | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on | memo deleted; the shadow check reads the normalised cast |
+| A1X-D06 |  |  | CR-32 | done | 69ed426b | Agent 1 passes an explicit model, so AGENT1_MODEL routing can never apply (router header says Agent 1 passes none) | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
 | A1X-D07 |  |  | CR-06 | dup |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default OFF; code is default ON | = A34-D14 (flag register) |
-| A1X-D08 |  |  | CR-19 | todo |  | Agent 2 cost always 0; retries over-count elsewhere |  |
-| A1X-D09 |  |  | CR-20 | todo |  | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 |  |
-| A1X-D10 |  |  | CR-29 | todo |  | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt |  |
-| A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
-| A1X-D12 |  |  | CR-33 | todo |  | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… |  |
+| A1X-D08 |  |  | CR-19 | done | dff49644 73b7e54c | Agent 2 cost always 0; retries over-count elsewhere | designCast reads its label from the tracker |
+| A1X-D09 |  |  | CR-20 | done | 21992344 | Agent 8 has no parse repair/retry; failure propagates out of runAgent3 | auditNovelty takes the guarded ladder; a sloppy payload no longer aborts the run |
+| A1X-D10 |  |  | CR-29 | done | 55448eb5 | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt | the re-roll warning says what it does (same prompt) |
+| A1X-D11 |  |  | CR-07 | done | 55448eb5 | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) | behind CML_VERIFIED_FIXES: 2b pairs profile and cast member by name |
+| A1X-D12 |  |  | CR-33 | done | ba1b5496 | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… | 2e derive line names mismatches; Agent 8 duration adds on re-audit; 2d comment corrected |
 | A1X-D13 |  |  | CR-04 | done | fc6f52c7 | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) | declared; deps:check guards it (7 violations found, 0 left) |
-| A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
-| A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
-| A1X-Q03 |  |  | CR-07 | todo |  | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |
-| A1X-Q04 |  |  | CR-17 | todo |  | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? |  |
-| A1X-Q05 |  |  | CR-30 | todo |  | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? |  |
-| A1X-Q06 |  |  | CR-30 | todo |  | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. |  |
-| A1X-Q07 |  |  | CR-29 | todo |  | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? |  |
+| A1X-Q01 |  |  | CR-12 | done | 5aeaf992 | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier | DECIDED (owner decision 2): @cml/cml with the explicit role winning; shipped behind CML_IDENTITY_ROLE_WINS (OFF) with the [identity-disagree] counter |
+| A1X-Q02 |  |  | CR-18 | done | a2a0615c | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? | DECIDED: score the shipped artifact — Agents 1, 2, 2c now score after post-processing (runUnscoredStage + recordShippedPhaseScore); report numbers only |
+| A1X-Q03 |  |  | CR-07 | done | 2ad12d6c | Enforce the user's castGenders deterministically in Agent 2 (D4)? | DECIDED (owner decision 10): applyCastGenders after Agent 2; MEASURED 25/25 locked characters already obeyed |
+| A1X-Q04 |  |  | CR-17 | done | a2a0615c | Pin 2d's specificDate to the hashed anchor rather than trusting the LLM (A1X-08)? | DECIDED: pin 2d's year/month to generateSpecificDate; a resume anchors on the source run's id. 66/66 archived calls already matched — fresh runs byte-identical |
+| A1X-Q05 |  |  | CR-30 | done | 4bd53121 | Delete F5b and the Agent 1 realism belt on the evidence of zero report counts, or keep as belts? | DECIDED (decision 12, CR-30): F5b and the Agent 1 runner realism fold deleted |
+| A1X-Q06 |  |  | CR-30 | done | 55448eb5 | Is Agent 8 (LLM) still meant to run anywhere, given NOVELTY_SIMILARITY_THRESHOLD=1.0? If not, fix D3 or freeze it. | DECIDED (decision 12): fix, not freeze — Agent 8's summariser reads CML 2.0 behind CML_VERIFIED_FIXES (A1X-D03); it still runs whenever NOVELTY_SIMILARITY_THRESHOLD < 1 (the API default is 0.9) |
+| A1X-Q07 |  |  | CR-29 | done | 55448eb5 | For legacy (non-constrained) Agent 2, skip re-rolls for deterministically fixable misses (A1X-05)? | DECIDED (decision 12, CR-29): behind CML_VERIFIED_FIXES legacy Agent 2 repairs deterministic misses without a blind re-roll |
 
 ## 11-orchestration-shared
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| ORC-01 | P1 | R1 | CR-25 | todo |  | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules |  |
-| ORC-02 | P1 | R1 | CR-21 | todo |  | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry |  |
-| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself |  |
-| ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
-| ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |
-| ORC-06 | P2 | R0 | CR-10 | todo |  | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split |  |
-| ORC-07 | P2 | R1 (replay R2) | CR-03 | todo |  | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted |  |
-| ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
-| ORC-09 | P2 | R0 | CR-08 | todo |  | Compiler-proven and grep-proven dead code in scope (11 items) |  |
-| ORC-10 | P2 | R0 | CR-11 | todo |  | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports |  |
-| ORC-11 | P2 | R2 | CR-07 | todo |  | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers |  |
-| ORC-12 | P2 | R1 | CR-33 | todo |  | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry |  |
-| ORC-13 | P2 | R0/R1 | CR-31 | todo |  | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard |  |
-| ORC-14 | P2 | R2 | CR-32 | todo |  | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites |  |
-| ORC-15 | P3 | R0 | CR-13 | todo |  | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts |  |
-| ORC-16 | P3 | R1 | CR-26 | todo |  | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read |  |
-| ORC-D01 |  |  | CR-07 | todo |  | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert |  |
-| ORC-D02 |  |  | CR-03 | todo |  | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones |  |
-| ORC-D03 |  |  | CR-06 | todo |  | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
-| ORC-D04 |  |  | CR-06 | todo |  | AGENT2B_VOICE_MAX_RETRIES is uncapped: Infinity or a large value makes an unbounded LLM regeneration loop (the "Phase-1 lesson" 3b guards against); t… |  |
-| ORC-D05 |  |  | CR-17 | todo |  | The tonal-contrast check compares arc labels from two different ladders |  |
+| ORC-01 | P1 | R1 | CR-25 | done | a5f9adb0 | generateMystery (1,164 LOC, cc 160) → a stage table plus 5 phase modules | generateMystery -> 12 phases in jobs/pipeline/{gates,stages,finalize,abort}; ctx-alias params read ctx; mystery-orchestrator.ts 1,732 -> 755. The declarative stage TABLE (one artifact-name table) not built — it replaces the 14 stage lines, a design change beyond a move |
+| ORC-02 | P1 | R1 | CR-21 | done | aeb90610 | Scoring/no-scoring fork and copy-pasted generator inputs in 9 runners → runStage() on executeAgentWithRetry | runStage over executeAgentWithRetry for 9 runners (-188); one input builder per runner (58a4e72c, Agent 7: 7 literals -> 1). Both modes pinned by replay (full-d0ee7b26-noscore, ee93689a). Unchanged (R2): the 6 feedback channels and Agent 6.5 ignoring feedback; Agent 2's re-roll dropping castGenders is kept as an explicit characterGenders: undefined for the owner |
+| ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | done | 87ae5547 | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself | ChatResponse.cost = the tracker's own per-call value (3 clients, pinned); Agent 6.5 sums its calls; the 18 other byAgent reads stay (labels charged by several calls per run — the cumulative read is correct) |
+| ORC-04 | P1 | R1 | CR-20 | done | 8054d8a6 | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() | parseLlmJson(raw, {guard, extract}) replaces the ten repair ladders, pinned against verbatim copies over a 21-payload corpus. Not built: a callLlmJson that also owns chat + finishReason + cost — refusing on finishReason at the other sites is R2 (ORC-Q03) and per-call cost waits on CR-19 (A6-D01) |
+| ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | done | 2d009a33 | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report | a run records the RAW flag environment it saw (logs/run-config-<runId>.json + report run_config diagnostic), names generated from what the code reads and checked by flags:check; the worker's two boolean idioms are envOn/envNotOff (50b73fa7), both checks taught the form. DEFERRED, with reason: a typed RunConfig of PARSED values would be a second copy of every flag's parse unless all ~230 reads go through it, and ~45 of them are in the v1 engine (bug fixes only); raw values + the build fingerprint reconstruct a run exactly. Vocabulary unification is ORC-Q05 (owner) |
+| ORC-06 | P2 | R0 | CR-10 | done | 9232c483 | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split | shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles) |
+| ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
+| ORC-08 | P2 | R1 → R2 | CR-17 | done | 55448eb5 | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt | the two importer-less arc/obligation modules deleted; one live formula remains (agent7/world-first.ts) |
+| ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |
+| ORC-10 | P2 | R0 | CR-11 | done | 92aba0fe | Root barrel: 215 of 362 names never imported through it; append-only churn (44 commits) → subpath exports | 111 unused value exports off the root (451 -> 153 runtime names); 158 unused TYPE exports kept (declaration emit names them — TS2742); exports map with ./agent9-prose; buildRetryPacketFeedback. The worker's existing Agent 9 imports were not moved to the subpath (optional churn) |
+| ORC-11 | P2 | R2 | CR-07 | done | 03c4f5d3 | executeAgentWithRetry swallows its own abort (MEASURED); 6 stacked retry layers | the swallowed abort and the scoring retry layer are deleted (owner decision 7) |
+| ORC-12 | P2 | R1 | CR-33 | done | a52a1365 | Four "one run per process" singletons, while the API permits concurrent runs → per-run RunTelemetry | process-guards flush keyed by run (ba1b5496); the module-state repair counters went with v1 (decision 1); concurrent runs refused at the API (decision 11) |
+| ORC-13 | P2 | R0/R1 | CR-31 | done | ecb12773 | Small shared concepts re-implemented: clue-id regex ×6, grade ladder ×4, simpleHash ×4, LockedFact ×5 shapes, Agent 5's parse guard | clue-id ×5 and escape ×2 → @cml/cml; grade ladder ×3 → calculateGrade; simpleHash ×2 → temporal-anchor (agent1's differs: kept, renamed simpleHashUnsigned) |
+| ORC-14 | P2 | R2 | CR-32 | done | 69ed426b | An explicit model: from resolveDesignModel() silently disables the per-agent router for 8 call sites | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
+| ORC-15 | P3 | R0 | CR-13 | done | 55448eb5 | OrchestratorContext typing: any fields, stage: any, write-only fields set through casts | reportProgress stage, initialHardLogicDirectives and noveltyConstraints typed |
+| ORC-16 | P3 | R1 | CR-26 | withdrawn | fd058f16 | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read | MOOT: buildAssetLibrary (asset-library.ts) was v1-only and is deleted (owner decision 1) |
+| ORC-D01 |  |  | CR-07 | withdrawn | 03c4f5d3 | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert | MOOT: executeAgentWithRetry and abortCritical were deleted with the phase-score retry path (owner decision 7) |
+| ORC-D02 |  |  | CR-03 | done | a2a0615c | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones | the replay's rubric is the live path; its fake "evaluated, no gaps" coverage stub removed (left absent, as a resume does) |
+| ORC-D03 |  |  | CR-06 | done | dff49644 | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
+| ORC-D04 |  |  | CR-06 | done | faeb6755 | AGENT2B_VOICE_MAX_RETRIES is uncapped: Infinity or a large value makes an unbounded LLM regeneration loop (the "Phase-1 lesson" 3b guards against); t… |  |
+| ORC-D05 |  |  | CR-17 | withdrawn | fd058f16 | The tonal-contrast check compares arc labels from two different ladders | MOOT: obligation-block.ts, prompt-builder.ts and generate.ts deleted with v1 |
 | ORC-D06 |  |  | CR-07 | dup |  | Agent 2's schema-repair re-call drops the caller's castGenders lock | = A1X-D04 |
-| ORC-D07 |  |  | CR-06 | todo |  | ENABLE_SCORING=1 and ENABLE_PROSE_BLIND_READER=1 read as off; AGENT2_CAST_CHECK=no (and 2b/2c/2e) reads as on |  |
+| ORC-D07 |  |  | CR-06 | done | faeb6755 | ENABLE_SCORING=1 and ENABLE_PROSE_BLIND_READER=1 read as off; AGENT2_CAST_CHECK=no (and 2b/2c/2e) reads as on |  |
 | ORC-D08 |  |  | CR-32 | dup |  | Explicit design model silences AGENT3/5/6/7_MODEL and RUBRIC_SCORER_MODEL | = ORC-14 |
-| ORC-D09 |  |  | CR-33 | todo |  | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing |  |
-| ORC-D10 |  |  | CR-06 | todo |  | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
-| ORC-D11 |  |  | CR-07 | todo |  | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique |  |
+| ORC-D09 |  |  | CR-33 | done | ba1b5496 | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing | concurrent runs keep their own shutdown flush; shutdown flushes every run (allSettled). The timed-out run that keeps executing is ORC-Q06 (owner) |
+| ORC-D10 |  |  | CR-06 | done | faeb6755 | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
+| ORC-D11 |  |  | CR-07 | done | 4bd53121 | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique | no-op 2x spread removed; names and order unchanged |
 | ORC-D12 |  |  | CR-19 | dup |  | Agent 6 perCallCostDelta takes its baseline *after* the first retry call, so the first retry is never charged to the $ retry budget | = A6-D01 |
-| ORC-D13 |  |  | CR-06 | todo |  | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
-| ORC-Q01 |  |  | CR-07 | todo |  | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
-| ORC-Q02 |  |  | CR-03 | todo |  | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
-| ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. |  |
-| ORC-Q04 |  |  | CR-17 | todo |  | ORC-08: which arc-position formula is canonical? |  |
-| ORC-Q05 |  |  | CR-22 | todo |  | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis… |  |
-| ORC-Q06 |  |  | CR-33 | todo |  | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? |  |
-| ORC-Q07 |  |  | CR-32 | todo |  | ORC-14: should a per-agent model override outrank the design tier? |  |
+| ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
+| ORC-Q01 |  |  | CR-07 | done | 03c4f5d3 | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? | DECIDED (owner decision 7): the dead abort is deleted with the retry loop (ADR-0003) |
+| ORC-Q02 |  |  | CR-03 | done | a2a0615c | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. | DECIDED: the offline replay scores through runRubricScoring and records scoring_path |
+| ORC-Q03 |  |  | CR-20 | done | 79e6d803 | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. | DECIDED 2026-09-30 (owner decision 3): guard ON at 2b (generator + paragraph repair), 2c and Agent 4; 5 and 7 stay unguarded. Characterisation moved only where the guard acts. Found on the way: the YAML fallback corrupted wrapped strings (sanitizeYaml first); loadYamlReply parses as written first — Agent 4's YAML reply now yields the valid-JSON CML digest |
+| ORC-Q04 |  |  | CR-17 | withdrawn | fd058f16 | ORC-08: which arc-position formula is canonical? | MOOT: one live arc-position formula remains (agent7/world-first.ts) |
+| ORC-Q05 |  |  | CR-22 | done | 7cb43ad0 | ORC-05: unify env-flag vocabularies (so that 1 means on everywhere), with a warning on unknown values, and register the four unregistered and two mis… | DECIDED (owner decision 9): readBooleanFlag in @cml/cml, 1/true/yes/on / 0/false/no/off, warn once otherwise; 11 divergent reads converted, parseBooleanEnv deleted |
+| ORC-Q06 |  |  | CR-33 | done | a52a1365 | ORC-12: should the API refuse concurrent runs, or should the pipeline be made concurrency-safe? | DECIDED (owner decision 11): POST /run refuses a second concurrent run with 409; the slot is freed when the pipeline settles (a timed-out run keeps it) |
+| ORC-Q07 |  |  | CR-32 | done | 69ed426b | ORC-14: should a per-agent model override outrank the design tier? | DECIDED (decision 12, CR-32): yes — a set AGENTn_MODEL outranks the explicit tier (client.ts) |
 
 ## 12-scoring-layer
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| SCO-01 | P1 | R2 | CR-30 | todo |  | Two live scorer families; vanity family measures adapter fabrication — owner decision to retire it |  |
-| SCO-02 | P1 | R1 | CR-18 | todo |  | One scoring engine: 40/30/20/10 skeleton copied 11×, grade ladder 16×, failure-reason 10× |  |
-| SCO-03 | P2 | R1 | CR-27 | todo |  | Declarative per-agent check tables over the engine; 129 hand-written pass/partial ternaries |  |
-| SCO-04 | P1 | R1 | CR-18 | todo |  | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored |  |
-| SCO-05 | P1 | R1 | CR-18 | todo |  | generateReport (324 LOC, cc 59) and five writers of run outcome |  |
-| SCO-06 | P1 | R0/R1 | CR-16 | todo |  | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites |  |
-| SCO-07 | P2 | R1/R2 | CR-18 | todo |  | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 |  |
-| SCO-08 | P2 | R0/R2 | CR-18 | todo |  | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 |  |
-| SCO-09 | P2 | R0 | CR-18 | todo |  | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field |  |
-| SCO-10 | P2 | R1 | CR-18 | todo |  | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read |  |
-| SCO-11 | P2 | R0 | CR-08 | todo |  | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals |  |
-| SCO-12 | P1 | R0 | CR-03 | todo |  | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused |  |
+| SCO-01 | P1 | R2 | CR-30 | done | 51f0d14a | Two live scorer families; vanity family measures adapter fabrication — owner decision to retire it | DECIDED (owner decision 8): the vanity family is retired for phases 1/2/2c/2e/3/3b/7 and ProseScorer; 2b/2d/6.5 keep theirs until honest tables exist (SCO-Q07) |
+| SCO-02 | P1 | R1 | CR-18 | done | 6cd2bdae | One scoring engine: 40/30/20/10 skeleton copied 11×, grade ladder 16×, failure-reason 10× | 8 identical scorers -> scoring/engine.ts assemblePhaseScore; SCO-12 snapshots byte-identical. Agent 6.5/prose/honest and the worker inline scorers keep their own weights (a policy parameter, not done) |
+| SCO-03 | P2 | R1 | CR-27 | withdrawn | 51f0d14a | Declarative per-agent check tables over the engine; 129 hand-written pass/partial ternaries | MOOT in substance: the 129 pass/partial ternaries were in the vanity scorers deleted by decision 8; the seven honest scorers (~1,000 lines) already share assembleHonestScore, with 42 short checks — a table layer would fix nothing |
+| SCO-04 | P1 | R1 | CR-18 | done | d860f265 | Phase identity: 3 agent-ID vocabularies, 3 threshold resolvers, scorer-local pass rules ignored | displayed == deciding threshold pinned for all 19 live phase/scorer pairs; merging into one PHASES table and dropping strict/lenient left (tidying once drift is pinned) |
+| SCO-05 | P1 | R1 | CR-18 | done | 2050362e 52cc50ad | generateReport (324 LOC, cc 59) and five writers of run outcome | deriveRunOutcome in scoring/run-outcome.ts (36-case matrix unchanged); INFRA_SIGNAL_PATTERN shared with the worker; add/upsert self-clone merged. The four other terminal-state writers not unified (type change) |
+| SCO-06 | P1 | R0/R1 | CR-16 | done | 5107cbf3 | Release-gate clue matcher lives in a "scoring adapter"; prose scored at 6 hand-assembled sites | move only: collectClueEvidenceFromProse + 20 helpers to scoring-adapters/clue-evidence.ts (adapter 603 -> 242). Not done: one scoreProse() for the six ProseScorer sites (in agent9-run.ts, v1) and unifying the two clue matchers (R2, Agent 9) |
+| SCO-07 | P2 | R1/R2 | CR-18 | withdrawn | 51f0d14a | Prose-stage semantic duplicates: expected clue set ×3, fair-play weights ×2 (drifted), DT scene ×2, trust caps ×2 | MOOT: every drifted pair had a copy in v1 agent9-run or ProseScorer, both deleted |
+| SCO-08 | P2 | R0/R2 | CR-18 | done | 52cc50ad | Two bodies of retry policy; same export name buildRetryFeedback in two packages; phase-score abort vs ADR-0006 | R0 part: floors from COMPONENT_MINIMUMS; names already distinct since 92aba0fe. OWNER (R2): keep phase-score retries at all, and abort-on-exhaustion vs ADR-0006 |
+| SCO-09 | P2 | R0 | CR-18 | done | 52cc50ad | Adapter⇄scorer duplicate interfaces (9 types), 29 any/30 casts in one adapter, dead adapted field | 9 identical interface pairs declared once; prose pair differs and stays |
+| SCO-10 | P2 | R1 | CR-18 | done | 1db19ec1 | ScoringContext contract lies: cml: undefined as any at 6 sites makes CML checks dead; threshold_config never read | 5 unreachable branches + 5 helpers deleted (-192 lines); ScoringContext.cml optional, threshold_config dropped; SCO-12 snapshots identical. The v1 buildProseScoreArgs still builds threshold_config (harmless, v1 rule) |
+| SCO-11 | P2 | R0 | CR-08 | done | 094de134 | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals | scorer-utils x10, retry-feedback x2, aggregator x5, RetryManager x3, unused imports/locals, stale header. KEPT: comparePromptVariants A/B harness — SCO-11 leaves it to the owner (CR-30) |
+| SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
-| SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. |  |
-| SCO-D02 |  |  | CR-06 | todo |  | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
-| SCO-D03 |  |  | CR-18 | todo |  | Scorer-local pass rules are silently overridden: agent65 at 72 passes by its own rule (≥70), then fails in the report at 75 |  |
-| SCO-D04 |  |  | CR-18 | todo |  | retry-feedback.ts:54 "partial successes" compares score (0–100) to weight (≤3), so it never renders. :45 hides all minor |  |
-| SCO-D05 |  |  | CR-06 | todo |  | RetryManager backoff off-by-one: recordRetry increments before getBackoffDelay is read (shared.ts:789-791), so the first retry |  |
-| SCO-D06 |  |  | CR-18 | todo |  | Prose rescore (agent9-run.ts:4450) omits fallbackTelemetry, so committed-fallback trust caps are dropped after a schema-repair |  |
-| SCO-D07 |  |  | CR-06 | todo |  | checkCompleteness dereferences arrays without a guard (agent2-cast-scorer.ts:395, agent2b…:322, agent2c…:306, |  |
-| SCO-D08 |  |  | CR-18 | todo |  | Agent 1 adapter discards location.description (agent1-scoring-adapter.ts:30). High. |  |
-| SCO-D09 |  |  | CR-06 | todo |  | Doc drift: the README gives the global retry cap as 15 (YAML 18) and prose as "strict 85" (code 80), and says retries are |  |
-| SCO-D10 |  |  | CR-13 | todo |  | apps/web/src/components/types.ts:295 mirrors report types by hand: missing in_progress, shipped and |  |
+| SCO-D01 |  |  | CR-06 | withdrawn | 51f0d14a | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. | MOOT: neither copy survives (v1 agent9-run deleted, ProseScorer deleted by owner decision 8) |
+| SCO-D02 |  |  | CR-06 | done | ec237e5a | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
+| SCO-D03 |  |  | CR-18 | done | 52cc50ad | Scorer-local pass rules are silently overridden: agent65 at 72 passes by its own rule (≥70), then fails in the report at 75 | failed phases carry a reason |
+| SCO-D04 |  |  | CR-18 | done | 55448eb5 | retry-feedback.ts:54 "partial successes" compares score (0–100) to weight (≤3), so it never renders. :45 hides all minor | retry-feedback.ts had no caller since decision 7; deleted |
+| SCO-D05 |  |  | CR-06 | done | dff49644 | RetryManager backoff off-by-one: recordRetry increments before getBackoffDelay is read (shared.ts:789-791), so the first retry |  |
+| SCO-D06 |  |  | CR-18 | done | 1db19ec1 | Prose rescore (agent9-run.ts:4450) omits fallbackTelemetry, so committed-fallback trust caps are dropped after a schema-repair | rescoreAgent9ProsePhase passes fallbackTelemetry; v1 bug fix |
+| SCO-D07 |  |  | CR-06 | done | ec237e5a | checkCompleteness dereferences arrays without a guard (agent2-cast-scorer.ts:395, agent2b…:322, agent2c…:306, |  |
+| SCO-D08 |  |  | CR-18 | withdrawn | 51f0d14a | Agent 1 adapter discards location.description (agent1-scoring-adapter.ts:30). High. | MOOT: agent1-scoring-adapter.ts was deleted with the vanity scorers (owner decision 8) |
+| SCO-D09 |  |  | CR-06 | done | ec237e5a | Doc drift: the README gives the global retry cap as 15 (YAML 18) and prose as "strict 85" (code 80), and says retries are |  |
+| SCO-D10 |  |  | CR-13 | done | 55448eb5 | apps/web/src/components/types.ts:295 mirrors report types by hand: missing in_progress, shipped and | web report type mirrors in_progress, scoring_enabled, phase_thresholds_met |
 | SCO-D11 |  |  | CR-06 | dup |  | FLAG-AUDIT Addendum 5 misstates the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY default (§6). High. | = A34-D14 (flag register) |
-| SCO-D12 |  |  | CR-18 | todo |  | Novelty "skipped" is recorded as 100/A and averaged into overall_score (agent3-run.ts ~700); the headline cap mitigates. |  |
-| SCO-Q01 |  |  | CR-30 | todo |  | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the |  |
-| SCO-Q02 |  |  | CR-18 | todo |  | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? |  |
-| SCO-Q03 |  |  | CR-18 | todo |  | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? |  |
-| SCO-Q04 |  |  | CR-16 | todo |  | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? |  |
-| SCO-Q05 |  |  | CR-30 | todo |  | Keep comparePromptVariants for the R6 eval harness, or delete it? |  |
-| SCO-Q06 |  |  | CR-06 | todo |  | Canonical fair-play weighting for the diagnostic: 35/35/15/15? |  |
-| SCO-Q07 |  |  | CR-18 | todo |  | Should 2b, 2d, 6.5 and 9 get honest check tables? |  |
-| SCO-Q08 |  |  | CR-18 | todo |  | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional |  |
+| SCO-D12 |  |  | CR-18 | done | a2a0615c | Novelty "skipped" is recorded as 100/A and averaged into overall_score (agent3-run.ts ~700); the headline cap mitigates. | DECIDED: a skipped novelty audit is N/A (not_applicable) and excluded from the mean, as decision 8 did for scoring off |
+| SCO-Q01 |  |  | CR-30 | done | 51f0d14a | Promote HONEST_SCORERS=enforce and retire the vanity scorers and adapters (SCO-01)? If both stay, is permanent shadow the | DECIDED (owner decision 8): HONEST_SCORERS promoted and retired; vanity scorers for 1/2/2c/2e/4/7/9 deleted. 2b/2d/6.5 keep theirs until an honest table exists (SCO-Q07) |
+| SCO-Q02 |  |  | CR-18 | done | 03c4f5d3 | Under ADR-0006, should phase-score retries exist? If yes, may exhausting them abort a run? | DECIDED (owner decision 7): no phase-score retries; executeAndScore generates and scores once |
+| SCO-Q03 |  |  | CR-18 | done | a2a0615c | Agent 3b under honest scoring: 85 or 75? Are strict/lenient modes wanted at all? | DECIDED: strict/lenient modes and the agent4-hard-logic key deleted; agent9-prose kept (still emitted); mode accepted and ignored |
+| SCO-Q04 |  |  | CR-16 | withdrawn | 8631e31b | Where should the clue-evidence matcher live: story-validation or the worker's agent 9 module? | MOOT: the clue-evidence matcher lived in the Agent 9 scoring adapter, deleted with v1 (owner decision 1); v2 does not score prose |
+| SCO-Q05 |  |  | CR-30 | done | 4bd53121 | Keep comparePromptVariants for the R6 eval harness, or delete it? | DECIDED (decision 12, CR-30): comparePromptVariants deleted (no importer) |
+| SCO-Q06 |  |  | CR-06 | withdrawn | 51f0d14a | Canonical fair-play weighting for the diagnostic: 35/35/15/15? | MOOT: both weightings deleted (40/40/20 with v1 agent9-run, 35/35/15/15 with ProseScorer) |
+| SCO-Q07 |  |  | CR-18 | done | a2a0615c | Should 2b, 2d, 6.5 and 9 get honest check tables? | DECIDED: honest scorers for 2b, 2d, 6.5 (vanity scorers + adapters deleted); 0 of 65 archived projects fail; Agent 9's phase score kept |
+| SCO-Q08 |  |  | CR-18 | done | 51f0d14a | Should the report (the ADR-0010 durable record) be written even when ENABLE_SCORING is off, with phase scoring as an optional | DECIDED (owner decision 8): report written with ENABLE_SCORING off, scoring_enabled=false, graded N/A |

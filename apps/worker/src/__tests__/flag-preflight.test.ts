@@ -59,14 +59,4 @@ describe("assertFlagCapabilities — warnings", () => {
     const warnings = assertFlagCapabilities(env({ LLM_HTTP_TRANSPORT: "true" }));
     expect(warnings.join(" ")).toMatch(/LLM_HTTP_TRANSPORT=true/);
   });
-
-  it("warns that an over-limit batch size will be clamped", () => {
-    const warnings = assertFlagCapabilities(env({ AGENT9_PROSE_BATCH_SIZE: "4" }));
-    expect(warnings.join(" ")).toMatch(/clamped to 2/);
-  });
-
-  it("does not warn at the documented limit or below", () => {
-    expect(assertFlagCapabilities(env({ AGENT9_PROSE_BATCH_SIZE: "2" }))).toEqual([]);
-    expect(assertFlagCapabilities(env({ AGENT9_PROSE_BATCH_SIZE: "1" }))).toEqual([]);
-  });
 });

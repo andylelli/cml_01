@@ -12,9 +12,8 @@ vi.mock("@cml/story-validation", async () => {
     }),
   };
 });
+import { auditCmlSceneRefs, resolveSceneRef } from "../prose-contract/clue-obligations.js";
 
-import { buildChapterObligationBlock } from "../agent9-prose/obligation-block.ts";
-import { auditCmlSceneRefs, resolveSceneRef } from "../agent9-prose/clue-validation.ts";
 
 /**
  * A_87 P5 — ASSERT THE JOIN, NOT THE MATCHER.
@@ -47,24 +46,6 @@ const caseFor = (pair: any): any => ({
   prose_requirements: pair.prose_requirements,
 });
 
-/**
- * Which chapters receive the reveal contract? `allOutlineScenes` is parameter 13 — passing it one
- * slot late lands it in `currentStageMode`, which silently disables per-act numbering AND the
- * arbitration below, and made an earlier draft of this file measure the wrong thing entirely.
- */
-const revealChapters = (pair: any): number[] => {
-  const outline = pair.scenes;
-  const hits: number[] = [];
-  outline.forEach((scene: any, i: number) => {
-    const block = buildChapterObligationBlock(
-      [scene], i + 1, caseFor(pair), [] as any, undefined, { clues: [] } as any,
-      undefined, undefined, undefined, undefined, undefined, undefined, outline, undefined,
-    );
-    if (block.includes(REVEAL_OBLIGATION)) hits.push(i + 1);
-  });
-  return hits;
-};
-
 const withArbitration = <T>(on: boolean, fn: () => T): T => {
   const prior = process.env.AGENT9_SCENE_REF_ARBITRATION;
   if (on) process.env.AGENT9_SCENE_REF_ARBITRATION = "1";
@@ -73,15 +54,6 @@ const withArbitration = <T>(on: boolean, fn: () => T): T => {
     if (prior === undefined) delete process.env.AGENT9_SCENE_REF_ARBITRATION;
     else process.env.AGENT9_SCENE_REF_ARBITRATION = prior;
   }
-};
-
-const tally = (on: boolean) => {
-  const counts = withArbitration(on, () => PAIRS.map((p) => revealChapters(p).length));
-  return {
-    lost: counts.filter((c) => c === 0).length,
-    one: counts.filter((c) => c === 1).length,
-    doubled: counts.filter((c) => c > 1).length,
-  };
 };
 
 describe("A_87 P5 — the CML→outline scene-ref join, against real archived pairs", () => {
@@ -120,24 +92,5 @@ describe("A_87 P5 — the CML→outline scene-ref join, against real archived pa
     );
     // The prompt's own worked example, copied verbatim — A_67's lesson recurring.
     expect([...distinct]).toEqual(["act3/sc6"]);
-  });
-
-  it("THE DEFECT, flag OFF: the reveal contract lands on exactly one chapter in only 28 of 45 runs", () => {
-    expect(tally(false)).toEqual({ lost: 11, one: 28, doubled: 6 });
-  });
-
-  it("THE FIX, AGENT9_SCENE_REF_ARBITRATION=1: never twice, and never on the aftermath chapter", () => {
-    /**
-     * A_89 B3 revised this. The arbitration first assigned the reveal contract on 45/45 — by sending
-     * it to the LAST revelation beat, which is the final scene in 44 of 45 outlines and therefore the
-     * AFTERMATH chapter. That is how run 88651 earned "Chapter 10 still recaps too much evidence".
-     *
-     * Now the aftermath chapter is excluded, so 16 books have no SEPARATE reveal chapter: in a
-     * Golden-Age arc the `final_trap` chapter names the culprit and already carries the DT contract,
-     * whose required beats include "(5) culprit named and case sealed". Counting culprit-NAMING
-     * mandates rather than reveal contracts, exactly-one rises from 3/45 to 30/45 — asserted in
-     * `a89-reveal-not-aftermath.test.ts`.
-     */
-    expect(tally(true)).toEqual({ lost: 16, one: 29, doubled: 0 });
   });
 });
