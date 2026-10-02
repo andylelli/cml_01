@@ -208,6 +208,15 @@ The first full matrix costs under **£1**, which is less than one book run.
   harm; a fix would need the CML's clue list, which the harness does not read.
 - **MEASURED — the flag checker could not see the new flags** (`CML_COVER_*` matched no prefix) and reported clean.
   Prefix added; it then listed all 7.
+- **MEASURED — first two real covers (2026-10-02, seed story_20261002-1855, gpt-image-2 via OpenAI, medium,
+  reused anchors).** Both returned in ~38 s; 1,372 image-output tokens each (~$0.04 each at an ASSUMED $30/M).
+  Predictions: (1) API works — YES; (2) top band left calm — YES on both; (3) no weapon, no lettering in the art —
+  YES; (4) which reads as a mystery jacket — the Deco portrait (figure, gesture, mood); the "flat travel poster"
+  did NOT follow its card: an interior with modelled shading rather than an exterior in flat silhouette inks.
+  **New spoiler class, MEASURED:** both pictures paint the hidden wall panel and the disturbed carpet patch —
+  they came from `place_details` ("stone walls with a hidden panel", "heavy carpet with disturbed patch"), which
+  the crime filter does not inspect and which pulled the scene indoors. Fix: ask for details of the place AS SEEN
+  FROM OUTSIDE and run the filter over them too.
 - **MEASURED — the vision pass agrees with the hand classification on 12/15.** Disagreements: *Lecturas* (A vs
   hand B) and both painterly posters read as C — family D may be too thin to keep as its own card.
 - **MEASURED (one model's opinion, not a reader's) — it contradicts §1's "C is the strongest fit".** gpt-4.1-mini
