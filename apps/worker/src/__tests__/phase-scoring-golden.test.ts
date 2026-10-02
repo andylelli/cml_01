@@ -21,8 +21,9 @@ import {
  * SCO-12 (code review CR-03) — characterise every wired upstream phase score on the committed golden
  * bundles, so a refactor of an adapter, a vanity scorer or an honest scorer (SCO-02/03/04/05/09/10/11)
  * is proven byte-for-byte or shows as a snapshot diff. Since owner decision 8 (2026-10-01) phases 1, 2, 2c, 2e,
- * 3b and 7 are scored by their honest scorer alone (HONEST_SCORERS retired); 2b, 2d and 6.5 keep their vanity
- * scorer (no honest table yet, SCO-Q07).
+ * 3b and 7 are scored by their honest scorer alone (HONEST_SCORERS retired); since SCO-Q07 (2026-10-02) 2b, 2d and
+ * 6.5 are too — their vanity scorers and adapters are deleted. Golden totals then: 2b 100 → 100 and 2d 100 → 100 on
+ * all four bundles; 6.5 100 → 98 on 6b91b4b1 and eb1251aa (a location register names another season), 100 elsewhere.
  *
  * The phase functions are the runners' own scoring bodies (`phase-scoring.ts`), called with the
  * bundle's stored artifacts the way each runner passes them. `adapted` is pinned by digest: its full

@@ -1,13 +1,8 @@
 /**
- * Agent 6 phases: the pre-LLM deterministic fixes, the fair-play audit loop (re-audit and clue regeneration),
+ * Agent 6 phases: the pre-LLM deterministic fixes, the fair-play audit,
  * and the failure handling after it. Moved from agent6-run.ts (code review A6-01 / CR-25).
  */
-import {
-  extractClues,
-} from "@cml/prompts-llm";
 import type { StructuralAuditResult } from "@cml/prompts-llm";
-import { verifiedFixesEnabled } from "@cml/cml";
-import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "../agent5/contract-payload.js";
 import {
   type OrchestratorContext,
 } from "../shared.js";
@@ -16,8 +11,6 @@ import {
   Agent6State,
 } from "./run-state.js";
 import {
-  applyAgent5ContractsToRegeneratedClues,
-  buildFairPlayFeedbackPayload,
   ensureCriticalFairPlayBackstopClues,
   ensureParityBridgeClue,
   runDeterministicStructuralAudit,
@@ -73,53 +66,15 @@ export function applyPreAuditFixes(ctx: OrchestratorContext, run: Agent6Run, pre
   return preAuditStructuralResult;
 }
 
-export async function runFairPlayAuditLoop(ctx: OrchestratorContext, run: Agent6Run, state: Agent6State, preAuditStructuralResult: StructuralAuditResult | undefined) {
-  while (state.fairPlayAttempt < run.maxFairPlayAttempts) {
-    state.fairPlayAttempt++;
-    state.fairPlayAudit = await run.auditCurrentFairPlay(preAuditStructuralResult);
-    if (state.firstFairPlayStatus === null) {
-      state.firstFairPlayStatus = state.fairPlayAudit.overallStatus;
-    }
-    state.fairPlayAuditCostDuringLoop = state.fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — track latest, don't sum
-
-    if (state.fairPlayAttempt > 1) {
-      run.retryBudget.consume(run.perCallCostDelta("Agent6-FairPlayAuditor", state.fairPlayAudit.cost), `fair-play re-audit attempt ${state.fairPlayAttempt}`);
-    } else {
-      run.rebaseCost("Agent6-FairPlayAuditor"); // owner decision 7: the first audit is not a retry
-    }
-
-    if (state.fairPlayAudit.overallStatus === "pass") break;
-
-    if (state.fairPlayAttempt < run.maxFairPlayAttempts) {
-      state.agent6RetryInvoked = true;
-      run.emitAgent6Warning(
-        `Agent 6: Fair play audit ${state.fairPlayAudit.overallStatus}; regenerating clues to address feedback (attempt ${state.fairPlayAttempt + 1} of ${run.maxFairPlayAttempts})`,
-        "transient-progress"
-      );
-
-      ctx.reportProgress("clues", "Regenerating clues to address fair play feedback...", 60);
-      const retryCluesStart = Date.now();
-      ctx.clues = await extractClues(ctx.client, {
-        cml: ctx.cml!,
-        clueDensity: run.clueDensity,
-        redHerringBudget: 2,
-        fairPlayFeedback: buildFairPlayFeedbackPayload(state.fairPlayAudit, ctx.cml, ctx.clues),
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-        // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
-        // Agent 5's first pass sends, which this regeneration used to omit.
-        ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
-      });
-
-      applyAgent5ContractsToRegeneratedClues(ctx, "fair-play retry");
-      run.retryBudget.consume(run.perCallCostDelta("Agent5-Clues", ctx.clues.cost), `fair-play clue regeneration attempt ${state.fairPlayAttempt + 1}`);
-
-      ctx.agentCosts["agent5_clues"] =
-        ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
-      ctx.agentDurations["agent5_clues"] =
-        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
-    }
-  }
+/**
+ * The one fair-play audit. Owner decision A6-Q01 (2026-10-02): the re-audit + clue-regeneration loop ran only
+ * under AGENT_PRE9_ENABLE_LLM_RETRIES (max_fair_play_attempts; 1 otherwise) — 0 of 70 archived runs — and is
+ * retired; this is the single pass the default path always made.
+ */
+export async function runFairPlayAudit(run: Agent6Run, state: Agent6State, preAuditStructuralResult: StructuralAuditResult | undefined) {
+  state.fairPlayAudit = await run.auditCurrentFairPlay(preAuditStructuralResult);
+  state.firstFairPlayStatus = state.fairPlayAudit.overallStatus;
+  state.fairPlayAuditCostDuringLoop = state.fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — track latest, don't sum
 }
 
 export function handleFairPlayFailure(run: Agent6Run, state: Agent6State, hasCriticalFairPlayFailure: boolean) {

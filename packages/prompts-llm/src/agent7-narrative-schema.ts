@@ -27,7 +27,10 @@
  */
 
 import { readBooleanFlag } from "@cml/cml";
+import type { FromSchema } from "json-schema-to-ts";
 import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
+// Type-only (erased): agent7-narrative.js imports this module, so a value import would be a cycle.
+import type { ActStructure, NarrativeOutline, Scene } from "./agent7-narrative.js";
 
 const stringArray = { type: "array", items: { type: "string" } } as const;
 
@@ -139,6 +142,68 @@ export const NARRATIVE_OUTLINE_SCHEMA = {
 } as const;
 
 export const NARRATIVE_OUTLINE_SCHEMA_NAME = "narrative_outline";
+
+// ── A7-10 (owner decision, 2026-10-02): the outline TYPE derived from the schema ──────────────────────
+//
+// `json-schema-to-ts` (`FromSchema`, type-only — erased at runtime; ajv stays the boundary parser) turns
+// the `as const` schema above into the type the model's reply has, so the schema and the TypeScript type
+// cannot drift apart unseen. The hand-written `NarrativeOutline` (agent7-narrative.ts) is kept: it is
+// what the pipeline reads after `formatNarrative`, and it adds `cost`, `durationMs`, `truncationWarning`.
+//
+// The check below compares the two where they overlap, after one normalisation the schema forces on
+// itself (Azure: every property `required`, optionality written as `| null`): null and undefined are
+// both read as "absent", and every key as present. What still differs is pinned, by key, in
+// `Agent7SchemaKnownMismatches`; a NEW disagreement — or a fixed one — fails the compile.
+
+export type NarrativeOutlineFromSchema = FromSchema<typeof NARRATIVE_OUTLINE_SCHEMA>;
+export type ActFromSchema = NarrativeOutlineFromSchema["acts"][number];
+export type SceneFromSchema = ActFromSchema["scenes"][number];
+
+type Absent = null | undefined;
+type DeepPresent<T> = T extends readonly (infer U)[]
+  ? DeepPresent<Exclude<U, Absent>>[]
+  : T extends object
+    ? { [K in keyof T]-?: DeepPresent<Exclude<T[K], Absent>> }
+    : T;
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+/** The keys both types declare whose (deep, absent-normalised) value types differ. */
+type DisagreeingKeys<S, H> = {
+  [K in keyof S & keyof H]: Same<DeepPresent<Exclude<S[K], Absent>>, DeepPresent<Exclude<H[K], Absent>>> extends true
+    ? never
+    : K;
+}[keyof S & keyof H];
+
+/**
+ * MEASURED 2026-10-02 by this check (reported, not fixed — runtime code unchanged), with a known
+ * positive (a planted wrong pin, `act: 4`, and a bad beat each fail the compile):
+ *   scene / act / outline — no value-type disagreement beyond the normalisation (nullable-vs-optional is
+ *   the schema's Azure rule); no key only one side declares, except the three the pipeline adds locally
+ *   to the outline (`cost`, `durationMs`, `truncationWarning`).
+ * Edit this when the check fails, and say in the commit which side moved.
+ */
+export interface Agent7SchemaKnownMismatches {
+  scene: never;
+  act: never;
+  outline: never;
+  /** Keys only the hand-written type has (added after the reply is parsed). */
+  outlineHandOnly: "cost" | "durationMs" | "truncationWarning";
+}
+/** Keys either side declares that the other does not. */
+type OneSidedKeys<S, H> = Exclude<keyof S, keyof H> | Exclude<keyof H, keyof S>;
+
+type Pin<Actual, Expected> = Same<Actual, Expected> extends true ? true : { mismatch: Actual; pinned: Expected };
+/** Type-level only: nothing here is emitted, so the module's runtime is unchanged. */
+type Assert<T extends true> = T;
+type _a7SchemaSceneAgrees = Assert<Pin<DisagreeingKeys<SceneFromSchema, Scene>, Agent7SchemaKnownMismatches["scene"]>>;
+type _a7SchemaActAgrees = Assert<Pin<DisagreeingKeys<ActFromSchema, ActStructure>, Agent7SchemaKnownMismatches["act"]>>;
+type _a7SchemaOutlineAgrees = Assert<
+  Pin<DisagreeingKeys<NarrativeOutlineFromSchema, NarrativeOutline>, Agent7SchemaKnownMismatches["outline"]>
+>;
+type _a7SchemaSceneKeys = Assert<Pin<OneSidedKeys<SceneFromSchema, Scene>, never>>;
+type _a7SchemaActKeys = Assert<Pin<OneSidedKeys<ActFromSchema, ActStructure>, never>>;
+type _a7SchemaOutlineKeys = Assert<
+  Pin<OneSidedKeys<NarrativeOutlineFromSchema, NarrativeOutline>, Agent7SchemaKnownMismatches["outlineHandOnly"]>
+>;
 
 /**
  * Runtime getter — never a module const (`module-const-flags-frozen-before-dotenv`: a const is

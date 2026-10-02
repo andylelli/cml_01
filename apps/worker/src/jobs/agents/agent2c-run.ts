@@ -2,13 +2,13 @@
  * Agent 2c: Location Profiles
  *
  * Extracted from mystery-orchestrator.ts. Runs generateLocationProfiles()
- * via runStage (scoring retries when scoring is enabled), validates against schema,
+ * via runUnscoredStage, validates against schema, scores the shipped profiles (A1X-Q02),
  * and writes ctx.locationProfiles.
  */
 
 import { runBoundedGate } from "./quality-gate.js";
 import { readModeFlag } from "./mode-flag.js";
-import { scoreLocationsPhase } from "./phase-scoring.js";
+import { recordShippedPhaseScore, runUnscoredStage, scoreLocationsPhase } from "./phase-scoring.js";
 import {
   generateLocationProfiles,
   compileSensoryAtoms,
@@ -23,7 +23,6 @@ import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
-  runStage,
 } from "./shared.js";
 
 const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
@@ -155,14 +154,15 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     projectId: ctx.projectId || "",
   });
 
-  ctx.locationProfiles = compileSensoryAtoms(await runStage(ctx, {
+  // A1X-Q02: generate here; the phase is scored below, on the profiles that ship (atoms compiled, fallbacks
+  // enforced, after the scene gate).
+  ctx.locationProfiles = compileSensoryAtoms(await runUnscoredStage(ctx, {
     agentId: "agent2c_location_profiles",
     phaseName: "Location Profiles",
     generate: async () => {
       const locResult = await generateLocationProfiles(ctx.client, locationInputs());
       return { result: locResult, cost: locResult.cost };
     },
-    score: async (locResult) => scoreLocationsPhase(locResult, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings),
   }));
 
   ctx.locationProfiles = enforceLocationSensoryFallbacks(ctx.locationProfiles, ctx.warnings);
@@ -261,6 +261,10 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       );
     }
   }
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the location profiles that ship, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent2c_location_profiles", "Location Profiles", () =>
+    scoreLocationsPhase(ctx.locationProfiles, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings));
 
   ctx.reportProgress(
     "location-profiles",

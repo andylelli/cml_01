@@ -4,7 +4,7 @@
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseCastMember, CaseData } from "@cml/cml";
-import { caseOf } from "@cml/cml";
+import { caseOf, verifiedFixesEnabled } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
 } from "../agents/shared.js";
@@ -113,7 +113,9 @@ function buildCastNameTokenFrequency(castArr: CaseCastMember[]): Map<string, num
 const castNameTokenFrequencyCache = new WeakMap<object, Map<string, number>>();
 
 function getCastNameTokenFrequencyCached(castArr: CaseCastMember[]): Map<string, number> {
-  if (!Array.isArray(castArr)) return buildCastNameTokenFrequency(castArr);
+  // A5-12 (owner decision, CML_VERIFIED_FIXES): ON, the memo is bypassed — computed fresh every call, so a
+  // mutation between two calls is always seen and no invalidation can be missed (A5-D06). OFF unchanged.
+  if (verifiedFixesEnabled() || !Array.isArray(castArr)) return buildCastNameTokenFrequency(castArr);
   const cached = castNameTokenFrequencyCache.get(castArr);
   if (cached) return cached;
   const computed = buildCastNameTokenFrequency(castArr);
@@ -189,6 +191,9 @@ export function analyzeSuspectCoverage(
     uncovered: [...v.uncovered],
     weakElimination: [...v.weakElimination],
   });
+  // A5-12 (owner decision, CML_VERIFIED_FIXES): ON, the memo is bypassed — computed fresh every call, so a
+  // mutation between two calls is always seen and no invalidation can be missed (A5-D06). OFF unchanged.
+  if (verifiedFixesEnabled()) return cloneCoverage(computeSuspectCoverage(cml, clues));
   const key = clues as unknown as object;
   if (!key || typeof key !== "object") return cloneCoverage(computeSuspectCoverage(cml, clues));
   const signature = buildSuspectCoverageSignature(clues);

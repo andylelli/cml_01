@@ -6,28 +6,34 @@ import type { PhaseScore, ThresholdConfig } from './types.js';
 
 /**
  * Default thresholds for each phase
+ *
+ * SCO-Q03 (owner decision, 2026-10-02): the strict / lenient threshold modes are deleted — the only
+ * production constructor hard-coded "standard" and no configuration ever selected another. This table is
+ * the one bar per phase. The dead `agent4-hard-logic` key (no scorer has emitted it since the vanity
+ * HardLogicScorer went) is deleted with them; `agent9-prose` stays — it is still emitted
+ * (`apps/worker/src/jobs/pipeline/abort.ts`).
  */
 export const DEFAULT_THRESHOLDS: Record<string, number> = {
   // Strict phases (logic-critical)
-  // Keys must match the `agent` field set by each scorer class
-  'agent4-hard-logic': 85,             // HardLogicScorer
-  // SCO-D02: the honest Agent 3b scorer (scoreRealHardLogic) names itself 'agent3b-hard-logic'. Missing here, it
-  // fell to the 75 default under HONEST_SCORERS=enforce while the report showed 85. One bar per phase,
-  // whichever scorer graded it — the same in every mode as 'agent4-hard-logic'.
+  // Keys must match the `agent` field set by each scorer
+  // SCO-D02: the honest Agent 3b scorer (scoreRealHardLogic) names itself 'agent3b-hard-logic'.
   'agent3b-hard-logic': 85,
   'agent9-prose': 80,                  // ProseScorer
 
   // Standard phases (important but recoverable)
-  'agent2-cast': 75,                   // CastDesignScorer
-  'agent1-setting-refinement': 75,     // SettingRefinementScorer
-  'agent2b-character-profiles': 75,    // CharacterProfilesScorer
-  'agent2c-location-profiles': 75,     // LocationProfilesScorer
-  'agent7-narrative-outline': 75,      // NarrativeScorer
+  'agent2-cast': 75,
+  'agent1-setting-refinement': 75,
+  'agent2b-character-profiles': 75,    // scoreRealCharacterProfiles
+  'agent2c-location-profiles': 75,
+  'agent7-narrative-outline': 75,
 
   // Lenient phases (foundational context)
-  'agent2d-temporal-context': 70,      // TemporalContextScorer
-  'agent2e-background': 70,            // BackgroundContextScorer
+  'agent2d-temporal-context': 70,      // scoreRealTemporalContext
+  'agent2e-background': 70,
 };
+
+/** The bar for any phase the table does not name. */
+export const FALLBACK_THRESHOLD = 75;
 
 /**
  * Component minimum thresholds (apply to ALL phases)
@@ -41,49 +47,22 @@ export const COMPONENT_MINIMUMS = {
 };
 
 /**
- * Threshold modes for different quality requirements
- */
-export const THRESHOLD_MODES = {
-  strict: {
-    default: 85,
-    'agent4-hard-logic': 90,
-    'agent3b-hard-logic': 90,
-    'agent9-prose': 85,
-  },
-  standard: {
-    // Use DEFAULT_THRESHOLDS
-    ...DEFAULT_THRESHOLDS
-  },
-  lenient: {
-    default: 65,
-    'agent4-hard-logic': 75,
-    'agent3b-hard-logic': 75,
-    'agent9-prose': 70,
-  },
-};
-
-/**
  * Check if a phase score passes the threshold
  * Requires BOTH composite threshold AND all component minimums
  */
-export function passesThreshold(score: PhaseScore, config: ThresholdConfig): boolean {
-  const mode = THRESHOLD_MODES[config.mode];
-  const threshold = config.overrides?.[score.agent] 
-    ?? (mode as any)[score.agent] 
-    ?? mode.default 
-    ?? (DEFAULT_THRESHOLDS as any)[score.agent] 
-    ?? 75;
-  
+export function passesThreshold(score: PhaseScore, config: ThresholdConfig = {}): boolean {
+  const threshold = getThreshold(score.agent, config);
+
   // Check 1: Composite score must meet threshold
   const meetsCompositeThreshold = score.total >= threshold;
-  
+
   // Check 2: Each component must meet minimum
-  const meetsComponentMinimums = 
+  const meetsComponentMinimums =
     score.validation_score >= COMPONENT_MINIMUMS.validation_score &&
     score.quality_score >= COMPONENT_MINIMUMS.quality_score &&
     score.completeness_score >= COMPONENT_MINIMUMS.completeness_score &&
     score.consistency_score >= COMPONENT_MINIMUMS.consistency_score;
-  
+
   // Both conditions must be true
   return meetsCompositeThreshold && meetsComponentMinimums;
 }
@@ -93,7 +72,7 @@ export function passesThreshold(score: PhaseScore, config: ThresholdConfig): boo
  */
 export function getFailedComponents(score: PhaseScore): string[] {
   const failed: string[] = [];
-  
+
   if (score.validation_score < COMPONENT_MINIMUMS.validation_score) {
     failed.push(`validation (${score.validation_score} < ${COMPONENT_MINIMUMS.validation_score})`);
   }
@@ -106,7 +85,7 @@ export function getFailedComponents(score: PhaseScore): string[] {
   if (score.consistency_score < COMPONENT_MINIMUMS.consistency_score) {
     failed.push(`consistency (${score.consistency_score} < ${COMPONENT_MINIMUMS.consistency_score})`);
   }
-  
+
   return failed;
 }
 
@@ -122,13 +101,10 @@ export function calculateGrade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
 }
 
 /**
- * Get threshold for a specific agent and config
+ * Get threshold for a specific agent: an override, else the table, else the fallback.
  */
-export function getThreshold(agent: string, config: ThresholdConfig): number {
-  const mode = THRESHOLD_MODES[config.mode];
-  return config.overrides?.[agent] 
-    ?? (mode as any)[agent] 
-    ?? mode.default 
-    ?? (DEFAULT_THRESHOLDS as any)[agent] 
-    ?? 75;
+export function getThreshold(agent: string, config: ThresholdConfig = {}): number {
+  return config.overrides?.[agent]
+    ?? DEFAULT_THRESHOLDS[agent]
+    ?? FALLBACK_THRESHOLD;
 }

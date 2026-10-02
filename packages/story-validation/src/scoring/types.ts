@@ -27,7 +27,7 @@ export interface PhaseScore {
   completeness_score: number;
   consistency_score: number;
   total: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | 'N/A';   // 'N/A' only with `not_applicable` (SCO-D12)
   passed: boolean;
   tests: TestResult[];
   breakdown?: any;
@@ -35,6 +35,13 @@ export interface PhaseScore {
   // Component pass/fail status
   component_failures?: string[];  // List of components below minimum (e.g., ["completeness (40 < 60)"])
   failure_reason?: string;        // Human-readable reason for failure
+
+  /**
+   * SCO-D12 (owner decision, 2026-10-02): the check did not run (e.g. a skipped novelty audit). The phase is
+   * recorded for the record but graded 'N/A' and EXCLUDED from the report's overall mean, its weakest /
+   * strongest phase and its pass / fail counts. Absent = the phase was scored.
+   */
+  not_applicable?: boolean;
 }
 
 /**
@@ -79,7 +86,12 @@ export interface Scorer<TInput, TOutput> {
  * Threshold configuration for pass/fail determination
  */
 export interface ThresholdConfig {
-  mode: 'strict' | 'standard' | 'lenient';
+  /**
+   * SCO-Q03 (2026-10-02): the strict / lenient modes are deleted; there is one threshold table. Accepted and
+   * IGNORED so existing callers (`new ScoreAggregator({ mode: "standard" })`) and archived reports still type.
+   * @deprecated — no effect.
+   */
+  mode?: 'standard';
   overrides?: Record<string, number>;
 }
 

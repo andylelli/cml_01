@@ -379,7 +379,8 @@ export interface GenerationReport {
     total_cost: number;
   };
   threshold_config: {
-    mode: "strict" | "standard" | "lenient";
+    /** SCO-Q03: the modes are gone; older reports may still carry a value, which is ignored. */
+    mode?: string;
     overrides?: Record<string, number>;
   };
 }

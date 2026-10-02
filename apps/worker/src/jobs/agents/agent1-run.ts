@@ -5,12 +5,11 @@
  * scoring-path retry and schema-repair retry, and writes ctx.setting.
  */
 
-import { scoreSettingPhase } from "./phase-scoring.js";
+import { recordShippedPhaseScore, runUnscoredStage, scoreSettingPhase } from "./phase-scoring.js";
 import { backfillSetting, refineSetting } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
-  runStage,
   appendRetryFeedbackOptional,
 } from "./shared.js";
 
@@ -28,14 +27,14 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     projectId: ctx.projectId || "",
   });
 
-  ctx.setting = await runStage(ctx, {
+  // A1X-Q02: generate here; the phase is scored below, on the setting that ships (after backfill / re-roll).
+  ctx.setting = await runUnscoredStage(ctx, {
     agentId: "agent1_setting",
     phaseName: "Setting Refinement",
     generate: async () => {
       const settingResult = await refineSetting(ctx.client, settingInputs());
       return { result: settingResult, cost: settingResult.cost };
     },
-    score: async (settingResult) => scoreSettingPhase(settingResult.setting, ctx.warnings),
   });
 
   // A1X-10 (owner decision 12, CML_VERIFIED_FIXES): refineSetting now backfills a missing top-level key
@@ -91,6 +90,9 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push("Setting schema-repair retry succeeded");
   }
   settingSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Setting schema warning: ${warning}`));
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the setting that ships, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent1_setting", "Setting Refinement", () => scoreSettingPhase(ctx.setting!.setting, ctx.warnings));
 
   ctx.reportProgress("setting", "Era and setting refined", 12);
 }

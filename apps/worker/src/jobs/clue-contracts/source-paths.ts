@@ -4,7 +4,7 @@
  */
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import { caseOf, type CaseView } from "@cml/cml";
+import { caseOf, type CaseView, verifiedFixesEnabled } from "@cml/cml";
 import { WORKER_LEGAL_SOURCE_PATTERNS, enumerateSourcePaths } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
@@ -81,6 +81,9 @@ const computeStrictSourcePathWhitelist = (cml: CaseData): string[] =>
 
 export const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
   // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.
+  // A5-12 (owner decision, CML_VERIFIED_FIXES): ON, the memo is bypassed — computed fresh every call, so a
+  // mutation between two calls is always seen and no invalidation can be missed (A5-D06). OFF unchanged.
+  if (verifiedFixesEnabled()) return computeStrictSourcePathWhitelist(cml);
   const key = (cml as unknown as object) ?? undefined;
   if (!key || typeof key !== "object") return computeStrictSourcePathWhitelist(cml);
   const cached = strictSourcePathWhitelistCache.get(key);

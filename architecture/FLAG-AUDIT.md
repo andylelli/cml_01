@@ -1032,3 +1032,23 @@ Each was unset in `.env` and `.env.local` and its retired arm never ran at defau
 | Flag | State | Default | Notes |
 |---|---|---|---|
 | `CML_VERIFIED_FIXES` | unset → **off** | OFF | **Owner decision 12 (CR-07 / CR-29).** One switch for every verified-bug fix that changes a prompt or a run outcome on the default path, so ONE matched pair reads the batch (OWNER-DECISIONS §12). `verifiedFixesEnabled()` in `@cml/cml`; each gated site names its ledger item, and documentation/code-review/DECISION-12.md lists them. OFF is byte-identical (replay fixtures). The read needs owner approval of a paid matched pair. |
+
+## Addendum — owner decision A6-Q01: Agent 6 stops reading `AGENT_PRE9_ENABLE_LLM_RETRIES` (2026-10-02)
+
+Owner decision A6-Q01 (2026-10-02): Agent 6 no longer reads `AGENT_PRE9_ENABLE_LLM_RETRIES`; its retry arm (~990 lines:
+−1,031 / +43 across `agent6-run.ts` and `agent6/*.ts`, plus ~780 test lines) is retired — 0 of 70 archived runs ever
+ran it. Agent 3 still reads the flag (`agent3-run.ts` → `preAgent9LlmRetriesEnabled()`, and Agent 8's novelty retry
+through it), so the flag and its register row stay.
+
+Retired, exactly as owner decision 7 retired the phase-score retry path: the fair-play re-audit + clue-regeneration
+loop (`max_fair_play_attempts`), the blind-reader LLM remediation cycles (`max_remediation_cycles`), the structural CML
+revision through Agent 4, the `clue_only` targeted regeneration (`max_total_attempts_with_targeted_regen`), the WP8A
+backstop re-audit, the fair-play feedback payload (`deriveRequiredCluePhrases`, `buildFairPlayFeedbackPayload`), and the
+retry budget and cost meter that only those retries charged (`max_retry_cost_usd`). The default path is unchanged: one
+audit, the deterministic blind-reader rescue, and the structural-failure classification and warnings.
+
+## Addendum — owner decision A5-Q04: the red-herring top-up after separation (2026-10-02)
+
+| Flag | State | Default | Notes |
+|---|---|---|---|
+| `AGENT5_RED_HERRING_TOPUP` | unset → **off** | OFF | **Owner decision A5-Q04.** `topUpRedHerringsAfterSeparation` (`apps/worker/src/jobs/agents/agent5/red-herring-topup.ts`), called in `agent5-run.ts` right after `separateRedHerringsFromSolution`. Red herrings are lost to that deterministic pruner, not to the model (6 of 61 projects since 2026-08-03 shipped 0 while the model had returned 2; the floor, which runs before the pruner, fired 0 times). ON, when fewer than `RED_HERRING_BUDGET` (2) survive: ONE call on Agent 5's client and label (`Agent5-ClueExtraction`, so `AGENT5_MODEL` routing and the `agent5_clues` cost bucket apply) asking only for the missing ones, carrying the false assumption and the inference-step correction words the pruner scores against; the reply goes through the same separation (on the new entries alone) and survivors are appended; one `[A5-Q04] …` warning per run it fires on. Never aborts. OFF: no call, no warning, clues untouched (byte-identical). Reads at call time via `readBooleanFlag`. Fires on ~10% of runs when ON (INFERRED from 6/61); a flip needs a probe. |

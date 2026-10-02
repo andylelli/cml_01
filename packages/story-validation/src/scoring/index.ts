@@ -15,7 +15,7 @@
  * ```typescript
  * import { ScoreAggregator, RetryManager, ThresholdConfig } from '@cml/story-validation/scoring';
  * 
- * const config: ThresholdConfig = { mode: 'standard' };
+ * const config: ThresholdConfig = {};
  * const retryManager = new RetryManager();
  * const aggregator = new ScoreAggregator(config, retryManager);
  * ```
@@ -36,7 +36,7 @@ export {
 export {
   DEFAULT_THRESHOLDS,
   COMPONENT_MINIMUMS,
-  THRESHOLD_MODES,
+  FALLBACK_THRESHOLD,
   passesThreshold,
   getFailedComponents,
   calculateGrade,
@@ -75,14 +75,13 @@ export {
   TestCategory,
 } from './scorer-utils.js';
 
-// Phase scorers
-export { CharacterProfilesScorer } from './phase-scorers/agent2b-character-profiles-scorer.js';
-export { TemporalContextScorer } from './phase-scorers/agent2d-temporal-context-scorer.js';
-export { Agent65WorldBuilderScorer } from './phase-scorers/agent65-world-builder-scorer.js';
-
 // Honest scorers (ANALYSIS_50 Phase 3 — grade the REAL artifact; default OFF, off/shadow/enforce)
 export { assembleHonestScore, normalizeAtom } from './honest-scorer.js';
 export { scoreRealCast } from './phase-scorers/agent2-cast-real-scorer.js';
+// SCO-Q07 (2026-10-02): 2b, 2d and 6.5 — the last three vanity scorers — replaced by honest tables.
+export { scoreRealCharacterProfiles } from './phase-scorers/agent2b-character-profiles-real-scorer.js';
+export { scoreRealTemporalContext } from './phase-scorers/agent2d-temporal-context-real-scorer.js';
+export { scoreRealWorldDocument } from './phase-scorers/agent65-world-builder-real-scorer.js';
 export { scoreRealSetting } from './phase-scorers/agent1-setting-real-scorer.js';
 export { scoreRealLocations } from './phase-scorers/agent2c-location-real-scorer.js';
 export { scoreRealBackground } from './phase-scorers/agent2e-background-real-scorer.js';
@@ -101,5 +100,7 @@ export type { ReportInvariantViolation } from './report-invariants.js';
 // SCO-05 — the run outcome, derived once.
 export { deriveRunOutcome, INFRA_SIGNAL_PATTERN } from './run-outcome.js';
 
-// SCO-09 — the scorers' input types, so the worker's adapters do not re-declare them.
-export type { CharacterProfile, CharacterProfilesOutput } from './phase-scorers/agent2b-character-profiles-scorer.js';
+// SCO-09 — the scorers' input types.
+export type { RealCharacterProfile } from './phase-scorers/agent2b-character-profiles-real-scorer.js';
+export type { RealTemporalContext } from './phase-scorers/agent2d-temporal-context-real-scorer.js';
+export type { RealWorldDocument } from './phase-scorers/agent65-world-builder-real-scorer.js';

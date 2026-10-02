@@ -81,12 +81,22 @@ describe("A5-D06 — the evidence-id remap invalidates the strict memos", () => 
     expect(strictPromptFeedbackCache.has(cml)).toBe(false);
   });
 
-  it("flag ON: a remap that changes nothing leaves the memos alone", () => {
-    setFlag(true);
+  it("flag OFF: a remap that changes nothing leaves the memos alone", () => {
+    setFlag(false);
     const { cml, clues } = remapFixture();
     buildStrictSourcePathWhitelist(cml);
     remapMissingDiscriminatingEvidenceIdsToExistingClues(cml, clues, []);
     expect(strictSourcePathWhitelistCache.has(cml)).toBe(true);
+  });
+
+  it("flag ON (A5-12): the memos are bypassed, so nothing is cached to go stale", () => {
+    setFlag(true);
+    const { cml, clues } = remapFixture();
+    buildStrictSourcePathWhitelist(cml);
+    buildStrictPromptFeedback(cml);
+    remapMissingDiscriminatingEvidenceIdsToExistingClues(cml, clues, []);
+    expect(strictSourcePathWhitelistCache.has(cml)).toBe(false);
+    expect(strictPromptFeedbackCache.has(cml)).toBe(false);
   });
 });
 

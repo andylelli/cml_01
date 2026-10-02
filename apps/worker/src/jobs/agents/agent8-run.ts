@@ -6,7 +6,7 @@
 import { calculateGrade } from "@cml/story-validation";
 import { generateCML, auditNovelty, type CMLGenerationResult } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
-import type { PhaseScore, TestResult } from "@cml/story-validation";
+import type { TestResult } from "@cml/story-validation";
 import { getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext } from "./shared.js";
 import fs from "fs/promises";
@@ -304,27 +304,30 @@ export async function scoreNoveltyPhase(ctx: OrchestratorContext) {
         ctx.agentCosts["agent8_novelty"] ?? 0
       );
     } else {
-      // Novelty check skipped
+      // SCO-D12 (owner decision, 2026-10-02): a skipped audit is N/A, not A. It used to be recorded as 100/A and
+      // averaged into overall_score — a check that did not run raising the headline. It is still recorded (so the
+      // report says it was skipped), marked not_applicable: graded 'N/A', excluded from the mean and the counts.
       ctx.scoreAggregator.upsertPhaseScore(
         "agent8_novelty",
         "Novelty Audit",
         {
           agent: "agent8-novelty-audit",
-          validation_score: 100,
-          quality_score: 100,
-          completeness_score: 100,
-          consistency_score: 100,
-          total: 100,
-          grade: "A" as PhaseScore["grade"],
+          validation_score: 0,
+          quality_score: 0,
+          completeness_score: 0,
+          consistency_score: 0,
+          total: 0,
+          grade: "N/A",
           passed: true,
+          not_applicable: true,
           tests: [
             {
               name: "Novelty check",
               category: "validation" as const,
               passed: true,
-              score: 100,
-              weight: 1,
-              message: "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)",
+              score: 0,
+              weight: 0,
+              message: "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set) — N/A, not part of the overall score",
             },
           ],
         },

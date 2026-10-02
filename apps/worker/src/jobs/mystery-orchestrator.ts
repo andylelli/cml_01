@@ -22,8 +22,8 @@ import { promises as dns } from "dns";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // Final-story rubric scoring (aligning-the-scoring-system.md) — ORC-07: its own module.
-// Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
-import { deriveClueSpec } from "@cml/clue-spec";
+// Agent 5 redesign shadow (10_agent_5 §9.1) — derived slots vs shipped clues; its own module (A5-Q07).
+import { runClueSpecShadow } from "./clue-contracts/clue-spec-shadow.js";
 import type { CaseData } from "@cml/cml";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import {
@@ -169,14 +169,6 @@ export {
 // Pillar 2 — Character Bundle Assembler
 // ============================================================================
 
-// ============================================================================
-// Agent 5 clue-spec shadow (10_agent_5_clues_red_herrings.md §4.1 / §9.1)
-// ============================================================================
-// deriveClueSpec computes the AUTHORITATIVE required-clue set from the frozen CML (the redesign's
-// "coverage is constructed, not audited"). In shadow it logs how many of Agent 5's shipped clues map
-// to a derived slot — the §9.1 coverage signal — without changing the live clue set. Never throws.
-// Set AGENT5_DERIVE_SHADOW=0 to silence.
-
 /**
  * SCO-Q08 (owner decision 8): the report is the durable record of every run (ADR-0010), so its machinery always
  * exists; ENABLE_SCORING decides only whether phases are scored (every phase-score write checks it).
@@ -198,35 +190,6 @@ function createRunReporting(enableScoring: boolean, logsDir: string, warnings: s
     warnings.push(`Scoring system initialization failed: ${describeError(error)} - continuing without scoring`);
   }
   return { retryManager, scoreAggregator, reportRepository, scoringLogger };
-}
-
-function runClueSpecShadow(args: { cml: unknown; clues: unknown; warnings: string[] }): void {
-  if (/^(0|false|no|off)$/i.test(process.env.AGENT5_DERIVE_SHADOW ?? "")) return; // default on
-  try {
-    const caseData = (args.cml as any)?.CASE ?? args.cml;
-    const spec = deriveClueSpec(caseData);
-    const shipped = ((args.clues as any)?.clues ?? []) as any[];
-    const stripCase = (s: unknown): string => String(s ?? "").replace(/^CASE\./i, "").trim();
-    const derivedIds = new Set(spec.clueSlots.map((s) => s.id));
-    const derivedSources = new Set(spec.clueSlots.map((s) => stripCase(s.sourceInCML)));
-    const derivedStepEv = new Set(
-      spec.clueSlots.filter((s) => s.supportsInferenceStep != null).map((s) => `${s.supportsInferenceStep}:${s.evidenceType}`),
-    );
-    let covered = 0;
-    for (const c of shipped) {
-      const src = stripCase(c?.sourceInCML);
-      const stepEv = c?.supportsInferenceStep != null && c?.evidenceType ? `${c.supportsInferenceStep}:${c.evidenceType}` : "";
-      if (derivedIds.has(c?.id) || (src && derivedSources.has(src)) || (stepEv && derivedStepEv.has(stepEv))) covered++;
-    }
-    const pct = shipped.length ? Math.round((100 * covered) / shipped.length) : 0;
-    console.info(
-      `[Agent 5 clue-spec shadow] deriveClueSpec: ${spec.clueSlots.length} required slots + ${spec.redHerringSlots.length} red-herring slots; ` +
-        `${shipped.length} shipped clues, ${covered}/${shipped.length} (${pct}%) map to a derived slot.`,
-    );
-    args.warnings.push(`Clue-spec (shadow): ${spec.clueSlots.length} required slots; ${pct}% of shipped clues map to one.`);
-  } catch (e) {
-    args.warnings.push(`Clue-spec shadow skipped: ${describeError(e)}`);
-  }
 }
 
 // ============================================================================

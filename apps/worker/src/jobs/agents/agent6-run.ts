@@ -1,10 +1,15 @@
 /**
  * Agent 6: Fair Play Auditor
  *
- * Extracted from mystery-orchestrator.ts. Runs auditFairPlay() with one
- * clue-regen retry, then WP5B (blind reader simulation) and WP6B (CML
- * structural revision on critical failures). May mutate ctx.cml and ctx.clues.
+ * Extracted from mystery-orchestrator.ts. Runs auditFairPlay() once, then WP5B
+ * (blind reader simulation, with one deterministic clue-contract rescue) and
+ * WP6B (structural-failure classification). May mutate ctx.cml and ctx.clues.
  * Writes ctx.fairPlayAudit and ctx.hasCriticalFairPlayFailure.
+ *
+ * Owner decision A6-Q01 (2026-10-02): Agent 6 no longer reads AGENT_PRE9_ENABLE_LLM_RETRIES. Its retry arm —
+ * the fair-play clue regeneration loop, the blind-reader remediation cycles, the structural CML revision
+ * (Agent 4) and the targeted/backstop re-audits, and the retry budget that metered them — ran in 0 of 70
+ * archived runs and is retired. What remains is exactly what ran with the flag unset.
  */
 
 import { calculateGrade } from "@cml/story-validation";
@@ -12,21 +17,17 @@ import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
 import { envOn } from "../env-flags.js";
 import {
   auditFairPlay,
-  extractClues,
   blindReaderSimulation,
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult, Clue } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import { caseOf } from "@cml/cml";
-import { verifiedFixesEnabled } from "@cml/cml";
-import { buildAgent5RegenerationContract, currentAgent5StrictBase } from "./agent5/contract-payload.js";
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   clearWarningsInPlace,
-  preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import {
   classifyFairPlayFailure,
@@ -38,8 +39,6 @@ import {
 } from "./agent6/run-state.js";
 import {
   applyAgent5ContractsToRegeneratedClues,
-  buildFairPlayFeedbackPayload,
-  deriveRequiredCluePhrases,
   ensureCriticalFairPlayBackstopClues,
   ensureParityBridgeClue,
   refreshCoverageOnContext,
@@ -47,12 +46,12 @@ import {
 import {
   applyPreAuditFixes,
   handleFairPlayFailure,
-  runFairPlayAuditLoop,
+  runFairPlayAudit,
 } from "./agent6/audit-loop.js";
 import {
   deriveEffectiveCastNamesForStructuralRevision,
   hasCriticalFairPlayViolations,
-  retryCmlOnStructuralFailure,
+  reportStructuralFailure,
 } from "./agent6/structural-retry.js";
 import {
   runPrimaryBlindReadPhase,
@@ -79,63 +78,6 @@ const CONFIDENCE_RANK: Record<string, number> = {
 
 const normalizeConfidence = (value: string | undefined): string =>
   String(value ?? "").trim().toLowerCase();
-
-const classifyMissingInfoCategories = (items: string[]): string[] => {
-  const categories = new Set<string>();
-  for (const item of items) {
-    const lower = item.toLowerCase();
-    if (/\balibi|timeline|whereabouts\b/.test(lower)) categories.add("alibi gap");
-    if (/\bphysical|forensic|trace|fingerprint|fiber|blood|tool\b/.test(lower)) categories.add("physical-link gap");
-    if (/\bwitness|behavior|statement|testimony|motive\b/.test(lower)) categories.add("witness-behavior gap");
-  }
-  return Array.from(categories);
-};
-
-const deriveBlindReaderRequiredCluePhrases = (
-  missingInformation: string[],
-  actualCulpritName: string,
-  suspectedCulpritName?: string,
-): string[] => {
-  const phrases: string[] = [];
-  for (const info of missingInformation) {
-    const trimmed = String(info ?? "").trim();
-    if (!trimmed) continue;
-    phrases.push(`Provide an essential early or mid clue covering: ${trimmed}`);
-
-    const lower = trimmed.toLowerCase();
-    if (/clock|time|timeline|tamper|alibi/.test(lower)) {
-      phrases.push(
-        "Provide concrete timeline clues that make time manipulation and suspect opportunity logically testable by the reader before Act III."
-      );
-    }
-    if (/motive|relationship|secret/.test(lower)) {
-      phrases.push(
-        "Provide motive and relationship clues as observable evidence, not late detective exposition."
-      );
-    }
-  }
-
-  if (actualCulpritName) {
-    phrases.push(
-      `Include at least one essential early or mid clue that points uniquely to culprit ${actualCulpritName}.`
-    );
-    phrases.push(
-      `Include one clue where both description and pointsTo explicitly name ${actualCulpritName} and state a unique mechanism link that no non-culprit satisfies.`
-    );
-  }
-
-  const suspected = String(suspectedCulpritName ?? "").trim();
-  if (actualCulpritName && suspected && suspected.toLowerCase() !== actualCulpritName.toLowerCase()) {
-    phrases.push(
-      `Include at least one essential elimination clue that explicitly rules out ${suspected} using corroborated timeline or physical evidence.`
-    );
-    phrases.push(
-      `Include one clue whose pointsTo begins with \"Eliminates ${suspected} because ...\" and cites corroborating source details.`
-    );
-  }
-
-  return [...new Set(phrases)].slice(0, 10);
-};
 
 // ============================================================================
 // Deterministic Structural Audit (Phase 2 — runs BEFORE any LLM call)
@@ -349,48 +291,10 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
   return updates;
 };
 
-/**
- * Owner decision 7 (A6-D01): what each Agent 6 retry cost. `summary` is the client's cumulative cost per
- * label. The baseline starts at the summary when the meter is made; `perCallCostDelta(label, cumulative)`
- * charges the rise since the label's baseline and moves it; `rebaseCost(label)` moves it without charging,
- * after a call that is not a retry.
- */
-export function createRetryCostMeter(summary: () => Record<string, number>) {
-  const costBaseline: Record<string, number> = { ...summary() };
-  const perCallCostDelta = (costKey: string, cumulativeCost: number): number => {
-    const c = Number.isFinite(cumulativeCost) ? cumulativeCost : 0;
-    const delta = Math.max(0, c - (costBaseline[costKey] ?? 0));
-    costBaseline[costKey] = c;
-    return delta;
-  };
-  const rebaseCost = (costKey: string): void => { costBaseline[costKey] = Number(summary()[costKey] ?? 0) || 0; };
-  return { perCallCostDelta, rebaseCost };
-}
-
-export function createFairPlayRetryBudgetTracker(maxRetryCostUsd: number) {
-  let consumed = 0;
-  return {
-    getConsumed: () => consumed,
-    consume: (cost: number, label: string) => {
-      const normalizedCost = Number.isFinite(cost) ? Math.max(0, cost) : 0;
-      consumed += normalizedCost;
-      if (consumed > maxRetryCostUsd) {
-        throw new Error(
-          `Agent 6 fair-play retry cost limit reached: spent $${consumed.toFixed(3)} after ${label} (max $${maxRetryCostUsd.toFixed(3)}).`,
-        );
-      }
-    },
-  };
-}
-
 export const __testables = {
   applyAgent5ContractsToRegeneratedClues,
-  buildFairPlayFeedbackPayload,
   classifyFairPlayFailure,
   shouldEscalateStructuralCmlRevision,
-  createFairPlayRetryBudgetTracker,
-  deriveBlindReaderRequiredCluePhrases,
-  deriveRequiredCluePhrases,
   deriveEffectiveCastNamesForStructuralRevision,
   ensureCriticalFairPlayBackstopClues,
   ensureParityBridgeClue,
@@ -402,8 +306,6 @@ export const __testables = {
 // ============================================================================
 
 export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
-  const retriesEnabled = preAgent9LlmRetriesEnabled();
-
   // A_53 P11 (genre-structure-cml-string-vs-object): normalise ctx.cml to a parsed object ONCE here so
   // every downstream `(cml as any)?.CASE ?? cml` accessor sees a real object. If a raw string ever
   // reaches audit time, that accessor returns the string and the case-block reads vacuously "pass".
@@ -472,41 +374,14 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   };
 
   const fairPlayConfig = getGenerationParams().agent6_fairplay.params;
-  const MAX_FAIR_PLAY_RETRY_COST = fairPlayConfig.retries.max_retry_cost_usd;
-  const retryBudget = createFairPlayRetryBudgetTracker(MAX_FAIR_PLAY_RETRY_COST);
-
-  // A_53 P3 (cost double-count): every `result.cost` is the CUMULATIVE byAgent run-total, so the budget is
-  // charged the PER-CALL delta. Owner decision 7 (2026-10-01, A6-D01): the delta used to start from the
-  // cost source's FIRST OBSERVATION — which happens after the first retry returns — so the first retry of
-  // each source was charged 0. The baseline is now the cost tracker's figure when the budget is created
-  // (Agent 5 and Agent 4 spent their non-retry calls before Agent 6), re-taken after each of Agent 6's own
-  // non-retry calls (the first fair-play audit, the primary and reveal-gate blind reads). Every retry is
-  // charged its own cost, the first included, so the budget means what its number says. This can newly trip
-  // the $0.15 budget on a run that retried — the decision accepted that.
-  const { perCallCostDelta, rebaseCost } = createRetryCostMeter(
-    () => (ctx.client as any)?.getCostTracker?.()?.getSummary?.()?.byAgent ?? {},
-  );
   const minBlindConfidence = normalizeConfidence(
     (fairPlayConfig.blind_reader as any)?.pass_criteria?.min_confidence ?? "likely",
   );
-  const maxBlindRemediationCycles = retriesEnabled ? Math.max(
-    0,
-    Number((fairPlayConfig.blind_reader as any)?.pass_criteria?.max_remediation_cycles ?? 1),
-  ) : 0;
-  const maxFairPlayAttempts = retriesEnabled ? fairPlayConfig.retries.max_fair_play_attempts : 1;
-  const maxTargetedRegenAttempts = retriesEnabled ? fairPlayConfig.retries.max_total_attempts_with_targeted_regen : 1;
-  if (!retriesEnabled) {
-    emitAgent6Warning("Agent 6: deterministic remediation mode active (pre-Agent9 retries disabled by default)", "transient-diagnostic");
-  }
+  emitAgent6Warning("Agent 6: deterministic remediation mode active (pre-Agent9 retries disabled by default)", "transient-diagnostic");
   ctx.reportProgress("fairplay", "Auditing fair play compliance...", 62);
 
-  const clueDensity =
-    ctx.inputs.targetLength === "short" ? "minimal"
-    : ctx.inputs.targetLength === "long" ? "dense"
-    : "moderate";
-
   // CR-25: the flags every phase below may set — one mutable object, so a phase can set them.
-  const state: Agent6State = { fairPlayAudit: null, fairPlayAuditCostDuringLoop: 0, fairPlayAttempt: 0, emittedFinalCriticalFailureSummary: false, agent6RetryInvoked: false, firstFairPlayStatus: null, agent6FailureClass: "none" };
+  const state: Agent6State = { fairPlayAudit: null, fairPlayAuditCostDuringLoop: 0, emittedFinalCriticalFailureSummary: false, agent6RetryInvoked: false, firstFairPlayStatus: null, agent6FailureClass: "none" };
   const fairPlayStart = Date.now();
   ctx.agent6FirstPassPassed = false;
   ctx.agent6RetryInvoked = false;
@@ -526,7 +401,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   };
 
   // CR-25: what every phase below reads besides ctx — resolved once, read-only.
-  const run: Agent6Run = { retriesEnabled, emitAgent6Warning, clearWarningsFromSet, transientProgressWarnings, transientDiagnosticWarnings, fairPlayConfig, retryBudget, perCallCostDelta, rebaseCost, minBlindConfidence, maxBlindRemediationCycles, maxFairPlayAttempts, maxTargetedRegenAttempts, clueDensity, fairPlayStart, auditCurrentFairPlay };
+  const run: Agent6Run = { emitAgent6Warning, clearWarningsFromSet, transientProgressWarnings, transientDiagnosticWarnings, fairPlayConfig, minBlindConfidence, fairPlayStart, auditCurrentFairPlay };
 
   // ── Phase 2: pre-LLM deterministic fixes + structural audit ─────────────────
   // Run backstops BEFORE the LLM call so the LLM audits the already-patched state.
@@ -535,7 +410,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   preAuditStructuralResult = applyPreAuditFixes(ctx, run, preAuditStructuralResult);
 
-  await runFairPlayAuditLoop(ctx, run, state, preAuditStructuralResult);
+  await runFairPlayAudit(run, state, preAuditStructuralResult);
 
   if (!state.fairPlayAudit) throw new Error("Fair play audit failed to produce a report");
 
@@ -545,7 +420,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - run.fairPlayStart);
 
   const criticalFairPlayRules = ctx.criticalFairPlayRules;
-  let hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(state.fairPlayAudit, criticalFairPlayRules);
+  const hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(state.fairPlayAudit, criticalFairPlayRules);
 
   handleFairPlayFailure(run, state, hasCriticalFairPlayFailure);
 
@@ -675,7 +550,6 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const blindReadEligible =
     castNamesForBlind.length > 0 && Boolean(falseAssumptionStatement) && Boolean(actualCulpritName);
   primaryBlindRead = await runPrimaryBlindReadPhase(ctx, blindReadEligible, primaryBlindRead, runPrimaryBlindRead, falseAssumptionStatement, castNamesForBlind);
-  run.rebaseCost("Agent6-BlindReader"); // owner decision 7: the primary read is not a retry
 
   if (blindReadEligible && primaryBlindRead) {
     const blindResult = primaryBlindRead;
@@ -706,120 +580,9 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       let latestBlind = blindResult;
       let latestReaderPass: boolean = blindPasses;
 
-      for (let cycle = 1; !latestReaderPass && cycle <= run.maxBlindRemediationCycles; cycle++) {
-        state.agent6RetryInvoked = true;
-        const missingCategories = classifyMissingInfoCategories(latestBlind.missingInformation);
-        ctx.warnings.push(
-          `CRITICAL: Blind reader gate failed (cycle ${cycle}/${run.maxBlindRemediationCycles}). Regenerating clues with targeted requirements.`
-        );
-
-        ctx.reportProgress("clues", "Regenerating clues based on blind reader feedback...", 60);
-        const blindRetryStart = Date.now();
-        ctx.clues = await extractClues(ctx.client, {
-          cml: ctx.cml!,
-          clueDensity: run.clueDensity,
-          redHerringBudget: 2,
-          fairPlayFeedback: {
-            overallStatus: "fail",
-            violations: [
-              {
-                severity: "critical" as const,
-                rule: "Information Parity",
-                description:
-                  `A blind reader suspected "${latestBlind.suspectedCulprit}" instead of actual culprit "${actualCulpritName}". Reasoning: ${latestBlind.reasoning}`,
-                suggestion:
-                  `Add direct discriminating evidence for culprit "${actualCulpritName}" and at least one elimination/alibi clue per non-culprit suspect. Fill blind-reader gaps: ${latestBlind.missingInformation.join("; ")}`,
-              },
-            ],
-            warnings: missingCategories.map((c) => `Blind reader category gap: ${c}`),
-            recommendations: [
-              ...latestBlind.missingInformation.map((info: string) => `Provide evidence for: ${info}`),
-              "Ensure at least one culprit-discriminating clue that does not apply to non-culprits.",
-              "Ensure each non-culprit has at least one elimination or alibi clue.",
-            ],
-            requiredReplacements: [
-              `Add one clue whose pointsTo states a unique mechanism link to culprit \"${actualCulpritName}\" that no non-culprit satisfies.`,
-              `Add one clue whose pointsTo explicitly states \"Eliminates ${latestBlind.suspectedCulprit} because ...\" with corroborating evidence source.`,
-            ],
-            requiredCluePhrases: deriveBlindReaderRequiredCluePhrases(
-              latestBlind.missingInformation,
-              actualCulpritName,
-              latestBlind.suspectedCulprit,
-            ),
-          },
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-          // A5-11 / A5-D04 (owner decision 12, CML_VERIFIED_FIXES): the strict contract and locked facts
-          // Agent 5's first pass sends, which this regeneration used to omit.
-          ...(verifiedFixesEnabled() ? buildAgent5RegenerationContract(ctx, currentAgent5StrictBase(ctx)) : {}),
-        });
-
-        ctx.agentCosts["agent5_clues"] =
-          ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
-        ctx.agentDurations["agent5_clues"] =
-          (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - blindRetryStart);
-        applyAgent5ContractsToRegeneratedClues(ctx, "blind-reader remediation");
-        run.retryBudget.consume(run.perCallCostDelta("Agent5-Clues", ctx.clues.cost),`blind-reader clue remediation cycle ${cycle}`);
-
-        const blindReAuditStart = Date.now();
-        state.fairPlayAudit = await run.auditCurrentFairPlay(preAuditStructuralResult);
-        ctx.agentCosts["agent6_fairplay"] =
-          state.fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
-        ctx.agentDurations["agent6_fairplay"] =
-          (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - blindReAuditStart);
-        run.retryBudget.consume(run.perCallCostDelta("Agent6-FairPlayAuditor", state.fairPlayAudit.cost),`blind-reader fair-play re-audit cycle ${cycle}`);
-        hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(state.fairPlayAudit, criticalFairPlayRules);
-        await recordFairPlayScore();
-
-        /**
-         * X33, COMPLETED — this fix stopped two functions short of its own class.
-         *
-         * The primary read above was guarded when a content-filter refusal killed a paid run at this
-         * stage. These remediation re-reads are the same call with the same prompt carrying the same
-         * case, and they were left bare: a premise Azure refuses once it refuses every time, so the
-         * refusal that the primary read now survives would abort the run here instead — on the very
-         * path taken when the gate has already failed. Same shape as X28, where an idiom fix stopped
-         * one function short of the sibling comparison.
-         *
-         * A refused re-read means the cycle cannot be measured, so the loop stops with what it has
-         * rather than throwing away the run.
-         */
-        try {
-          latestBlind = await blindReaderSimulation(
-            ctx.client,
-            ctx.clues as any,
-            falseAssumptionStatement,
-            castNamesForBlind,
-            { runId: ctx.runId, projectId: ctx.projectId || "", caseCast: caseBlockForBlind?.cast }
-          );
-        } catch (err) {
-          if (!isContentFilterRefusal(err)) throw err;
-          ctx.warnings.push(
-            `[Agent 6] blind-reader remediation cycle ${cycle} NOT MEASURED — Azure refused the prompt ` +
-              `(content filter). The loop stops here with the previous verdict; the run continues.`,
-          );
-          break;
-        }
-        ctx.agentCosts["agent6_blind_reader"] =
-          latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
-        ctx.agentDurations["agent6_blind_reader"] =
-          (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
-        run.retryBudget.consume(run.perCallCostDelta("Agent6-BlindReader", latestBlind.cost),`blind-reader simulation cycle ${cycle}`);
-
-        const latestGotItRight =
-          latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
-          actualCulpritName.toLowerCase().includes(latestBlind.suspectedCulprit.toLowerCase());
-        latestReaderPass =
-          latestGotItRight &&
-          (CONFIDENCE_RANK[normalizeConfidence(latestBlind.confidenceLevel)] ?? -1) >=
-            (CONFIDENCE_RANK[run.minBlindConfidence] ?? CONFIDENCE_RANK.likely);
-
-        if (latestReaderPass) {
-          ctx.reportProgress("fairplay", "Blind reader simulation: PASS after remediation", 74);
-        }
-      }
-
-      if (!latestReaderPass && run.maxBlindRemediationCycles === 0) {
+      // Owner decision A6-Q01 (2026-10-02): the LLM remediation cycles (max_remediation_cycles, 0 unless
+      // AGENT_PRE9_ENABLE_LLM_RETRIES) are retired; the deterministic rescue is the only remediation.
+      if (!latestReaderPass) {
         state.agent6RetryInvoked = true;
         ctx.warnings.push(
           "Agent 6 blind-reader deterministic rescue: retries disabled; applying deterministic clue-contract hardening before final blind-reader check.",
@@ -898,12 +661,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
-  // ── WP6B + WP8: CML Retry on Structural Failure ───────────────────────────
+  // ── WP6B + WP8: structural-failure classification ─────────────────────────
   // Phase 2: escalation is now driven by the deterministic structural audit result.
   // When preAuditStructuralResult.passed = true, all structural gaps were closed before
   // the LLM call — no CML revision is needed regardless of what the LLM returned.
   // When preAuditStructuralResult has gaps (or is unavailable), fall back to LLM-signal logic.
-  ({ preAuditStructuralResult, hasCriticalFairPlayFailure } = await retryCmlOnStructuralFailure(ctx, run, state, preAuditStructuralResult, hasCriticalFairPlayFailure, MAX_FAIR_PLAY_RETRY_COST, criticalFairPlayRules, recordFairPlayScore));
+  reportStructuralFailure(ctx, run, state, preAuditStructuralResult, hasCriticalFairPlayFailure, criticalFairPlayRules);
 
   run.clearWarningsFromSet(run.transientProgressWarnings);
   if (state.fairPlayAudit!.overallStatus === "pass" || state.emittedFinalCriticalFailureSummary) {

@@ -1,6 +1,7 @@
 /**
- * Owner decision 12 (CML_VERIFIED_FIXES) — Agent 6 items A6-D08, A5-11 / A5-D04 (Agent 6's Agent-5
- * regenerations), and the unflagged A6-02 (retries-on arm only).
+ * Owner decision 12 (CML_VERIFIED_FIXES) — Agent 6 item A6-D08. A5-11 / A5-D04 (Agent 6's Agent-5
+ * regenerations) and A6-02 (required-phrase ordering) went with the retries-on arm — owner decision A6-Q01,
+ * 2026-10-02; what stays of them is the default path: a failed audit regenerates nothing.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -37,7 +38,7 @@ import { __testables, runAgent6 } from "../jobs/agents/agent6-run.js";
 const FLAG = "CML_VERIFIED_FIXES";
 let saved: Record<string, string | undefined> = {};
 beforeEach(() => {
-  saved = { [FLAG]: process.env[FLAG], AGENT_PRE9_ENABLE_LLM_RETRIES: process.env.AGENT_PRE9_ENABLE_LLM_RETRIES };
+  saved = { [FLAG]: process.env[FLAG] };
   mockAuditFairPlay.mockReset();
   mockExtractClues.mockReset();
   mockBlindReaderSimulation.mockReset();
@@ -100,8 +101,7 @@ describe("A6-D08 — no duplicate 'contradiction' backstop when a step has no co
   });
 });
 
-describe("A6-02 — failure-derived phrases lead the required-phrase list (unflagged)", () => {
-  const sevenCast = Array.from({ length: 7 }, (_, i) => ({ name: `Member Number${i}` }));
+describe("A6-Q01 — Agent 6 has no clue-regeneration retry", () => {
   const audit = {
     overallStatus: "fail",
     violations: [{
@@ -111,22 +111,7 @@ describe("A6-02 — failure-derived phrases lead the required-phrase list (unfla
     }],
     warnings: [], recommendations: [],
   } as any;
-  const cml = { CASE: { cast: sevenCast, culpability: { culprits: ["Member Number0"] } } } as any;
-
-  it("with a 7-member cast the violation-specific phrase survives the cap", () => {
-    const phrases = __testables.deriveRequiredCluePhrases(audit, cml);
-    expect(phrases.length).toBeLessThanOrEqual(16);
-    // Before A6-02 the list opened with the fixed ACCEPTANCE lines and the cast-binding rules filled the rest.
-    expect(phrases[0]).not.toMatch(/^ACCEPTANCE:/);
-    expect(phrases).toContain(audit.violations[0].suggestion);
-    expect(phrases.some((p: string) => /clock was tampered with/.test(p))).toBe(true);
-    const payload = __testables.buildFairPlayFeedbackPayload(audit, cml);
-    expect(payload.requiredCluePhrases).toContain(audit.violations[0].suggestion);
-    expect(payload.requiredCluePhrases.length).toBeLessThanOrEqual(18);
-  });
-
-  it("the default (retries-off) path never reaches it: a failed audit makes no clue regeneration", async () => {
-    delete process.env.AGENT_PRE9_ENABLE_LLM_RETRIES;
+  it("a failed audit makes no clue regeneration", async () => {
     mockAuditFairPlay.mockResolvedValue({ overallStatus: "fail", violations: audit.violations, warnings: [], recommendations: [], cost: 0.01 });
     try { await runAgent6(agent6Ctx()); } catch { /* a failed audit may end the stage; only the call count matters */ }
     expect(mockAuditFairPlay).toHaveBeenCalled();
@@ -182,46 +167,3 @@ function agent6Ctx(): any {
     },
   };
 }
-
-describe("A5-11 / A5-D04 — Agent 6's fair-play clue regeneration carries the strict contract and locked facts", () => {
-  const regenerate = async (on: boolean) => {
-    setFlag(on);
-    process.env.AGENT_PRE9_ENABLE_LLM_RETRIES = "true";
-    mockAuditFairPlay
-      .mockResolvedValueOnce({
-        overallStatus: "fail",
-        violations: [{ severity: "minor", rule: "Clue Visibility", description: "Need earlier clue visibility.", suggestion: "Move one clue earlier." }],
-        warnings: [], recommendations: [], cost: 0.03,
-      })
-      .mockResolvedValueOnce({ overallStatus: "pass", violations: [], warnings: [], recommendations: [], cost: 0.04 });
-    mockExtractClues.mockResolvedValue({
-      clues: [
-        { id: "clue_anchor", sourceInCML: "CASE.inference_path.steps[0].observation", description: "Grease marked the key slot before supper.", pointsTo: "Timeline tampering occurred before the test scene.", placement: "early", criticality: "essential", evidenceType: "observation", supportsInferenceStep: 1 },
-        { id: "clue_bridge", sourceInCML: "CASE.inference_path.steps[0].correction", description: "Witness notes conflict with the expected clock order.", pointsTo: "Contradiction narrows the timeline path.", placement: "mid", criticality: "essential", evidenceType: "contradiction", supportsInferenceStep: 1 },
-        { id: "clue_late_support", sourceInCML: "CASE.inference_path.steps[0].required_evidence[0]", description: "A porter recalled a scraping sound in the corridor.", pointsTo: "Supports movement reconstruction without introducing new facts.", placement: "late", criticality: "essential", evidenceType: "observation", supportsInferenceStep: 1 },
-      ],
-      redHerrings: [],
-      clueTimeline: { early: ["clue_anchor"], mid: ["clue_bridge"], late: ["clue_late_support"] },
-      fairPlayChecks: { allEssentialCluesPresent: true, noNewFactsIntroduced: true, redHerringsDontBreakLogic: true, redHerringBudgetMet: true },
-      cost: 0.02,
-    });
-    await runAgent6(agent6Ctx());
-    expect(mockExtractClues).toHaveBeenCalledTimes(1);
-    return mockExtractClues.mock.calls[0][1];
-  };
-
-  it("flag OFF: the payload omits them (today)", async () => {
-    const payload = await regenerate(false);
-    expect("strictContract" in payload).toBe(false);
-    expect("lockedFacts" in payload).toBe(false);
-  });
-
-  it("flag ON: the payload carries them", async () => {
-    const payload = await regenerate(true);
-    expect(payload.lockedFacts).toBe(LOCKED);
-    expect(payload.strictContract).toBeTruthy();
-    expect(Object.keys(payload.strictContract).sort()).toEqual([
-      "requiredDirectCulpritClue", "requiredIdToSourceMappings", "requiredLateClueSlot", "requiredStepCoverageFloors", "strictSourcePaths",
-    ]);
-  });
-});

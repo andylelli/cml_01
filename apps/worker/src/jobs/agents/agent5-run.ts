@@ -59,6 +59,7 @@ import {
   sanitizeRedHerringOverlap,
   separateRedHerringsFromSolution,
 } from "./agent5/coverage-retries.js";
+import { topUpRedHerringsAfterSeparation } from "./agent5/red-herring-topup.js";
 import {
   applyFinalCoverageRepairAndGate,
   purgeUnmappableDiscriminatingEvidenceIds,
@@ -375,6 +376,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   // true-solution correction language, run one bounded regeneration pass and hard-fail
   // if overlap still persists.
   clues = await separateRedHerringsFromSolution(ctx, run, state, clues);
+
+  // A5-Q04 (AGENT5_RED_HERRING_TOPUP, default OFF): red herrings are lost to the separation above, not to
+  // the model, so the repair sits after it — one targeted call for the missing ones only. OFF: no-op.
+  clues = await topUpRedHerringsAfterSeparation(ctx, run, state, clues);
 
   const hardLogicLockedFacts = runDeterministicClueChecks(ctx, run, clues);
 

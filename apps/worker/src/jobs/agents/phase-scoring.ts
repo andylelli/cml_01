@@ -1,5 +1,5 @@
 /**
- * The per-phase scoring step of each upstream agent: adapter → vanity scorer → honest scorer.
+ * The per-phase scoring step of each upstream agent: the honest scorer on the real artifact.
  *
  * CR-03 / SCO-12: these bodies were closures inside each runner's `executeAgentWithRetry` call, so the
  * only way to exercise them was a run. Moved here verbatim (inputs made explicit, nothing else changed)
@@ -8,28 +8,32 @@
  *
  * Agent 3's vanity score is built from run counters (attempts, repairs) and stays in its runner; its
  * honest scorer `scoreRealCml` is characterised directly.
+ *
+ * SCO-Q07 (owner decision, 2026-10-02): 2b, 2d and 6.5 — the last vanity scorers and their adapters — are
+ * replaced by honest tables; every wired upstream phase is now an honest score.
+ *
+ * A1X-Q02 (owner decision, 2026-10-02): Agents 1, 2 and 2c score the SHIPPED artifact. Their runners generate
+ * through `runUnscoredStage` and call `recordShippedPhaseScore` once their post-processing (backfill,
+ * normalisation, genders, sensory atoms and fallbacks, the scene gate) has run — as Agent 5 does.
  */
 import type { CastCheckResult } from "@cml/prompts-llm";
 import { computeActSceneCounts } from "@cml/prompts-llm";
 import type { PhaseScore } from "@cml/story-validation";
 import {
-Agent65WorldBuilderScorer,
-CharacterProfilesScorer,
-TemporalContextScorer,
 getChapterTargetTolerance,
 getSceneTarget,
 scoreRealBackground,
 scoreRealCast,
+scoreRealCharacterProfiles,
 scoreRealHardLogic,
 scoreRealLocations,
 scoreRealNarrative,
-scoreRealSetting
+scoreRealSetting,
+scoreRealTemporalContext,
+scoreRealWorldDocument
 } from "@cml/story-validation";
-import {
-adaptCharacterProfilesForScoring,
-adaptTemporalContextForScoring
-} from "../scoring-adapters/index.js";
-import { honestScore } from "./shared.js";
+import { describeError } from "./run-utils.js";
+import { honestScore, runStage, type StageRunContext, type StageSpec } from "./shared.js";
 
 export interface ScoredPhase<A> {
   adapted: A;
@@ -58,15 +62,9 @@ export async function scoreCastPhase(
   };
 }
 
-/** Agent 2b — character profiles (no honest scorer). */
+/** Agent 2b — character profiles, against the cast roster and the CML's culprit. */
 export async function scoreCharacterProfilesPhase(profiles: AnyObj, cast: AnyObj, cml: AnyObj): Promise<ScoredPhase<unknown>> {
-  const scorer = new CharacterProfilesScorer();
-  const adapted = adaptCharacterProfilesForScoring(profiles);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: { agent2_cast: cast },
-    cml,
-  });
-  return { adapted, score };
+  return { adapted: profiles, score: honestScore(() => scoreRealCharacterProfiles(profiles, cast, cml), "agent2b-character-profiles") };
 }
 
 /** Agent 2c — location profiles. */
@@ -80,17 +78,10 @@ export async function scoreLocationsPhase(
   return { adapted: locResult, score: honestScore(() => scoreRealLocations(locResult), "agent2c-location") };
 }
 
-/** Agent 2d — temporal context (no honest scorer). */
+/** Agent 2d — temporal context, against the setting's decade. */
 export async function scoreTemporalContextPhase(tempResult: AnyObj, setting: AnyObj, backgroundContext: AnyObj): Promise<ScoredPhase<unknown>> {
-  const scorer = new TemporalContextScorer();
-  const adapted = adaptTemporalContextForScoring(tempResult, setting);
-  const score = await scorer.score({}, adapted, {
-    previous_phases: {
-      agent1_setting: setting,
-      agent2e_background_context: backgroundContext,
-    },
-  });
-  return { adapted, score };
+  void backgroundContext;
+  return { adapted: tempResult, score: honestScore(() => scoreRealTemporalContext(tempResult, setting), "agent2d-temporal-context") };
 }
 
 /** Agent 2e — background context. */
@@ -129,16 +120,9 @@ export async function scoreHardLogicPhase(
   return { adapted: devices, score: honestScore(() => scoreRealHardLogic(devices), "agent3b-hard-logic") };
 }
 
-/** Agent 6.5 — world document (no adapter, no honest scorer). */
+/** Agent 6.5 — world document, against the CML's cast (victims optional) and decade. */
 export async function scoreWorldDocumentPhase<W>(worldDoc: W, cml: AnyObj): Promise<ScoredPhase<W>> {
-  const scorer = new Agent65WorldBuilderScorer();
-  const castSize = ((cml as any)?.CASE?.cast ?? []).length;
-  const score = await scorer.score({}, worldDoc as any, {
-    previous_phases: {},
-    cml,
-    castSize,
-  } as any);
-  return { adapted: worldDoc, score };
+  return { adapted: worldDoc, score: honestScore(() => scoreRealWorldDocument(worldDoc as any, cml), "agent65-world-builder") };
 }
 
 /** Agent 7 — narrative outline, with the scene-count gate that forces F outside tolerance. */
@@ -191,4 +175,60 @@ export async function scoreNarrativePhase(
 
   void warnings;
   return { adapted, score };
+}
+
+/**
+ * A1X-Q02 — the stage's generate step, timed and costed exactly as `runStage` does, WITHOUT scoring the raw
+ * output: the runner scores the shipped artifact with `recordShippedPhaseScore` after its post-processing.
+ * With scoring on or off this is `runStage`'s scoring-off branch — one `generate()`, the same inputs.
+ */
+export async function runUnscoredStage<T>(
+  ctx: StageRunContext,
+  spec: Pick<StageSpec<T>, "agentId" | "phaseName" | "generate">,
+): Promise<T> {
+  return runStage({ ...stageContextOf(ctx), enableScoring: false }, {
+    ...spec,
+    score: async () => { throw new Error(`${spec.phaseName}: scored after post-processing (A1X-Q02)`); },
+  });
+}
+
+const stageContextOf = (ctx: StageRunContext): StageRunContext => ({
+  enableScoring: ctx.enableScoring,
+  scoreAggregator: ctx.scoreAggregator,
+  retryManager: ctx.retryManager,
+  scoringLogger: ctx.scoringLogger,
+  runId: ctx.runId,
+  projectId: ctx.projectId,
+  warnings: ctx.warnings,
+  savePartialReport: ctx.savePartialReport,
+  agentCosts: ctx.agentCosts,
+  agentDurations: ctx.agentDurations,
+});
+
+/**
+ * A1X-Q02 — score the artifact the stage SHIPS and record it as `runStage` would have recorded the raw one:
+ * upsert, scoring log, partial report, the below-threshold warning; a scorer error is logged and warned, never
+ * thrown. Duration and cost are the stage's ledger entries, so a schema re-roll's time and cost are included.
+ */
+export async function recordShippedPhaseScore(
+  ctx: StageRunContext,
+  agentId: string,
+  phaseName: string,
+  score: () => Promise<ScoredPhase<unknown>>,
+): Promise<void> {
+  if (!(ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger)) return;
+  const durationMs = ctx.agentDurations[agentId] ?? 0;
+  const cost = ctx.agentCosts[agentId] ?? 0;
+  try {
+    const { score: phaseScore } = await score();
+    ctx.scoreAggregator.upsertPhaseScore(agentId, phaseName, phaseScore, durationMs, cost);
+    ctx.scoringLogger.logPhaseScore(agentId, phaseName, phaseScore, durationMs, cost, ctx.runId, ctx.projectId || "");
+    try { await ctx.savePartialReport(); } catch { /* best-effort */ }
+    if (!ctx.scoreAggregator.passesThreshold(phaseScore)) {
+      ctx.warnings.push(`${phaseName}: below threshold (score ${phaseScore.total}/100, ${phaseScore.grade}) — recorded, not retried`);
+    }
+  } catch (scoringError) {
+    ctx.scoringLogger.logScoringError(agentId, phaseName, scoringError, ctx.runId, ctx.projectId || "");
+    ctx.warnings.push(`${phaseName}: Scoring failed - ${describeError(scoringError)} - continuing without retry`);
+  }
 }

@@ -42,16 +42,17 @@ export class ScoreAggregator {
   private retryManager?: RetryManager;
 
   constructor(
-    thresholdConfig: ThresholdConfig = { mode: 'standard' },
+    thresholdConfig: ThresholdConfig = {},
     retryManager?: RetryManager
   ) {
-    this.thresholdConfig = thresholdConfig;
+    // SCO-Q03: `mode` is accepted and ignored (one threshold table); the report records only the overrides.
+    this.thresholdConfig = thresholdConfig.overrides ? { overrides: thresholdConfig.overrides } : {};
     this.retryManager = retryManager;
   }
 
   /**
    * Add a phase score to the aggregation
-   * @param agent - Agent identifier (e.g., 'agent4-hard-logic')
+   * @param agent - Agent identifier (e.g., 'agent3b_hard_logic_devices')
    * @param phaseName - Human-readable phase name (e.g., 'Hard Logic Devices')
    * @param score - The phase score
    * @param durationMs - Time taken for this phase
@@ -75,7 +76,9 @@ export class ScoreAggregator {
     errors?: string[],
   ): PhaseReport {
     const threshold = this.getThresholdForAgent(agent);
-    const passed = passesThreshold(score, this.thresholdConfig);
+    // SCO-D12: a check that did not run neither passes nor fails a bar; it is recorded as not failed so it
+    // cannot fail `phase_thresholds_met`, and generateReport leaves it out of every aggregate.
+    const passed = score.not_applicable ? true : passesThreshold(score, this.thresholdConfig);
     const retryCount = this.retryManager?.getRetryCount(agent) || 0;
     const maxRetries = this.retryManager?.getMaxRetries(agent) || 0;
     const retryHistory = this.retryManager?.getRetryHistory(agent) || [];
@@ -180,8 +183,10 @@ export class ScoreAggregator {
     const completedAt = metadata.completed_at || new Date();
     const totalDuration = completedAt.getTime() - metadata.started_at.getTime();
 
-    // Calculate overall score (average of phase totals)
-    const phaseScores = this.phases.map((p) => p.score.total);
+    // Calculate overall score (average of phase totals). SCO-D12: a phase whose check did not run
+    // (`not_applicable`, e.g. a skipped novelty audit) is reported but is not part of any aggregate.
+    const scoredPhases = this.phases.filter((p) => !p.score.not_applicable);
+    const phaseScores = scoredPhases.map((p) => p.score.total);
     const overallScore =
       phaseScores.length > 0
         ? phaseScores.reduce((sum, score) => sum + score, 0) / phaseScores.length
@@ -270,15 +275,15 @@ export class ScoreAggregator {
     const resolvedDelta = Math.max(0, preRepairTotal - releaseGateTotal);
 
     // Calculate summary statistics
-    const phasesPassed = this.phases.filter((p) => p.passed).length;
-    const phasesFailed = this.phases.filter((p) => !p.passed).length;
+    const phasesPassed = scoredPhases.filter((p) => p.passed).length;
+    const phasesFailed = scoredPhases.filter((p) => !p.passed).length;
     const passRate =
-      this.phases.length > 0
-        ? parseFloat(((phasesPassed / this.phases.length) * 100).toFixed(1))
+      scoredPhases.length > 0
+        ? parseFloat(((phasesPassed / scoredPhases.length) * 100).toFixed(1))
         : 0;
 
     // Find weakest and strongest phases (by phase_name for readability)
-    const sortedPhases = [...this.phases].sort(
+    const sortedPhases = [...scoredPhases].sort(
       (a, b) => a.score.total - b.score.total
     );
     const weakestPhase = sortedPhases[0]?.phase_name ?? sortedPhases[0]?.score.agent;
@@ -370,7 +375,7 @@ export class ScoreAggregator {
       summary: {
         phases_passed: phasesPassed,
         phases_failed: phasesFailed,
-        total_phases: this.phases.length,
+        total_phases: scoredPhases.length, // SCO-D12: N/A phases are in `phases`, not counted
         pass_rate: passRate,
         weakest_phase: weakestPhase,
         strongest_phase: strongestPhase,
@@ -411,11 +416,8 @@ export class ScoreAggregator {
       return ORCHESTRATOR_THRESHOLDS[agent];
     }
 
-    // Mode-based floor for everything else
-    const mode = this.thresholdConfig.mode;
-    if (mode === 'strict') return 85;
-    if (mode === 'lenient') return 65;
-    return 75; // standard
+    // SCO-Q03: one floor for everything else (the strict / lenient modes are deleted)
+    return 75;
   }
 
   /**

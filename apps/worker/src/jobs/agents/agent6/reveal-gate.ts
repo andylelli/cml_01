@@ -49,7 +49,6 @@ export async function runRevealGate(ctx: OrchestratorContext, run: Agent6Run, st
         );
         // cost from byAgent is cumulative across the run → overwrite; durationMs is per-call → add.
         ctx.agentCosts["agent6_blind_reader"] = earlyMidReader.cost;
-        run.rebaseCost("Agent6-BlindReader"); // owner decision 7: the reveal gate's read is not a retry
         ctx.agentDurations["agent6_blind_reader"] =
           (ctx.agentDurations["agent6_blind_reader"] || 0) + earlyMidReader.durationMs;
         const verdict = evaluateRevealVerdict({

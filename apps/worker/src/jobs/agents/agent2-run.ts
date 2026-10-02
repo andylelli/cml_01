@@ -9,7 +9,7 @@
 import { resolveIdentity } from "@cml/cml";
 import { coerceMotiveStrength as normaliseMotiveStrength, coerceAccessPlausibility as normaliseAccessPlausibility, coerceRelationshipTension as normaliseRelationshipTension } from "@cml/prompts-llm";
 import { readModeFlag } from "./mode-flag.js";
-import { scoreCastPhase } from "./phase-scoring.js";
+import { recordShippedPhaseScore, runUnscoredStage, scoreCastPhase } from "./phase-scoring.js";
 import {
   designCast,
   generateCastNames,
@@ -20,7 +20,6 @@ import {
 import { validateArtifact } from "@cml/cml";
 import {
   type OrchestratorContext,
-  runStage,
   appendRetryFeedback,
 } from "./shared.js";
 import { isDetectiveArchetype } from "./identity-match.js";
@@ -781,14 +780,14 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     projectId: ctx.projectId || "",
   });
 
-  ctx.cast = await runStage(ctx, {
+  // A1X-Q02: generate here; the phase is scored below, on the cast that ships (normalised, repaired, gendered).
+  ctx.cast = await runUnscoredStage(ctx, {
     agentId: "agent2_cast",
     phaseName: "Cast Design",
     generate: async () => {
       const castResult = await designCast(ctx.client, castInputs());
       return { result: castResult, cost: castResult.cost };
     },
-    score: async (castResult) => scoreCastPhase(castResult.cast, setting.setting, ctx.inputs.castNames?.length || (ctx.inputs.castSize || 6) + 1, checkCast, ctx.warnings),
   });
 
   const cast = ctx.cast!;
@@ -877,6 +876,10 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   }
   castSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Cast schema warning: ${warning}`));
   applyCastGenders(((ctx.cast!.cast as unknown) as { characters: Array<Record<string, unknown>> }).characters ?? [], ctx.inputs.castGenders, ctx.warnings);
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the cast that ships, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent2_cast", "Cast Design", () =>
+    scoreCastPhase(ctx.cast!.cast, setting.setting, totalCastSize, checkCast, ctx.warnings));
 
   // Phase-0 shadow: run the deterministic cast checker for telemetry only. Default OFF; when
   // AGENT2_CAST_CHECK is set (shadow/on) it LOGS findings (placeholder/gender/enum/archetype/

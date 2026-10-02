@@ -168,7 +168,10 @@ export function applyDeterministicCluePreAssignment(
   for (const clueId of essentialClueIds) {
     if (anchored.has(clueId)) continue;
     const clue = clues.clues.find((c) => c.id === clueId);
-    const preferredAct = clue?.placement === "early" ? 1 : clue?.placement === "mid" ? 2 : 3;
+    // A7-Q04 (owner decision, 2026-10-02): a clue with no or an invalid placement defaults to act 2 ("mid"),
+    // as forceAssignUncoveredClues, scheduler.ts and beat-scheduler do; it used to fall to act 3, against the
+    // prompt's rule that essential clues are early/mid. 0 of 3,530 archived clues lack a placement.
+    const preferredAct = clue?.placement === "early" ? 1 : clue?.placement === "late" ? 3 : 2;
     const candidateRefs = refs
       .filter((r) => r.act === preferredAct)
       .sort((a, b) => (a.scene.cluesRevealed?.length ?? 0) - (b.scene.cluesRevealed?.length ?? 0));

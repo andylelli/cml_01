@@ -20,9 +20,15 @@
  * Not reproducible from a single agent: the 15-phase scoring report (apps/api/data/reports) and the
  * API's project activity.jsonl — those are pipeline/API-level aggregates.
  *
- * Fidelity note: `coverageResult` and `outlineCoverageIssues` are computed by Agents 6/6.5 and are NOT
- * persisted as artifacts, so they are stubbed (empty / no-critical-gaps). The replay is therefore
- * FAITHFUL but not bit-identical to the original run — ideal for iterating on prose quality.
+ * Fidelity note: `coverageResult` and `outlineCoverageIssues` are computed by Agents 5/7 and are NOT
+ * persisted as artifacts, so they are left ABSENT — "not evaluated", exactly as a resume leaves them
+ * (ORC-D02, 2026-10-02; they used to be stubbed as "evaluated, no critical gaps"). Agent 9 reads
+ * neither, so prose is unaffected. The replay is FAITHFUL but not bit-identical to the original run.
+ *
+ * Scoring (ORC-Q02, owner decision 2026-10-02): the rubric is scored by the LIVE path,
+ * `runRubricScoring` (rubric-scoring.ts) — RUBRIC_JUDGE_MODEL, the structural verifiers, the chapter
+ * boundaries and geometry's `noResolution` verdict, exactly as a pipeline run. It used to carry its own
+ * judge call without any of those. Every report and REPLAY_RESULT_OUT records `scoring_path`.
  *
  * Usage (from repo root):
  *   node --use-system-ca apps/worker/dist/jobs/agent9-replay.js <projectId> [label]
@@ -44,7 +50,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { AzureOpenAIClient } from "@cml/llm-client";
-import { createLLMRubricJudge, scoreStory } from "@cml/rubric-score";
+import type { ScoreAggregator } from "@cml/story-validation";
 
 import { runAgent9 } from "./agents/agent9-run.js";
 import type { OrchestratorContext } from "./agents/shared.js";
@@ -52,6 +58,7 @@ import { createOrchestratorContext } from "./agents/context.js";
 import { latestArtifact, loadArtifactStore, loadProjectSpec } from "./artifact-store.js";
 import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import { RunLogger } from "./run-logger.js";
+import { runRubricScoring } from "./rubric-scoring.js";
 import {
   assembleFullProse,
   normalizeStoryText as normalizeText,
@@ -128,6 +135,7 @@ function renderRubricMarkdown(
     "",
   );
 
+  L.push(`_Scored by ${SCORING_PATH}._`, "");
   L.push(`## Category marks`, "");
   L.push(`| Category | Mark | Note |`, `|---|---:|---|`);
   for (const c of scored.categories ?? []) {
@@ -166,31 +174,52 @@ function renderRubricMarkdown(
   return L.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
 }
 
+/** ORC-Q02: which scorer produced a replay's rubric numbers. Recorded on every report. */
+const SCORING_PATH = "runRubricScoring (live pipeline path, rubric-scoring.ts)";
+
+/**
+ * ORC-Q02 — score through the LIVE `runRubricScoring`, the body `pipeline/finalize.ts` calls.
+ *
+ * That function reports through `aggregator.upsertDiagnostic("rubric_score", ...)` and `warnings`
+ * rather than a return value, so a capturing aggregator collects the diagnostic and maps it back to
+ * the shape this file's report writers read. A `not_measured` diagnostic (judge refused / failed) and
+ * "no diagnostic at all" (RUBRIC_SCORING_MODE=off or read-only, or prose too short) both return
+ * `scored: null`, with the reason. The live path does not emit `what_works` or `chapter_issues`, so the
+ * markdown report no longer carries those two sections.
+ */
 async function runRubric(
   client: AzureOpenAIClient,
-  proseText: string,
+  prose: unknown,
   cml: unknown,
   runId: string,
   projectId?: string,
-): Promise<any | null> {
-  if (proseText.length < 200) return null;
-  if ((process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase() === "off") return null;
-  const model = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
-  const judge = createLLMRubricJudge(
-    (chatArgs: any) =>
-      client.chat({
-        ...chatArgs,
-        model: chatArgs.model ?? model,
-        logContext: { agent: "RubricScorer", runId, projectId: projectId ?? "unknown" },
-      } as any),
-    { model, temperature: 0.2, maxTokens: 4000 },
-  );
-  const scored = await scoreStory({ prose: proseText, cml, judge });
-  console.info(
-    `[Rubric] ${scored.final}/100 (${scored.band}); raw ${scored.rawTotal}` +
-      (scored.capsApplied.length ? `; caps: ${scored.capsApplied.join("; ")}` : ""),
-  );
-  return scored;
+): Promise<{ scored: any | null; notMeasured: string | null; warnings: string[] }> {
+  let diagnostic: Record<string, unknown> | null = null;
+  const capture = {
+    upsertDiagnostic: (key: string, _agent: string, _phase: string, _type: string, details: Record<string, unknown>) => {
+      if (key === "rubric_score") diagnostic = details;
+    },
+  } as unknown as ScoreAggregator;
+  const warnings: string[] = [];
+  await runRubricScoring({ prose, cml, client, aggregator: capture, warnings, runId, projectId, discriminatingPair: null });
+  for (const w of warnings) console.info(`[replay-agent9] ${w}`);
+  const d = diagnostic as Record<string, any> | null;
+  if (!d) return { scored: null, notMeasured: "not scored (RUBRIC_SCORING_MODE off/read-only, or prose too short)", warnings };
+  if (d.not_measured) return { scored: null, notMeasured: `not measured (${d.reason}): ${d.detail ?? ""}`, warnings };
+  return {
+    scored: {
+      final: d.final,
+      band: d.band,
+      rawTotal: d.raw_total,
+      capsApplied: d.caps_applied ?? [],
+      categories: d.categories ?? [],
+      structural: d.structural,
+      judgeModel: d.judge_model,
+      rubric: { overall_view: d.overall_view, main_problems: d.main_problems, fastest_fixes: d.fastest_fixes },
+    },
+    notMeasured: null,
+    warnings,
+  };
 }
 
 /** Write the rubric report (md + json) into the story folder. */
@@ -216,6 +245,9 @@ function writeRubricReport(
         raw_total: scored.rawTotal,
         caps_applied: scored.capsApplied,
         categories: scored.categories,
+        structural: scored.structural ?? null,
+        judge_model: scored.judgeModel ?? null,
+        scoring_path: SCORING_PATH,
       },
       null,
       2,
@@ -252,7 +284,7 @@ async function scoreCheckpoint(checkpointPath: string, workspaceRoot: string): P
   const { filePath, title } = saveReadableStory(prose, runId, storyDir, `Recovered ${runId}`);
   console.log(`[score-checkpoint] story      : ${filePath}`);
 
-  const scored = await runRubric(client, proseText, cml, runId, projectId);
+  const { scored, notMeasured } = await runRubric(client, prose, cml, runId, projectId);
   if (scored) {
     writeRubricReport(storyDir, scored, {
       runId,
@@ -263,6 +295,8 @@ async function scoreCheckpoint(checkpointPath: string, workspaceRoot: string): P
       source: "recovered-from-checkpoint",
     });
     console.log(`[score-checkpoint] rubric     : ${join(storyDir, "rubric-report.md")}`);
+  } else {
+    console.log(`[score-checkpoint] rubric     : ${notMeasured}`);
   }
   console.log(`[score-checkpoint] DONE — ${storyDir}`);
 }
@@ -457,12 +491,11 @@ async function main(): Promise<void> {
     noveltyAudit: undefined,
     characterBundle: undefined,
 
-    // computed-but-not-persisted → stubbed (see fidelity note).
-    // KNOWN DEFECT (code review ORC-07, owner's call with ORC-Q02): a stub reads as "coverage evaluated,
-    // no gaps", which Agent 9's precondition block says must never happen — a resume leaves these
-    // absent and reports UNEVALUATED. Kept as it was so this replay's reports do not move silently.
-    coverageResult: { hasCriticalGaps: false, issues: [], coverageMap: new Map(), uncoveredSteps: [] },
-    outlineCoverageIssues: [],
+    // computed-but-not-persisted → left ABSENT (ORC-D02, see the fidelity note). A stub read as
+    // "coverage evaluated, no gaps"; absent is "not evaluated", which is what a resume reports. Agent 9
+    // reads neither field (MEASURED 2026-10-02: no read under agents/agent9-run.ts or agents/agent9-v2/).
+    coverageResult: undefined,
+    outlineCoverageIssues: undefined,
   });
 
   if (dry) {
@@ -494,9 +527,10 @@ async function main(): Promise<void> {
   const { filePath: storyPath, title } = saveReadableStory(ctx.prose, runId, storyDir, `Replay ${runId}`);
   console.log(`[replay-agent9] story written: ${storyPath}`);
 
-  // ── rubric (same text the live shadow scorer uses) + report ────────────────
+  // ── rubric (the live pipeline scorer, ORC-Q02) + report ────────────────────
   const proseText = assembleFullProse(ctx.prose);
-  const scored = await runRubric(client, proseText, cml, runId, projectId);
+  const { scored, notMeasured } = await runRubric(client, ctx.prose, cml, runId, projectId);
+  if (!scored) console.log(`[replay-agent9] rubric        : ${notMeasured}`);
   if (scored) {
     writeRubricReport(storyDir, scored, {
       runId,
@@ -526,6 +560,9 @@ async function main(): Promise<void> {
           proseChars: proseText.length,
           warnings: ctx.warnings.length,
           errors: ctx.errors.length,
+          // ORC-Q02: which scorer produced `rubric` (null rubric: `rubric_not_measured` says why).
+          scoring_path: SCORING_PATH,
+          rubric_not_measured: scored ? null : notMeasured,
           // null when scoring is off or the prose was too short — the harness reports that as a
           // failed bundle rather than silently scoring it 0, which would look like a regression.
           rubric: scored

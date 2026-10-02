@@ -48,6 +48,7 @@ import {
   type ResumeArtifactName,
 } from "./resume-hydration.js";
 import { saveReadableStory, storyFolderName } from "./story-output.js";
+import { temporalAnchorRunId } from "./agents/agent2d-run.js";
 
 /**
  * Enough of the pipeline to be worth resuming. Below `cml` there is nothing expensive to preserve —
@@ -219,6 +220,17 @@ async function main(): Promise<void> {
       ? { agent9CheckpointPath: (process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim() }
       : {}),
   };
+
+  // A1X-Q04: if Agent 2d re-runs, its date is hashed from the SOURCE run's id (`resumeFromRunId`), not this
+  // run's `resume-<ms>` id — runAgent2d reads it through temporalAnchorRunId. Without an originalRunId the
+  // source id is unknown and this run's id is used (set RESUME_RUN_ID to the recorded id to pin it).
+  if (missing.includes("temporal_context")) {
+    const anchor = temporalAnchorRunId({ runId, projectId, inputs });
+    console.log(
+      `[resume-run] date anchor: Agent 2d re-runs; story date hashed from ${anchor}` +
+        (originalRunId ? " (the source run)" : " (no originalRunId given — NOT the source run unless RESUME_RUN_ID pins it)"),
+    );
+  }
 
   if (dry) {
     console.log(

@@ -12,7 +12,7 @@ import { BACKFILL_WEIGHTS, discriminatingTestTokens, scoreEvidenceCandidate } fr
 import { provesTheAct } from "@cml/prompts-llm";
 import type { Clue, ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData, CaseLockedFact, CaseView } from "@cml/cml";
-import { caseOf } from "@cml/cml";
+import { caseOf, verifiedFixesEnabled } from "@cml/cml";
 import {
   type ClueGuardrailIssue,
   type InferenceCoverageResult,
@@ -329,6 +329,9 @@ export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPa
   // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.
   // The cache box stores even an `undefined` result so the (non-trivial) computation isn't repeated
   // when strict contracts legitimately produce no payload.
+  // A5-12 (owner decision, CML_VERIFIED_FIXES): ON, the memo is bypassed — computed fresh every call, so a
+  // mutation between two calls is always seen and no invalidation can be missed (A5-D06). OFF unchanged.
+  if (verifiedFixesEnabled()) return computeStrictPromptFeedback(cml);
   const key = (cml as unknown as object) ?? undefined;
   if (!key || typeof key !== "object") return computeStrictPromptFeedback(cml);
   const cached = strictPromptFeedbackCache.get(key);
