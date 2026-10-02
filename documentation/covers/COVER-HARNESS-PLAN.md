@@ -194,6 +194,8 @@ The first full matrix costs under **£1**, which is less than one book run.
 | 9 | UI: "Book cover" select on Create (default **No cover**); "The Cover" card on a finished case with style picker + make/remake; routes `GET /api/cover-styles`, `GET/POST /api/projects/:id/cover`, `GET …/cover.png` | DONE — verified in the browser with no key (disabled, reason shown) | `feat(covers): wire` |
 | 10 | Vision analysis `scripts/covers/analyse-samples.mjs` → `library/cover-styles/samples.json` | DONE — 12/15 agree with §1 | `feat(covers): samples` |
 | 11 | First paid matrix: 3 stories × 4 cards at medium (existing stories only, no book runs) | DONE — 12/12; §6 | `docs(covers): matrix` |
+| 12 | **Cover made FIRST in UI runs**: painted from the `setting` artifact (Agent 1) while the book is written, lettered when the `cml` names it, re-lettered with the final title and copied beside the manuscript; statuses painting → art → ready/failed; Create defaults to *auto* | DONE — paint-first path pinned by fake-client tests (no story run, per owner) | `feat(covers): first` |
+| 13 | UI placement: cover at the top of the case beside progress (CoverFigure), controls in *The Cover* card, thumbnail in My Cases (`cover` on `GET /api/projects`) | DONE — verified in the browser on one on-demand cover | `feat(covers): first` |
 
 ## 6. Findings from building it
 
@@ -219,6 +221,14 @@ The first full matrix costs under **£1**, which is less than one book run.
   now split into main + subtitle (`splitTitle`), re-lettered from the saved art with `--reletter` at no cost.
   **Observed, not yet acted on:** every cover repeats one composition — a woman seen from behind, the object in the
   foreground — because the anchors are per story and the brief template fixes the object's position.
+- **BUILT — the cover is made first (2026-10-02).** The setting artifact carries place, atmosphere (visual description,
+  weather, time of day, mood) and era, and NO crime — so a cover painted from it is spoiler-free by construction,
+  which the opening-chapter source never was. The theme (which names the crime) and `physicalConstraints` (which can
+  name the device) are deliberately not read; a test pins both. Lettering is free and repeatable (`letterCover`), so
+  the title follows the book: CML title mid-run, final title at the end, and any later change on read.
+- **WITHDRAWN — a title "defect" that was my mis-read.** I reported the on-demand cover as lettered with the wrong
+  title; it was right — I had compared it against a different case. The change made (synopsis title first, the same
+  source the app shows) is kept as a single source of truth, but it fixed nothing observed.
 - **BUILT — every cover is a fresh draw (2026-10-02).** One seed per call (random unless `--seed` replays one;
   recorded in every brief and in `covers.json`) drives: the card (`auto` = weighted random by fit score + 1, not
   the top card), a blend partner (35% of `auto` covers), the palette, a FRAMING from 10 (`framings.ts`: establishing,

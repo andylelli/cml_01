@@ -170,7 +170,7 @@ export interface MysterySpec {
 	/**
 	 * Book cover (documentation/covers/): "off", "auto", or a style id from GET /api/cover-styles. Free text,
 	 * because the style list is the server's library, not a vocabulary compiled into the app. Default "off" —
-	 * a cover is a paid image call and is only made when asked for.
+	 * "auto" — every run makes a cover first (one image call); "off" opts out.
 	 */
 	coverStyle: string;
 }
@@ -191,7 +191,8 @@ export const defaultSpec = (): MysterySpec => ({
 	targetLength: "medium",
 	humourLevel: DEFAULT_HUMOUR_LEVEL,
 	proseBatchSize: 1,
-	coverStyle: "off",
+	// "auto": a cover is made first in every run, unless the user picks "No cover" (or no image model is configured).
+	coverStyle: "auto",
 });
 
 /**

@@ -55,7 +55,11 @@ onMounted(async () => {
 			...lib.styles.map((s) => ({ value: s.id, label: s.label })),
 		];
 		coverNote.value = lib.image ? null : `Unavailable — ${lib.imageError ?? "no image model configured"}`;
-		if (!lib.image) coverOptions.value = [];
+		if (!lib.image) {
+			coverOptions.value = [];
+			// Covers cannot be made here — do not send a style the server will only skip.
+			if (spec.value.coverStyle !== "off") spec.value.coverStyle = "off";
+		}
 	} catch {
 		coverOptions.value = [];
 	}

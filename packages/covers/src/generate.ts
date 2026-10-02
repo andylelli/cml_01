@@ -38,6 +38,8 @@ export interface GenerateCoversOptions {
   logContext?: { runId: string; projectId: string };
   /** Parallel image calls. Default 3. */
   concurrency?: number;
+  /** false → paint the art only; letter it later with letterCover() once the title exists. Default true. */
+  letter?: boolean;
   /** Replay a recorded seed. Omitted → a fresh random seed, so every run differs. */
   seed?: number;
   log?: (line: string) => void;
@@ -100,6 +102,11 @@ export const generateCovers = async (opts: GenerateCoversOptions): Promise<Cover
             writeFileSync(artPath, res.png);
             r.artPath = relative(opts.outDir, artPath);
             r.image = { provider: res.provider, model: res.model, quality, latencyMs: res.latencyMs, usage: res.usage };
+            if (opts.letter === false || !opts.input.title.trim()) {
+              // Art only: the title is not known yet (a cover painted FIRST) — letterCover() sets it later.
+              log(`[covers] ${b.id}: art done in ${(res.latencyMs / 1000).toFixed(1)}s (title to come)`);
+              continue;
+            }
             const cover = await typesetCover({
               art: res.png,
               title: opts.input.title,

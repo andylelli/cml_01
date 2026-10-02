@@ -72,3 +72,43 @@ export const storyInputFromRun = (args: {
     openingText,
   };
 };
+
+/**
+ * Build the input from the run's SETTING artifact (Agent 1) — the first thing a run produces, so the cover
+ * can be painted while the rest of the book is written. Reads `location` and `atmosphere` (visual description,
+ * weather, time of day, mood) plus a few era lines; it deliberately does NOT read the theme, which names the crime.
+ * The title is usually unknown this early; the art is lettered later (letterCover).
+ */
+export const storyInputFromSetting = (args: {
+  setting: Record<string, any> | null | undefined;
+  inputs?: Record<string, unknown>;
+  title?: string;
+  author?: string;
+}): StoryCoverInput => {
+  const root = (args.setting?.setting ?? args.setting ?? {}) as Record<string, any>;
+  const loc = root.location ?? {};
+  const atm = root.atmosphere ?? {};
+  const era = root.era ?? {};
+  const lines = [
+    clean(loc.type) && `Place: ${loc.type}.`,
+    clean(loc.description),
+    clean(atm.visualDescription),
+    clean(atm.weather) && `Weather: ${atm.weather}`,
+    clean(atm.timeOfDay) && `Time of day: ${atm.timeOfDay}`,
+    clean(atm.mood) && `Mood: ${atm.mood}`,
+    Array.isArray(era.transportation) && `Period transport: ${era.transportation.slice(0, 3).join("; ")}.`,
+    Array.isArray(era.technology) && `Period technology: ${era.technology.slice(0, 3).join("; ")}.`,
+  ].filter(Boolean);
+  return {
+    title: args.title ?? "",
+    author: args.author,
+    era: clean(era.decade) ?? clean(args.inputs?.eraPreference) ?? clean(args.inputs?.decade),
+    locationPreset: clean(args.inputs?.locationPreset),
+    tone: clean(args.inputs?.tone),
+    primaryAxis: clean(args.inputs?.primaryAxis),
+    storyAngle: clean(args.inputs?.storyAngle),
+    setting: clean(loc.type),
+    openingText: lines.join("\n"),
+    source: "setting",
+  };
+};

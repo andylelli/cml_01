@@ -14,6 +14,7 @@ const tempStorePath = join(tempRoot, "store.json");
 export async function setup() {
   await fs.mkdir(tempRoot, { recursive: true });
   process.env.CML_JSON_DB_PATH = tempStorePath;
+  process.env.CML_STORIES_DIR = join(tempRoot, "stories");
   process.env.CML_REPORTS_DIR = join(tempRoot, "reports");
   process.env.CML_ACTIVITY_LOG_FILE_PATH = join(tempRoot, "logs", "activity.jsonl");
   process.env.LOG_FILE_PATH = join(tempRoot, "logs", "llm.jsonl");

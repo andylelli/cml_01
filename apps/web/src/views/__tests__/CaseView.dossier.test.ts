@@ -19,6 +19,7 @@ import { useProjectStore } from "../../stores/projectStore";
  */
 
 vi.mock("../../services/api", () => ({
+	fetchCover: vi.fn(async () => null),
 	fetchProjectStatus: vi.fn(async () => ({ projectId: "p1", status: "idle" })),
 	downloadStoryPdf: vi.fn(async () => new Blob()),
 }));

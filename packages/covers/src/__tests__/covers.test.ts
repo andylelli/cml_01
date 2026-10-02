@@ -17,6 +17,9 @@ import {
   readStoryDir,
   splitTitle,
   runCoverPostPass,
+  paintCoverArt,
+  letterCover,
+  storyInputFromSetting,
   listCoverStyles,
   resolveCoverRequest,
   resolveStyleChoices,
@@ -357,6 +360,49 @@ describe("framing light", () => {
       for (const c of resolveStyleChoices("all", cards, input, 1, makeRng(i), anchors)) {
         if (c.framing?.id === "lit-window-night") expect(c.light).toBe("moonlight and one lamp");
       }
+    }
+  });
+});
+
+describe("cover made FIRST — from the setting, lettered later", () => {
+  const SETTING = {
+    setting: {
+      era: { decade: "1940s", transportation: ["petrol rationing", "estate carriages"], technology: ["wireless sets"] },
+      location: { type: "Country house estate", description: "A large manor with formal gardens.", physicalConstraints: ["THE SECRET PASSAGE"] },
+      atmosphere: { visualDescription: "Stone facade under a leaden sky.", weather: "damp spring rain", timeOfDay: "early evening", mood: "dark" },
+    },
+  };
+  it("storyInputFromSetting reads place + atmosphere, never the constraints or the theme", () => {
+    const s = storyInputFromSetting({ setting: SETTING, inputs: { theme: "POISON IN THE PORT", tone: "Dark", primaryAxis: "spatial" } });
+    expect(s.source).toBe("setting");
+    expect(s.era).toBe("1940s");
+    expect(s.openingText).toContain("leaden sky");
+    expect(s.openingText).not.toContain("SECRET PASSAGE");
+    expect(s.openingText).not.toContain("POISON");
+    expect(buildAnchorPrompt(s).user).toContain("SETTING NOTES");
+  });
+  it("paints untitled art, then letterCover sets — and resets — the title for free", async () => {
+    process.env.CML_COVER_STYLES_DIR = CARDS;
+    try {
+      const out = join(tmp, "first");
+      let calls = 0;
+      const r = await paintCoverArt({
+        outDir: out, style: "auto", input: storyInputFromSetting({ setting: SETTING }), env: {} as NodeJS.ProcessEnv,
+        image: { provider: "fake", model: "m", generate: async () => { calls++; return { png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 }; } },
+        llm: { chat: async () => ({ content: JSON.stringify({ place: "a manor", clue_objects: ["a lamp"] }) }) },
+      });
+      expect(r.ok).toBe(true);
+      expect(existsSync(r.artPath!)).toBe(true);
+      expect(existsSync(join(out, "cover.png"))).toBe(false);
+      const a = await letterCover({ outDir: out, title: "The Manor Clock", fontsDir: FONTS });
+      expect(existsSync(a.coverPath)).toBe(true);
+      const first = readFileSync(a.coverPath);
+      await letterCover({ outDir: out, title: "A Different Title", fontsDir: FONTS });
+      expect(readFileSync(a.coverPath).equals(first)).toBe(false);
+      expect(calls).toBe(1);
+      expect(JSON.parse(readFileSync(join(out, "covers.json"), "utf8")).title).toBe("A Different Title");
+    } finally {
+      delete process.env.CML_COVER_STYLES_DIR;
     }
   });
 });

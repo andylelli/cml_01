@@ -13,10 +13,11 @@ export {
   resolveImageQuality,
 } from "./image-client.js";
 export { COVER_HEIGHT, COVER_WIDTH, fitTitle, luminance, registerCoverFonts, splitTitle, typesetCover } from "./typeset.js";
-export { OPENING_CHAPTERS, parseManuscript, readStoryDir, storyInputFromRun } from "./story-input.js";
+export { OPENING_CHAPTERS, parseManuscript, readStoryDir, storyInputFromRun, storyInputFromSetting } from "./story-input.js";
+export { letterCover } from "./letter.js";
 export { IMAGE_SIZE, generateCovers, type GenerateCoversOptions } from "./generate.js";
 export { renderContactSheet } from "./contact-sheet.js";
 export { coverGenEnabled, resolveCoverRequest } from "./flags.js";
 export { createCoverLlmFromEnv } from "./llm.js";
-export { runCoverPostPass, type CoverPostPassArgs, type CoverPostPassResult } from "./postpass.js";
+export { paintCoverArt, runCoverPostPass, type CoverPostPassArgs, type CoverPostPassResult, type PaintArtArgs } from "./postpass.js";
 export { listCoverStyles } from "./cards.js";

@@ -8,7 +8,7 @@ import { createRepository } from "./db.js";
 import { validateCml, MOJIBAKE_REPLACEMENTS } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle } from "@cml/prompts-llm";
-import { storyTitleFor, withStoryTitle } from "./project-title.js";
+import { cleanStoryTitle, storyTitleFor, withStoryTitle } from "./project-title.js";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import {
   buildLlmLogger as buildWorkerLlmLogger,
@@ -20,7 +20,7 @@ import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { registerNarrationRoutes } from "./narration.js";
 import { registerRunRoute } from "./run-route.js";
-import { registerCoverRoutes, startCover } from "./covers.js";
+import { coverSummaryFor, hasPaintedCover, registerCoverRoutes, setCoverTitle, startCover, startCoverFirst } from "./covers.js";
 import { resolveCoverRequest } from "@cml/covers";
 
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"] as const);
@@ -58,7 +58,8 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "../../..");
 const libraryWorksDir = path.resolve(workspaceRoot, "library", "works");
-const storiesDir = path.resolve(workspaceRoot, "stories");
+// CML_STORIES_DIR — the same override resume-run honours; the API tests point it at a temp dir.
+const storiesDir = path.resolve((process.env.CML_STORIES_DIR ?? "").trim() || path.join(workspaceRoot, "stories"));
 
 /**
  * A_98 — the samples endpoints read `library/works/`, which is where the corpus lives.
@@ -755,8 +756,28 @@ const runPipeline = async (
     // Artifact callback — persists each artifact to the DB immediately after the
     // agent that generated it completes. This allows the UI to display data via
     // polling during the run rather than waiting for the full pipeline to finish.
+    // Book cover (documentation/covers/): UI "Book cover" select → spec.coverStyle; CML_COVER_GEN for runs that
+    // make no choice. The cover is made FIRST — painted from the setting (the run's first artifact), lettered
+    // when the CML names the book — so it appears beside the artifacts while the book is written. Every cover
+    // step is fire-and-forget: it can neither fail nor delay the run.
+    const coverStyle = resolveCoverRequest(specPayload?.coverStyle);
+    const coverPaths = { workspaceRoot, storiesDir };
+
     const onArtifact = async (type: string, payload: unknown) => {
       await repo.createArtifact(projectId, type, payload, null);
+      if (!coverStyle) return;
+      if (type === "setting") {
+        void startCoverFirst(repo, coverPaths, {
+          projectId,
+          runId,
+          style: coverStyle,
+          setting: payload,
+          inputs: specPayload as Record<string, unknown> | undefined,
+        });
+      } else if (type === "cml") {
+        const title = cleanStoryTitle((payload as { CASE?: { meta?: { title?: unknown } } } | null)?.CASE?.meta?.title);
+        if (title) void setCoverTitle(repo, coverPaths, { projectId, runId, title });
+      }
     };
 
     // Call real LLM pipeline
@@ -910,11 +931,14 @@ const runPipeline = async (
       await repo.addRunEvent(runId, "pipeline_warnings", `Warnings: ${result.warnings.join(", ")}`);
     }
 
-    // Book cover — optional post-pass (UI "Book cover" select → spec.coverStyle; CML_COVER_GEN for runs that
-    // make no choice). Started AFTER pipeline_complete and not awaited: it can neither fail nor delay the book.
-    const coverStyle = resolveCoverRequest(specPayload?.coverStyle);
+    // Book cover, last step: re-letter with the final title and copy it beside the manuscript. Only when the
+    // run's early cover never started (no setting artifact) is one made now, from the finished chapters.
     if (coverStyle && storyRelPath) {
-      void startCover(repo, {
+      const storyDir = path.join(storiesDir, path.dirname(storyRelPath));
+      const finalTitle = cleanStoryTitle(synopsis.title) ?? "Untitled Mystery";
+      if (await hasPaintedCover(repo, projectId)) {
+        void setCoverTitle(repo, coverPaths, { projectId, runId, title: finalTitle, storyDir });
+      } else void startCover(repo, coverPaths, {
         projectId,
         runId,
         style: coverStyle,
@@ -1350,7 +1374,15 @@ export const createServer = () => {
 
   app.get("/api/projects", (_req, res) => {
     repoPromise
-      .then(async (repo) => Promise.all((await repo.listProjects()).map((project) => withStoryTitle(repo, project))))
+      .then(async (repo) =>
+        Promise.all(
+          (await repo.listProjects()).map(async (project) => ({
+            ...(await withStoryTitle(repo, project)),
+            // The cases list shows each book's cover (documentation/covers/); null when there is none.
+            cover: await coverSummaryFor(repo, project.id),
+          })),
+        ),
+      )
       .then((projects) => res.json({ projects }))
       .catch(() => res.status(500).json({ error: "Failed to list projects" }));
   });

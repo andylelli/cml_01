@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import AppButton from "../components/ui/AppButton.vue";
+import CoverFigure from "../components/CoverFigure.vue";
 import AppIcon from "../components/ui/AppIcon.vue";
 import HeroBanner from "../components/ui/HeroBanner.vue";
 import StepCard from "../components/ui/StepCard.vue";
@@ -9,6 +10,7 @@ import {
 	fetchNarrationLibrary,
 	fetchProjects,
 	narrationDownloadUrl,
+	type CoverInfo,
 	type NarrationSummary,
 	type Project,
 } from "../services/api";
@@ -25,6 +27,14 @@ import {
  */
 
 const props = defineProps<{ activeProjectId: string | null }>();
+/** The list row's cover in the shape CoverFigure takes (documentation/covers/). */
+const coverOf = (project: Project): CoverInfo => ({
+	inProgress: project.cover?.status === "painting",
+	status: project.cover?.status as CoverInfo["status"],
+	imageUrl: project.cover?.imageUrl ?? undefined,
+	lettered: project.cover?.lettered,
+});
+
 const emit = defineEmits<{ openWorkshop: []; open: [Project] }>();
 
 const projects = ref<Project[]>([]);
@@ -147,7 +157,23 @@ onBeforeUnmount(() => {
 							: 'border-line bg-surface'
 					"
 				>
+					<!-- The book's cover when it has one (documentation/covers/) — it is made first in a run, so a
+					     running case shows its cover as soon as it is painted. Otherwise the status glyph. -->
+					<button
+						v-if="project.cover?.imageUrl || project.cover?.status === 'painting'"
+						type="button"
+						class="shrink-0 self-start sm:self-center"
+						:aria-label="`Open ${displayName(project)}`"
+						@click="emit('open', project)"
+					>
+						<CoverFigure
+							size="sm"
+							:cover="coverOf(project)"
+							:title="displayName(project)"
+						/>
+					</button>
 					<AppIcon
+						v-else
 						:name="project.status === 'running' ? 'gear' : 'bookmark'"
 						:size="18"
 						:class="[

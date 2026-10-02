@@ -21,13 +21,19 @@ export const buildAnchorPrompt = (input: StoryCoverInput) => {
     input.tone && `Tone: ${input.tone}`,
     input.storyAngle && `Story angle: ${input.storyAngle}`,
   ].filter(Boolean).join("\n");
+  // Two sources: the opening chapters (a cover made after the book), or the SETTING notes (a cover made first,
+  // while the book is still being written — the setting carries no crime at all, so it is spoiler-free).
+  const fromSetting = input.source === "setting";
+  const where = fromSetting ? "the setting" : "the opening";
   const system =
     "You are an art director choosing what a vintage mystery-novel cover will depict. " +
-    "You read the opening chapters of a novel and pick concrete, drawable things that a reader meets on the first pages. " +
+    (fromSetting
+      ? "You read the setting notes for a novel and pick concrete, drawable things that belong to that place and period. "
+      : "You read the opening chapters of a novel and pick concrete, drawable things that a reader meets on the first pages. ") +
     "Reply with one JSON object and nothing else.";
   const user = `${facts}
 
-OPENING CHAPTERS (the only text you may draw from):
+${fromSetting ? "SETTING NOTES" : "OPENING CHAPTERS"} (the only text you may draw from):
 """
 ${input.openingText.slice(0, MAX_OPENING_CHARS)}
 """
@@ -39,10 +45,10 @@ Return this JSON object:
   "time_of_day": "one of: dawn, morning, afternoon, dusk, night",
   "weather": "2-5 words",
   "season": "one of: spring, summer, autumn, winter",
-  "clue_objects": ["exactly 3 everyday period objects that belong to the place and appear in the opening — a clock, a key, a lamp, a teacup, a letter, a glove, a hat — 2-8 words each, most paintable first"],
+  "clue_objects": ["exactly 3 everyday period objects that belong to the place and fit ${where} — a clock, a key, a lamp, a teacup, a letter, a glove, a hat — 2-8 words each, most paintable first"],
   "mood": "2-4 words",
-  "figure": "one living character from the opening, described by period clothing and posture only, no name, 4-12 words — or null",
-  "era_details": ["exactly 2 period details visible in the opening (vehicles, clothing, lamps, furniture), 2-6 words each"]
+  "figure": "one living character who would be found in ${where}, described by period clothing and posture only, no name, 4-12 words — or null",
+  "era_details": ["exactly 2 period details from ${where} (vehicles, clothing, lamps, furniture), 2-6 words each"]
 }`;
   return { system, user };
 };

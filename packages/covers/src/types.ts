@@ -54,6 +54,11 @@ export interface StoryCoverInput {
    * from the opening, which a reader sees before any solution — spoiler-safe by construction.
    */
   openingText: string;
+  /**
+   * What `openingText` is. "opening" (default): chapters 1–2 of a finished book. "setting": the run's setting
+   * artifact (Agent 1), so a cover can be painted FIRST, while the book is written — it carries no crime.
+   */
+  source?: "opening" | "setting";
 }
 
 /** The visual facts the cover is built from — the LLM's only job. */

@@ -22,6 +22,8 @@ export type Project = {
   title?: string | null;
   status?: string;
   createdAt?: string;
+  /** The book's cover (documentation/covers/), for the cases list; null/absent when there is none. */
+  cover?: { status: string; imageUrl: string | null; lettered: boolean } | null;
 };
 
 export type Spec = {
@@ -707,7 +709,15 @@ export interface CoverStylesResponse {
   imageError: string | null;
 }
 
+/** An API path (e.g. a cover's `imageUrl`) as an absolute URL the browser can load. */
+export const apiUrl = (pathname: string) => `${apiBase}${pathname}`;
+
 export interface CoverInfo {
+  /** painting → art (untitled, title to come) → ready (lettered); or failed. */
+  status?: "painting" | "art" | "ready" | "failed";
+  lettered?: boolean;
+  title?: string;
+  error?: string;
   path?: string;
   style?: string;
   styles?: string[];
