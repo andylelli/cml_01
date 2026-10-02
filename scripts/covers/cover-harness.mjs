@@ -83,7 +83,9 @@ const quality = covers.resolveImageQuality(opt("quality", process.env.CML_COVER_
 const reuse = opt("reuse-anchors");
 const reusedAnchors = reuse ? JSON.parse((await import("node:fs")).readFileSync(path.resolve(root, reuse), "utf8")) : undefined;
 
-const llm = flag("no-llm") || reusedAnchors ? {} : covers.createCoverLlmFromEnv(process.env);
+// The worker's logger, so the anchor call lands in logs/llm-prompts-full.jsonl under Agent10-CoverAnchors.
+const { buildLlmLogger } = await import(new URL("../../apps/worker/dist/jobs/cli-runtime.js", import.meta.url).href);
+const llm = flag("no-llm") || reusedAnchors ? {} : covers.createCoverLlmFromEnv(process.env, buildLlmLogger(root));
 if (llm.error) console.log(`[covers] text LLM unavailable (${llm.error}) — anchors will fall back to run params`);
 const image = dryRun ? {} : covers.createImageClientFromEnv(process.env);
 if (!dryRun && image.error) {
@@ -123,6 +125,7 @@ for (const { dir, input } of inputs) {
     llm: llm.client,
     image: image.client,
     cardsDir,
+    logContext: { runId: `covers-${stamp}`, projectId: path.basename(dir) },
     log: (l) => console.log(l),
   });
   const ok = manifest.covers.filter((c) => c.coverPath).length;

@@ -6,6 +6,36 @@ the sample images in `temp/covers/`, reproducibly, and cheaply enough to compare
 
 ---
 
+## 0. How to use it
+
+**One-time setup — an image model.** Add ONE of these to `.env.local`:
+
+```
+OPENAI_API_KEY=sk-...            # gpt-image-2 via OpenAI direct (what evaria uses). Simplest.
+```
+or, for Azure, deploy an image model on a resource in an image region and set
+`CML_COVER_IMAGE_PROVIDER=azure`, `CML_COVER_IMAGE_MODEL=<deployment>` and (if it is not the chat resource)
+`AZURE_OPENAI_IMAGE_ENDPOINT` / `AZURE_OPENAI_IMAGE_API_KEY`. Optional: `CML_COVER_IMAGE_QUALITY=low|medium|high`,
+`CML_COVER_LLM_PROVIDER=anthropic` to have Claude pick the anchors.
+
+**Harness (any finished story):**
+```
+node scripts/covers/cover-harness.mjs --list-styles
+node scripts/covers/cover-harness.mjs --latest 3 --styles all --dry-run          # briefs only, ~£0.01
+node scripts/covers/cover-harness.mjs --story stories/<dir> --styles all          # 4 covers, paid
+node scripts/covers/cover-harness.mjs --story stories/<dir> --styles deco-portrait+flat-travel-poster --variants 2
+node scripts/covers/cover-harness.mjs --story stories/<dir> --reuse-anchors temp/covers/out/<dir>/<ts>/anchors.json --styles all
+```
+Output: `temp/covers/out/<story>/<timestamp>/index.html` — every cover side by side with its brief.
+
+**In a run:** UI → Create → step 7 → *Book cover* (default *No cover*). Canary/CLI → `coverStyle: auto` (or a
+card id) in the inputs YAML. `CML_COVER_GEN=true` makes `auto` the default for runs that do not choose.
+**After a run:** open the case → *The Cover* → pick a style → *Make a cover*.
+
+**New styles:** drop samples in `temp/covers/<anything>/`, run `node scripts/covers/analyse-samples.mjs`, and write
+or edit a card in `library/cover-styles/cards/` from `samples.json`. A card is a list of operations — never
+"in the style of" an artist.
+
 ## 1. What the samples are (MEASURED — each image viewed 2026-10-02)
 
 15 images. The `1920s/` and `1930s/` folder labels do **not** match the images: five are modern
@@ -162,7 +192,7 @@ The first full matrix costs under **£1**, which is less than one book run.
 | 7 | Flags registered: `CML_COVER_*` (FLAG-AUDIT addendum; flag checker taught the prefix) | DONE | `feat(covers)` |
 | 8 | Pipeline post-pass: API run (spec `coverStyle`, after `pipeline_complete`, never awaited) + canary (`coverStyle` input, `COVER_SAVED`/`COVER_SKIPPED`); `runCoverPostPass` never throws | DONE | `feat(covers): wire` |
 | 9 | UI: "Book cover" select on Create (default **No cover**); "The Cover" card on a finished case with style picker + make/remake; routes `GET /api/cover-styles`, `GET/POST /api/projects/:id/cover`, `GET …/cover.png` | DONE — verified in the browser with no key (disabled, reason shown) | `feat(covers): wire` |
-| 10 | Vision analysis script for future samples (`analyse-samples.mjs`) | todo | |
+| 10 | Vision analysis `scripts/covers/analyse-samples.mjs` → `library/cover-styles/samples.json` | DONE — 12/15 agree with §1 | `feat(covers): samples` |
 | 11 | First paid matrix: 3 stories × 4 cards at medium | **needs owner yes** | |
 
 ## 6. Findings from building it
@@ -178,6 +208,13 @@ The first full matrix costs under **£1**, which is less than one book run.
   harm; a fix would need the CML's clue list, which the harness does not read.
 - **MEASURED — the flag checker could not see the new flags** (`CML_COVER_*` matched no prefix) and reported clean.
   Prefix added; it then listed all 7.
+- **MEASURED — the vision pass agrees with the hand classification on 12/15.** Disagreements: *Lecturas* (A vs
+  hand B) and both painterly posters read as C — family D may be too thin to keep as its own card.
+- **MEASURED (one model's opinion, not a reader's) — it contradicts §1's "C is the strongest fit".** gpt-4.1-mini
+  rates mystery fit 4–5 for the Deco portraits (A) and 2 for every flat travel poster (C). §1's ranking was
+  INFERRED. The first paid matrix (item 11) is what settles it; until then `auto` keeps ranking by axis/location/tone.
+- **MEASURED — the anchor call is verifiable by label**: one harness dry run added 1 line tagged
+  `Agent10-CoverAnchors` to `logs/llm-prompts-full.jsonl` (0 → 1). The API path passes the same logger.
 - **MEASURED — Azure must not be inferred from the chat resource.** The first `/api/cover-styles` reported
   `azure/gpt-image-2` as configured because the chat endpoint+key were present; that resource has no image
   deployment, so every button press would have 404'd. Azure is now chosen only by `CML_COVER_IMAGE_PROVIDER=azure`

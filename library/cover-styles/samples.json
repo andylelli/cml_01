@@ -1,0 +1,375 @@
+{
+  "generatedAt": "2026-10-02T18:41:45.674Z",
+  "source": "temp\\covers",
+  "deployment": "gpt-4.1-mini",
+  "families": [
+    "A = Art Deco portrait (one stylised figure, sunburst/arch geometry, jewel tones, gold line-work)",
+    "B = period magazine illustration (elongated figure in profile, flat ground colour, one seasonal motif)",
+    "C = flat lithographic travel poster (a place in silhouette, 3-5 flat inks, small figures, framed type band)",
+    "D = painterly poster (gouache/oil, deep space, atmospheric light)",
+    "E = advertising pastiche (dominated by lettering)"
+  ],
+  "agreement": "12/15",
+  "samples": [
+    {
+      "file": "1920s/image_01.jpg",
+      "hand_family": "A",
+      "family": "A",
+      "palette": [
+        "#8b1a2a",
+        "#d9b382",
+        "#1a1a1a",
+        "#4a2a3a",
+        "#c43a4a"
+      ],
+      "medium": "smooth digital or airbrushed style, clean edges, subtle shading, soft texture",
+      "composition": [
+        "close-up portrait centered",
+        "face angled slightly to the left",
+        "large hat and floral detail frame the face"
+      ],
+      "subject": "stylized woman wearing a wide-brimmed hat with a large rose",
+      "figure_treatment": "highly stylized, smooth skin, elegant and elongated features",
+      "type_treatment": "no lettering",
+      "mood": "sophisticated, mysterious, glamorous",
+      "mystery_fit": 4,
+      "one_line": "A sleek, stylized portrait of a glamorous woman with bold colors and elegant lines."
+    },
+    {
+      "file": "1920s/image_02.jpg",
+      "hand_family": "A",
+      "family": "A",
+      "palette": [
+        "#0b3d2e",
+        "#1a5a40",
+        "#d4c88f",
+        "#3a2e1f",
+        "#7a6f4e"
+      ],
+      "medium": "digital or gouache style, clean edges, smooth shading, subtle texture",
+      "composition": [
+        "central figure seated in front of geometric arch",
+        "figure in profile facing right",
+        "large scale figure dominates foreground"
+      ],
+      "subject": "stylized woman in elegant green dress seated by decorative arch",
+      "figure_treatment": "stylized, smooth skin, simplified facial features, elegant posture",
+      "type_treatment": "no lettering",
+      "mood": "elegant, mysterious, vintage",
+      "mystery_fit": 5,
+      "one_line": "A glamorous woman posed against a radiant geometric backdrop in rich jewel tones."
+    },
+    {
+      "file": "1920s/image_03.jpg",
+      "hand_family": "B",
+      "family": "A",
+      "palette": [
+        "#f4b04a",
+        "#0a1a5a",
+        "#f25a6a",
+        "#f9a3a3",
+        "#0a0a0a"
+      ],
+      "medium": "flat gouache with smooth edges, minimal shading, matte texture",
+      "composition": [
+        "large stylized female face dominates center",
+        "hat with bold stripes frames head top left",
+        "floral shapes near neck add decorative detail"
+      ],
+      "subject": "stylized woman’s face with hat and floral accessory",
+      "figure_treatment": "highly stylized, smooth, simplified facial features",
+      "type_treatment": "geometric sans-serif lettering, aligned bottom left, cream color",
+      "mood": "elegant, glamorous, vintage",
+      "mystery_fit": 4,
+      "one_line": "A sleek, stylized portrait of a fashionable woman with bold graphic elements."
+    },
+    {
+      "file": "1920s/image_04.jpg",
+      "hand_family": "B",
+      "family": "B",
+      "palette": [
+        "#4b3a5a",
+        "#f2d6b3",
+        "#d94a2a",
+        "#e6d87a",
+        "#6a6a7a"
+      ],
+      "medium": "watercolor and ink, soft edges, delicate shading, smooth texture",
+      "composition": [
+        "five women arranged in a loose group",
+        "figures mostly full-length, standing and interacting",
+        "scale is life-size, occupying foreground and midground"
+      ],
+      "subject": "five fashionable women in 1920s dresses indoors",
+      "figure_treatment": "elongated, elegant figures with stylized faces and poses",
+      "type_treatment": "no lettering",
+      "mood": "elegant, social, refined",
+      "mystery_fit": 3,
+      "one_line": "A refined indoor scene of stylish women in period dresses, softly rendered."
+    },
+    {
+      "file": "1920s/image_05.jpg",
+      "hand_family": "A",
+      "family": "A",
+      "palette": [
+        "#004d4d",
+        "#a3c293",
+        "#f2e6d8",
+        "#b22222",
+        "#000000"
+      ],
+      "medium": "smooth paint with fine gold line-work, soft shading, minimal texture",
+      "composition": [
+        "central figure facing forward",
+        "head slightly tilted, arm resting on surface",
+        "figure large, fills most of frame"
+      ],
+      "subject": "stylized woman in 1920s fashion with feathered headpiece",
+      "figure_treatment": "highly stylized, elongated features, elegant and refined",
+      "type_treatment": "no lettering",
+      "mood": "elegant, mysterious, glamorous",
+      "mystery_fit": 4,
+      "one_line": "A glamorous, stylized portrait of a 1920s woman with jewel tones and gold accents."
+    },
+    {
+      "file": "1920s/image_06.jpg",
+      "hand_family": "E",
+      "family": "E",
+      "palette": [
+        "#6b2a1a",
+        "#f0d9a0",
+        "#000000",
+        "#d4b66a",
+        "#3a2e1f"
+      ],
+      "medium": "flat colours, clean edges, minimal shading, smooth texture",
+      "composition": [
+        "profile figure left side",
+        "champagne bottle and glass centered right",
+        "bold text framing top and bottom"
+      ],
+      "subject": "woman holding champagne glass, bottle labeled DePoise",
+      "figure_treatment": "stylized, simplified facial features, smooth lines",
+      "type_treatment": "large, bold serif lettering, symmetrical placement",
+      "mood": "elegant, celebratory, vintage",
+      "mystery_fit": 2,
+      "one_line": "A vintage champagne ad with a stylish woman and bold text in warm tones."
+    },
+    {
+      "file": "1930s/image_01.jpg",
+      "hand_family": "A",
+      "family": "A",
+      "palette": [
+        "#a3b9b3",
+        "#f0d27a",
+        "#1a1a1a",
+        "#d9b56a",
+        "#f7e6c1"
+      ],
+      "medium": "smooth flat colours, clean edges, minimal shading, subtle texture",
+      "composition": [
+        "central tall figure in profile",
+        "figure occupies most of vertical space",
+        "background with radiating geometric shapes"
+      ],
+      "subject": "stylized woman in flapper dress with feathered headpiece",
+      "figure_treatment": "elongated, stylized, geometric, elegant",
+      "type_treatment": "large, pale, sans-serif lettering integrated at top",
+      "mood": "elegant, sophisticated, serene",
+      "mystery_fit": 3,
+      "one_line": "A sleek, stylized Art Deco portrait of a fashionable woman with geometric flair."
+    },
+    {
+      "file": "1930s/image_02.jpg",
+      "hand_family": "B",
+      "family": "B",
+      "palette": [
+        "#f2d16b",
+        "#d97a3a",
+        "#6b3a2a",
+        "#7a9cd9",
+        "#a3a3a3"
+      ],
+      "medium": "flat gouache with smooth edges, minimal shading, matte texture",
+      "composition": [
+        "profile figure on left side",
+        "falling leaves scattered around",
+        "figure scaled medium, occupying half the height"
+      ],
+      "subject": "stylized woman in yellow scarf with autumn leaves",
+      "figure_treatment": "elongated, simplified profile with soft facial features",
+      "type_treatment": "thin, geometric sans-serif lettering at top and bottom",
+      "mood": "calm, elegant, seasonal",
+      "mystery_fit": 3,
+      "one_line": "A refined profile of a woman framed by autumn leaves in muted tones."
+    },
+    {
+      "file": "1930s/image_03.jpg",
+      "hand_family": "C",
+      "family": "C",
+      "palette": [
+        "#0f4ea8",
+        "#d9c6a3",
+        "#b36a2f",
+        "#000000",
+        "#e94a2a"
+      ],
+      "medium": "flat inks, clean edges, smooth texture, minimal shading",
+      "composition": [
+        "large central figure dominates foreground",
+        "background townscape on upper left",
+        "small figures and beach elements in lower left and right"
+      ],
+      "subject": "woman in black swimsuit with patterned shawl on beach",
+      "figure_treatment": "stylized, simplified shapes with minimal detail",
+      "type_treatment": "bold, uppercase sans-serif lettering framing top and bottom",
+      "mood": "vibrant, relaxed, sunny",
+      "mystery_fit": 2,
+      "one_line": "A bold, flat-color travel poster featuring a stylish woman on a Mediterranean beach."
+    },
+    {
+      "file": "1930s/image_04.jpeg",
+      "hand_family": "D",
+      "family": "C",
+      "palette": [
+        "#d32f2f",
+        "#f5f5dc",
+        "#003366",
+        "#a67c00",
+        "#708090"
+      ],
+      "medium": "flat lithographic inks, clean edges, minimal shading, smooth texture",
+      "composition": [
+        "two large ocean liners diagonally placed",
+        "city skyline in background, smaller scale",
+        "bold red bands frame top and bottom"
+      ],
+      "subject": "two ocean liners near New York harbor with city skyline",
+      "figure_treatment": "no figures",
+      "type_treatment": "bold sans-serif lettering in red and cream bands",
+      "mood": "bold, optimistic, vintage",
+      "mystery_fit": 2,
+      "one_line": "A crisp, vintage travel poster showcasing majestic ocean liners against a city skyline."
+    },
+    {
+      "file": "1930s/image_05.jpeg",
+      "hand_family": "C",
+      "family": "C",
+      "palette": [
+        "#f5d88c",
+        "#0f1f2a",
+        "#e87e2a",
+        "#d9c9b0",
+        "#1f3a4a"
+      ],
+      "medium": "flat inks, clean edges, minimal shading, smooth texture",
+      "composition": [
+        "large domed building foreground right",
+        "tall minarets vertically aligned left and center",
+        "distant skyline near top with horizontal cloud band"
+      ],
+      "subject": "stylized cityscape with domes and minarets",
+      "figure_treatment": "no figures",
+      "type_treatment": "bold, uppercase sans-serif lettering in orange block at bottom",
+      "mood": "elegant, exotic, inviting",
+      "mystery_fit": 2,
+      "one_line": "A bold, simplified city skyline with iconic domes and spires in flat color."
+    },
+    {
+      "file": "1930s/image_06.jpg",
+      "hand_family": "C",
+      "family": "C",
+      "palette": [
+        "#f7a88a",
+        "#1f2f3a",
+        "#f2d05a",
+        "#a32a2a",
+        "#2a1f3a"
+      ],
+      "medium": "flat inks, clean edges, smooth texture, minimal shading",
+      "composition": [
+        "large ship dominates lower right",
+        "winged smoke plume extends upper left",
+        "text bands frame top and bottom"
+      ],
+      "subject": "steamship with winged smoke plume on water",
+      "figure_treatment": "no figures",
+      "type_treatment": "bold, blocky sans-serif lettering in framed bands",
+      "mood": "bold, dynamic, vintage",
+      "mystery_fit": 2,
+      "one_line": "A stylized steamship with winged smoke plume in flat colors and bold text bands."
+    },
+    {
+      "file": "1930s/image_07.jpeg",
+      "hand_family": "C",
+      "family": "C",
+      "palette": [
+        "#006699",
+        "#ffffff",
+        "#ff9933",
+        "#cc3300",
+        "#666666"
+      ],
+      "medium": "flat inks, clean edges, no shading, smooth texture",
+      "composition": [
+        "boat and swimmers centered in upper half",
+        "large wave in lower left corner",
+        "figures small relative to overall space"
+      ],
+      "subject": "people bathing and boating in sea",
+      "figure_treatment": "simplified, flat shapes with minimal detail",
+      "type_treatment": "blocky sans-serif lettering in lower band, framed",
+      "mood": "bright, cheerful, leisurely",
+      "mystery_fit": 2,
+      "one_line": "A bold, flat-color seaside scene with swimmers and boat on vibrant blue water."
+    },
+    {
+      "file": "1930s/image_08.jpg",
+      "hand_family": "C",
+      "family": "C",
+      "palette": [
+        "#1a1a4d",
+        "#a3c4e0",
+        "#d9e6f2",
+        "#4a6fa5",
+        "#f0f4f9"
+      ],
+      "medium": "flat lithographic print, smooth edges, minimal shading, solid color blocks",
+      "composition": [
+        "two small figures at bottom center",
+        "large vertical stalagmite formation dominates center",
+        "deep cave interior fills background with vertical lines"
+      ],
+      "subject": "two travelers inside a large ice cave with stalagmites",
+      "figure_treatment": "small, simplified silhouettes with minimal detail",
+      "type_treatment": "bold, sans-serif lettering in a framed band at bottom",
+      "mood": "mysterious, adventurous, serene",
+      "mystery_fit": 3,
+      "one_line": "A serene, stylized travel poster showing explorers in a vast icy cave."
+    },
+    {
+      "file": "1930s/image_09.jpg",
+      "hand_family": "D",
+      "family": "C",
+      "palette": [
+        "#4a3f2f",
+        "#2e3a5a",
+        "#d9d3a3",
+        "#7a6f4a",
+        "#b35a4f"
+      ],
+      "medium": "flat inks, smooth edges, minimal shading, clean texture",
+      "composition": [
+        "wide horizontal layout",
+        "mountains and lake centered, small trees in foreground",
+        "large text band at bottom framing image"
+      ],
+      "subject": "mountainous lake landscape with distant peaks and trees",
+      "figure_treatment": "no figures",
+      "type_treatment": "bold, blocky sans-serif lettering in large band below image",
+      "mood": "calm, scenic, inviting",
+      "mystery_fit": 2,
+      "one_line": "A serene, stylized mountain lake scene with bold travel poster typography."
+    }
+  ]
+}
