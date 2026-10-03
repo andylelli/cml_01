@@ -64,6 +64,9 @@ export const repetitionDensity = (
   text: string,
   spanWords = 6,
   minRepeats = 3,
+  /** How many of the worst spans to return. Five is what the run report prints; a caller that must
+   *  discard some (findings.ts exempts clock values) asks for more so the discards do not starve it. */
+  worstLimit = 5,
 ): RepetitionDensity => {
   const words = repetitionWords(text);
   if (words.length < spanWords) {
@@ -80,7 +83,7 @@ export const repetitionDensity = (
     repeatedSpans: repeated.length,
     per10k: words.length > 0 ? (10000 * repeated.length) / words.length : 0,
     words: words.length,
-    worst: repeated.slice(0, 5).map(([span, count]) => ({ span, count })),
+    worst: repeated.slice(0, worstLimit).map(([span, count]) => ({ span, count })),
   };
 };
 

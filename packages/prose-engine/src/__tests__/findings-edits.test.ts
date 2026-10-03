@@ -10,6 +10,8 @@
  */
 import { describe, expect, it } from "vitest";
 
+import { repetitionDensity } from "@cml/prose-guard";
+
 import { buildContractCore } from "../contract.js";
 import {
   anchorFindings,
@@ -490,9 +492,9 @@ describe("repeat_passage — a passage the book has already used", () => {
 
   it("KNOWN-POSITIVE: a span in DIFFERENT sentences is found through punctuation and a hyphen", () => {
     const written = [
-      chapter(["She said the clock stopped at twenty-five minutes past three, and nobody argued."]),
-      chapter(["He noted that the clock stopped at twenty-five minutes past three before leaving the hall."]),
-      chapter(["They agreed the clock stopped at twenty-five minutes past three, which suited nobody."]),
+      chapter(["She said the cut-glass decanter, half-empty, stood by the lamp, and nobody argued."]),
+      chapter(["He noted that the cut-glass decanter, half-empty, stood by the lamp before leaving the hall."]),
+      chapter(["They agreed the cut-glass decanter, half-empty, stood by the lamp, which suited nobody."]),
     ];
     const body = (c: ProseChapterLike): string => c.paragraphs.join(" ").toLowerCase();
     const found = repeats(written, [1, 2, 3]);
@@ -507,7 +509,7 @@ describe("repeat_passage — a passage the book has already used", () => {
   });
 
   it("a span that straddles a full stop quotes both sentences, exactly", () => {
-    const pair = "Nobody moved. At ten minutes past three the lamp failed again.";
+    const pair = "Nobody moved. At the far end of the hall the lamp failed again.";
     const written = [
       chapter(["The rain had eased by morning.", pair]),
       chapter(["Tea was brought in without a word.", pair]),
@@ -538,6 +540,67 @@ describe("repeat_passage — a passage the book has already used", () => {
   it("the cap holds: a stock phrase in five chapters is reported in the first three only", () => {
     const written = [1, 2, 3, 4, 5].map((n) => chapter([`Chapter ${n} opened on a grey road.`, KEY_SENTENCE]));
     expect(repeats(written, [1, 2, 3, 4, 5]).map((f) => f.chapter)).toEqual([1, 2, 3]);
+  });
+
+  it("KNOWN-POSITIVE: a repeated clock phrase is not a finding, edge windows included", () => {
+    // Said three times, and every six-word window of it touches the time — including "watch stopped
+    // at ten minutes past", one word short of the hour, which the pattern repeatedRuns uses lets through.
+    const sentence = "The watch had stopped at ten minutes past three, and Mrs Pardoe said nothing.";
+    const written = [chapter([sentence]), chapter([sentence]), chapter([sentence])];
+    expect(repeats(written, [1, 2, 3])).toEqual([]);
+  });
+
+  it("KNOWN-POSITIVE: a time in single quotes is still a time", () => {
+    // The instrument's words keep a straight apostrophe, so this is the words `'ten` … `eleven'`.
+    // MEASURED on the archive: 89 findings sat on exactly this before the comparison ignored edge marks.
+    const sentence = "It had frozen at 'ten minutes past eleven' again.";
+    const written = [chapter([sentence]), chapter([sentence]), chapter([sentence])];
+    expect(repeats(written, [1, 2, 3])).toEqual([]);
+  });
+
+  it("KNOWN-POSITIVE: a sentence that holds a clock value is still judged on its non-clock words", () => {
+    const sentence = "At ten minutes past three the lamp failed again and nobody moved.";
+    const written = [
+      chapter(["The vicar sat down.", sentence]),
+      chapter(["Tea was brought in.", sentence]),
+      chapter(["Somebody coughed upstairs.", sentence]),
+    ];
+    const found = repeats(written, [1, 2, 3]);
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    expect(found.every((f) => f.quote === sentence)).toBe(true);
+    // The span reported is from the repeated prose, never from the time.
+    for (const f of found) {
+      const span = /"([^"]+)"/.exec(f.note)![1]!;
+      expect(span).toMatch(/lamp failed again/);
+      expect(span).not.toMatch(/ten|minutes|past|three/);
+    }
+  });
+
+  it("clock windows do not starve the block: repeated prose beyond the worst five is still reported", () => {
+    // Two clock sentences said five times give eight six-word windows, every one touching a time and
+    // every one outranking the key sentence (said three times). The instrument keeps its worst FIVE.
+    const clockA = "The watch had stopped at ten minutes past three.";
+    const clockB = "The clock had struck at twenty minutes past four.";
+    const leads = ["The gardener swept leaves from the porch.", "Nobody wanted any more of the cold tea."];
+    const seps = [
+      "Rain drummed on the greenhouse roof all evening.",
+      "The vicar mislaid his spectacles again.",
+      "A dog barked somewhere down the lane.",
+      "Fog came off the estuary before supper.",
+      "Somebody was practising scales upstairs.",
+    ];
+    const written = [1, 2, 3, 4, 5].map((n) =>
+      chapter([n <= 3 ? KEY_SENTENCE : leads[n - 4]!, seps[n - 1]!, clockA, clockB]),
+    );
+    // The fixture does what it claims: the instrument's default five are all the clock, none the key.
+    const whole = written.map((c) => c.paragraphs.join(" ")).join(" ");
+    const defaultFive = repetitionDensity(whole).worst;
+    expect(defaultFive).toHaveLength(5);
+    expect(defaultFive.some((w) => /brass|key|oak|lamp/.test(w.span))).toBe(false);
+
+    const found = repeats(written, [1, 2, 3, 4, 5]);
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    expect(found.every((f) => f.quote === KEY_SENTENCE)).toBe(true);
   });
 
   it("a book that repeats nothing yields no repeat_passage", () => {
