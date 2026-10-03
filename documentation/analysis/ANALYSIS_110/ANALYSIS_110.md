@@ -112,8 +112,8 @@ by a paid run yet.
 | N7 repeat_passage fires, skips clock values | 0 | — | **DONE** in a parallel session | `60a06430`, `8ab50c94` |
 | M6 selector ranks drafts on their own scale; register and repetition weights 0; L5 overlap as the tie-break, printed per draft | 0.5 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — 7 tests; OFF unchanged | `97205f28` |
 | W2 place before speech (+ checker, selector and every-paragraph guards); W3 first visit; P1 introductions + `introduction_missing` on the text; D1 one line each on the death; D2 police sent for; L3 forty-word cap; chapter 1 sheds trait, conflict, history | 1 | `PROSE_V2_OPENING` | **DONE** — 11 tests; OFF unchanged | `9d16ffb1` |
-| L6 `body_tail` finding: 4+ per chapter, every one past three, at most 12 | 3 | `PROSE_V2_TAIL_FINDING` | **DONE** — 3 tests | this commit |
-| L7/M7 ship-check page shape: compressed ratio, sentence openers, length runs, distinct words per 8k, tail per 10k, each against its canon floor; report only | 3 | — (telemetry) | **DONE** — 5 tests; this book BELOW on all three floors | this commit |
+| L6 `body_tail` finding: 4+ per chapter, every one past three, at most 12 | 3 | `PROSE_V2_TAIL_FINDING` | **DONE** — 3 tests | `3a490919` |
+| L7/M7 ship-check page shape: compressed ratio, sentence openers, length runs, distinct words per 8k, tail per 10k, each against its canon floor; report only | 3 | — (telemetry) | **DONE** — 5 tests; this book BELOW on all three floors | `3a490919` |
 | L5 overlap with the book so far, per draft in the run report | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** with M6 | `97205f28` |
 | P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |
 | N9 culprit-pointing conclusions held to the test (`withheld`); surprise ledger in the case-logic report (Part V §38.2) | 0 | TODO | TODO | |
