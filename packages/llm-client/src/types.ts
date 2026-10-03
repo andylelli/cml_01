@@ -29,6 +29,12 @@ export interface ChatOptions {
   model?: string;
   temperature?: number;
   maxTokens?: number;
+  /**
+   * A_110 N12 — OpenAI presence penalty, 0 to 2. Undefined is NOT SENT, so every existing request is byte-identical.
+   * Lexical diversity of GPT-class chat output rises with it (Martínez et al., ACM TIST 2024); frequency penalty
+   * barely moves it and breaks text at 1.0 or more, so it is not offered.
+   */
+  presencePenalty?: number;
   jsonMode?: boolean;
   /**
    * R3 (architecture/REVIEW_01.md) — STRUCTURED OUTPUTS.

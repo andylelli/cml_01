@@ -233,3 +233,22 @@ describe("AzureOpenAIClient — refusal instead of a malformed request", () => {
     ).rejects.not.toThrow(/LLM_HTTP_TRANSPORT/);
   });
 });
+
+// A_110 N12 — presence penalty: on the wire as snake_case when given, absent (byte-identical) when not.
+describe("buildChatWireRequest — presence penalty", () => {
+  const base = {
+    endpoint: "https://example.openai.azure.com/",
+    deployment: "gpt-4.1",
+    apiVersion: "2024-10-21",
+    messages: [{ role: "user", content: "hello" }],
+    temperature: 0.7,
+    maxTokens: 100,
+  };
+  it("sends presence_penalty when the caller sets it", () => {
+    expect(JSON.parse(JSON.stringify(buildChatWireRequest({ ...base, presencePenalty: 0.3 }).body)).presence_penalty).toBe(0.3);
+  });
+  it("leaves the body unchanged when it is not set", () => {
+    expect(JSON.stringify(buildChatWireRequest(base).body)).toBe(JSON.stringify(buildChatWireRequest({ ...base, presencePenalty: undefined }).body));
+    expect(buildChatWireRequest(base).body).not.toHaveProperty("presence_penalty");
+  });
+});

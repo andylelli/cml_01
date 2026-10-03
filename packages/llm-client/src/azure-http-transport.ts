@@ -97,6 +97,8 @@ export const buildChatWireRequest = (args: {
   temperature: number;
   maxTokens: number;
   responseFormat?: WireResponseFormat;
+  /** A_110 N12: sent only when defined. */
+  presencePenalty?: number;
 }): ChatWireRequest => {
   const base = args.endpoint.replace(/\/+$/, "");
   const url =
@@ -111,6 +113,7 @@ export const buildChatWireRequest = (args: {
   // Spread verbatim. The whole defect being fixed here was a serializer that rebuilt this object
   // field by field and dropped the one that mattered.
   if (args.responseFormat) body.response_format = args.responseFormat;
+  if (args.presencePenalty !== undefined) body.presence_penalty = args.presencePenalty;
 
   return { url, body };
 };

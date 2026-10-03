@@ -319,6 +319,8 @@ export class AzureOpenAIClient {
       // field was never logged. Now it is: `json_schema` here means the schema was actually sent.
       responseFormat,
       transport: useHttpTransport ? "http" : "azure-sdk",
+      // A_110 N12: the lever is verified by finding it here (CLAUDE.md); absent when not sent.
+      ...(options.presencePenalty !== undefined ? { presencePenalty: options.presencePenalty } : {}),
     });
     if (options.logContext) {
       await this.logger.logRequest({
@@ -347,6 +349,7 @@ export class AzureOpenAIClient {
               temperature,
               maxTokens,
               responseFormat,
+              ...(options.presencePenalty !== undefined ? { presencePenalty: options.presencePenalty } : {}),
             }),
             apiKey: this.apiKey,
             ...(timeoutMs > 0 ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
@@ -362,6 +365,7 @@ export class AzureOpenAIClient {
                 temperature,
                 maxTokens,
                 responseFormat,
+                ...(options.presencePenalty !== undefined ? { presencePenalty: options.presencePenalty } : {}),
                 ...(timeoutMs > 0 ? { abortSignal: AbortSignal.timeout(timeoutMs) } : {}),
               }
             );
