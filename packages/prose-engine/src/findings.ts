@@ -44,6 +44,7 @@ import { narratedMove } from "./humour-move.js";
 import { findRecaps } from "./recaps.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
+import { keyTermHits } from "./clue-terms.js";
 import type {
   ContractCore,
   Finding,
@@ -205,6 +206,40 @@ const CHAPTER_REFERENCE =
   /\b(?:(?:in|from|of|since|by|than|after|before|referenced in|recalled from)\s+chapter\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b|the (?:chapter|scene) (?:ended|ends|closed|closes|began|begins|opened|opens)\b)/i;
 
 /** The sentence in a chapter that best evidences a term — so even a checker's finding can be quoted. */
+/**
+ * A_110 N5 — the sentence of a chapter that carries the most of an early clue's key terms, by the same stemmed rule the
+ * hard gate counts with. `report` when no sentence carries two: the clue is spread across the chapter, there is no line
+ * an edit could fix, and a finding sent to the editor would be anchored on nothing.
+ */
+export const anchorEarlyClue = (
+  body: string,
+  detail: string,
+  core: Pick<ContractCore, "scenes">,
+): { quote: string; note: string; report: boolean } => {
+  const id = detail.split(" is owed")[0]?.trim() ?? "";
+  // The case's own people and places are on every page; a sentence does not stage a clue by naming them (memory:
+  // domain nouns collide with wordlists — so the exclusions come from this case's contract, never from a list).
+  const ownNouns = new Set(
+    core.scenes
+      .flatMap((s) => [...(s.present ?? []), s.location ?? ""])
+      .flatMap((v) => String(v).toLowerCase().split(/[^a-z]+/))
+      .filter((w) => w.length >= 3),
+  );
+  const terms = (core.scenes.flatMap((s) => s.mustSurface).find((s) => s.id === id)?.keyTerms ?? []).filter(
+    (t) => !String(t).toLowerCase().split(/[^a-z]+/).filter(Boolean).every((w) => ownNouns.has(w)),
+  );
+  let best = { sentence: "", carried: [] as string[] };
+  for (const sentence of sentencesOf(body)) {
+    const lowered = sentence.toLowerCase();
+    const carried = terms.filter((t) => keyTermHits([t], lowered, "stemmed") > 0);
+    if (carried.length > best.carried.length) best = { sentence, carried };
+  }
+  if (best.carried.length < 2) {
+    return { quote: sentencesOf(body)[0] ?? "", note: `${detail} — spread across the chapter, no one sentence carries it (reported, not edited)`, report: true };
+  }
+  return { quote: best.sentence, note: `${detail} — this sentence carries ${best.carried.join(", ")}`, report: false };
+};
+
 const sentenceContaining = (body: string, needles: ReadonlyArray<string>): string => {
   const lowered = body.toLowerCase();
   for (const sentence of sentencesOf(body)) {
@@ -344,6 +379,18 @@ export const collectCheckerFindings = (
             : hit.kind === "culprit_early"
               ? "culprit_early"
               : "scaffold_token";
+    // A_110 N5: `clue_early` is a CHAPTER-level hit (the clue's terms anywhere in the chapter). Its text never occurs
+    // in a sentence, so `sentenceContaining` fell back to the chapter's first sentence — the fallback meant for an
+    // absence — and the editor, told to remove an early clue from a line that did not carry it, cut a spoken line
+    // and shipped its tag alone. Anchored now on the sentence that carries the most of the clue's terms; with none
+    // carrying two, it is reported, not sent to the editor; several clues on one sentence are one finding.
+    if (cls === "clue_early" && contractFixesEnabled()) {
+      const placed = anchorEarlyClue(body, hit.detail, core);
+      const same = out.find((f) => f.class === "clue_early" && f.chapter === hit.chapter && f.quote === normalise(placed.quote));
+      if (same) same.note = `${same.note}; ${hit.detail}`;
+      else out.push({ ...finding(cls, hit.chapter, placed.quote, placed.note), ...(placed.report ? { severity: "report" as const } : {}) });
+      continue;
+    }
     const needle = hit.detail.split(":").pop() ?? "";
     out.push(finding(cls, hit.chapter, sentenceContaining(body, [needle.trim(), hit.detail]), hit.detail));
   }

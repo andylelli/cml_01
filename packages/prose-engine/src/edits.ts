@@ -29,12 +29,18 @@
  *                         quotation mark in the same paragraph. A replacement that restates the
  *                         text beside it raises names, clue terms and length, so no other guard fell.
  *   registerNotWorse      register is the only validated predictor; an edit may not spend it.
+ *   noOrphanedTag         A_110 N5 (PROSE_V2_CONTRACT_FIXES): told to remove an "early clue" from a
+ *                         chapter's first sentence, the editor cut the spoken question and kept its
+ *                         tag, and run bcc0d637 shipped chapter 5 opening "Eleanor Gresham asked, her
+ *                         voice level as she set…". An edit may not add a paragraph that opens on a
+ *                         bare dialogue tag. Counting a RISE, not every such paragraph, leaves
+ *                         legitimate indirect speech alone.
  *   lengthWithin          A_94 §6: a wording read as a diet took the book 17% shorter.
  */
 
 import { mutateThenValidate } from "@cml/prose-guard";
 import type { Validator } from "@cml/prose-guard";
-import { extractClockValues } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues } from "@cml/cml";
 
 import { bookRegisterRate } from "./findings.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
@@ -89,6 +95,16 @@ const duplicatedSentences = (body: string): Map<string, number> => {
   return new Map([...seen].filter(([, count]) => count > 1));
 };
 
+/**
+ * A paragraph that opens on a dialogue tag with no words before it: a name of one to four capitalised words, or a
+ * subject pronoun, then a verb of speech, then a comma or full stop — "Eleanor Gresham asked, her voice level…".
+ * The verbs are the tag verbs of English, not of any one book.
+ */
+const ORPHANED_TAG_RE =
+  /^(?:[A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*){0,3}|He|She|They|I|We)\s+(?:asked|said|replied|answered|murmured|whispered|called|cried|added|continued|remarked|demanded|snapped|muttered|observed|began|insisted|admitted|agreed|offered|pressed|ventured|countered|repeated)\s*[,.]/;
+export const orphanedTags = (body: string): number =>
+  body.split(/\n\n/).filter((p) => ORPHANED_TAG_RE.test(p.trim())).length;
+
 const SCAFFOLD_RE =
   /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|prose_requirements|hidden_model|locked[_ ]fact|validator|contract)\b/i;
 
@@ -128,6 +144,8 @@ export const measureGuards = (
     noMalformedSplice: -MALFORMED_PATTERNS.filter((re) => re.test(body)).length,
     noNewDuplicate: -[...duplicatedSentences(body).values()].reduce((n, c) => n + (c - 1), 0),
     registerNotWorse: -Math.round(bookRegisterRate([chapter]) * 1_000),
+    // A_110 N5: constant 0 with the flag off, so OFF is byte-identical in every outcome.
+    noOrphanedTag: contractFixesEnabled() ? -orphanedTags(body) : 0,
     lengthWithin: wordCount(chapter),
   };
 };
@@ -142,6 +160,7 @@ const NEVER_FALL: GuardName[] = [
   "noMalformedSplice",
   "noNewDuplicate",
   "registerNotWorse",
+  "noOrphanedTag",
 ];
 
 /**

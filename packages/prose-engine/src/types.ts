@@ -516,6 +516,7 @@ export type GuardName =
   | "noMalformedSplice"
   | "noNewDuplicate"
   | "registerNotWorse"
+  | "noOrphanedTag"
   | "lengthWithin";
 
 export interface EditOutcome {

@@ -63,7 +63,7 @@ describe("the rules: a witness for each, and unknown when the field is absent", 
   });
 
   it("introduced-at-first-appearance", () => {
-    const intro = { opening: { introductions: [{ name: "A", occupation: "x", pronoun: "she is" }] } } as never;
+    const intro = { opening: { introductions: [{ name: "A", occupation: "x", pronoun: "she is" }] } } as unknown as Partial<SceneContract>;
     expect(verdict(contract([scene(1, { present: ["A"], ...intro }), scene(2, { present: ["A"] })]), "introduced-at-first-appearance").verdict).toBe("holds");
     expect(verdict(contract([scene(1, { present: ["A"] }), scene(2, { present: ["A"], ...intro })]), "introduced-at-first-appearance")).toMatchObject({ verdict: "violated", where: ["A (ch1)"] });
     expect(verdict(contract([scene(1, { present: ["A"] })]), "introduced-at-first-appearance").verdict).toBe("unknown");
