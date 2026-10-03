@@ -32,6 +32,7 @@
 import {
   machineRegisterRate,
   repetitionDensity,
+  repetitionWords,
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
@@ -194,6 +195,43 @@ const sentenceContaining = (body: string, needles: ReadonlyArray<string>): strin
   return sentencesOf(body)[0] ?? lowered.slice(0, 120);
 };
 
+/** A chapter's sentences with the repetition instrument's words laid end to end, each tagged with its sentence. */
+interface SentenceWords {
+  body: string;
+  sentences: string[];
+  words: string[];
+  owner: number[];
+}
+
+const indexSentenceWords = (body: string): SentenceWords => {
+  const sentences = sentencesOf(body);
+  const words: string[] = [];
+  const owner: number[] = [];
+  sentences.forEach((sentence, index) => {
+    for (const word of repetitionWords(sentence)) {
+      words.push(word);
+      owner.push(index);
+    }
+  });
+  return { body, sentences, words, owner };
+};
+
+/**
+ * The sentence — or sentences, when the span straddles a full stop — carrying the FIRST occurrence of
+ * a repeated span, as one exact substring of the chapter. Null when the span is not in this chapter.
+ * A span is matched in `repetitionWords` space because that is where it was counted.
+ */
+const sentencesCarrying = (indexed: SentenceWords, span: string): string | null => {
+  const want = span.split(" ");
+  const { words, owner, sentences, body } = indexed;
+  for (let at = 0; at + want.length <= words.length; at += 1) {
+    if (!want.every((word, offset) => words[at + offset] === word)) continue;
+    const quote = normalise(sentences.slice(owner[at]!, owner[at + want.length - 1]! + 1).join(" "));
+    return body.includes(quote) ? quote : null;
+  }
+  return null;
+};
+
 export interface CheckerOptions {
   clueDistribution?: { clues?: unknown[] };
   /** How many register sentences to name per chapter. A_95 M1 named eight. */
@@ -344,23 +382,51 @@ export const collectCheckerFindings = (
   }
 
   // 5. a passage the book has already used (the repetition instrument's own worst spans).
+  //
+  // ── THIS BLOCK NEVER PRODUCED A FINDING, AND HAD TWO INDEPENDENT REASONS ──────────────────────────
+  //
+  // `repetitionDensity` counts SIX-word spans, so every `worst.span` is six words, and the guard that
+  // stood here skipped any span under `MIN_QUOTE_WORDS` (eight): 0 of 5 survived on the archived book
+  // `the_clock_s_false_hour_at_lockwood_estate` (218.8 per 10k), and the same on every book.
+  //
+  // Take the guard away and the block was STILL wrong: a span is a window over `repetitionWords`
+  // (lowercased, punctuation a space), not a substring of the prose, so `body.includes(span)` missed
+  // "at twenty five minutes past three" in all seven chapters carrying "twenty-five minutes past
+  // three", and `sentenceContaining` would have fallen back to the chapter's FIRST sentence — pointing
+  // the editor at text that has nothing to do with the repetition.
+  //
+  // The eight words are for the QUOTE (`anchorFindings` discards anything shorter, because a short
+  // quote may be a paraphrase). So the finding quotes the sentence carrying the span, which is exact by
+  // construction and `widenQuote` lifts to eight words when the sentence is short.
   const whole = order.map((c) => bodyOf(byChapter.get(c))).join(" ");
   const density = repetitionDensity(whole);
+  const carried = density.worst.length > 0 ? order.map((chapter) => indexSentenceWords(bodyOf(byChapter.get(chapter)))) : [];
+  // Five spans are usually one passage seen at five offsets, so two spans landing on the same
+  // sentence of the same chapter are one finding, not two asks of the editor. Overlap, not equality:
+  // a span that straddles a full stop quotes two sentences, its neighbour inside the second quotes one.
+  const reportedQuotes = new Map<number, string[]>();
   for (const worst of density.worst.slice(0, 5)) {
-    if (worst.span.split(/\s+/).length < MIN_QUOTE_WORDS) continue;
-    // Both sides, not one. The `break` here reported only the FIRST chapter carrying a repeated
+    // Both sides, not one. A `break` here once reported only the FIRST chapter carrying a repeated
     // span, so the editor repaired one copy and the other stood — and a repetition needs two places
     // to be a repetition. Capped at three chapters so a stock phrase cannot flood the list.
     let reported = 0;
-    for (const chapter of order) {
-      if (reported >= 3) break;
-      const body = bodyOf(byChapter.get(chapter));
-      if (!body.toLowerCase().includes(worst.span)) continue;
-      out.push(
-        finding("repeat_passage", chapter, sentenceContaining(body, [worst.span]), `this book has used this run of words ${worst.count} times`),
-      );
+    order.forEach((chapter, at) => {
+      if (reported >= 3) return;
+      const quote = sentencesCarrying(carried[at]!, worst.span);
+      if (quote === null) return;
       reported += 1;
-    }
+      const already = reportedQuotes.get(chapter) ?? [];
+      if (already.some((q) => q.includes(quote) || quote.includes(q))) return;
+      reportedQuotes.set(chapter, [...already, quote]);
+      out.push(
+        finding(
+          "repeat_passage",
+          chapter,
+          quote,
+          `this book has used the run of words "${worst.span}" ${worst.count} times; say it differently here`,
+        ),
+      );
+    });
   }
 
   // 3b. 17-hitting-90 P4.1 — the sentence whose subject is the room, the silence, the truth or the

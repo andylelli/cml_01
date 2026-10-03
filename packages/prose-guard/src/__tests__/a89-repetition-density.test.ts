@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   repetitionDensity,
+  repetitionWords,
   summariseRepetitionDensity,
   REPETITION_CORPUS_MEDIAN_PER_10K,
 } from "../repetition-density.js";
@@ -49,5 +50,21 @@ describe("A_89 C2 — repeated-span density", () => {
     expect(() => repetitionDensity("")).not.toThrow();
     expect(repetitionDensity("").repeatedSpans).toBe(0);
     expect(() => repetitionDensity(null as any)).not.toThrow();
+  });
+
+  it("a reported span is a window over repetitionWords, not a substring of the prose", () => {
+    // Anything that must find a span again in the text has to normalise the text the same way:
+    // "twenty-five" is two words here, and a comma is a space. findings.ts block 5 relies on this.
+    const line = "The clock stopped at twenty-five minutes past three, and nobody argued. ";
+    const text = line.repeat(3);
+    const { worst } = repetitionDensity(text);
+    expect(worst.length).toBeGreaterThan(0);
+    const words = repetitionWords(text);
+    for (const { span } of worst) {
+      const want = span.split(" ");
+      expect(want).toHaveLength(6);
+      expect(words.some((_, i) => want.every((w, k) => words[i + k] === w))).toBe(true);
+    }
+    expect(repetitionWords("Twenty-five, o'clock; “didn’t”")).toEqual(["twenty", "five", "o'clock", "didn", "t"]);
   });
 });

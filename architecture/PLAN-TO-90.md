@@ -2231,6 +2231,17 @@ every one of the six sites** instead of each recomputing a position.
   cause that has not been separated from bad quoting.
 - **`repeat_passage` flags one side of a repetition** (`findings.ts:248` breaks after the first
   chapter carrying the span), so the editor repairs one copy and the other stands.
+  **STATUS 2026-10-03 — the one-sided `break` was fixed earlier, but the finding still never fired.**
+  Block 5 skipped every span under `MIN_QUOTE_WORDS` (8) while `repetitionDensity` reports six-word
+  spans, so 0 of 5 passed on every book; and `body.includes(span)` could not have matched anyway,
+  because a span is punctuation-stripped ("twenty five") and the prose is not ("twenty-five"). FIXED:
+  the block now locates the span in `repetitionWords` space (exported from prose-guard) and quotes the
+  enclosing sentence(s); `widenQuote` lifts a short one to eight words. Cap of three chapters per span
+  kept; overlapping quotes in one chapter are reported once. MEASURED over 230 archived manuscripts
+  (≥8,000 words, de-duplicated by text): 229 now carry the finding (median 9, max 15 per book), 0
+  unanchored, cap never exceeded; 922 of 2,168 (43%) sit on clock-time phrases. Witnesses:
+  `findings-edits.test.ts` "repeat_passage" — six known-positives that return `[]` on the old code.
+  This changes what the v2 editor is told; judge it by a matched pair (`RESUME_REDO=prose`).
 - **`reveal_residue_in_aftermath` keys on `because`** (`findings.ts:256`), an ordinary English word an
   aftermath chapter will use for reasons that are not argument.
 - **`measureGuards` is not re-exported** from the package index, so the rollback detail is unavailable

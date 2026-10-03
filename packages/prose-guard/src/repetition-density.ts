@@ -40,7 +40,13 @@ export const REPETITION_CORPUS_MEDIAN_PER_10K = 17.3;
 /** A book this far above the median is worth looking at before it is read. */
 export const REPETITION_ATTENTION_MULTIPLE = 3;
 
-const normalise = (text: string): string[] =>
+/**
+ * The word space `repetitionDensity` counts in: lowercased, every run of punctuation a space. A span
+ * it reports (`worst[].span`) is a window over THIS list, not a substring of the prose — "twenty-five"
+ * is "twenty five" here — so anything that has to find a span again in the text must normalise the
+ * text the same way. Exported so that is one definition, not two that drift.
+ */
+export const repetitionWords = (text: string): string[] =>
   String(text ?? "")
     .toLowerCase()
     .replace(/[^a-z0-9' ]+/g, " ")
@@ -59,7 +65,7 @@ export const repetitionDensity = (
   spanWords = 6,
   minRepeats = 3,
 ): RepetitionDensity => {
-  const words = normalise(text);
+  const words = repetitionWords(text);
   if (words.length < spanWords) {
     return { repeatedSpans: 0, per10k: 0, words: words.length, worst: [] };
   }
