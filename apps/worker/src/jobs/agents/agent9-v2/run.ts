@@ -29,6 +29,7 @@ import {
   buildTelemetryBlock,
   chooseDraft,
   CONTRACT_TEMPLATE_PHRASES,
+  openingLines,
   textureLines,
   readerInputOf,
   TEMPLATE,
@@ -263,6 +264,8 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     lines.push(`  In this chapter's present, ${scene.wound.victim} is dead: the body, an object handled, what others remember.`);
   }
   if (scene.location) lines.push(`  Where: ${scene.location}${scene.timeOfDay ? `, ${scene.timeOfDay}` : ""}.`);
+  // A_110 step 1 (PROSE_V2_OPENING): the place before anybody speaks, the people, the death — beside Where, first.
+  for (const line of openingLines(scene.opening)) lines.push(`  ${line}`);
   if (scene.timeWindow) lines.push(`  The clock: between ${scene.timeWindow.from} and ${scene.timeWindow.to}.`);
   for (const surface of scene.mustSurface) {
     lines.push(`  ${TEMPLATE.readerCanUse}: ${surface.observable || surface.keyTerms.join(", ")}`);

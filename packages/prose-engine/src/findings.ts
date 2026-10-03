@@ -36,7 +36,7 @@ import {
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues, openingEnabled } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
@@ -96,6 +96,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   victim_alive: "defect",
   scaffold_token: "defect",
   chapter_reference: "defect",
+  introduction_missing: "craft",
   register_sentence: "craft",
   abstract_subject: "craft",
   operation_narrated: "craft",
@@ -319,6 +320,13 @@ export const collectCheckerFindings = (
   const out: Finding[] = [];
   const order = [...expected].sort((a, b) => a - b);
   const byChapter = indexChapters(chapters, expected);
+  /**
+   * A_110 W2 guard (PROSE_V2_OPENING): the first two paragraphs of the book are narration of the place, which the
+   * register and abstract-subject checks would hand back to the editor as defects — MEASURED: `register_sentence`
+   * fires on 28.5% of canon opening narration, and a plain establishing passage drew three findings in eight sentences.
+   */
+  const placeParagraphs = openingEnabled() ? (byChapter.get(1)?.paragraphs ?? []).slice(0, 2).map(normalise) : [];
+  const inPlace = (sentence: string): boolean => placeParagraphs.some((p) => p.includes(normalise(sentence)));
 
   // 1. the hard gates, restated as findings so one list reaches the editor.
   for (const hit of checkHardGates(chapters, core, expected, options.clueDistribution)) {
@@ -390,6 +398,7 @@ export const collectCheckerFindings = (
     const body = bodyOf(written);
     const offenders = sentencesOf(body)
       .filter((s) => !/["“]/.test(s)) // narration only: a person may speak in abstractions
+      .filter((s) => !inPlace(s)) // A_110 W2: the opening's two paragraphs of place
       .filter((s) => s.split(/\s+/).length >= 6)
       .map((s) => ({ sentence: s, score: scoreSentenceRegister(s).score }))
       .filter((s) => s.score >= REGISTER_TELEMETRY_THRESHOLD)
@@ -515,6 +524,7 @@ export const collectCheckerFindings = (
       if (/["“]/.test(sentence)) continue; // narration only
       if (sentence.split(/\s+/).length < 5) continue;
       if (!ABSTRACT_SUBJECT.test(sentence)) continue;
+      if (inPlace(sentence)) continue; // A_110 W2
       out.push(finding("abstract_subject", chapter, sentence, "the subject is a thing nobody can see act; give the sentence a named person doing something"));
     }
   }
@@ -537,6 +547,33 @@ export const collectCheckerFindings = (
         if (/^["“]/.test(sentence) || !CHAPTER_REFERENCE.test(sentence)) continue;
         out.push(finding("chapter_reference", chapter, sentence, "the narration names a chapter of the book; say what happened, or cut the clause"));
       }
+    }
+  }
+
+  // 3c-ter. A_110 P1 (PROSE_V2_OPENING) — a person's first appearance says what they do. The contract's page list misses
+  // somebody who acts or speaks in 47% of chapters, so this reads the TEXT: the first paragraph naming them must carry a
+  // word of their occupation. MEASURED unasked: 28 of 124 people (23%) across 25 v2 drafts.
+  if (openingEnabled()) {
+    const people = new Map<string, string>();
+    for (const s of core.scenes) for (const i of s.opening?.introductions ?? []) people.set(i.name, i.occupation);
+    const STEMLESS = new Set(["retir", "forme", "local", "occas", "famil", "hotel", "senio", "junio"]);
+    for (const [name, occupation] of people) {
+      const stems = occupation.split(/\s+/).filter((w) => w.length >= 5).map((w) => w.slice(0, 5)).filter((w) => !STEMLESS.has(w));
+      if (stems.length === 0) continue;
+      const first = name.split(/\s+/)[0]!;
+      let found = false;
+      for (const chapter of order) {
+        const paragraphs = (byChapter.get(chapter)?.paragraphs ?? []).map(normalise);
+        const at = paragraphs.find((p) => p.includes(name)) ?? paragraphs.find((p) => new RegExp(`\\b${first}\\b`).test(p));
+        if (!at) continue;
+        found = true;
+        const lower = at.toLowerCase();
+        if (stems.some((stem) => lower.includes(stem))) break;
+        const sentence = sentencesOf(at).find((s) => s.includes(first)) ?? at;
+        out.push(finding("introduction_missing", chapter, sentence, `the first time ${name} is on the page, a clause beside the name says they are ${occupation}`));
+        break;
+      }
+      if (!found) continue;
     }
   }
 

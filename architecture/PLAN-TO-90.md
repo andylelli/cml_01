@@ -3208,3 +3208,14 @@ three-draft selections: between drafts the written weights do not hold — speec
 when zeroed, register is third, and no weight on repetition changes a single pick (WP-006 K16). ON: weighted ranks among
 the drafts with the fewest ranking failures, register and repetition at 0, an exact tie to the draft that repeats the
 book so far least (L5); rank and overlap printed per draft in the run report. Not read by a run.
+
+**§33 UPDATE 14 — A_110 step 1, the opening (`PROSE_V2_OPENING`, OFF).** The owner's first four needs as countable
+contract lines, each filled from an artifact the pipeline already wrote: the place before anybody speaks (two paragraphs,
+first spoken line in paragraph 3+), each profiled room on its first visit, each person introduced where first listed
+(occupation and what they were to the victim; the culprit's relation withheld, it is the motive), the victim's who-he-was
+in the body chapter, one line from each person present about the death before any evidence, the police and doctor sent
+for and kept away by the setting's isolation; chapter 1's trait/conflict/history lines move later; the second exchange's
+long line capped at forty words. The three guards Part II found necessary are built: the checkers and the selector leave
+the two paragraphs of place alone, and the brief's every-paragraph rule exempts them. The open question is compliance —
+this writer has opened 0 of 25 chapters on narration; A_110 §22.1's sequential rule (accept at 5 straight, reject at 3)
+decides it on single-chapter drafts.

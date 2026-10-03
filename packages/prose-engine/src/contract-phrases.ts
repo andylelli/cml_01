@@ -31,6 +31,12 @@ export const TEMPLATE = {
   // A_110 L8: "Already on the page from chapter 6" came back as "already referenced in chapter 6".
   alreadyOnPage: "Already on the page earlier",
   // A_110 D5: the custody line, without its examples ("empty chair" x11 on run bcc0d637, 321x the canon).
+  // A_110 step 1 — the opening's fixed wording, so the echo checker catches it coming back as prose.
+  opensOnPlace: "This chapter opens on the place before anybody speaks",
+  firstTimeHere: "is on the page for the first time here",
+  clauseBesideName: "a clause beside the name says once",
+  lineAboutDeath: "says one line about",
+  sendsForPolice: "Somebody sends for the police and a doctor",
   absenceOnce: "Once in this chapter somebody comes upon something of theirs and leaves it where it is",
   pullsTwoWays: "shows what pulls them two ways",
   neitherNames: "One exchange between them carries it, and neither names it",

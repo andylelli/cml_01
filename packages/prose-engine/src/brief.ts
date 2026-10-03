@@ -29,7 +29,7 @@
 import type { Brief, BriefAsk, ContractCore } from "./types.js";
 import { estimateTokens } from "./bible.js";
 import { humourMove } from "./humour-move.js";
-import { contractFixesEnabled } from "@cml/cml";
+import { contractFixesEnabled, openingEnabled } from "@cml/cml";
 
 export const BRIEF_BUDGET = 1_500;
 
@@ -187,7 +187,10 @@ export const buildBrief = (input: BriefInput): Brief => {
     );
     add(
       "shapes",
-      "The second exchange: somebody else's line runs to twenty-five words or more, every word of it written out, because it is half the joke; the named character's reply to it, inside its quotation marks, is six words or fewer.",
+      openingEnabled()
+        // A_110 L3: run bcc0d637's long lines ran to 65-133 words (nine of them), each a paragraph-long question.
+        ? "The second exchange: somebody else's line runs to between twenty-five and forty words, every word of it written out, because it is half the joke; the named character's reply to it, inside its quotation marks, is six words or fewer."
+        : "The second exchange: somebody else's line runs to twenty-five words or more, every word of it written out, because it is half the joke; the named character's reply to it, inside its quotation marks, is six words or fewer.",
     );
     add(
       "shapes",
@@ -226,8 +229,14 @@ export const buildBrief = (input: BriefInput): Brief => {
   );
   add(
     "page",
-    "Every paragraph has a thing in it somebody could touch, and a person doing something with it or to it.",
+    openingEnabled()
+      ? "Every paragraph, apart from the two that open the book, has a thing in it somebody could touch, and a person doing something with it or to it."
+      : "Every paragraph has a thing in it somebody could touch, and a person doing something with it or to it.",
   );
+  if (openingEnabled()) {
+    // A_110 P1 as a standing rule: the contract's page list misses somebody who acts or speaks in 47% of chapters.
+    add("page", "The first time anybody is on the page, a clause beside their name says what they do.");
+  }
 
   // ── the clock ──────────────────────────────────────────────────────────────────────────────────
   if (core.chronology.rows.length > 0) {

@@ -111,7 +111,7 @@ by a paid run yet.
 | §30.1 `register_sentence` reported, not sent to the editor | 0 | same | **DONE** | `bd81079d` |
 | N7 repeat_passage fires, skips clock values | 0 | — | **DONE** in a parallel session | `60a06430`, `8ab50c94` |
 | M6 selector ranks drafts on their own scale; register and repetition weights 0; L5 overlap as the tie-break, printed per draft | 0.5 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — 7 tests; OFF unchanged | `97205f28` |
-| W2, W3, P1, D1, D2, L3 the opening | 1 | `PROSE_V2_OPENING` | TODO | |
+| W2 place before speech (+ checker, selector and every-paragraph guards); W3 first visit; P1 introductions + `introduction_missing` on the text; D1 one line each on the death; D2 police sent for; L3 forty-word cap; chapter 1 sheds trait, conflict, history | 1 | `PROSE_V2_OPENING` | **DONE** — 11 tests; OFF unchanged | this commit |
 | L6 tail finding at 4+ per chapter; L7 ship-check numbers; L5 overlap telemetry | 3 | — | TODO | |
 | P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |
 | N9 culprit-pointing conclusions held to the test (`withheld`); surprise ledger in the case-logic report (Part V §38.2) | 0 | TODO | TODO | |

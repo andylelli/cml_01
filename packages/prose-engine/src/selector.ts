@@ -71,7 +71,7 @@ import {
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
 import { chapterMentionsRequiredClue } from "@cml/prompts-llm";
-import { selectorRanksEnabled } from "@cml/cml";
+import { openingEnabled, selectorRanksEnabled } from "@cml/cml";
 import { keyTermHits } from "./clue-terms.js";
 import { indexChapters } from "./chapter-index.js";
 import { namesAsCulprit } from "./culprit.js";
@@ -123,8 +123,13 @@ type CalibratedKey = keyof typeof CALIBRATION;
 const textOf = (chapters: ReadonlyArray<ProseChapterLike>): string =>
   chapters.map((c) => (c.paragraphs ?? []).join("\n\n")).join("\n\n");
 
+/**
+ * A_110 W2 guard (PROSE_V2_OPENING): the book's first two paragraphs are narration of the place by design, so they leave
+ * the speech-opening share. MEASURED: two establishing paragraphs cost a chapter-1 draft 1.40 composite, more than the
+ * whole spread of run bcc0d637's chapter-1 drafts (1.33), and speech share is the term that decides most picks.
+ */
 const paragraphsOf = (chapters: ReadonlyArray<ProseChapterLike>): string[] =>
-  chapters.flatMap((c) => c.paragraphs ?? []);
+  chapters.flatMap((c) => (openingEnabled() && Number(c.number) === 1 ? (c.paragraphs ?? []).slice(2) : c.paragraphs ?? []));
 
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?])\s+/).filter((s) => s.trim());
 

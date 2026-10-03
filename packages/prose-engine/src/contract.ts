@@ -53,6 +53,7 @@ import { contractFixesEnabled, deriveCaseChronology, renderClockWords } from "@c
 
 import { assignChapterRoles } from "./roles.js";
 import { assignTexture } from "./depth.js";
+import { assignOpening, clearTheOpening } from "./opening.js";
 import { applyFalseLead } from "./false-lead.js";
 import type {
   AftermathJob,
@@ -649,6 +650,12 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     const scene = core.scenes.find((s) => s.chapter === chapter);
     if (scene) scene.texture = texture;
   }
+  // A_110 step 1 (PROSE_V2_OPENING): the place, the people and the death, owned by the chapters that carry them.
+  for (const [chapter, opening] of assignOpening(input, core)) {
+    const scene = core.scenes.find((s) => s.chapter === chapter);
+    if (scene) scene.opening = opening;
+  }
+  clearTheOpening(core.scenes);
   // A_109 step 6 — after texture, so the flag changes nothing but the false lead and the one clearance.
   if (input.falseLead) core.notes.push(...applyFalseLead(caseBlock, core));
   return core;

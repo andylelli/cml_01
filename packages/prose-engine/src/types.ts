@@ -145,6 +145,8 @@ export interface SceneContract {
    * crime). Absent means today's contract: a victim on the page is the body.
    */
   victimAlive?: boolean;
+  /** A_110 step 1 — present only with PROSE_V2_OPENING on. */
+  opening?: Opening;
   location: string;
   timeOfDay?: string;
   /**
@@ -464,6 +466,8 @@ export const FINDING_CLASSES = [
   "recap",
   // A_110 L8 — "the chapter ended with…", "already referenced in chapter 6": a chapter named in narration
   "chapter_reference",
+  // A_110 P1 — a person's first appearance with nothing beside the name to say what they do
+  "introduction_missing",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];
@@ -529,6 +533,14 @@ export interface EditOutcome {
 }
 
 /** §07 — one chapter's share of the place, period, inner life and relationships (`depth.ts`). */
+/** A_110 step 1 (PROSE_V2_OPENING) — what a chapter owes the opening: the place, the people, the death. */
+export interface Opening {
+  establishing?: { looks: string; weather?: string };
+  firstVisit?: { location: string; looks: string };
+  introductions?: Array<{ name: string; occupation: string; relation?: string; pronoun: string }>;
+  death?: { victim: string; pronoun: string; who: string; witnesses: string[]; authority?: string };
+}
+
 export interface Texture {
   senses?: string[];
   access?: string;
