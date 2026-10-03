@@ -2239,10 +2239,24 @@ every one of the six sites** instead of each recomputing a position.
   because a span is punctuation-stripped ("twenty five") and the prose is not ("twenty-five"). FIXED:
   the block now locates the span in `repetitionWords` space (exported from prose-guard) and quotes the
   enclosing sentence(s); `widenQuote` lifts a short one to eight words. Cap of three chapters per span
-  kept; overlapping quotes in one chapter are reported once. MEASURED over 230 archived manuscripts
-  (≥8,000 words, de-duplicated by text): 229 now carry the finding (median 9, max 15 per book), 0
-  unanchored, cap never exceeded; 922 of 2,168 (43%) sit on clock-time phrases. Witnesses:
-  `findings-edits.test.ts` "repeat_passage" — six known-positives that return `[]` on the old code.
+  kept; overlapping quotes in one chapter are reported once.
+  **A span that touches a clock value is exempt** (as `repeatedRuns` exempts its own runs), judged
+  by `extractClockValues` — the definition `clockValuesIntact` enforces — not by `CLOCK_RUN`, whose
+  pattern wants the hour after "past" and let 103 of 1,134 top spans through on 231 books. Windows
+  over the REST of a clock sentence still report. Exempt spans do not use up the five: the block asks
+  `repetitionDensity` for a pool of 100 (new optional 4th argument; default still 5). A time in
+  single quotes is read too (the instrument's words keep a straight `'`).
+  MEASURED over 230 archived manuscripts (≥8,000 words, de-duplicated by text) — FIRST VERSION: 229
+  carried the finding, 2,168 findings, 744 (34%) on a span holding a piece of a time. NOW: 223 carry
+  it (median 9, max 15), 2,074 findings, 0 unanchored, cap never exceeded, no overlapping quotes, and
+  16 (0.8%) on a piece of a time — all forms `extractClockValues` cannot read ("past seven in the
+  evening"). 137 quoted sentences still HOLD a clock value, by design: their non-clock words repeat.
+  (An earlier figure of 43% here came from a regex that matched any "to" or "half"; it was wrong.)
+  6 books lost the finding (7 now carry none; one never had a repeated span): each has 4–15 repeated
+  spans, 3.4–16.8 per 10k against a corpus median of 17.3, and the pool examined every one — all touch
+  a time. Nothing was starved. Witnesses: `findings-edits.test.ts`
+  "repeat_passage" — ten known-positives that fail on the code before the fix (six on the original
+  behaviour, three on the first version, one on single quotes).
   This changes what the v2 editor is told; judge it by a matched pair (`RESUME_REDO=prose`).
 - **`reveal_residue_in_aftermath` keys on `because`** (`findings.ts:256`), an ordinary English word an
   aftermath chapter will use for reasons that are not argument.

@@ -195,13 +195,26 @@ const sentenceContaining = (body: string, needles: ReadonlyArray<string>): strin
   return sentencesOf(body)[0] ?? lowered.slice(0, 120);
 };
 
-/** A chapter's sentences with the repetition instrument's words laid end to end, each tagged with its sentence. */
+/**
+ * A chapter's sentences with the repetition instrument's words laid end to end, each tagged with its
+ * sentence, and each flagged when it belongs to a clock value.
+ */
 interface SentenceWords {
   body: string;
   sentences: string[];
   words: string[];
   owner: number[];
+  clock: boolean[];
 }
+
+/** Where `needle` occurs in `words`, as start indices. */
+const occurrencesOf = (words: ReadonlyArray<string>, needle: ReadonlyArray<string>): number[] => {
+  const at: number[] = [];
+  for (let i = 0; i + needle.length <= words.length; i += 1) {
+    if (needle.every((word, k) => words[i + k] === word)) at.push(i);
+  }
+  return at;
+};
 
 const indexSentenceWords = (body: string): SentenceWords => {
   const sentences = sentencesOf(body);
@@ -213,24 +226,55 @@ const indexSentenceWords = (body: string): SentenceWords => {
       owner.push(index);
     }
   });
-  return { body, sentences, words, owner };
+  // The words of every clock value the project recognises (`extractClockValues`, the definition
+  // `clockValuesIntact` enforces): an editor may not change them, so repeating them is not a defect
+  // an edit can repair. The same rule `repeatedRuns` follows for its own runs, drawn from the
+  // authoritative definition: `repeatedRuns`' pattern wants the hour after "past", and a six-word
+  // window can end one word short of it — "watch stopped at ten minutes past" — MEASURED 103 such
+  // spans over 231 archived books that the narrower pattern lets through.
+  //
+  // Compared with edge apostrophes stripped: the instrument's words keep a straight `'`, so a time in
+  // single quotes — "at 'twenty minutes past nine'" — is the words `'twenty` … `nine'` and would not
+  // equal the value's own words. MEASURED: 89 of 2,085 findings sat on exactly that before this.
+  const bare = (word: string): string => word.replace(/^'+|'+$/g, "");
+  const bareWords = words.map(bare);
+  const clock: boolean[] = new Array<boolean>(words.length).fill(false);
+  const seen = new Set<string>();
+  for (const value of extractClockValues(body)) {
+    const needle = repetitionWords(value.raw).map(bare);
+    const key = needle.join(" ");
+    if (needle.length === 0 || seen.has(key)) continue;
+    seen.add(key);
+    for (const start of occurrencesOf(bareWords, needle)) {
+      for (let k = 0; k < needle.length; k += 1) clock[start + k] = true;
+    }
+  }
+  return { body, sentences, words, owner, clock };
 };
 
 /**
  * The sentence — or sentences, when the span straddles a full stop — carrying the FIRST occurrence of
  * a repeated span, as one exact substring of the chapter. Null when the span is not in this chapter.
  * A span is matched in `repetitionWords` space because that is where it was counted.
+ *
+ * An occurrence that touches a clock value does not count: the locked form a time must take is not a
+ * repetition to repair. A window over the REST of the same sentence still does, and is judged on its
+ * own words — "the lamp failed again" is repeated prose whatever hour it failed at.
  */
 const sentencesCarrying = (indexed: SentenceWords, span: string): string | null => {
   const want = span.split(" ");
-  const { words, owner, sentences, body } = indexed;
-  for (let at = 0; at + want.length <= words.length; at += 1) {
-    if (!want.every((word, offset) => words[at + offset] === word)) continue;
+  const { owner, sentences, body, clock } = indexed;
+  for (const at of occurrencesOf(indexed.words, want)) {
+    if (clock.slice(at, at + want.length).some(Boolean)) continue;
     const quote = normalise(sentences.slice(owner[at]!, owner[at + want.length - 1]! + 1).join(" "));
     return body.includes(quote) ? quote : null;
   }
   return null;
 };
+
+/** Spans asked of the instrument so clock-exempt ones cannot starve the five this block may use. */
+const REPEAT_SPAN_POOL = 100;
+const REPEAT_SPANS_REPORTED = 5;
 
 export interface CheckerOptions {
   clueDistribution?: { clues?: unknown[] };
@@ -398,14 +442,24 @@ export const collectCheckerFindings = (
   // The eight words are for the QUOTE (`anchorFindings` discards anything shorter, because a short
   // quote may be a paraphrase). So the finding quotes the sentence carrying the span, which is exact by
   // construction and `widenQuote` lifts to eight words when the sentence is short.
+  //
+  // A span that touches a clock value is skipped (`sentencesCarrying`): the editor may not move a
+  // clock dial (`clockValuesIntact`), so asking it to reword the locked form of a time buys a
+  // rollback — and 744 of the 2,168 findings this block first produced (34%) sat on a piece of a time
+  // (16 of 2,074 do now, over 230 archived books; all of them forms `extractClockValues` cannot read,
+  // like "past seven in the evening"). Because the
+  // instrument keeps only its worst five, and a clock passage fills them, the block asks for a pool
+  // of spans and uses the first five that something OUTSIDE a clock value carries.
   const whole = order.map((c) => bodyOf(byChapter.get(c))).join(" ");
-  const density = repetitionDensity(whole);
+  const density = repetitionDensity(whole, 6, 3, REPEAT_SPAN_POOL);
   const carried = density.worst.length > 0 ? order.map((chapter) => indexSentenceWords(bodyOf(byChapter.get(chapter)))) : [];
+  let spansUsed = 0;
   // Five spans are usually one passage seen at five offsets, so two spans landing on the same
   // sentence of the same chapter are one finding, not two asks of the editor. Overlap, not equality:
   // a span that straddles a full stop quotes two sentences, its neighbour inside the second quotes one.
   const reportedQuotes = new Map<number, string[]>();
-  for (const worst of density.worst.slice(0, 5)) {
+  for (const worst of density.worst) {
+    if (spansUsed >= REPEAT_SPANS_REPORTED) break;
     // Both sides, not one. A `break` here once reported only the FIRST chapter carrying a repeated
     // span, so the editor repaired one copy and the other stood — and a repetition needs two places
     // to be a repetition. Capped at three chapters so a stock phrase cannot flood the list.
@@ -415,17 +469,23 @@ export const collectCheckerFindings = (
       const quote = sentencesCarrying(carried[at]!, worst.span);
       if (quote === null) return;
       reported += 1;
-      const already = reportedQuotes.get(chapter) ?? [];
-      if (already.some((q) => q.includes(quote) || quote.includes(q))) return;
-      reportedQuotes.set(chapter, [...already, quote]);
-      out.push(
+      // A span costs one of the five once something outside a clock value carries it somewhere.
+      if (reported === 1) spansUsed += 1;
+      // Widened HERE, before the overlap test: `widenQuote` runs again at the end and would otherwise
+      // grow a short sentence into its neighbour, which another finding may already be quoting.
+      const widened = widenQuote(
         finding(
           "repeat_passage",
           chapter,
           quote,
           `this book has used the run of words "${worst.span}" ${worst.count} times; say it differently here`,
         ),
+        carried[at]!.body,
       );
+      const already = reportedQuotes.get(chapter) ?? [];
+      if (already.some((q) => q.includes(widened.quote) || widened.quote.includes(q))) return;
+      reportedQuotes.set(chapter, [...already, widened.quote]);
+      out.push(widened);
     });
   }
 

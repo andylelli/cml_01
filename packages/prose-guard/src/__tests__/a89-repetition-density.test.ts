@@ -52,6 +52,16 @@ describe("A_89 C2 — repeated-span density", () => {
     expect(() => repetitionDensity(null as any)).not.toThrow();
   });
 
+  it("worstLimit defaults to five and widens only when asked", () => {
+    // A 14-word line said three times has nine distinct six-word windows, each repeated three times.
+    const text = "the watch had stopped at ten minutes past three and nobody said a word ".repeat(3);
+    expect(repetitionDensity(text).worst).toHaveLength(5);
+    expect(repetitionDensity(text, 6, 3, 100).worst.length).toBeGreaterThan(5);
+    // The headline numbers do not depend on how many spans are listed.
+    expect(repetitionDensity(text, 6, 3, 100).per10k).toBe(repetitionDensity(text).per10k);
+    expect(repetitionDensity(text, 6, 3, 100).repeatedSpans).toBe(repetitionDensity(text).repeatedSpans);
+  });
+
   it("a reported span is a window over repetitionWords, not a substring of the prose", () => {
     // Anything that must find a span again in the text has to normalise the text the same way:
     // "twenty-five" is two words here, and a comma is a space. findings.ts block 5 relies on this.
