@@ -120,6 +120,59 @@ export const walkReader = (model: CaseModel, input: ReaderInput): ReaderAnalysis
   };
 };
 
+/**
+ * A_110 Part V §38.2 / WP-007 §5.1 — SURPRISE, after Ely, Frankel & Kamenica (J. Political Economy 2015):
+ * how far the reader's belief over the suspects moves in a chapter, the Euclidean distance between this
+ * chapter's posterior and the last (the first chapter is measured from a uniform prior). Their
+ * suspense-optimal plot holds uncertainty to the end and spends it in late, large, rare moves; a chapter
+ * that moves the belief by less than `DEAD_CHAPTER_MOVE` before the test tells the reader nothing about who.
+ *
+ * MEASURED over the 64 stored contracts: the culprit is the favourite by chapter 6 in 64 of 64 (by
+ * chapter 4 in 52), against a test in chapter 8 in 57, and the median book has 71% of its pre-test
+ * chapters dead. A REPORT on the schedule — it does not predict the reader's mark (r ≤ 0.27 on 34 reads,
+ * under the screen bar), so it must never gate.
+ */
+export const DEAD_CHAPTER_MOVE = 0.02;
+
+export interface SurpriseLedger {
+  /** Belief movement per chapter, in walk order. */
+  surprise: Array<{ chapter: number; move: number }>;
+  /** The first chapter the culprit is the reader's clear favourite (p ≥ `LEAD_P`), or null. */
+  settledAt: number | null;
+  /** Chapters before the test, and how many of them move the belief by less than `DEAD_CHAPTER_MOVE`. */
+  beforeTest: number;
+  deadBeforeTest: number;
+  /** The share of all movement that happens before the test chapter. */
+  shareBeforeTest: number;
+}
+
+export const surpriseOf = (model: CaseModel, analysis: ReaderAnalysis, testChapter: number): SurpriseLedger => {
+  const names = model.suspects.map((s) => s.name);
+  const culprits = new Set(model.culprits);
+  let prev: Record<string, number> = Object.fromEntries(names.map((n) => [n, names.length ? 1 / names.length : 0]));
+  const surprise = analysis.walk.map((w) => {
+    const move = Math.sqrt(names.reduce((sum, n) => sum + ((w.posterior[n] ?? 0) - (prev[n] ?? 0)) ** 2, 0));
+    prev = w.posterior;
+    return { chapter: w.chapter, move };
+  });
+  const before = surprise.filter((s) => s.chapter < testChapter);
+  const total = surprise.reduce((a, s) => a + s.move, 0);
+  const settled = analysis.walk.find((w) => [...culprits].some((c) => (w.posterior[c] ?? 0) >= LEAD_P));
+  return {
+    surprise,
+    settledAt: settled?.chapter ?? null,
+    beforeTest: before.length,
+    deadBeforeTest: before.filter((s) => s.move < DEAD_CHAPTER_MOVE).length,
+    shareBeforeTest: total > 0 ? before.reduce((a, s) => a + s.move, 0) / total : 0,
+  };
+};
+
+export const summariseSurprise = (l: SurpriseLedger, testChapter: number): string => {
+  const curve = l.surprise.map((s) => s.move.toFixed(2)).join(" ");
+  const settled = l.settledAt === null ? "the culprit never leads" : `the culprit leads from chapter ${l.settledAt}`;
+  return `surprise by chapter: ${curve} · ${settled}, test at ${testChapter} · ${l.deadBeforeTest} of ${l.beforeTest} chapters before the test move the belief < ${DEAD_CHAPTER_MOVE}`;
+};
+
 export const summariseReader = (r: ReaderAnalysis, model: CaseModel): string => {
   const culprit = model.culprits[0] ?? "the culprit";
   const curve = r.walk.map((w) => w.entropy.toFixed(1)).join(" ");

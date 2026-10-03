@@ -11,12 +11,13 @@
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
-const cml = await import(join(ROOT, "packages", "cml", "dist", "index.js"));
+const cml = await import(pathToFileURL(join(ROOT, "packages", "cml", "dist", "index.js")).href);
 let proseEngine = null;
 try {
-  proseEngine = await import(join(ROOT, "packages", "prose-engine", "dist", "index.js"));
+  proseEngine = await import(pathToFileURL(join(ROOT, "packages", "prose-engine", "dist", "index.js")).href);
 } catch {
   // M2 needs the contract's clue ownership; without prose-engine it is skipped and says so.
 }
@@ -94,6 +95,12 @@ for (const { id, artifacts } of cases) {
     if (reader.culpritLeadsAt !== null) tally.culpritEarly = (tally.culpritEarly ?? 0) + 1;
     if (reader.falseLeadAtMidpoint) tally.falseLeads = (tally.falseLeads ?? 0) + 1;
     console.log(`${"".padEnd(13)}  M2 ${cml.summariseReader(reader, model)} (test at ${input.testChapter})`);
+    // A_110 0.5 — Ely surprise on the same walk: a report on the schedule, never a predictor of the mark.
+    const ledger = cml.surpriseOf(model, reader, input.testChapter);
+    tally.surprised = (tally.surprised ?? 0) + 1;
+    tally.settledBeforeTestMinus1 = (tally.settledBeforeTestMinus1 ?? 0) + (ledger.settledAt !== null && ledger.settledAt < input.testChapter - 1 ? 1 : 0);
+    tally.deadShare = [...(tally.deadShare ?? []), ledger.beforeTest ? ledger.deadBeforeTest / ledger.beforeTest : 0];
+    console.log(`${"".padEnd(13)}  M2 ${cml.summariseSurprise(ledger, input.testChapter)}`);
   }
   if (contract && prose && Array.isArray(prose.chapters)) {
     try {
@@ -122,5 +129,11 @@ if (tally.scheduled) {
   console.log(
     `reader (M2), ${tally.scheduled} contracts: the culprit the favourite before the test ${tally.culpritEarly ?? 0} · fewer than two live suspects before the test ${tally.floorBroken ?? 0} · the false suspect leading at the midpoint ${tally.falseLeads ?? 0}`,
   );
+  if (tally.surprised) {
+    const dead = [...tally.deadShare].sort((a, b) => a - b);
+    console.log(
+      `surprise (A_110 0.5), ${tally.surprised} contracts: the culprit leads before the chapter ahead of the test in ${tally.settledBeforeTestMinus1} · median share of pre-test chapters that move the belief < 0.02: ${dead[dead.length >> 1].toFixed(2)}`,
+    );
+  }
 }
 if (tally.books) console.log(`books with prose ${tally.books}: recaps ${tally.recaps} (${(tally.recaps / tally.books).toFixed(1)} a book)`);

@@ -77,3 +77,28 @@ describe("the reader's doubt, chapter by chapter", () => {
     expect(r.culpritLeadsAt!).toBeLessThan(schedule.testChapter);
   });
 });
+
+// A_110 Part V §38.2 — Ely surprise on the same walk: how far the belief moves, chapter by chapter.
+describe("surprise ledger (A_110 N9's instrument)", () => {
+  it("is zero in a chapter that shows nothing and large where the culprit is handed over", async () => {
+    const { surpriseOf } = await import("../index.js");
+    const ownership = new Map([["means", 3], ["scene", 3]]);
+    const r = walkReader(model, { ...schedule, ownership });
+    const l = surpriseOf(model, r, schedule.testChapter);
+    const move = (ch: number) => l.surprise.find((s) => s.chapter === ch)!.move;
+    expect(move(1)).toBeCloseTo(0, 6);
+    expect(move(2)).toBeCloseTo(0, 6);
+    expect(move(3)).toBeGreaterThan(0.5);
+    expect(l.settledAt).toBe(3);
+    expect(l.beforeTest).toBe(5);
+    expect(l.deadBeforeTest).toBe(4);
+    expect(l.shareBeforeTest).toBeCloseTo(1, 6);
+  });
+
+  it("moves the settle chapter to the test when the conclusions wait for it", async () => {
+    const { surpriseOf } = await import("../index.js");
+    const ownership = new Map([["means", 3], ["scene", 3]]);
+    const held = walkReader(model, { ...schedule, ownership, withheld: new Set(["means", "scene"]) });
+    expect(surpriseOf(model, held, schedule.testChapter).settledAt).toBeNull();
+  });
+});
