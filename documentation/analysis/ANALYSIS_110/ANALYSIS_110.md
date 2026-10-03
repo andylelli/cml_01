@@ -115,10 +115,10 @@ by a paid run yet.
 | L6 `body_tail` finding: 4+ per chapter, every one past three, at most 12 | 3 | `PROSE_V2_TAIL_FINDING` | **DONE** — 3 tests | `3a490919` |
 | L7/M7 ship-check page shape: compressed ratio, sentence openers, length runs, distinct words per 8k, tail per 10k, each against its canon floor; report only | 3 | — (telemetry) | **DONE** — 5 tests; this book BELOW on all three floors | `3a490919` |
 | L5 overlap with the book so far, per draft in the run report | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** with M6 | `97205f28` |
-| 0.1 N5 a spoken line lost between the editor and the saved file — diagnose, then fix | 0b | — | TODO | |
+| 0.1 N5 a spoken line lost between the editor and the saved file — diagnose, then fix | 0b | — | **DONE** — cause: clue_early anchored on the chapter's first sentence (10 of 10 across 6 checkpoints); fixed behind PROSE_V2_CONTRACT_FIXES + noOrphanedTag guard | `b4606924` |
 | 0.2a N9 a culprit-pointing clue shows its fact where scheduled and its conclusion at the test | 0b | `PROSE_V2_SCHEDULE` | TODO | |
 | 0.2b M9 evidence placed to minimise the largest chapter load, every clue before its use | 0b | same | TODO | |
-| 0.3 K6 template rows: D1, D2, P1 precedence and P3 chain, three-valued | 0b | — (telemetry) | TODO | |
+| 0.3 K6 template rows: D1, D2, P1 precedence and P3 chain, three-valued | 0b | — (telemetry) | **DONE** — 4 rows (decisive clue before the test, no clearance after the reveal, P1, P3); decisive clue violated in 2 of 64; D1/D2 measured on the text | `6f0ee807` |
 | 0.4 N10 the read file records the reader model and date; the ledger reads them | 0b | — | **DONE** — the ledger prints reader recorded: 0 of 79; template in documentation/external-read-template.md | `1accc558` |
 | 0.5 surprise ledger: Ely surprise per chapter, settle chapter, dead-chapter share in the case-logic report | 0b | — (telemetry) | **DONE** — 64 contracts: the culprit leads before the chapter ahead of the test in 64; median dead share 0.71; the report fixed on Windows | `7b8aa6be` |
 | 0.6 case-noun guard (ratchet, in pretest) | 0b | — | **DONE** — 11 known specimen hits baselined, 0 new; 4 witness tests | `28767ddd` |
