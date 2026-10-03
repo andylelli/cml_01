@@ -2115,6 +2115,20 @@
       "discrimDesign": "The discriminating test compares corridor, mirror, and outline against the claimed timeline.",
       "premise": "During a chilly winter at Halloway Manor, Cecil Thorne was found stabbed in his locked room. The corridor outside appeared deserted and impassable, with no footprints or dust disturbance, suggesting no one could have entered or left. Suspicion fell on several estate and circus members, but the discovery of a concealed alcove behind an angled mirror revealed a hidden passage. Ottoline Fairweather, the head gardener, exploited this spatial illusion to commit the murder, concealing her movements behind the mirror's reflection and manipulating perceptions of access. A carefully staged test reveals the truth, exposing the killer despite the apparent locked-room scenario.",
       "mechanismFamily": "locked_room_key"
+    },
+    {
+      "id": "run_bcc0d637-0506-4314-908a-21c89d941c49",
+      "title": "The Fog-Bound Masquerade at Cliffhaven Hotel",
+      "era": "1930s",
+      "location": "Cliffhaven Hotel",
+      "crimeSubtype": "stabbed with a fishing knife, to the heart",
+      "deathMethod": "stabbed with a fishing knife, to the heart",
+      "axis": "identity",
+      "falseAssumption": "Witnesses correctly identified Reginald Gresham Jr. speaking with the victim at the cliffside at the time of the murder.",
+      "discrimMethod": "trap",
+      "discrimDesign": "The discriminating test compares ledger, shipment, and entri against the claimed timeline.",
+      "premise": "At the Cliffhaven Hotel, a foggy coastal retreat shadowed by smuggling tensions, Reginald Gresham is found stabbed to death. Witnesses insist they saw Reginald speaking with his son near the cliffside at the time of death, but Eleanor Gresham uncovers a deceptive identity switch, ledger contradictions, and a masquerade that hides the true killer among the guests and staff.",
+      "mechanismFamily": "impersonation"
     }
   ]
 }
