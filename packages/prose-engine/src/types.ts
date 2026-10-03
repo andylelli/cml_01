@@ -468,6 +468,8 @@ export const FINDING_CLASSES = [
   "chapter_reference",
   // A_110 P1 — a person's first appearance with nothing beside the name to say what they do
   "introduction_missing",
+  // A_110 L6 — ", her gaze fixed": the body-part tail past three in a chapter
+  "body_tail",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

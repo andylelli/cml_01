@@ -3219,3 +3219,11 @@ long line capped at forty words. The three guards Part II found necessary are bu
 the two paragraphs of place alone, and the brief's every-paragraph rule exempts them. The open question is compliance —
 this writer has opened 0 of 25 chapters on narration; A_110 §22.1's sequential rule (accept at 5 straight, reject at 3)
 decides it on single-chapter drafts.
+
+**§33 UPDATE 15 — A_110 L6 and L7, point 5's instruments and its biggest family.** `PROSE_V2_TAIL_FINDING` (OFF): the
+body-part tail (", her gaze fixed") — 28.7% of run bcc0d637's narration sentences, 0.44% of the canon's — becomes an editor
+finding at four or more in a chapter (the canon's worst chapter holds at most three in 95% of 162 books), every one past
+the first three, at most twelve, each a deletion. The run report's SHIP-CHECK gains a page-shape line on every v2 book
+(`page-shape.ts`): compressed ratio, sentence-opener entropy, sentence-length runs, distinct words per 8,000 and the tail
+rate, each beside its canon floor. On run bcc0d637: 0.314 / 4.79 bits / -0.04 against floors 0.346 / 5.12 / 0.016, all
+three BELOW. Report only — A_110 §32.1 found no page instrument predicts the external read.

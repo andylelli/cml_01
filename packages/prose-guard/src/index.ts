@@ -147,3 +147,5 @@ export type { WitDensity, WitShapeCounts, WitTarget } from "./wit-density.js";
 export { turnDensity, summariseTurnDensity } from "./turn-density.js";
 export type { TurnDensity } from "./turn-density.js";
 export type { RepetitionDensity } from "./repetition-density.js";
+export { measurePageShape, summarisePageShape, CANON_PAGE_SHAPE, BODY_TAIL } from "./page-shape.js";
+export type { PageShape } from "./page-shape.js";

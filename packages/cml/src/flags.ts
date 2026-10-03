@@ -92,3 +92,13 @@ export function openingEnabled(env: Record<string, string | undefined> = process
 export function selectorRanksEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return readBooleanFlag("PROSE_V2_SELECTOR_RANKS", false, env);
 }
+
+/**
+ * ANALYSIS_110 L6 — the body-part tail (", her gaze fixed", ", his hands steady") becomes an editor finding. MEASURED: it
+ * ends 28.7% of run bcc0d637's narration sentences against 0.44% of the canon's, and the canon's WORST chapter holds at
+ * most 3 in 95% of 162 books (WP-006 K9). ON: a chapter with four or more sends the editor every one after the first
+ * three, each a deletion of the clause after the comma. Default OFF. Read at call time (ADR-0004).
+ */
+export function tailFindingEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_TAIL_FINDING", false, env);
+}

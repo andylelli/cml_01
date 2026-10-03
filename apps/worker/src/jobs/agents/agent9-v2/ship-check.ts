@@ -17,7 +17,9 @@ import {
   detectScaffoldNotProse,
   findCopiedSpans,
   loadAntiCopyIndexAsync,
+  measurePageShape,
   repetitionDensity,
+  summarisePageShape,
   summariseRepetitionDensity,
 } from "@cml/prose-guard";
 import type { ProseChapterLike } from "@cml/prose-engine";
@@ -31,6 +33,8 @@ export const v2ShipCheckLines = (chapters: ReadonlyArray<ProseChapterLike>): str
 
   const density = repetitionDensity(texts.join(" "));
   if (density.words > 0) lines.push(`[Agent 9 v2] SHIP-CHECK: repetition — ${summariseRepetitionDensity(density)}`);
+  // A_110 L7 / WP-006 K10: the page's shape against canon floors — report only, the owner's instrument.
+  if (density.words > 0) lines.push(`[Agent 9 v2] SHIP-CHECK page shape: ${summarisePageShape(measurePageShape(texts.join("\n\n")))}`);
 
   texts.forEach((text, i) => {
     const hits = detectScaffoldNotProse(text);

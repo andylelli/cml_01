@@ -36,7 +36,7 @@ import {
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues, openingEnabled } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues, openingEnabled, tailFindingEnabled } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
@@ -97,6 +97,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   scaffold_token: "defect",
   chapter_reference: "defect",
   introduction_missing: "craft",
+  body_tail: "craft",
   register_sentence: "craft",
   abstract_subject: "craft",
   operation_narrated: "craft",
@@ -574,6 +575,20 @@ export const collectCheckerFindings = (
         break;
       }
       if (!found) continue;
+    }
+  }
+
+  // 3c-quater. A_110 L6 (PROSE_V2_TAIL_FINDING) — the body-part tail. A threshold from the canon's worst chapter, not
+  // a per-sentence rate (WP-006 K9): at four or more in a chapter (3% of canon books ever reach it), every one after
+  // the first three goes to the editor as a deletion, at most twelve a chapter so one round can carry them.
+  if (tailFindingEnabled()) {
+    const TAIL = /,\s+(?:his|her|their)\s+(?:\w+\s+)?(?:hands?|fingers?|eyes|gaze|voice|tone|face|expression|jaw|lips|posture|manner|movements?|words|resolve|pen|shoulders)\s+\w+/i;
+    for (const [chapter, written] of byChapter) {
+      const tails = sentencesOf(bodyOf(written)).filter((s) => TAIL.test(s));
+      if (tails.length < 4) continue;
+      for (const sentence of tails.slice(3, 15)) {
+        out.push(finding("body_tail", chapter, sentence, "cut the clause after the comma that names a part of the body (\", her gaze fixed…\"); end the sentence before it"));
+      }
     }
   }
 

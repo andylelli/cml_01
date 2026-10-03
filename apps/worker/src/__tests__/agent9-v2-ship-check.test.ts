@@ -27,8 +27,10 @@ describe("the v2 ship-check", () => {
 
   it("a clean book reports its repetition figure and no scaffold line", () => {
     const lines = v2ShipCheckLines([chapter(["The morning came in grey off the water, and the hotel woke slowly."])]);
-    expect(lines).toHaveLength(1);
+    // A_110 L7: the page-shape line follows the repetition line on every book with words.
+    expect(lines).toHaveLength(2);
     expect(lines[0]).toMatch(/repetition/);
+    expect(lines[1]).toMatch(/SHIP-CHECK page shape/);
   });
 
   it("no chapters, no lines", () => {
@@ -129,5 +131,15 @@ describe("the v2 anti-copy ship-check line", () => {
     const lines = await v2AntiCopyShipCheckLines([]);
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatch(/Clean\./);
+  });
+});
+
+describe("A_110 L7 — the page shape line", () => {
+  it("reports the page against the canon floors whenever the book has words, and says it predicts no read", () => {
+    const lines = v2ShipCheckLines([{ title: "One", number: 1, paragraphs: ["Eleanor set down the ledger, her hands steady on the desk. The fog came in off the bay."] }]);
+    const shape = lines.find((l) => l.includes("SHIP-CHECK page shape"));
+    expect(shape).toBeDefined();
+    expect(shape).toMatch(/body-part tail .* per 10k \(canon max 9\.9/);
+    expect(shape).toMatch(/predicts no read/);
   });
 });
