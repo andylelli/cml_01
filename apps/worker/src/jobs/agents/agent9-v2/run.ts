@@ -286,6 +286,13 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   for (const surface of scene.mustSurface) {
     lines.push(`  ${TEMPLATE.readerCanUse}: ${surface.observable || surface.keyTerms.join(", ")}`);
     if (surface.unlockedBy) lines.push(`    ${surface.unlockedBy.name} reads it because they know ${surface.unlockedBy.skill}.`);
+    // A_110 N9 (PROSE_V2_SCHEDULE): the same shape as "The culprit is named in chapter N" — a position, not a ban.
+    if (surface.conclusionAt !== undefined) lines.push(`    What it means is said aloud in chapter ${surface.conclusionAt}.`);
+  }
+  // A_110 N9: the test chapter's job — the meanings the earlier chapters held back are said here for the first time.
+  if (scene.conclusions?.length) {
+    lines.push(`  Said aloud here for the first time, by the person who worked it out — what each of these meant:`);
+    for (const c of scene.conclusions) lines.push(`    ${c.observable}`);
   }
   for (const ref of scene.mayMention) {
     lines.push(

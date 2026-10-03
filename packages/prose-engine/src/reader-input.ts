@@ -23,9 +23,12 @@ export const readerInputOf = (core: ContractCore): ReaderInput => {
       if (!clearances.has(elimination.name)) clearances.set(elimination.name, scene.chapter);
     }
   }
+  // A_110 N9: a fact shown before the test without its meaning is evidence the reader must still work out (WITHHELD_RATIO).
+  const withheld = new Set(scenes.flatMap((s) => s.mustSurface.filter((m) => m.conclusionAt !== undefined && m.conclusionAt > s.chapter).map((m) => m.id)));
   return {
     ownership,
     clearances,
+    ...(withheld.size > 0 ? { withheld } : {}),
     leads,
     chapters: scenes.map((s) => s.chapter),
     testChapter: core.roles.discriminatingTest ?? core.roles.reveal,

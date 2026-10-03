@@ -49,7 +49,8 @@ import {
   provesTheAct,
   splitMeansLinkTrace,
 } from "@cml/prompts-llm";
-import { contractFixesEnabled, deriveCaseChronology, renderClockWords } from "@cml/cml";
+import { contractFixesEnabled, deriveCaseChronology, identifyPeople, readInference, renderClockWords, scheduleEnabled } from "@cml/cml";
+import { holdCulpritCluesLate, namesCulprit, rebalanceEvidence, withoutCulprit } from "./schedule.js";
 
 import { assignChapterRoles } from "./roles.js";
 import { assignTexture } from "./depth.js";
@@ -306,6 +307,50 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
 
   const decisive = decisiveClueIds(caseBlock, clues);
   const fixes = contractFixesEnabled();
+
+  /**
+   * A_110 N9 + M9 (PROSE_V2_SCHEDULE) — see schedule.ts. ON: every required clue gets ONE owner (the outline's, else the
+   * first chapter that requires it), the busiest chapters hand clues to lighter earlier ones (M9), and a clue that
+   * implicates a culprit shows its fact before the test and its meaning from the test on (N9). OFF: untouched.
+   */
+  const people = identifyPeople(asArray(input.cast?.characters).map((c) => nameOf(c)).filter(Boolean));
+  const implicatesCulprit = (id: string): boolean => {
+    const clue = clueById.get(id) as Record<string, unknown> | undefined;
+    if (!clue || culprits.length === 0) return false;
+    const inference = [clue.inference, clue.pointsTo].map((v) => String(v ?? "")).join(" ");
+    return readInference(inference, people).implicates.some((n) => culprits.includes(n)) || namesCulprit(String(deriveClueObservable(clue as never) ?? ""), culprits);
+  };
+  const schedule = scheduleEnabled();
+  const scheduleTest = roles.discriminatingTest ?? roles.reveal;
+  const fullOwnership = new Map<string, number>();
+  const movedInto = new Map<number, string[]>();
+  if (schedule) {
+    scenes.forEach((scene, index) => {
+      const chapter = Number((scene as { sceneNumber?: unknown }).sceneNumber) || index + 1;
+      let required: string[] = [];
+      try {
+        required = getRequiredClueIdsForScene(caseBlock, scene, scenes);
+      } catch {
+        required = [];
+      }
+      for (const id of required) if (clueById.has(id) && !fullOwnership.has(id)) fullOwnership.set(id, ownership.get(id) ?? chapter);
+    });
+    const chapterNumbers = scenes.map((s, i) => Number((s as { sceneNumber?: unknown }).sceneNumber) || i + 1);
+    // N9 first: the culprit's facts into the second half; then M9 balances the rest, never moving those back early.
+    const culpritClues = new Set([...fullOwnership.keys()].filter((id) => implicatesCulprit(id)));
+    const moves = [
+      ...holdCulpritCluesLate(fullOwnership, culpritClues, { chapters: chapterNumbers, before: scheduleTest }),
+      ...rebalanceEvidence(fullOwnership, { chapters: chapterNumbers, decisive: new Set(decisive), before: scheduleTest, keepLate: culpritClues }),
+    ];
+    // The final owner is what counts: a clue moved twice is staged once, where it ended.
+    for (const id of new Set(moves.map((m) => m.id))) {
+      const to = fullOwnership.get(id)!;
+      movedInto.set(to, [...(movedInto.get(to) ?? []), id]);
+    }
+    const moved = [...movedInto.values()].flat().length;
+    if (moved > 0) notes.push(`schedule (N9 + M9): ${moved} clue(s) moved — culprit facts later, other evidence to lighter chapters`);
+  }
+  const deferred: Array<{ id: string; observable: string }> = [];
   const clearanceByChapter = distributeClearances(
     caseBlock,
     roles.clearances,
@@ -441,9 +486,23 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
         unresolvableClueIds.add(id);
         continue;
       }
-      const owner = ownership.get(id);
+      const owner = (schedule ? fullOwnership : ownership).get(id);
       if (owner === undefined || owner === chapter) mustSurface.push(surfaceOf(id));
       else mayMention.push(refOf(id, owner));
+    }
+    if (schedule) {
+      // M9: a clue moved here from a heavier chapter is staged here.
+      for (const id of movedInto.get(chapter) ?? []) if (!mustSurface.some((s) => s.id === id)) mustSurface.push(surfaceOf(id));
+      // N9: before the test, a culprit's clue is a fact without its meaning, and without the culprit's name.
+      if (chapter < scheduleTest) {
+        for (const surface of mustSurface) {
+          if (!implicatesCulprit(surface.id)) continue;
+          deferred.push({ id: surface.id, observable: surface.observable });
+          surface.observable = withoutCulprit(surface.observable, culprits);
+          surface.keyTerms = keyTermsOf(surface.observable);
+          surface.conclusionAt = scheduleTest;
+        }
+      }
     }
     // A_90 §13 — the reveal and the discriminating test re-cite the evidence; that is the genre's
     // contract, not a repetition. Every decisive clue is offered there, never required again.
@@ -458,7 +517,7 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     const namingChapter = roles.discriminatingTest !== null ? Math.min(roles.discriminatingTest, roles.reveal) : roles.reveal;
     if (chapter < roles.reveal) mustNotReveal.push({ what: "culprit", until: roles.reveal });
     if (chapter < namingChapter) mustNotReveal.push({ what: "mechanism", until: namingChapter });
-    for (const [id, owner] of ownership) {
+    for (const [id, owner] of schedule ? fullOwnership : ownership) {
       if (owner > chapter) mustNotReveal.push({ what: id, until: owner });
     }
 
@@ -605,6 +664,12 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
 
     return contract;
   });
+
+  // A_110 N9: the test chapter is where the deferred meanings are first said aloud — a job there, not a ban earlier.
+  if (schedule && deferred.length > 0) {
+    const test = sceneContracts.find((s) => s.chapter === scheduleTest);
+    if (test) test.conclusions = deferred;
+  }
 
   const core: ContractCore = {
     book: { chapters: sceneContracts.length || targets.chapters, words: { min: targets.min, max: targets.max } },

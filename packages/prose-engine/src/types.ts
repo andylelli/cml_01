@@ -58,6 +58,8 @@ export interface ClueSurface {
    * is absent until Agent 5 emits it, and the brief says nothing about it when absent.
    */
   unlockedBy?: { name: string; skill: string };
+  /** A_110 N9 (PROSE_V2_SCHEDULE): a culprit's clue before the test — its fact here, its meaning said in this chapter. */
+  conclusionAt?: number;
 }
 
 /** A clue an EARLIER chapter owns: mention it, reason from it, never stage its discovery again. */
@@ -147,6 +149,8 @@ export interface SceneContract {
   victimAlive?: boolean;
   /** A_110 step 1 — present only with PROSE_V2_OPENING on. */
   opening?: Opening;
+  /** A_110 N9 (PROSE_V2_SCHEDULE): the test chapter says aloud what these earlier facts meant. */
+  conclusions?: Array<{ id: string; observable: string }>;
   location: string;
   timeOfDay?: string;
   /**

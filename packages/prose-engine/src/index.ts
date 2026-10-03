@@ -28,6 +28,8 @@ export { buildBookContract } from "./book-contract.js";
 export { checkContractRules, CONTRACT_RULES } from "./contract-rules.js";
 export type { RuleViolation } from "./contract-rules.js";
 export { checkTraceRules, existence, notSuccession, precedence, response, TRACE_RULES } from "./trace-templates.js";
+export { holdCulpritCluesLate, namesCulprit, rebalanceEvidence, withoutCulprit } from "./schedule.js";
+export type { LoadMove } from "./schedule.js";
 export type { TraceVerdict, Verdict } from "./trace-templates.js";
 export { whereAndWhen } from "./bible.js";
 export { planSegments, priorChapters, TOKENS_PER_WORD, CAP_UTILISATION, CHAPTERS_PER_ACT_SEGMENT } from "./segments.js";
