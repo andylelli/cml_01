@@ -15,6 +15,7 @@ import {
   anchorFindings,
   buildCriticPrompt,
   collectCheckerFindings,
+  MIN_QUOTE_WORDS,
   CRITIC_CLASSES,
   parseCriticFindings,
   summariseFindings,
@@ -443,5 +444,108 @@ describe("17-hitting-90 — the operation narrated as it is performed", () => {
   it("a long look, and a character who SAYS 'at length', are not findings", () => {
     expect(findings.some((f) => /looked at the sea/.test(f.quote))).toBe(false);
     expect(findings.some((f) => /talk at length about tides/.test(f.quote))).toBe(false);
+  });
+});
+
+/**
+ * `repeat_passage` — block 5 of `collectCheckerFindings` — produced no finding on any book, ever.
+ * `repetitionDensity` counts six-word spans and the block skipped any span under `MIN_QUOTE_WORDS`
+ * (eight), so nothing passed; and a span is punctuation-stripped, so it could not be found in the
+ * prose with `includes` either. MEASURED on stories/_archive/story_20260912-1815 (218.8 repeats per
+ * 10k, worst spans of 6,6,6,6,6 words): 0 findings. These are the witnesses the check lacked.
+ */
+describe("repeat_passage — a passage the book has already used", () => {
+  const repeats = (chapters: ProseChapterLike[], expected: number[]): Finding[] =>
+    collectCheckerFindings(chapters, core, expected).filter((f) => f.class === "repeat_passage");
+
+  const map = (chapters: ProseChapterLike[]): Map<number, ProseChapterLike> =>
+    new Map(chapters.map((c, i) => [i + 1, c]));
+
+  const KEY_SENTENCE = "Mrs Pardoe laid the brass key on the oak table beside the lamp.";
+
+  it("KNOWN-POSITIVE: one sentence in three chapters is found in all three, once each", () => {
+    const written = [
+      chapter(["The tide had gone out before breakfast.", KEY_SENTENCE]),
+      chapter([KEY_SENTENCE, "A gull stood on the rail and watched the road."]),
+      chapter(["Nobody spoke of the quarry that night.", KEY_SENTENCE]),
+    ];
+    const found = repeats(written, [1, 2, 3]);
+    // Five worst spans, all windows over the same sentence, are ONE finding per chapter, not five.
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    expect(found.every((f) => f.quote === KEY_SENTENCE)).toBe(true);
+    expect(found.every((f) => f.severity === "craft" && f.source === "checker")).toBe(true);
+    expect(anchorFindings(found, map(written)).discarded).toEqual([]);
+    expect(found[0]!.note).toMatch(/laid the brass key/);
+  });
+
+  it("KNOWN-POSITIVE: both places of a repetition are reported, not the first only", () => {
+    // Three uses, two chapters: the `break` this block once had reported chapter 1 and left chapter 3.
+    const written = [
+      chapter([KEY_SENTENCE]),
+      chapter(["She counted the stairs twice and slept badly."]),
+      chapter([KEY_SENTENCE, "Later the lamp guttered.", KEY_SENTENCE]),
+    ];
+    expect(repeats(written, [1, 2, 3]).map((f) => f.chapter)).toEqual([1, 3]);
+  });
+
+  it("KNOWN-POSITIVE: a span in DIFFERENT sentences is found through punctuation and a hyphen", () => {
+    const written = [
+      chapter(["She said the clock stopped at twenty-five minutes past three, and nobody argued."]),
+      chapter(["He noted that the clock stopped at twenty-five minutes past three before leaving the hall."]),
+      chapter(["They agreed the clock stopped at twenty-five minutes past three, which suited nobody."]),
+    ];
+    const body = (c: ProseChapterLike): string => c.paragraphs.join(" ").toLowerCase();
+    const found = repeats(written, [1, 2, 3]);
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    // Each chapter is quoted in its OWN words — the sentence around the span, not a shared string.
+    expect(new Set(found.map((f) => f.quote)).size).toBe(3);
+    found.forEach((f, i) => expect(f.quote).toBe(written[i]!.paragraphs[0]));
+    expect(anchorFindings(found, map(written)).discarded).toEqual([]);
+    // The fixture exercises the normalised match: the span the instrument reports is NOT in the prose.
+    const span = /"([^"]+)"/.exec(found[0]!.note)![1]!;
+    expect(written.some((c) => body(c).includes(span))).toBe(false);
+  });
+
+  it("a span that straddles a full stop quotes both sentences, exactly", () => {
+    const pair = "Nobody moved. At ten minutes past three the lamp failed again.";
+    const written = [
+      chapter(["The rain had eased by morning.", pair]),
+      chapter(["Tea was brought in without a word.", pair]),
+      chapter(["The vicar left by the garden door.", pair]),
+    ];
+    const found = repeats(written, [1, 2, 3]);
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    expect(found.some((f) => f.quote === pair)).toBe(true);
+    expect(anchorFindings(found, map(written)).discarded).toEqual([]);
+  });
+
+  it("a sentence under eight words is widened by its neighbours until it can be anchored", () => {
+    const short = "She locked the study door again."; // six words: the instrument's span, under MIN_QUOTE_WORDS
+    const written = [
+      chapter([short, "The hall clock ticked on."]),
+      chapter([short, "Rain began against the glass."]),
+      chapter([short, "Somebody coughed upstairs."]),
+    ];
+    const found = repeats(written, [1, 2, 3]);
+    expect(found.map((f) => f.chapter)).toEqual([1, 2, 3]);
+    for (const f of found) {
+      expect(f.quote.split(/\s+/).length).toBeGreaterThanOrEqual(MIN_QUOTE_WORDS);
+      expect(f.quote.startsWith(short)).toBe(true);
+    }
+    expect(anchorFindings(found, map(written)).discarded).toEqual([]);
+  });
+
+  it("the cap holds: a stock phrase in five chapters is reported in the first three only", () => {
+    const written = [1, 2, 3, 4, 5].map((n) => chapter([`Chapter ${n} opened on a grey road.`, KEY_SENTENCE]));
+    expect(repeats(written, [1, 2, 3, 4, 5]).map((f) => f.chapter)).toEqual([1, 2, 3]);
+  });
+
+  it("a book that repeats nothing yields no repeat_passage", () => {
+    const written = [
+      chapter(["Bertram turned the compass over and found the scuffed brass casing."]),
+      chapter(["She poured the tea and did not look up from the ledger."]),
+      chapter(["Mrs Pardoe swept the promenade at dawn and propped the kiosk shutter open."]),
+    ];
+    expect(repeats(written, [1, 2, 3])).toEqual([]);
   });
 });
