@@ -29,7 +29,7 @@
 import type { Brief, BriefAsk, ContractCore } from "./types.js";
 import { estimateTokens } from "./bible.js";
 import { humourMove } from "./humour-move.js";
-import { contractFixesEnabled, openingEnabled } from "@cml/cml";
+import { contractFixesEnabled, openingEnabled, touchOnceEnabled } from "@cml/cml";
 
 export const BRIEF_BUDGET = 1_500;
 
@@ -229,9 +229,14 @@ export const buildBrief = (input: BriefInput): Brief => {
   );
   add(
     "page",
-    openingEnabled()
-      ? "Every paragraph, apart from the two that open the book, has a thing in it somebody could touch, and a person doing something with it or to it."
-      : "Every paragraph has a thing in it somebody could touch, and a person doing something with it or to it.",
+    // A_110 N8 (PROSE_V2_TOUCH_ONCE): asked of every paragraph, the rule raised the gesture words it names — *hands*,
+    // *hand*, *set* up 1.6–2.4 z on the canon profile once the v2 brief landed, the words it does not name flat
+    // (WP-007 §4.2). Once a chapter, it is an operation; in every paragraph it is a habit, and the book's signature.
+    touchOnceEnabled()
+      ? "One paragraph in each chapter has a thing in it somebody could touch, and a person doing something with it or to it."
+      : openingEnabled()
+        ? "Every paragraph, apart from the two that open the book, has a thing in it somebody could touch, and a person doing something with it or to it."
+        : "Every paragraph has a thing in it somebody could touch, and a person doing something with it or to it.",
   );
   if (openingEnabled()) {
     // A_110 P1 as a standing rule: the contract's page list misses somebody who acts or speaks in 47% of chapters.
