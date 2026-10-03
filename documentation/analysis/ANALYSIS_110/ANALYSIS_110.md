@@ -35,7 +35,7 @@ The table below stands as amended by these:
 |---|---|
 | W2 | the checker exemption narrows to `abstract_subject`: `register_sentence` fires on 25.5% of canon narration and 0.8% of this book, and goes report-only in v2 (§30.1) |
 | L6 | fires at four or more tails per chapter — 3% of canon books, every chapter here (§30.2) |
-| **N7** | **new, step 0:** the "passage already used" finding cannot fire (6-word spans, 8-word floor); revive it (§30.3) |
+| **N7** | **step 0, half built** (`60a06430`): the finding now fires; the skip for clock and case phrases is not built, and 43% of its findings sit on clock phrases (§30.3) |
 | R2 | cause found: a 600-token prefix budget cut every pair of the detective's; fit all, ordered by need (§30.4) |
 | D5 | four lines, not two; the specimen audit is the test (§30.5) |
 | M6, L5 | M6 changes 4 of 20 picks; repetition changes none at any weight; L5 becomes an ordering rule (§32.3) |
@@ -1505,6 +1505,13 @@ short critic quotes), and skip any span whose content words are all in the bible
 the case's own nouns must stay: WP-006 §3.3 found the book that read 87 had its own locked clock time as
 its worst span. On this book N7 would send *follow the evidence wherever it led* ×5 and its kin. Its
 witness is this book.
+
+**STATUS 2026-10-03 — half built, in a parallel session (`60a06430`, merged to main in `85c24445`).** The
+finding now fires: it locates the span and quotes the enclosing sentence, and that commit measured it on
+229 of 230 archived books. **The skip was not built.** By that commit's own count, **922 of 2,168 findings
+(43%) sit on clock-time phrases**, which the editor's prompt tells it to keep exactly. Those findings
+cannot be acted on and each one costs an edit-list slot. Remaining work for N7: skip a span whose content
+words all occur in the bible, then re-count on the same 230 books.
 
 ### 30.4 Why three relationships were missing — MEASURED (WP-006 §4.4)
 
