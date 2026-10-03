@@ -11,7 +11,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { splitReads, parseExternalRead } from "../external-read-ledger.mjs";
+import { splitReads, parseExternalRead, SUPPLEMENTARY_HEADINGS } from "../external-read-ledger.mjs";
 
 test("a file with one read is one segment, unchanged", () => {
   const one = "Some notes.\n\nAs written: 82/100.\n";
@@ -46,4 +46,71 @@ test("a trailing sign-off belongs to the read it follows", () => {
 test("empty and malformed input are safe", () => {
   assert.deepEqual(splitReads(""), [""]);
   assert.equal(splitReads(undefined).length, 1);
+});
+
+/**
+ * Supplementary categories (SUPPLEMENTARY_HEADINGS) are captured but never folded into the ten.
+ *
+ * The sum gate in the CLI is `Object.values(externalCategories).length === 10`. A heading that leaked
+ * into `categories` would make that eleven and silently strip `externalCategorySum` and
+ * `externalOffset` from every row that carries it - which, for "Humour / Wit", is sixteen of the
+ * most recent reads. Before the heading was listed, those sixteen also each raised
+ * `unrecognised category heading`, which is what `--check` was failing on.
+ */
+const TEN = [
+  ["Premise / concept", 9],
+  ["Opening hook", 8],
+  ["Plot structure", 9],
+  ["Character clarity", 8],
+  ["Dialogue", 8],
+  ["Atmosphere", 9],
+  ["Mystery clues", 8],
+  ["Pacing", 8],
+  ["Ending", 9],
+  ["Prose", 8],
+];
+const table = (rows) => rows.map(([h, n, note]) => `${h}\t${n}/10${note ? `\t${note}` : ""}`).join("\n");
+const read = (rows) => `I'd score it around 86/100.\n\n${table(rows)}\n\nAs written: 86/100.\n`;
+
+test("Humour / Wit is captured as supplementary, not as one of the ten", () => {
+  const parsed = parseExternalRead(read([...TEN, ["Humour / Wit", 8, "Good dry wit."]]));
+  assert.deepEqual(parsed.problems, []);
+  assert.equal(Object.keys(parsed.categories).length, 10);
+  assert.equal(parsed.categories.humour_wit, undefined);
+  assert.equal(parsed.supplementary.humour_wit, 8);
+  assert.equal(parsed.notes.humour_wit, "Good dry wit.");
+});
+
+test("both supplementary headings together leave the ten untouched", () => {
+  const parsed = parseExternalRead(
+    read([...TEN, ["Character Life / Relationship Richness", 7], ["Humour / Wit", 8]]),
+  );
+  assert.deepEqual(parsed.problems, []);
+  assert.equal(Object.keys(parsed.categories).length, 10);
+  assert.deepEqual(parsed.supplementary, { character_life: 7, humour_wit: 8 });
+});
+
+test("the American spelling and a numbered row match, and a second table does not overwrite", () => {
+  const parsed = parseExternalRead(read([...TEN, ["11. Humor", 6], ["Humour / Wit", 9]]));
+  assert.equal(parsed.supplementary.humour_wit, 6);
+  assert.deepEqual(parsed.problems, []);
+});
+
+test("an unlisted heading is still reported, so the new pattern is not a catch-all", () => {
+  const parsed = parseExternalRead(read([...TEN, ["Tension / Dread", 7]]));
+  assert.deepEqual(parsed.problems, ['unrecognised category heading: "Tension / Dread"']);
+  assert.equal(Object.keys(parsed.supplementary).length, 0);
+});
+
+test("a prose line 'Humour / Wit: 8/10' with no tab is not a table row", () => {
+  // Real reads quote the mark again in running text (story_20260925-1240 line 98). The TAB
+  // requirement is what keeps that from being read as a second table or as a chapter mark.
+  const parsed = parseExternalRead(read(TEN) + "\nHumour / Wit: 8/10\n");
+  assert.deepEqual(parsed.problems, []);
+  assert.equal(parsed.supplementary.humour_wit, undefined);
+});
+
+test("every supplementary key is distinct from the ten canonical keys", () => {
+  const canonical = new Set(Object.keys(parseExternalRead(read(TEN)).categories));
+  for (const [key] of SUPPLEMENTARY_HEADINGS) assert.equal(canonical.has(key), false, key);
 });

@@ -974,6 +974,7 @@ Gate unchanged: ≥80% agreement on pairs the humans separated by ≥5 marks, wi
 
 ```
 DONE   M1.1  ledger repaired + 34 reads parsed             free
+DONE   M1.1b ledger re-synced 2026-10-03: 72->79 rows, 8 dead paths->0, Humour / Wit parsed   free
 DONE   X93   clearance fold, deterministic                 free   <- pacing
 DONE   X94   per-story opening rotation                    free   <- opening_hook
 DONE   M1.2  pairwise judge + calibration harness          free to build

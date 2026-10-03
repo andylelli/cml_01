@@ -1,5 +1,43 @@
 [
   {
+    "bundleId": "read-20260925-1240",
+    "storyPath": "stories/story_20260925-1240/for-read.md",
+    "readPath": "stories/story_20260925-1240/chatgpt-review.txt",
+    "externalFinal": 88,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 9,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 9,
+      "prose": 8
+    },
+    "externalNotes": {
+      "premise": "Excellent locked-room concept: tide, cave, key, hollow foil.",
+      "opening_hook": "Body, foil, locked room, open window, cave — clear and enticing.",
+      "plot_structure": "Much cleaner: clue build → alibis → motive → reenactment → fallout → aftermath.",
+      "character_clarity": "Montague, Desmond, Hector, Neville, Bertram all have distinct roles and voices.",
+      "dialogue": "Witty and better integrated than most drafts.",
+      "atmosphere": "Seaside hotel, academy, tide, cave, fencing world all cohere beautifully.",
+      "clues": "Strong, though the time phrasing and wound detail need tightening.",
+      "pacing": "Mostly strong; Chapter 9 could be shorter.",
+      "ending": "Desmond’s demonstration finally gives the reveal real force.",
+      "prose": "Cleaner than many recent versions, with fewer scaffold phrases.",
+      "character_life": "Strong aftermath: academy, trustees, classes, ledgers, changed roles.",
+      "humour_wit": "Good dry wit, especially Bertram and Montague."
+    },
+    "externalSupplementary": {
+      "character_life": 8,
+      "humour_wit": 8
+    },
+    "externalCategorySum": 84,
+    "externalOffset": 4
+  },
+  {
     "bundleId": "read-20260912-1815",
     "storyPath": "stories/_archive/story_20260912-1815/the_clock_s_false_hour_at_lockwood_estate.md",
     "readPath": "stories/_archive/story_20260912-1815/chatgpt-review.txt",
@@ -114,8 +152,8 @@
   },
   {
     "bundleId": "read-20260924-1445",
-    "storyPath": "stories/story_20260924-1445/resumed_resume_1790257434755.md",
-    "readPath": "stories/story_20260924-1445/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260924-1445/resumed_resume_1790257434755.md",
+    "readPath": "stories/_archive/story_20260924-1445/chatgpt-review.txt",
     "externalFinal": 86,
     "externalCategories": {
       "premise": 8,
@@ -140,10 +178,12 @@
       "pacing": "Moves well; Chapter 9 still repeats too much after Chapter 8.",
       "ending": "Confession works; aftermath is unusually good.",
       "prose": "Atmospheric, but still has some scaffold phrases and proof-list repetition.",
-      "character_life": "The sanctuary and its people feel alive beyond the murder."
+      "character_life": "The sanctuary and its people feel alive beyond the murder.",
+      "humour_wit": "Dry, character-specific, and better integrated than usual."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 8
     },
     "externalCategorySum": 80,
     "externalOffset": 6
@@ -252,8 +292,8 @@
   },
   {
     "bundleId": "read-20260923-1916",
-    "storyPath": "stories/story_20260923-1916/resumed_resume_1790187240831.md",
-    "readPath": "stories/story_20260923-1916/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260923-1916/resumed_resume_1790187240831.md",
+    "readPath": "stories/_archive/story_20260923-1916/chatgpt-review.txt",
     "externalFinal": 85,
     "externalCategories": {
       "premise": 8,
@@ -278,18 +318,20 @@
       "pacing": "Good forward movement; fewer repeated clue loops.",
       "ending": "Nora’s confession finally has emotional force.",
       "prose": "Stronger, but still has a few generated patterns and odd lines.",
-      "character_life": "Good aftermath and better emotional context for Nora/Gwendolyn/Harriet."
+      "character_life": "Good aftermath and better emotional context for Nora/Gwendolyn/Harriet.",
+      "humour_wit": "Dry and present, though still a little catchphrase-heavy."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 7
     },
     "externalCategorySum": 79,
     "externalOffset": 6
   },
   {
     "bundleId": "read-20260924-1923",
-    "storyPath": "stories/story_20260924-1923/resumed_resume_1790274123040.md",
-    "readPath": "stories/story_20260924-1923/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260924-1923/resumed_resume_1790274123040.md",
+    "readPath": "stories/_archive/story_20260924-1923/chatgpt-review.txt",
     "externalFinal": 85,
     "externalCategories": {
       "premise": 9,
@@ -314,10 +356,12 @@
       "pacing": "Moves well; Chapters 8–9 still repeat some clearance logic.",
       "ending": "Reenactment is excellent; confession works.",
       "prose": "Mostly strong, with some scaffold/awkward generated lines.",
-      "character_life": "Good web of debts, disgrace, academy politics, rivalry, and aftermath."
+      "character_life": "Good web of debts, disgrace, academy politics, rivalry, and aftermath.",
+      "humour_wit": "Stronger than average, especially Bertram’s dry theatricality."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 8
     },
     "externalCategorySum": 81,
     "externalOffset": 4
@@ -502,8 +546,8 @@
   },
   {
     "bundleId": "read-20260922-1857",
-    "storyPath": "stories/story_20260922-1857/resumed_resume_1790099653544.md",
-    "readPath": "stories/story_20260922-1857/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260922-1857/resumed_resume_1790099653544.md",
+    "readPath": "stories/_archive/story_20260922-1857/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 8,
@@ -528,18 +572,20 @@
       "pacing": "Good middle; ending compresses accusation/clearance/aftermath awkwardly.",
       "ending": "Strong final mood, but reveal happens more than once.",
       "prose": "Better than many drafts, but still some repeated generated phrases.",
-      "character_life": "Stronger than average: music, debts, rejection, institutional pressure, Leonard’s kindness."
+      "character_life": "Stronger than average: music, debts, rejection, institutional pressure, Leonard’s kindness.",
+      "humour_wit": "Good dry social wit, especially Violet/Millicent/Edith."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 8
     },
     "externalCategorySum": 78,
     "externalOffset": 6
   },
   {
     "bundleId": "read-20260924-1935",
-    "storyPath": "stories/story_20260924-1935/resumed_resume_1790274659348.md",
-    "readPath": "stories/story_20260924-1935/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260924-1935/resumed_resume_1790274659348.md",
+    "readPath": "stories/_archive/story_20260924-1935/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 9,
@@ -564,13 +610,53 @@
       "pacing": "Smooth and readable; less drag than many drafts.",
       "ending": "Chapter 8 exposes Desmond; Chapters 9–10 then partly re-resolve/aftermath.",
       "prose": "Cleaner prose than many earlier drafts, though some scaffold remains.",
-      "character_life": "Academy history, Gaunt’s disgrace, Neville’s legacy, Katherine’s memory all help."
+      "character_life": "Academy history, Gaunt’s disgrace, Neville’s legacy, Katherine’s memory all help.",
+      "humour_wit": "Strong dry wit, especially Bertram and Hector."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 8
     },
     "externalCategorySum": 80,
     "externalOffset": 4
+  },
+  {
+    "bundleId": "read-20260930-2042",
+    "storyPath": "stories/story_20260930-2042/resumed_resume_1790796774319.md",
+    "readPath": "stories/story_20260930-2042/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "False shadow in lighthouse is a strong visual murder trick.",
+      "opening_hook": "Body, ligature marks, ledger, scarf, mannequin arm — good immediate puzzle.",
+      "plot_structure": "Clearer progression than before: shadows → ledger → motives → false solution → proof → reveal.",
+      "character_clarity": "Edith, Margaret, Charles, Franklin, Albert, Eleanor are all distinct.",
+      "dialogue": "Much better wit, especially Margaret/Charles/Edith.",
+      "atmosphere": "Lighthouse, hotel lounge, foghorn, coal fires, sea, radio jazz — very cohesive.",
+      "clues": "Good core, but the final timing statement needs tightening.",
+      "pacing": "Better controlled; still some overlong guest questions.",
+      "ending": "Good accusation and aftermath; Charles’s confession is brief but effective.",
+      "prose": "Stronger prose, but duplicated and generated-feeling lines remain.",
+      "character_life": "Excellent improvement; people have lives after the case.",
+      "humour_wit": "Dry, character-specific, and better than most recent drafts."
+    },
+    "externalSupplementary": {
+      "character_life": 8,
+      "humour_wit": 8
+    },
+    "externalCategorySum": 79,
+    "externalOffset": 5
   },
   {
     "bundleId": "read-20260904-1711",
@@ -817,8 +903,8 @@
   },
   {
     "bundleId": "read-20260923-1806",
-    "storyPath": "stories/story_20260923-1806/resumed_resume_1790183007808.md",
-    "readPath": "stories/story_20260923-1806/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260923-1806/resumed_resume_1790183007808.md",
+    "readPath": "stories/_archive/story_20260923-1806/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -843,13 +929,53 @@
       "pacing": "Moves better than earlier versions; less clutter.",
       "ending": "Clean enough, but Nora’s confession is weak and almost jokey.",
       "prose": "Several strong passages, but some generated/scaffold phrases remain.",
-      "character_life": "Best character texture of the compass versions."
+      "character_life": "Best character texture of the compass versions.",
+      "humour_wit": "Dry, character-based, but repeated phrases reduce freshness."
     },
     "externalSupplementary": {
-      "character_life": 8
+      "character_life": 8,
+      "humour_wit": 7
     },
     "externalCategorySum": 76,
     "externalOffset": 6
+  },
+  {
+    "bundleId": "read-20261002-2110",
+    "storyPath": "stories/story_20261002-2110/the_fog_bound_masquerade_at_cliffhaven_hotel.md",
+    "readPath": "stories/story_20261002-2110/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 7,
+      "pacing": 7,
+      "ending": 8,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Fog-bound mistaken identity + ledger manipulation is strong.",
+      "opening_hook": "Body, ledger, fog, knife handle, family suspicion — good immediate setup.",
+      "plot_structure": "Clear progression, but too many mechanisms compete.",
+      "character_clarity": "Eleanor, Reginald Jr., Charles, Agatha, Isabel are distinct.",
+      "dialogue": "Some good clipped lines, but long generated questions remain.",
+      "atmosphere": "Cliff hotel, fog, cellar, bay, ledgers, dock receipts — very cohesive.",
+      "clues": "Followable, but the final proof needs simplification.",
+      "pacing": "Moves well, but repeats “quarter to nine / quarter past nine” too often.",
+      "ending": "Clear accusation and decent confession.",
+      "prose": "Some strong description, but scaffold phrasing and attribution oddities remain.",
+      "character_life": "Stronger than the theatre draft; Isabel’s absence matters.",
+      "humour_wit": "Eleanor and Charles have good dry notes; some forced long/short exchanges."
+    },
+    "externalSupplementary": {
+      "character_life": 8,
+      "humour_wit": 7
+    },
+    "externalCategorySum": 75,
+    "externalOffset": 7
   },
   {
     "bundleId": "read-20260724-1347",
@@ -1127,8 +1253,8 @@
   },
   {
     "bundleId": "read-20260922-1848",
-    "storyPath": "stories/story_20260922-1848/resumed_resume_1790099060243.md",
-    "readPath": "stories/story_20260922-1848/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260922-1848/resumed_resume_1790099060243.md",
+    "readPath": "stories/_archive/story_20260922-1848/chatgpt-review.txt",
     "externalFinal": 80,
     "externalCategories": {
       "premise": 8,
@@ -1153,18 +1279,20 @@
       "pacing": "Reasonable, though Chapters 6–9 repeat the same deductions.",
       "ending": "Good aftermath, but accusation is under-supported and confession is absent/soft.",
       "prose": "Better sensory writing, but some scaffold leakage remains.",
-      "character_life": "Better than previous compass version; Nora, Gwendolyn, Harriet, Theodora have more life."
+      "character_life": "Better than previous compass version; Nora, Gwendolyn, Harriet, Theodora have more life.",
+      "humour_wit": "Good dry lines, especially Nora/Bertram, but repeated slogans flatten the wit."
     },
     "externalSupplementary": {
-      "character_life": 7
+      "character_life": 7,
+      "humour_wit": 7
     },
     "externalCategorySum": 72,
     "externalOffset": 8
   },
   {
     "bundleId": "read-20260922-1900",
-    "storyPath": "stories/story_20260922-1900/resumed_resume_1790099847162.md",
-    "readPath": "stories/story_20260922-1900/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260922-1900/resumed_resume_1790099847162.md",
+    "readPath": "stories/_archive/story_20260922-1900/chatgpt-review.txt",
     "externalFinal": 80,
     "externalCategories": {
       "premise": 8,
@@ -1189,13 +1317,53 @@
       "pacing": "Middle moves steadily; Chapter 9/10 structure weakens the finish.",
       "ending": "Reveal occurs twice; Chapter 10 should be aftermath only.",
       "prose": "Better than the mannequin-shadow draft, but still has generator scaffolding.",
-      "character_life": "Some personalities, but not enough life outside the clock puzzle."
+      "character_life": "Some personalities, but not enough life outside the clock puzzle.",
+      "humour_wit": "Detectable and sometimes good, especially furniture/clock jokes."
     },
     "externalSupplementary": {
-      "character_life": 6
+      "character_life": 6,
+      "humour_wit": 7
     },
     "externalCategorySum": 73,
     "externalOffset": 7
+  },
+  {
+    "bundleId": "read-20261002-1830",
+    "storyPath": "stories/story_20261002-1830/the_mirror_s_deceit_at_halloway_manor.md",
+    "readPath": "stories/story_20261002-1830/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 6,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Mirror passage + dust outline is a good classic clue.",
+      "opening_hook": "Body, mirror, dust outline, knife, old resentments — strong setup.",
+      "plot_structure": "Good clue progression, but clock clue and mirror clue compete slightly.",
+      "character_clarity": "Adela, Harriet, Marguerite, Ivor, Ottoline are distinct.",
+      "dialogue": "Some strong dry lines, but long generated speeches remain.",
+      "atmosphere": "Manor corridors, greenhouse, velvet curtains, frost, hearths — very cohesive.",
+      "clues": "Mirror proof is strong; time logic needs cleaner integration.",
+      "pacing": "Better than the Ashford draft; not as repetitive.",
+      "ending": "Chapter 8 reveal works, but Chapter 10 contradicts it.",
+      "prose": "Mostly better, but still has scaffold/meta phrasing and repeated constructions.",
+      "character_life": "Harriet/Marguerite/Adela especially have real emotional texture.",
+      "humour_wit": "Harriet and Ottoline get good dry lines; some wit still over-explained."
+    },
+    "externalSupplementary": {
+      "character_life": 8,
+      "humour_wit": 7
+    },
+    "externalCategorySum": 75,
+    "externalOffset": 5
   },
   {
     "bundleId": "read-20260724-1747",
@@ -1485,6 +1653,44 @@
     "externalOffset": 11
   },
   {
+    "bundleId": "read-20261002-0022",
+    "storyPath": "stories/story_20261002-0022/the_half_hour_hand_a_theatre_clock_deception.md",
+    "readPath": "stories/story_20261002-0022/chatgpt-review.txt",
+    "externalFinal": 78,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 7,
+      "dialogue": 6,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 6,
+      "ending": 7,
+      "prose": 5
+    },
+    "externalNotes": {
+      "premise": "Public clock vs private watch is a good fair-play mechanism.",
+      "opening_hook": "Body, watch, foyer clock, dagger, theatre keys — good ingredients.",
+      "plot_structure": "Clear enough, but Chapters 2–8 repeat the same clock discrepancy too often.",
+      "character_clarity": "Ambrose, Kenneth, Clarissa, Julian are distinct, though Prudence needs more life.",
+      "dialogue": "Some decent dry lines, but too many long generated monologues.",
+      "atmosphere": "Gaslight, backstage corridors, prop racks, green room, foyer clock — strong theatre world.",
+      "clues": "The clock trick works, but the dagger/Kenneth proof needs strengthening.",
+      "pacing": "Repetitive: “quarter to six,” “six o’clock,” and “fifteen-minute gap” are overused.",
+      "ending": "Clear culprit and motive, but the confession is thin.",
+      "prose": "Contains scaffold notes, duplicated phrases, and awkward generated phrasing.",
+      "character_life": "Some backstory exists, but relationships are less rich than the Hemsworth draft.",
+      "humour_wit": "Kenneth has a dry voice; Julian’s wit is overwritten."
+    },
+    "externalSupplementary": {
+      "character_life": 6,
+      "humour_wit": 6
+    },
+    "externalCategorySum": 68,
+    "externalOffset": 10
+  },
+  {
     "bundleId": "read-20260827-2005",
     "storyPath": "stories/_archive/story_20260827-2005/resumed_resume_1787856628157.md",
     "readPath": "stories/_archive/story_20260827-2005/chatgpt-review.txt",
@@ -1581,10 +1787,12 @@
       "pacing": "Moves steadily, but repeats compass/ledger suspicion often.",
       "ending": "The reveal explains the trick, then repeats the proof after the confession.",
       "prose": "Good imagery mixed with obvious scaffold/template leakage.",
-      "character_life": "Some traits are present, but most characters still function mainly as alibi holders."
+      "character_life": "Some traits are present, but most characters still function mainly as alibi holders.",
+      "humour_wit": "Detectable dry wit, especially Bertram/Nora/Theodora, but uneven and sometimes mechanical."
     },
     "externalSupplementary": {
-      "character_life": 6
+      "character_life": 6,
+      "humour_wit": 6
     },
     "externalCategorySum": 68,
     "externalOffset": 9
@@ -1838,6 +2046,44 @@
     },
     "externalSupplementary": {
       "character_life": 7
+    },
+    "externalCategorySum": 65,
+    "externalOffset": 9
+  },
+  {
+    "bundleId": "read-20260925-1823",
+    "storyPath": "stories/story_20260925-1823/resumed_resume_1790356483365.md",
+    "readPath": "stories/story_20260925-1823/chatgpt-review.txt",
+    "externalFinal": 74,
+    "externalCategories": {
+      "premise": 7,
+      "opening_hook": 7,
+      "plot_structure": 6,
+      "character_clarity": 7,
+      "dialogue": 6,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 6,
+      "ending": 7,
+      "prose": 5
+    },
+    "externalNotes": {
+      "premise": "Good mystery parts: scarf, forged letter, key, ladder dust.",
+      "opening_hook": "Stronger atmosphere than before, but still overloaded.",
+      "plot_structure": "Clearer than previous Pike draft, but the route/mechanism remains busy.",
+      "character_clarity": "Harcourt, Pike, Margot, Evelyn, Charles are more distinct.",
+      "dialogue": "Some good dry lines, but catchphrases still repeat.",
+      "atmosphere": "Rain, wartime restrictions, manor, dig site, rationing — much improved.",
+      "clues": "Understandable, but not elegant; several mechanisms compete.",
+      "pacing": "Better trimmed than before, but still repetitive in clue recaps.",
+      "ending": "Pike is exposed clearly; Chapter 9 is better than before.",
+      "prose": "Still has duplicated lines and obvious generated/scaffold phrasing.",
+      "character_life": "Margot, Evelyn, Sir Edmund, Charles now have clearer inner pressures.",
+      "humour_wit": "Some good lines, but repeated tags weaken them."
+    },
+    "externalSupplementary": {
+      "character_life": 7,
+      "humour_wit": 6
     },
     "externalCategorySum": 65,
     "externalOffset": 9
@@ -2154,6 +2400,44 @@
     "externalCategorySum": 64,
     "externalOffset": 5,
     "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260925-1318",
+    "storyPath": "stories/story_20260925-1318/the_shadows_of_ashford_manor.md",
+    "readPath": "stories/story_20260925-1318/chatgpt-review.txt",
+    "externalFinal": 69,
+    "externalCategories": {
+      "premise": 7,
+      "opening_hook": 7,
+      "plot_structure": 5,
+      "character_clarity": 6,
+      "dialogue": 5,
+      "atmosphere": 7,
+      "clues": 6,
+      "pacing": 5,
+      "ending": 6,
+      "prose": 4
+    },
+    "externalNotes": {
+      "premise": "Good ingredients: forged letter, lock flaw, dust comparison, impersonation.",
+      "opening_hook": "Body, scarf, clock, missing watch, dust — decent but overloaded.",
+      "plot_structure": "Very repetitive; many scenes restate the same clue logic.",
+      "character_clarity": "Harcourt, Margot, Pike, Evelyn are readable; others blur into alibi functions.",
+      "dialogue": "Too many repeated catchphrases and long explanatory speeches.",
+      "atmosphere": "Country house + dig site + study/ledger world has promise.",
+      "clues": "Solution is understandable, but the mechanism is muddled by extra clues.",
+      "pacing": "Too much repetition: ladder, scarf, ink, dust, alibis repeated many times.",
+      "ending": "Pike is named clearly, but the reveal is list-like and overstuffed.",
+      "prose": "Lots of duplicated lines, scaffold phrases, and accidental wording.",
+      "character_life": "Some useful material, especially Margot and Langley, but not fully dramatized.",
+      "humour_wit": "Much less natural wit than the tidal-cave draft."
+    },
+    "externalSupplementary": {
+      "character_life": 6,
+      "humour_wit": 4
+    },
+    "externalCategorySum": 58,
+    "externalOffset": 11
   },
   {
     "bundleId": "2026-08-02-1936-clocks-deception",

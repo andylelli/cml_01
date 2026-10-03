@@ -94,9 +94,17 @@ export const CATEGORY_HEADINGS = [
  * did NOT follow the category marks down - `ext` held at 82-84 while `sum10` fell to 74-79 - so the
  * "+3 offset" constant the path-to-90 arithmetic carries is stale for recent reads. Add the mark
  * back and mean(headline - sum11) is +0.78.
+ *
+ * "Humour / Wit" is the second, and the same reasoning holds. It first appears in read-20260916-1814
+ * and is in every read from 2026-09-22 on - sixteen of them. Until 2026-10-03 it was not listed, so
+ * each of the sixteen pushed `unrecognised category heading: "Humour / Wit"` into `problems` and
+ * `--check` reported 16 of its 18 failures from this one heading, which buried the two reads that
+ * genuinely cannot be parsed. The mark is captured; it stays out of `externalCategories` and so out
+ * of the `marks.length === 10` gate.
  */
 export const SUPPLEMENTARY_HEADINGS = [
   ["character_life", /^character\s*life\b|^relationship\s*richness\b/i],
+  ["humour_wit", /^humou?r\b/i],
 ];
 
 /**
