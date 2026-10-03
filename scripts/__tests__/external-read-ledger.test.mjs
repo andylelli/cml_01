@@ -114,3 +114,15 @@ test("every supplementary key is distinct from the ten canonical keys", () => {
   const canonical = new Set(Object.keys(parseExternalRead(read(TEN)).categories));
   for (const [key] of SUPPLEMENTARY_HEADINGS) assert.equal(canonical.has(key), false, key);
 });
+
+// A_110 N10 — the reader and the date, when the read file records them; null (unrecorded) when it does not.
+test("reader and date are read from their own lines, and absent means unrecorded", () => {
+  const withHeader = parseExternalRead("reader: GPT-5.2 Thinking\ndate: 2026-10-04\n\nAs written: 84/100\n");
+  assert.equal(withHeader.reader, "GPT-5.2 Thinking");
+  assert.equal(withHeader.readDate, "2026-10-04");
+  assert.equal(withHeader.final, 84);
+  const without = parseExternalRead("As written: 84/100\n");
+  assert.equal(without.reader, null);
+  assert.equal(without.readDate, null);
+  assert.ok(!without.problems.some((p) => /reader|date/i.test(p)));
+});

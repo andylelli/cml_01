@@ -218,7 +218,17 @@ export function parseExternalRead(text) {
   if (missing.length && missing.length < 10) problems.push(`missing categories: ${missing.join(", ")}`);
   else if (missing.length === 10) problems.push("no category table found");
 
-  return { final, finalDerived, categories, supplementary, notes, problems };
+  /**
+   * A_110 N10 — WHICH reader, and when. Judges recognise and favour their own family's text, and a
+   * same-family model upgrade has moved marks by up to 13% of the scale (WP-007 §3.1). None of the 79
+   * reads on file names its model, so a change of reader is indistinguishable from a change of book.
+   * `reader: <model>` and `date: YYYY-MM-DD` on a line of their own (documentation/external-read-template.md) are read here;
+   * absent, they are `null` — reported as unrecorded, never a parse problem, since every old read lacks them.
+   */
+  const reader = /^\s*(?:reader|model)\s*:\s*(\S[^\r\n]*?)\s*$/im.exec(text)?.[1] ?? null;
+  const readDate = /^\s*(?:date|read on)\s*:\s*(\d{4}-\d{2}-\d{2})\b/im.exec(text)?.[1] ?? null;
+
+  return { final, finalDerived, categories, supplementary, notes, problems, reader, readDate };
 }
 
 /** Every `<storyDir>` that holds both a manuscript and an external read. */
@@ -298,6 +308,8 @@ if (invokedDirectly) {
       storyPath: f.storyPath,
       readPath: f.readPath,
       externalFinal: parsed.final ?? existing?.externalFinal ?? null,
+      externalReader: parsed.reader ?? existing?.externalReader ?? null,
+      externalReadDate: parsed.readDate ?? existing?.externalReadDate ?? null,
       ...(earlierReads.length > 0 ? { externalEarlierReads: earlierReads } : {}),
       ...(parsed.finalDerived ? { externalFinalDerived: true } : {}),
       externalCategories: Object.keys(parsed.categories).length ? parsed.categories : (existing?.externalCategories ?? {}),
@@ -322,6 +334,9 @@ if (invokedDirectly) {
   const orphans = manifest.filter((e) => !rows.some((r) => r.merged.bundleId === e.bundleId));
 
   console.log(`\n  external-read ledger — ${rows.length} manuscript(s) with a read on disk\n`);
+  const recorded = rows.filter((r) => r.merged.externalReader);
+  const readers = [...new Set(recorded.map((r) => r.merged.externalReader))];
+  console.log(`  reader recorded: ${recorded.length} of ${rows.length}${readers.length ? ` (${readers.join(", ")})` : ""} — the rest are "unrecorded" (A_110 N10; documentation/external-read-template.md)\n`);
   console.log("  bundle                          ext   sum  off   pre hook plot char dial atmo clue pace  end pros");
   console.log("  " + "-".repeat(104));
   for (const { merged: m } of rows.sort((a, b) => (b.merged.externalFinal ?? 0) - (a.merged.externalFinal ?? 0))) {
