@@ -18,7 +18,7 @@
  * nothing saved.
  */
 
-import { contractFixesEnabled, verifiedFixesEnabled } from "@cml/cml";
+import { bookFirstEnabled, contractFixesEnabled, presencePenaltyOf, verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -124,7 +124,7 @@ export const isProofStepsEnabled = (env: NodeJS.ProcessEnv = process.env): boole
 
 const chat = async (
   role: ResolvedRole,
-  args: { system: string; user: string; maxTokens: number; label: string; ctx: OrchestratorContext },
+  args: { system: string; user: string; maxTokens: number; label: string; ctx: OrchestratorContext; presencePenalty?: number },
 ): Promise<string> => {
   const send = async (system: string, user: string, retryAttempt: number) =>
     role.client.chat({
@@ -134,6 +134,8 @@ const chat = async (
       ],
       ...(role.model ? { model: role.model } : {}),
       ...(role.supportsTemperature ? { temperature: 0.7 } : {}),
+      // A_110 N12 (PROSE_V2_PRESENCE_PENALTY): the writer only, and only an OpenAI-family role; unset sends nothing.
+      ...(role.supportsTemperature && args.presencePenalty !== undefined ? { presencePenalty: args.presencePenalty } : {}),
       maxTokens: args.maxTokens,
       logContext: {
         runId: ctxRunId(args.ctx),
@@ -173,6 +175,20 @@ const bookSoFar = (chapters: ProseChapterLike[], numbers: number[]): string => {
   });
   return lines.join("\n");
 };
+
+/**
+ * The writer's user message. OFF (and whenever the book so far is empty, i.e. chapter 1): the bible, the brief, the
+ * chapters' contracts, the book so far, the format rules — byte-identical to before.
+ *
+ * A_110 N11 (PROSE_V2_BOOK_FIRST): ON, the book so far comes straight after the bible, so the brief's operations and the
+ * chapter's contract sit beside the format rules at the END of every call. MEASURED on run bcc0d637: the craft block
+ * ran from 70–89% of the way through the chapter-1 prompt to 19–24% of the chapter-10 prompt, the contract to 23–25%,
+ * while the format rules — obeyed every time — stayed last. Information mid-context is used least (Liu et al. 2024).
+ */
+export const assembleWriterPrompt = (p: { bible: string; brief: string; contracts: string; soFar: string; format: string }): string =>
+  bookFirstEnabled() && p.soFar
+    ? [p.bible, "", p.soFar, "", "## THE BRIEF", p.brief, "", "## THE CHAPTERS TO WRITE", p.contracts, "", p.format].join("\n")
+    : [p.bible, "", "## THE BRIEF", p.brief, "", "## THE CHAPTERS TO WRITE", p.contracts, "", p.soFar, "", p.format].join("\n");
 
 /** One chapter's contract, as the writer reads it. Countable obligations, no prohibitions beyond the withheld. */
 export const renderSceneContract = (contract: BookContract, chapter: number): string => {
@@ -515,19 +531,13 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     }
 
     const contracts = segment.chapters.map((c) => renderSceneContract(contract, c)).join("\n\n");
-    const user = [
-      contract.bible.text,
-      "",
-      "## THE BRIEF",
-      contract.brief.text,
-      "",
-      "## THE CHAPTERS TO WRITE",
+    const user = assembleWriterPrompt({
+      bible: contract.bible.text,
+      brief: contract.brief.text,
       contracts,
-      "",
-      bookSoFar(written, writtenNumbers),
-      "",
-      writerFormatInstruction(segment.chapters),
-    ].join("\n");
+      soFar: bookSoFar(written, writtenNumbers),
+      format: writerFormatInstruction(segment.chapters),
+    });
 
     ctx.reportProgress?.(
       "prose",
@@ -554,6 +564,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
             maxTokens: writer.maxOutputTokens,
             label: roleLabel("writer", `S${segment.index}-D${attempt}`),
             ctx,
+            presencePenalty: presencePenaltyOf(),
           });
           let draft = parseWriterOutput(raw, segment.chapters, segment.index, attempt);
           // An unfinished segment is CONTINUED, never redrafted: the chapters that finished are paid
@@ -591,6 +602,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
               maxTokens: writer.maxOutputTokens,
               label: roleLabel("writer", `S${segment.index}-D${attempt}-continue${rounds}`),
               ctx,
+              presencePenalty: presencePenaltyOf(),
             });
             const rest = parseWriterOutput(continued, draft.missing, segment.index, attempt);
             draft = {
