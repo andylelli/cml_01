@@ -71,6 +71,7 @@ import {
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
 import { chapterMentionsRequiredClue } from "@cml/prompts-llm";
+import { selectorRanksEnabled } from "@cml/cml";
 import { keyTermHits } from "./clue-terms.js";
 import { indexChapters } from "./chapter-index.js";
 import { namesAsCulprit } from "./culprit.js";
@@ -368,7 +369,43 @@ export const scoreDraft = (
 export interface ScoredDraft {
   draft: Draft;
   score: DraftScore;
+  /** PROSE_V2_SELECTOR_RANKS: the weighted rank sum (lower is better), set by `chooseDraft` for the run report. */
+  rank?: number;
+  /** PROSE_V2_SELECTOR_RANKS: share of the draft's distinct 4-word sequences already in the book so far (L5). */
+  overlap?: number;
 }
+
+/**
+ * A_110 M6 — the weights the ranks carry. The written composite weights, except register (0: no slope against the
+ * reads since 1 September, WP-006 §3.2) and repetition (0: it never changed a pick, A_110 §32.3). A positive weight
+ * prefers the higher contribution, which is the composite's own sign convention, so the order of the drafts on each
+ * instrument is exactly the order the composite gives it.
+ */
+export const RANK_WEIGHTS: Readonly<Record<CalibratedKey, number>> = {
+  registerRate: 0,
+  repetitionPer10k: 0,
+  dialogueOpenShare: 1.5,
+  longSentenceShare: 1,
+  emDashPer1k: 0.5,
+  witPer10k: 1,
+};
+
+const fourGrams = (text: string): Set<string> => {
+  const w = text.toLowerCase().replace(/[’]/g, "'").match(/[a-z]+(?:'[a-z]+)?/g) ?? [];
+  const out = new Set<string>();
+  for (let i = 0; i + 4 <= w.length; i++) out.add(w.slice(i, i + 4).join(" "));
+  return out;
+};
+
+/** L5: how much of a draft the book has already said — distinct 4-word sequences in common, as a share. */
+export const overlapWithBook = (chapters: ReadonlyArray<ProseChapterLike>, bookSoFar: string): number => {
+  const mine = fourGrams(textOf(chapters));
+  if (mine.size === 0 || !bookSoFar.trim()) return 0;
+  const book = fourGrams(bookSoFar);
+  let shared = 0;
+  for (const g of mine) if (book.has(g)) shared++;
+  return shared / mine.size;
+};
 
 /**
  * Choose between drafts: fewest hard failures first, then the highest composite. Never returns
@@ -402,15 +439,47 @@ export const RANKING_KINDS: ReadonlySet<HardGateHit["kind"]> = new Set([
 export const rankingFailures = (score: DraftScore): number =>
   score.hard.filter((h) => RANKING_KINDS.has(h.kind)).length;
 
-export const chooseDraft = (scored: ReadonlyArray<ScoredDraft>): ScoredDraft | null => {
+export const chooseDraft = (
+  scored: ReadonlyArray<ScoredDraft>,
+  options: { bookSoFar?: string } = {},
+): ScoredDraft | null => {
   const real = scored.filter((s) => s.draft.chapters.length > 0);
   if (real.length === 0) return null;
+  if (selectorRanksEnabled()) return chooseByRanks(real, options.bookSoFar ?? "");
   return [...real].sort((a, b) => {
     const ra = rankingFailures(a.score);
     const rb = rankingFailures(b.score);
     if (ra !== rb) return ra - rb;
     return b.score.composite - a.score.composite;
   })[0]!;
+};
+
+/**
+ * A_110 M6 — choose on the drafts' own scale. Fewest ranking failures first, as before; then each instrument ranks the
+ * remaining drafts (1 = best, ties share the better rank), the ranks are weighted by `RANK_WEIGHTS` and summed, and
+ * the lowest sum wins; an exact tie goes to the draft with the least overlap with the book so far (L5), then to the
+ * old composite. Ranks need no scale, so three drafts are enough.
+ */
+const chooseByRanks = (real: ReadonlyArray<ScoredDraft>, bookSoFar: string): ScoredDraft => {
+  const fewest = Math.min(...real.map((s) => rankingFailures(s.score)));
+  const pool = real.filter((s) => rankingFailures(s.score) === fewest);
+  for (const s of real) {
+    s.overlap = Number(overlapWithBook(s.draft.chapters, bookSoFar).toFixed(4));
+    s.rank = undefined;
+  }
+  for (const s of pool) s.rank = 0;
+  for (const key of Object.keys(RANK_WEIGHTS) as CalibratedKey[]) {
+    const weight = RANK_WEIGHTS[key];
+    if (weight === 0) continue;
+    const value = (s: ScoredDraft): number => s.score.contributions[key] ?? 0;
+    for (const s of pool) {
+      const better = pool.filter((o) => value(o) > value(s)).length;
+      s.rank = (s.rank ?? 0) + weight * (better + 1);
+    }
+  }
+  return [...pool].sort(
+    (a, b) => (a.rank ?? 0) - (b.rank ?? 0) || (a.overlap ?? 0) - (b.overlap ?? 0) || b.score.composite - a.score.composite,
+  )[0]!;
 };
 
 /** One line per draft for the run report, so a choice can be read back without re-running it. */
@@ -422,7 +491,8 @@ export const summariseSelection = (scored: ReadonlyArray<ScoredDraft>, chosen: S
       `${mark} draft ${s.draft.attempt}: composite ${s.score.composite.toFixed(2)}, ` +
       `hard ${rankingFailures(s.score)} ranking of ${s.score.hard.length}, register ${v.registerRate.toFixed(3)}, ` +
       `repetition ${v.repetitionPer10k.toFixed(1)}, speech-open ${(100 * v.dialogueOpenShare).toFixed(0)}%, ` +
-      `tail ${(100 * v.longSentenceShare).toFixed(0)}%, wit ${v.witPer10k.toFixed(1)}/${v.witTarget}`
+      `tail ${(100 * v.longSentenceShare).toFixed(0)}%, wit ${v.witPer10k.toFixed(1)}/${v.witTarget}` +
+      (s.rank !== undefined || s.overlap !== undefined ? `, rank ${s.rank === undefined ? "-" : s.rank.toFixed(1)}, overlap ${((s.overlap ?? 0) * 100).toFixed(1)}%` : "")
     );
   });
   return rows.join("\n");

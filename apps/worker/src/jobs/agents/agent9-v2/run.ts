@@ -630,7 +630,8 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
         clueDistribution: (ctx.clues ?? undefined) as { clues?: unknown[] } | undefined,
       }),
     }));
-    const chosen = chooseDraft(scored);
+    // A_110 L5: the selector (PROSE_V2_SELECTOR_RANKS) breaks a tie toward the draft the book has said least of.
+    const chosen = chooseDraft(scored, { bookSoFar: written.map((c) => (c.paragraphs ?? []).join("\n\n")).join("\n\n") });
     selections.push({ segment: segment.index, scored, chosen });
 
     if (!chosen) {

@@ -80,19 +80,19 @@ by a paid run yet.
 
 | item | step | flag | status | commit |
 |---|---|---|---|---|
-| K6 contract rules (M1): nine invariants as data, reported every run | 0 | — (telemetry) | **DONE** — 0 of 9 violated on all 31 archived casts ON; OFF witnesses 23/31/31/15/14 | this commit |
-| D6 victim never a suspect to clear | 0 | `PROSE_V2_CONTRACT_FIXES` | **DONE** | this commit |
-| D4 wit beats: humour map obeyed, carriers on the page, beats moved not dropped (M2) | 0 | same | **DONE** | this commit |
-| D5 no example lists — custody, aftermath, exchange, clearance and paragraph lines; one chapter owns the absence; "first of them we see" never in custody | 0 | same | **DONE** | this commit |
-| P5 culprit's mask resolved; culprit on the reveal and test pages, and on a page before them | 0 | same | **DONE** | this commit |
-| W1 THE WORLD: one where-and-when line from the real shapes; unknown reported (K4) | 0 | same | **DONE** | this commit |
-| R2 every relationship pair, the detective's first, the victim's next | 0 | same | **DONE** | this commit |
-| L1 trait out of the bible; owned once, before the reveal, with the person on the page | 0 | same | **DONE** | this commit |
-| L4 (bible half) Speech line to its first sentence | 0 | same | **DONE** | this commit |
-| L8 two leaking lines reworded; `chapter_reference` finding; reveal line without "chapter" | 0 | same | **DONE** | this commit |
-| §30.1 `register_sentence` reported, not sent to the editor | 0 | same | **DONE** | this commit |
+| K6 contract rules (M1): nine invariants as data, reported every run | 0 | — (telemetry) | **DONE** — 0 of 9 violated on all 31 archived casts ON; OFF witnesses 23/31/31/15/14 | `bd81079d` |
+| D6 victim never a suspect to clear | 0 | `PROSE_V2_CONTRACT_FIXES` | **DONE** | `bd81079d` |
+| D4 wit beats: humour map obeyed, carriers on the page, beats moved not dropped (M2) | 0 | same | **DONE** | `bd81079d` |
+| D5 no example lists — custody, aftermath, exchange, clearance and paragraph lines; one chapter owns the absence; "first of them we see" never in custody | 0 | same | **DONE** | `bd81079d` |
+| P5 culprit's mask resolved; culprit on the reveal and test pages, and on a page before them | 0 | same | **DONE** | `bd81079d` |
+| W1 THE WORLD: one where-and-when line from the real shapes; unknown reported (K4) | 0 | same | **DONE** | `bd81079d` |
+| R2 every relationship pair, the detective's first, the victim's next | 0 | same | **DONE** | `bd81079d` |
+| L1 trait out of the bible; owned once, before the reveal, with the person on the page | 0 | same | **DONE** | `bd81079d` |
+| L4 (bible half) Speech line to its first sentence | 0 | same | **DONE** | `bd81079d` |
+| L8 two leaking lines reworded; `chapter_reference` finding; reveal line without "chapter" | 0 | same | **DONE** | `bd81079d` |
+| §30.1 `register_sentence` reported, not sent to the editor | 0 | same | **DONE** | `bd81079d` |
 | N7 repeat_passage fires, skips clock values | 0 | — | **DONE** in a parallel session | `60a06430`, `8ab50c94` |
-| M6 selector standardised between drafts; repetition weight out; L5 as an ordering rule | 0.5 | — | TODO | |
+| M6 selector ranks drafts on their own scale; register and repetition weights 0; L5 overlap as the tie-break, printed per draft | 0.5 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — 7 tests; OFF unchanged | this commit |
 | W2, W3, P1, D1, D2, L3 the opening | 1 | `PROSE_V2_OPENING` | TODO | |
 | L6 tail finding at 4+ per chapter; L7 ship-check numbers; L5 overlap telemetry | 3 | — | TODO | |
 | P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |

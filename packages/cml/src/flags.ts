@@ -79,3 +79,16 @@ export function contractFixesEnabled(env: Record<string, string | undefined> = p
 export function openingEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return readBooleanFlag("PROSE_V2_OPENING", false, env);
 }
+
+/**
+ * ANALYSIS_110 M6 / WP-006 K14, K16 — the v2 draft selector ranks drafts on its own scale. MEASURED on the 20 logged
+ * three-draft selections: the composite standardises on 49 v1 BOOKS but chooses between DRAFTS of one chapter, so the
+ * written weights do not mean what they say (speech-opening share pulls 2.9, long sentences 2.8, register 2.2,
+ * repetition 0.1), and no weight on repetition changes a single pick. ON: among the drafts with the fewest ranking
+ * failures, each instrument ranks the drafts and the weighted ranks decide; register carries no weight (its slope
+ * against the reads is zero since 1 September, WP-006 §3.2) and repetition none (it never moved a pick); a tie goes to
+ * the draft that repeats the book so far least (L5). Default OFF. Read at call time (ADR-0004).
+ */
+export function selectorRanksEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_SELECTOR_RANKS", false, env);
+}

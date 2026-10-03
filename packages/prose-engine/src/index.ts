@@ -45,6 +45,8 @@ export {
   CALIBRATION,
   CALIBRATION_N,
   CALIBRATION_RHO,
+  RANK_WEIGHTS,
+  overlapWithBook,
 } from "./selector.js";
 export type { ScoredDraft } from "./selector.js";
 export {

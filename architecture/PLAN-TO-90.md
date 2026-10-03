@@ -3202,3 +3202,9 @@ every-call bible in 14; THE WORLD empty or `[object Object]` in 27 of 27 v2 runs
 "Where and when: Cliffhaven Hotel, a seaside hotel at Mevagissey, England; January 1934, winter."; 11 of 11 pairs, the
 detective's first; no example list in any line the specimen audit found leaking; `register_sentence` reported, not
 edited. Not yet read by a run: a matched pair (`RESUME_REDO=prose` on bcc0d637, three arms) decides it.
+
+**§33 UPDATE 13 — A_110 M6, the selector on its own scale (`PROSE_V2_SELECTOR_RANKS`, OFF).** MEASURED on the 20 logged
+three-draft selections: between drafts the written weights do not hold — speech-opening share decides 9 of 20 picks
+when zeroed, register is third, and no weight on repetition changes a single pick (WP-006 K16). ON: weighted ranks among
+the drafts with the fewest ranking failures, register and repetition at 0, an exact tie to the draft that repeats the
+book so far least (L5); rank and overlap printed per draft in the run report. Not read by a run.
