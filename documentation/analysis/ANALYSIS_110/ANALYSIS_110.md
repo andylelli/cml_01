@@ -1,6 +1,6 @@
 # ANALYSIS_110 — The owner's read of the Cliffhaven book: five things a reader needs that the writer was never asked for
 
-**2026-10-03 · £0 · no run · nothing here is built. Part I (§0–§11) is the owner's five points traced to
+**2026-10-03 · £0 · no run · step 0 and M6 built behind default-OFF flags; the IMPLEMENTATION PLAN governs the rest, generic to any story. Part I (§0–§11) is the owner's five points traced to
 their causes; Part II (§12–§19) tests every proposal and changes 14 of the 26; Part III (§20–§28) applies
 logic, statistics and optimisation to the implementation; Part IV (§29–§36) applies WP-006's kit; Part V
 (§37–§42) applies WP-007's literature and methods to this book's run.**
@@ -20,7 +20,9 @@ file and take a manuscript path, so they can be re-run after each fix.
 
 ## STATUS
 
-Nothing is built. **Part II (§12–§19, same day) tested every proposal** against the code run from `dist` on
+Step 0 and M6 are built behind default-OFF flags (BUILD LEDGER); nothing has been read by a paid run. **The
+IMPLEMENTATION PLAN, below the ledger, governs everything else.** Every item in it is a rule over any case's
+artifacts, verified over all 64 stored projects and on two cases of different axes (P.1). **Part II (§12–§19, same day) tested every proposal** against the code run from `dist` on
 this run's artifacts, the 25 v2 drafts in the prompt log, 64 stored outlines, 233 saved manuscripts and
 149 canon openings. Of the 26: **8 stand, 14 are changed, 2 are withdrawn or recommended against, 1 is merged
 and 1 was only ever flagged.** The build order is §18, which replaces §9.
@@ -108,7 +110,7 @@ by a paid run yet.
 | L8 two leaking lines reworded; `chapter_reference` finding; reveal line without "chapter" | 0 | same | **DONE** | `bd81079d` |
 | §30.1 `register_sentence` reported, not sent to the editor | 0 | same | **DONE** | `bd81079d` |
 | N7 repeat_passage fires, skips clock values | 0 | — | **DONE** in a parallel session | `60a06430`, `8ab50c94` |
-| M6 selector ranks drafts on their own scale; register and repetition weights 0; L5 overlap as the tie-break, printed per draft | 0.5 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — 7 tests; OFF unchanged | this commit |
+| M6 selector ranks drafts on their own scale; register and repetition weights 0; L5 overlap as the tie-break, printed per draft | 0.5 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — 7 tests; OFF unchanged | `97205f28` |
 | W2, W3, P1, D1, D2, L3 the opening | 1 | `PROSE_V2_OPENING` | TODO | |
 | L6 tail finding at 4+ per chapter; L7 ship-check numbers; L5 overlap telemetry | 3 | — | TODO | |
 | P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |
@@ -118,6 +120,163 @@ by a paid run yet.
 | N11 the book so far placed before the craft block and the chapter's contract; scored on S5–S9 in step 1's B arm (§38.3) | 1 | TODO | TODO | |
 | N8 the touch rule asked of one paragraph per chapter (§38.1) | 3 | TODO | TODO | |
 | N12 presence penalty plumbed and paired (§40) | 3 | TODO | TODO | |
+| 0.6 case-noun guard; 0.7 owner-read probe reads each case's own values; 0.8 step-0 fixtures from two more case shapes (IMPLEMENTATION PLAN) | 0b | — | TODO | |
+
+## IMPLEMENTATION PLAN — generic to any story
+
+*This section consolidates the build orders of §9, §18, §27, §35 and §41; where they differ, it governs. The
+BUILD LEDGER above is the status record. This section is the specification each ledger row is built to and
+accepted against.*
+
+### P.1 The genericity contract
+
+A_110 was found by reading one book. **Every change must work for any story.** This run is the motivating
+instance; the archive is the test. Eight rules apply to every item, with no exceptions.
+
+| rule | what it means for an item | how it is checked |
+|---|---|---|
+| **G1** rule over fields | stated over the case's artifacts (contract roles, cast fields, setting, outline beats), never over this run's chapter numbers, names or phrases; "the chapter with the discovery role", not "chapter 2" | the item's spec names fields, not values |
+| **G2** no case nouns | no name, place, clock value or specimen phrase from any stored case in code, prompts or rule data; comments citing evidence and the name pool are allowed | item 0.6, the case-noun guard |
+| **G3** archive witness | every deterministic change runs over all 64 stored projects (32 distinct casts), OFF and ON, reported per case | `probes/generic-witness.mjs`, extended per item; the contract rules at 0 violations ON |
+| **G4** present, or unknown | an item that needs a field the case lacks reports *unknown* to the run report and does nothing; it never invents the field (WP-006 K4) | the witness counts applied / unknown / not applicable per item |
+| **G5** branch on a field | a conditional item branches on a field (detective type, `era.policing`, `geographicIsolation`), never on the story's content | a unit fixture for every branch |
+| **G6** operations, not specimens | a requirement is a count or a position; it carries no example phrase | the specimen audit (§30.5) over every v2 prompt in the log |
+| **G7** two cases | paid verification runs on at least two cases that differ in axis and detective type | stated with the run parameters before launch (CLAUDE.md) |
+| **G8** generic predictions | every prediction is written as a rule over any case, and measured by a probe that reads the expected values from that case's artifacts | item 0.7 |
+
+**What is already built, audited against the contract — MEASURED** (`probes/generic-witness.mjs`, today):
+
+- **Step 0 (`bd81079d`) is generic.** The contract builds for all 64 projects, OFF and ON. W1 writes a
+  where-and-when line for all 64 (OFF: absent in all 64). Every line has a named place, a month and a year, none
+  has an empty slot, and all 64 are distinct. R2 never loses a pair (median 10 → 11). The nine contract rules show
+  0 violations on all 31 casts ON (ledger).
+- **No shipped rule contains this case's names.** Every hit in `packages/*/src` and `apps/*/src` is a comment
+  citing evidence or the name pool.
+- **Two gaps, both in the instruments, not the levers.** The step-0 unit fixture has this case's shape only
+  (`a110-step0-contract-fixes.test.ts`: Cliffhaven Hotel, Mevagissey, January 1934). And `owner-read-probe.mjs:28`
+  hard-codes this book's place words, so §18's predictions cannot be measured on any other case. Items 0.7 and
+  0.8 close both. They must land before the second case's pair is read.
+
+### P.2 Work packages
+
+Each row gives the generic rule, the change, the flag, the archive witness (£0, before any run) and the page
+counter (read off the pairs, on both cases). New flags default OFF and are registered in
+`architecture/FLAG-AUDIT.md`. Env is read at call time (ADR-0004). With every flag unset, every prompt is
+byte-identical (tested).
+
+**Step 0b — deterministic, £0, before any paid run**
+
+| # | item | generic rule | where | flag | archive witness (64 projects) | page counter |
+|---|---|---|---|---|---|---|
+| 0.1 | N5 | a spoken line in the editor's output is in the saved file | the v2 editor → save path | — | replay the logged v2 editor outputs against their saved chapters; count lost lines | 0 lost |
+| 0.2 | **N9 + M9, the schedule** | a clue that implicates a culprit shows its fact where scheduled and its conclusion in the chapter with the test role; evidence is placed to minimise the largest chapter load, every clue before its use | `contract.ts` clue ownership and `withheld`; the clue pre-assignment | `PROSE_V2_SCHEDULE` | reader model: the culprit stays under p = 0.5 until the chapter before the test in ≥ 45 of 64 (today 0); largest load ≤ ⌈clues ÷ chapters⌉ + 1; contract rules 0; `analyseProof` unchanged in 72 of 72 | the first sentence naming the culprit with a verb of guilt (the gate's guilt marker) is in the test chapter or later |
+| 0.3 | K6 template rows | D1, D2, P1 as *precedence*, P3 as *chain precedence* (Declare templates), three-valued | `contract-rules.ts` → a template evaluator | — (telemetry) | OFF: violations counted per case; ON (after step 1): 0 | the same rows run on the manuscript (§40, BookNLP or the probe) |
+| 0.4 | N10 | every read file records the reader model and the date | read template; `parseExternalRead` reads `reader:` and `date:` | — | the ledger prints "unrecorded" for the 79 old reads | — |
+| 0.5 | surprise ledger | Ely surprise per chapter, the settle chapter and the dead-chapter share in the case-logic report | `case-logic-report.mjs` | — (telemetry) | prints for 64 of 64 | never a gate, never read as a mark predictor (WP-007 §5.1) |
+| 0.6 | case-noun guard | no string literal in prose-engine, prompts-llm or the worker's agents contains a cast name, place or locked clock value of any stored case | new `scripts/case-noun-guard.mjs`, run by `npm test` | — | witness: it flags a planted fixture literal; clean on today's tree | — |
+| 0.7 | probe from the case | `owner-read-probe.mjs` takes the place, month, year, cast, occupations, relations and victim from the project's artifacts by projectId | `probes/owner-read-probe.mjs` | — | run over every v2 manuscript with a stored project: a per-case baseline for every prediction in P.4 | — |
+| 0.8 | step-0 fixtures | the step-0 unit tests gain two more case shapes: one with no `specificDate.month`, one with a police detective | `a110-step0-contract-fixes.test.ts` | — | G4 and G5 branches covered | — |
+
+**Step 0.5 — compliance before cost.** W2's layout rule is tested on chapter-1 calls alone with the sequential
+rule of §22.1: accept at five compliant drafts in a row, reject at three failures in a row, on both cases. If it
+is rejected, the fallback is §18's: a separate opening call that the chapter continues from.
+
+**Step 1 — the opening, and position in the prompt** (`PROSE_V2_OPENING`; N11 under `PROSE_V2_BOOK_FIRST`)
+
+| # | item | generic rule | where | archive witness | page counter (both cases) |
+|---|---|---|---|---|---|
+| 1.1 | W2 | the chapter with the opening role begins with two paragraphs narrating its primary location, then the first spoken line. Material: that location profile's `visualDescription` and first two paragraphs, minus every sentence the `abstract_subject` checker flags. No fixed order of elements | the format layout line for that role; contract material; `findings.ts` exempts owed paragraphs; `selector.ts` excludes them from the speech share | material found for all 64, or *unknown* | first quotation mark in paragraph 3 or later; the owed paragraphs survive the editor |
+| 1.2 | W3 | at a profiled location's first appearance as a scene, its first paragraph uses at least one concrete noun from its profile | contract, per scene, from the scene locations | first visits per contract | ≥ 1 profile noun in each first visit's first paragraph |
+| 1.3 | P1 | at each person's first appearance: one clause with their occupation and their relation to the victim, both from cast fields; *unknown* if a field is missing | contract, first-appearance line | the share of persons with both fields across 32 casts | both stated in the paragraph of first appearance |
+| 1.4 | D1 | in the chapter with the discovery role, each person present speaks one line about the death before evidence is mentioned; the culprit gets the same line | contract, discovery-role line | — | a line per present person, before the first evidence term |
+| 1.5 | D2 | when the detective is amateur or civilian **and** the setting carries `era.policing` or `geographicIsolation`: authority is sent for in the discovery chapter, delayed by the setting's own stated cause, and arrives in the arrest chapter. A police detective is *not applicable* | contract, branching on the cast's detective type | applied / not applicable / unknown across 64 | a sent-for line in the discovery chapter; an arrival in the arrest chapter |
+| 1.6 | L3 | the second exchange's long line runs 25 to 40 words | `brief.ts`, TWO EXCHANGES | — | compliance by call position, S0–S9 |
+| 1.7 | N11 | in every writer call, THE BOOK SO FAR precedes the craft block and the chapter's contract | `run.ts`, prompt assembly | prompts byte-identical OFF; S0 identical ON, since the book so far is empty there | THE PAGE's counts, L3 and D4's carriers by call position: the S5–S9 fall is smaller on B than on A′ |
+
+**Step 2 — upstream, fresh runs** (an Agent 7 flag, registered; one fresh pair per case, flag OFF against ON
+on the same seed)
+
+| # | item | generic rule | where |
+|---|---|---|---|
+| 2.1 | P3 | the scene with the Gathering beat has the victim alive and ends before the death; the body belongs to the Crime beat's scene. The victim's state per scene is **derived from the beat arc in code**, not asked of Agent 7 (§33) | `agent7-narrative.ts:717` order removed; `victimAlive` computed in `contract.ts`; `run.ts:246`'s dead-body line keyed to it |
+| 2.2 | W4 | Agent 7 is given the case's profiled places as the sets to prefer; Agent 2c's places are seeded from where the clues are found | Agent 7 and 2c prompts |
+| 2.3 | P2 | Agent 2b writes `appearance` and `whyHere` after the case is known; they appear only in the first-appearance contract, and `whyHere` is checked against the person's alibi window once WP-006 K3 exists | Agent 2b; contract |
+| 2.4 | L4 | Agent 2b's `speechMannerisms` loses "and how their humour manifests in dialogue" | `agent2b-character-profiles.ts:272` |
+| 2.5 | P4 | no two cast members share a first name; a shared surname needs a declared kinship | Agent 2 validation |
+
+Archive witness for step 2: the 64 stored outlines re-checked with the derived `victimAlive`. No scene with the
+Gathering beat has the victim dead, and the contract rules stay at 0.
+
+**Step 3 — the page's habits** (each package on its own pair, both cases)
+
+| # | item | generic rule | page counter |
+|---|---|---|---|
+| 3.1 | L6 + N8, one package | the tail: a count in the format line, and an editor finding at four or more per chapter that cuts it; the touch rule asked of one paragraph per chapter, not every paragraph | tail per 10k falls under 60; *hands*, *hand* and *set* fall toward their pre-v2 z; THE PAGE's other counts hold |
+| 3.2 | N12 | `presencePenalty` plumbed through the client behind a flag; pair at 0.3 | Heaps β and distinct words per 8,000 move beyond A′'s spread; no format failure |
+| 3.3 | L7, M7, M8 | ship-check prints the book-scale numbers against the canon floors (compressed ratio 0.346, opener entropy 5.12); keyness-ranked editor findings | reported only — no gate (§32.1) |
+| 3.4 | M10 | if the opening is drafted more than once, choose by profile-noun coverage, then the largest minimum distance from past openings | reported per selection |
+
+L6 and N8 are one package because both cut the same habit and move the same counters. A pair credits the
+package, not either half.
+
+### P.3 Verification protocol
+
+1. **Per item, before merge:** a unit fixture for each G4/G5 branch, built from at least two case shapes; the
+   archive witness over 64 projects, OFF and ON; flag-OFF byte identity; `npm run build:all`, `flags:check`,
+   `flags:runtime`, the case-noun guard and the specimen audit, all clean.
+2. **Per step, before any paid run:** the contract rules at 0 violations ON over 64 projects; the step's
+   witness rows printed in the ledger; the run parameters stated in full (CLAUDE.md).
+3. **Paid, per step:** `RESUME_REDO=prose` on each of two cases, with three arms: A (the stored book), A′
+   (no lever flipped) and B (the step's flags ON). The first case is `run_bcc0d637` (identity axis). The second
+   is chosen by axis: spatial has the fewest reads. The newest stored v2 spatial case is
+   `canary_1790962241799`, *The Rotating Wall at Halloway Manor*; if it cannot resume, the next fresh spatial run
+   is used. About £0.90 per case per step.
+4. **Read off the saved file**, not the draft, except em-dashes, which are counted in the draft because they
+   are folded on save. Tabulate every count by call position (S0–S9).
+
+**Decision rules.**
+- An item **passes on a case** when its counter holds on B and A′ does not meet it. A counter met by A′ too was
+  met by chance.
+- An item is **accepted** when it passes on both cases. It is **withdrawn** when it fails on both, and moved to
+  recommended-against with the reason. A split is decided by a third case on a third axis.
+- A B-against-A **read** difference under about 8 marks credits no lever (§39.1). The owner's read decides
+  "wooden".
+- **Stop:** no read of a book with a fallback chapter, and no promotion if any contract rule fires ON or any
+  new `clue_missing` appears.
+
+### P.4 Predictions in generic form — replaces §18's table
+
+Each is measured on both cases by the generalised probe (item 0.7). "Here today" is this run's value, kept as
+the motivating instance.
+
+| # | prediction, for any case | here today | item |
+|---|---|---|---|
+| 1 | in the chapter with the opening role, the first quotation mark is in paragraph 3 or later | paragraph 1 (25 of 25 v2 drafts) | W2 |
+| 2 | the owed establishing paragraphs survive the editor unchanged | — | W2's exemption |
+| 3 | the case's own place, month and year (from its setting and temporal artifacts) are on the page in chapter 1 | 0, 0, 0 | W1 + W2 |
+| 4 | every person on the opening chapter's page has their occupation and relation to the victim stated at first appearance | 1 of 4 (archive base rate 23%) | P1 |
+| 5 | each person present at the discovery speaks of the death before the first evidence; with an amateur detective, authority is sent for | 0; no | D1, D2 |
+| 6 | no contract or brief example phrase appears on the page more than twice | 11 and 5 | D5 (specimen audit) |
+| 7 | the victim is in no clearance line; no wit line goes to a person off the page | present; 2 | D6, D4 (contract rules) |
+| 8 | the word "chapter" in narration: 0; no reworded instruction's own words on the page | 3; 9 | L8 |
+| 9 | each trait label appears at most twice | 3 to 10 | L1 |
+| 10 | no new `clue_missing` | 0 | hard gate |
+| 11 | THE PAGE's counts and L3's cap fall less from S0 to S9 on B than on A′ | per-position taper (memory) | N11 |
+| 12 | the culprit's guilt is first stated on the page in the test chapter or later | ch 6 here | N9 (step 0b) |
+| 13 | compressed ratio rises ≥ 0.016 and opener entropy ≥ 0.45, toward the canon floors | 0.346 and 5.12 are the floors | reported (§27) |
+
+### P.5 Budget and order
+
+| step | £0 work | paid |
+|---|---|---|
+| 0b | 0.1–0.8 | — |
+| 0.5 | — | chapter-1 calls only, sequential, two cases |
+| 1 | builds and witnesses | 2 cases × (A′ + B) ≈ £1.80, plus the owner's reads |
+| 2 | witness over 64 outlines | 2 fresh pairs (OFF and ON on one seed each) ≈ £4.60 |
+| 3 | builds | two packages × 2 cases ≈ £3.60 |
+
+Total paid ≈ £10, in four decisions. Every paid run is stated in full before launch, and step order holds: a
+step's pair is not run until the previous step's items are accepted or withdrawn.
 
 ### As first proposed (Part I) — superseded by the table above, kept for the record
 
@@ -1985,6 +2144,9 @@ the owner's decision.
   reader walk with the contract fixes OFF and ON, the clue-deletion loop with its known positive, and this
   book's Cosine Delta profile. `delta` reads the canon and wants `--max-old-space-size=6000`. The prompt
   layout of §38.3 comes from WP-007's `brief-sections.mjs`.
+- `generic-witness.mjs` — the IMPLEMENTATION PLAN's archive witness (P.1, G3): the real contract over all 64 stored
+  projects, contract fixes OFF and ON; contract builds, W1's where-and-when line, R2's pairs, per case and per
+  distinct cast. Extend it with a row per item as each is built.
 
 The upstream figures (artifact shapes, contract lines per chapter) were read from the run's stored
 artifacts in `data/store.json` and its prompts in `logs/llm-prompts-full.jsonl`, paired by projectId and
