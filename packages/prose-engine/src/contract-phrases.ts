@@ -26,6 +26,12 @@ export const TEMPLATE = {
   inPassing: "each once and in passing",
   runsUpAgainst: "which somebody here runs up against",
   periodInTheWay: "The period gets in somebody's way here",
+  // A_110 L8: "the period's limitations… had gotten in their way" x3, "the period's" x8 on run bcc0d637.
+  happensHere: "This happens to somebody here and costs them time or trouble",
+  // A_110 L8: "Already on the page from chapter 6" came back as "already referenced in chapter 6".
+  alreadyOnPage: "Already on the page earlier",
+  // A_110 D5: the custody line, without its examples ("empty chair" x11 on run bcc0d637, 321x the canon).
+  absenceOnce: "Once in this chapter somebody comes upon something of theirs and leaves it where it is",
   pullsTwoWays: "shows what pulls them two ways",
   neitherNames: "One exchange between them carries it, and neither names it",
   // A_109 M3 — the reveal's walk through THE PROOF.

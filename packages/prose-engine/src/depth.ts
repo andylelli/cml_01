@@ -16,6 +16,7 @@
  * 1 dated origin in 378 profiles. Mining them would reintroduce labels, not depth.
  */
 import { TEMPLATE } from "./contract-phrases.js";
+import { contractFixesEnabled } from "@cml/cml";
 import type { ContractCore, ContractInput, Texture } from "./types.js";
 
 const text = (value: unknown): string => String(value ?? "").replace(/\s+/g, " ").trim();
@@ -155,7 +156,13 @@ export const textureLines = (t: Texture | undefined): string[] => {
   const lines: string[] = [];
   if (t.senses?.length) lines.push(`Of this place at this hour, ${TEMPLATE.inPassing}: ${t.senses.join("; ")}.`);
   if (t.access) lines.push(`The rule of this place, ${TEMPLATE.runsUpAgainst}: ${t.access}`);
-  if (t.friction) lines.push(`${TEMPLATE.periodInTheWay}, as a thing that happens to them: ${t.friction}.`);
+  if (t.friction) {
+    lines.push(
+      contractFixesEnabled()
+        ? `${TEMPLATE.happensHere}: ${t.friction}.`
+        : `${TEMPLATE.periodInTheWay}, as a thing that happens to them: ${t.friction}.`,
+    );
+  }
   if (t.conflict) {
     lines.push(
       `${t.conflict.name} makes one choice in this chapter that ${TEMPLATE.pullsTwoWays}: ${t.conflict.conflict}` +

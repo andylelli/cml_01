@@ -3192,3 +3192,13 @@ one generator with a sync and an async driver (`loadAntiCopyIndexAsync`), longes
 The report cannot name the source work (the index stores fingerprints, not origins). `InstrumentVector.copiedSpans`
 stays 0 in `measureInstruments` and is now commented as NOT MEASURED there. Inferred, not measured: the live-run cost
 of the first build per process (~98 MB held, ~50 s of background CPU at the end of a run).
+
+**§33 UPDATE 12 — A_110 step 0, the v2 contract's own defects (`PROSE_V2_CONTRACT_FIXES`, OFF).** The owner's read of
+run bcc0d637 ("still a bit wooden", ANALYSIS_110) traced to the contract. MEASURED over the 31 distinct archived casts
+with it OFF: the victim among the suspects to clear in 23, a wit owner off the chapter's page in all 31, a wit beat at
+the body, the test or the reveal in all 31, the culprit off the reveal's page list in 15, the trait line in the
+every-call bible in 14; THE WORLD empty or `[object Object]` in 27 of 27 v2 runs. ON: all nine contract rules
+(`contract-rules.ts`, reported in the run's contract notes every run, flag or not) hold on all 31; THE WORLD reads
+"Where and when: Cliffhaven Hotel, a seaside hotel at Mevagissey, England; January 1934, winter."; 11 of 11 pairs, the
+detective's first; no example list in any line the specimen audit found leaking; `register_sentence` reported, not
+edited. Not yet read by a run: a matched pair (`RESUME_REDO=prose` on bcc0d637, three arms) decides it.

@@ -49,7 +49,7 @@ import {
   provesTheAct,
   splitMeansLinkTrace,
 } from "@cml/prompts-llm";
-import { deriveCaseChronology, renderClockWords } from "@cml/cml";
+import { contractFixesEnabled, deriveCaseChronology, renderClockWords } from "@cml/cml";
 
 import { assignChapterRoles } from "./roles.js";
 import { assignTexture } from "./depth.js";
@@ -194,6 +194,9 @@ const distributeClearances = (
   clearanceChapters: number[],
   revealChapter: number,
   aftermathChapter: number | null,
+  // A_110 D6: the victim (and any culprit) is never a suspect to clear. MEASURED: 64 of 72 archived CMLs list the victim
+  // in suspect_clearance_scenes, and the contract told the writer "{victim} is cleared here" in 24 of 25 v2 runs.
+  notSuspects: ReadonlySet<string> = new Set(),
 ): Map<number, Elimination[]> => {
   const pr = (caseBlock.prose_requirements ?? {}) as Record<string, unknown>;
   const stated = asArray(pr.suspect_clearance_scenes)
@@ -204,7 +207,7 @@ const distributeClearances = (
         method: String(e?.clearance_method ?? "").trim(),
       };
     })
-    .filter((e) => e.name && e.method);
+    .filter((e) => e.name && e.method && !notSuspects.has(e.name));
   const byChapter = new Map<number, Elimination[]>();
   if (stated.length === 0) return byChapter;
   const before = clearanceChapters.filter((c) => c < revealChapter);
@@ -301,7 +304,36 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     value.length > 0 && chronologyValues.some((v) => v.includes(value));
 
   const decisive = decisiveClueIds(caseBlock, clues);
-  const clearanceByChapter = distributeClearances(caseBlock, roles.clearances, roles.reveal, roles.aftermath);
+  const fixes = contractFixesEnabled();
+  const clearanceByChapter = distributeClearances(
+    caseBlock,
+    roles.clearances,
+    roles.reveal,
+    roles.aftermath,
+    fixes ? new Set([victim, ...culprits].filter(Boolean)) : new Set(),
+  );
+
+  /**
+   * A_110 P5 — the culprit's pre-reveal mask. Agent 7 is told to write "the mysterious guest" for the culprit before the
+   * reveal (`prose_requirements.identity_rules`), and `present` kept only cast names, so the culprit was on the page
+   * list of NO chapter in run bcc0d637 and of no reveal chapter in 15 of 31 archived casts. The mask resolves to the
+   * person; job-field values carrying it ("suspicionShiftsTo: the mysterious guest") are rewritten the same way.
+   */
+  const masks = new Map<string, string>();
+  if (fixes) {
+    for (const rule of asArray((caseBlock.prose_requirements as Record<string, unknown> | undefined)?.identity_rules)) {
+      const r = rule as Record<string, unknown>;
+      const mask = String(r?.before_reveal_reference ?? "").trim();
+      const name = String(r?.character_name ?? "").trim();
+      if (mask && name && mask.toLowerCase() !== name.toLowerCase()) masks.set(mask.toLowerCase(), name);
+    }
+  }
+  const unmask = (value: string): string => masks.get(value.trim().toLowerCase()) ?? value;
+  const unmaskText = (value: string): string => {
+    let out = value;
+    for (const [mask, name] of masks) out = out.split(new RegExp(escapeRegExp(mask), "i")).join(name);
+    return out;
+  };
 
   /**
    * 17-hitting-90 P1.2–P1.4 — the reveal package, computed once from the case.
@@ -440,16 +472,26 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       beat,
       role,
       title: String(scene.title ?? "").trim(),
-      present: asArray(scene.characters)
-        .map((c) => String(c ?? "").trim())
-        .filter((n) => n && (castNames.length === 0 || castNames.includes(n))),
+      present: [
+        ...new Set(
+          asArray(scene.characters)
+            .map((c) => unmask(String(c ?? "").trim()))
+            .filter((n) => n && (castNames.length === 0 || castNames.includes(n))),
+        ),
+      ],
       location: String((scene.setting as Record<string, unknown> | undefined)?.location ?? "").trim(),
       timeOfDay: String((scene.setting as Record<string, unknown> | undefined)?.timeOfDay ?? "").trim() || undefined,
       mustSurface,
       mayMention,
       mustNotReveal,
       eliminationsAllowed: clearanceByChapter.get(chapter) ?? [],
-      job: readBeatJob(scene, beat),
+      job: ((): BeatJobFields | null => {
+        const job = readBeatJob(scene, beat);
+        if (!job || masks.size === 0) return job;
+        const out = { ...job } as unknown as Record<string, unknown>;
+        for (const [k, v] of Object.entries(out)) if (k !== "beat" && typeof v === "string") out[k] = unmaskText(v);
+        return out as unknown as BeatJobFields;
+      })(),
       beats: {},
       /**
        * THE POLICY'S TARGET, NOT THE OUTLINE'S ESTIMATE.
@@ -514,8 +556,9 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
         survivors,
         scope: input.aftermathScope ?? "household",
       };
-      const consequenceFor = String(scene.consequenceFor ?? "").trim();
-      if (consequenceFor) aftermath.consequenceFor = consequenceFor;
+      const consequenceFor = unmask(String(scene.consequenceFor ?? "").trim());
+      // A_110 D5/N4: run.ts renders "X is the first of them we see" in the same contract that says X is in custody.
+      if (consequenceFor && !(fixes && culprits.includes(consequenceFor))) aftermath.consequenceFor = consequenceFor;
       const repairTarget = String(scene.repairTarget ?? "").trim();
       if (repairTarget) aftermath.repairTarget = repairTarget;
       contract.aftermath = aftermath;
@@ -583,6 +626,24 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
         ]
       : notes,
   };
+  if (fixes) {
+    /**
+     * A_110 P5, second half. The mask accounted for some of it; in 14 of 31 archived casts the outline's reveal scene
+     * lists no culprit under any name, while the reveal operation requires the culprit to speak twice on the page. The
+     * test applies to the culprit on the page too. And Agent 7's own rule is "the culprit must already be present by
+     * beat crime": where no chapter before the reveal lists them, the crime chapter does.
+     */
+    const ensure = (scene: SceneContract | undefined): void => {
+      if (!scene) return;
+      for (const c of culprits) if (!scene.present.includes(c)) scene.present.push(c);
+    };
+    ensure(sceneContracts.find((s) => s.chapter === roles.reveal));
+    if (roles.discriminatingTest !== null) ensure(sceneContracts.find((s) => s.chapter === roles.discriminatingTest));
+    if (culprits.length > 0 && !sceneContracts.some((s) => s.chapter < roles.reveal && culprits.some((c) => s.present.includes(c)))) {
+      ensure(sceneContracts.find((s) => s.beat === "crime" && s.chapter < roles.reveal) ?? sceneContracts.find((s) => s.chapter < roles.reveal));
+    }
+    reallocateBeats(sceneContracts, { living, victim, culprits, roles, humourLevel: input.humourLevel });
+  }
   // §07: depth from what the pipeline already wrote, each piece owned by one chapter.
   for (const [chapter, texture] of assignTexture(input, core)) {
     const scene = core.scenes.find((s) => s.chapter === chapter);
@@ -591,4 +652,83 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
   // A_109 step 6 — after texture, so the flag changes nothing but the false lead and the one clearance.
   if (input.falseLead) core.notes.push(...applyFalseLead(caseBlock, core));
   return core;
+};
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * A_110 D4 and L1 — wit and depth beats as an ALLOCATION over the people on each chapter's page.
+ *
+ * MEASURED over 64 archived contracts (31 distinct casts): a wit line's owner was off the chapter's page in 61% of
+ * wit chapters, because carriers rotate as `(chapter − 1) mod n` over every living profile — the arrested culprit
+ * included; and 27% of wit beats sat at the body, the test or the reveal, where the world document's humour map says
+ * `forbidden`. A filter alone leaves 10% of wit chapters with nobody eligible, so a beat that cannot stand where the
+ * band put it moves to the nearest chapter that can carry one (WP-005's spacing, WP-006 §4.3), and each carrier is
+ * the eligible person on the page used least so far. Depth: each person's trait once in the book (L1), in the first
+ * chapter before the reveal that has them on the page and no trait yet.
+ */
+const reallocateBeats = (
+  scenes: SceneContract[],
+  ctx: {
+    living: ReadonlyArray<BeatCandidate>;
+    victim: string;
+    culprits: ReadonlyArray<string>;
+    roles: ContractCore["roles"];
+    humourLevel?: string;
+  },
+): void => {
+  const { living, victim, culprits, roles } = ctx;
+  const byName = new Map(living.map((p) => [String(p.name ?? ""), p] as const));
+  const onPage = (s: SceneContract): BeatCandidate[] =>
+    s.present
+      .filter((n) => n !== victim && !(s.chapter > roles.reveal && culprits.includes(n)))
+      .map((n) => byName.get(n))
+      .filter((p): p is BeatCandidate => Boolean(p));
+  const funny = (p: BeatCandidate): boolean =>
+    Boolean(p.humourStyle) && p.humourStyle !== "none" && Number(p.humourLevel ?? 0) > 0;
+  const bodyChapter = scenes.find((s) => s.present.includes(victim) && !s.wound && !s.victimAlive)?.chapter ?? null;
+  const forbidden = new Set<number>(
+    [bodyChapter, roles.discriminatingTest ?? roles.reveal, roles.reveal].filter((c): c is number => c !== null),
+  );
+  const feasible = (s: SceneContract): boolean => !forbidden.has(s.chapter) && onPage(s).length >= 2 && onPage(s).some(funny);
+
+  const band = humourBand(ctx.humourLevel);
+  const desired = scenes.filter((s) => band.beatEvery > 0 && chapterCarriesWitBeat(ctx.humourLevel, s.chapter)).map((s) => s.chapter);
+  const chosen = new Set<number>();
+  const sceneAt = new Map(scenes.map((s) => [s.chapter, s] as const));
+  for (const chapter of desired) {
+    if (feasible(sceneAt.get(chapter)!)) {
+      chosen.add(chapter);
+      continue;
+    }
+    for (const d of [1, -1, 2, -2]) {
+      const alt = sceneAt.get(chapter + d);
+      if (alt && !chosen.has(alt.chapter) && !desired.includes(alt.chapter) && feasible(alt)) {
+        chosen.add(alt.chapter);
+        break;
+      }
+    }
+  }
+  const used = new Map<string, number>();
+  for (const s of scenes) {
+    delete s.beats.wit;
+    if (!chosen.has(s.chapter)) continue;
+    const pool = onPage(s);
+    const carriers = pool.filter(funny);
+    const offset = (Math.max(1, s.chapter) - 1) % Math.max(1, carriers.length);
+    const ranked = carriers
+      .map((p, i) => ({ p, uses: used.get(String(p.name)) ?? 0, turn: (i - offset + carriers.length) % carriers.length }))
+      .sort((a, b) => a.uses - b.uses || a.turn - b.turn);
+    const carrier = ranked[0]?.p;
+    if (!carrier?.name) continue;
+    used.set(String(carrier.name), (used.get(String(carrier.name)) ?? 0) + 1);
+    s.beats.wit = { name: String(carrier.name), style: String(carrier.humourStyle ?? "").trim(), shapes: assignOwnedShapes(pool, s.chapter) };
+  }
+
+  const withTrait = living.filter((p) => p.name && String(p.formativeIncident ?? "").trim().length > 12);
+  for (const s of scenes) delete s.beats.depth;
+  for (const p of withTrait) {
+    const home = scenes.find((s) => s.chapter < roles.reveal && !s.beats.depth && onPage(s).some((q) => q.name === p.name));
+    if (home) home.beats.depth = { name: String(p.name), trait: traitOnly(p.formativeIncident) };
+  }
 };

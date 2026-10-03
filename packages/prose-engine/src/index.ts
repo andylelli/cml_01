@@ -25,6 +25,9 @@ export { buildBible, estimateTokens, BIBLE_BUDGET, BIBLE_BUDGETS } from "./bible
 export { buildBrief, briefLawViolations, revealOperation, mechanismOperation, fullParagraphs, BRIEF_BUDGET } from "./brief.js";
 export type { BriefInput, BriefProfile } from "./brief.js";
 export { buildBookContract } from "./book-contract.js";
+export { checkContractRules, CONTRACT_RULES } from "./contract-rules.js";
+export type { RuleViolation } from "./contract-rules.js";
+export { whereAndWhen } from "./bible.js";
 export { planSegments, priorChapters, TOKENS_PER_WORD, CAP_UTILISATION, CHAPTERS_PER_ACT_SEGMENT } from "./segments.js";
 export type { SegmentOptions } from "./segments.js";
 export { parseWriterOutput, writerFormatInstruction, continueInstruction } from "./writer-format.js";

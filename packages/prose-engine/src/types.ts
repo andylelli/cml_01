@@ -140,6 +140,11 @@ export interface SceneContract {
   title: string;
   /** Cast names on the page. The model may add nobody. */
   present: string[];
+  /**
+   * A_110 P3 — set only where the outline marks this chapter as one the victim is ALIVE in (a Gathering before the
+   * crime). Absent means today's contract: a victim on the page is the body.
+   */
+  victimAlive?: boolean;
   location: string;
   timeOfDay?: string;
   /**
@@ -457,6 +462,8 @@ export const FINDING_CLASSES = [
   "humour_move_narrated",
   "summary_ending",
   "recap",
+  // A_110 L8 — "the chapter ended with…", "already referenced in chapter 6": a chapter named in narration
+  "chapter_reference",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

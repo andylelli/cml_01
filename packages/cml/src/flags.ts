@@ -56,3 +56,26 @@ export function promptTrimsEnabled(env: Record<string, string | undefined> = pro
 export function clueSpecChecklistEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return readBooleanFlag("AGENT5_CLUE_SPEC_CHECKLIST", false, env);
 }
+
+/**
+ * ANALYSIS_110 step 0 — the v2 contract's deterministic defects, one switch so one matched pair reads them together:
+ * the victim never among the suspects to clear (D6); wit beats only where the humour map allows and carried by people
+ * on the page (D4); no example lists in the custody, aftermath, exchange and clearance lines (D5); the culprit's
+ * pre-reveal mask resolved to the person (P5); THE WORLD read from the real artifact shapes (W1); every relationship
+ * pair, the detective's first (R2); the trait line out of the every-call bible and owned by one chapter (L1); the
+ * Speech line cut to its first sentence (L4); two instruction lines that leaked reworded, and "chapter N" in
+ * narration a finding (L8); `register_sentence` counted, not sent to the editor (A_110 §30.1). Default OFF: with it
+ * unset every prompt is byte-identical. Read at call time (ADR-0004).
+ */
+export function contractFixesEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_CONTRACT_FIXES", false, env);
+}
+
+/**
+ * ANALYSIS_110 step 1 — the opening the owner asked for: the place before anybody speaks (W2), a room described on
+ * its first visit (W3), each person introduced where they first appear (P1), the death met by everybody present and
+ * by the world outside (D1, D2), the long line of the second exchange capped (L3). Default OFF. Read at call time.
+ */
+export function openingEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_OPENING", false, env);
+}

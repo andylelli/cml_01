@@ -18,7 +18,7 @@
  * nothing saved.
  */
 
-import { verifiedFixesEnabled } from "@cml/cml";
+import { contractFixesEnabled, verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -232,7 +232,14 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   const living = scene.present.filter((n) => n !== victim && !(afterReveal && culprits.includes(n)));
   if (living.length > 0) lines.push(`  On the page: ${living.join(", ")}.`);
   if (afterReveal && culprits.length > 0) {
-    lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
+    if (contractFixesEnabled()) {
+      // A_110 D5: the examples were printed ("empty chair" x11 on run bcc0d637), and every chapter after the reveal
+      // carried the line, so chapters 9 and 10 performed the same absence. One chapter owns it; it names no object.
+      const who = `${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house.`;
+      lines.push(chapter === contract.roles.reveal + 1 ? `  ${who} ${TEMPLATE.absenceOnce}.` : `  ${who}`);
+    } else {
+      lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
+    }
   }
   if (victim && scene.present.includes(victim) && !scene.wound) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
@@ -262,7 +269,11 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     if (surface.unlockedBy) lines.push(`    ${surface.unlockedBy.name} reads it because they know ${surface.unlockedBy.skill}.`);
   }
   for (const ref of scene.mayMention) {
-    lines.push(`  Already on the page from chapter ${ref.firstChapter} — ${TEMPLATE.referNotStage}: ${ref.keyTerms.slice(0, 5).join(", ")}`);
+    lines.push(
+      contractFixesEnabled()
+        ? `  ${TEMPLATE.alreadyOnPage} — ${TEMPLATE.referNotStage}: ${ref.keyTerms.slice(0, 5).join(", ")}`
+        : `  Already on the page from chapter ${ref.firstChapter} — ${TEMPLATE.referNotStage}: ${ref.keyTerms.slice(0, 5).join(", ")}`,
+    );
   }
   for (const withheld of scene.mustNotReveal) {
     if (withheld.what === "culprit") lines.push(`  The culprit is named in chapter ${withheld.until}.`);

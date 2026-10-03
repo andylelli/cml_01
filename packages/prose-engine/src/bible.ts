@@ -34,7 +34,7 @@
 
 import type { Bible, BibleSectionKey, ContractCore, ContractInput } from "./types.js";
 import { humourMove } from "./humour-move.js";
-import { verifiedFixesEnabled } from "@cml/cml";
+import { contractFixesEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { fragmentObservable } from "./clue-shape.js";
 
 /**
@@ -250,7 +250,10 @@ const castSection = (
     if (style && style !== "none" && level > 0) bits.push(`  Humour: ${humourMove(style)}`);
     else if (style === "none") bits.push("  Humour: plays it straight, and is the contrast the others land against");
     const mannerisms = field(profile, "speechMannerisms");
-    if (mannerisms) bits.push(`  Speech: ${mannerisms}`);
+    // A_110 L4: Agent 2b is asked to say "how their humour manifests in dialogue" here, so the field carries the
+    // humour labels P4.2 took out of the Humour line ("self-deprecat*" x10, "understate*" x5 on run bcc0d637). The
+    // first sentence is HOW they speak; the rest restates the label.
+    if (mannerisms) bits.push(`  Speech: ${contractFixesEnabled() ? firstSentenceOf(mannerisms) : mannerisms}`);
     const tic = field(profile, "signatureTic");
     if (tic) {
       const owner = stockLineChapter(name, core, stockLineLoad);
@@ -259,14 +262,61 @@ const castSection = (
     // A_96 F9 — the TRAIT clause only. The cause is withheld on purpose: run 50862 narrated the whole
     // formative incident as a label seven times, because the whole of it was in the prompt.
     const trait = core.scenes.find((s) => s.beats.depth?.name === name)?.beats.depth?.trait;
-    if (trait) bits.push(`  One thing about them, shown never explained: ${trait}`);
+    // A_110 L1: the trait is owned by one chapter contract; in the bible every call reads it, and run bcc0d637 printed
+    // "gambling loss" x9 and "the loss of a high-profile case" x10. depth.ts's own rule: never the bible.
+    if (trait && !contractFixesEnabled()) bits.push(`  One thing about them, shown never explained: ${trait}`);
     lines.push(...bits);
   }
   return lines;
 };
 
+/**
+ * A_110 W1 — where and when, read from the shapes the artifacts actually have.
+ *
+ * MEASURED over every v2 run in the prompt log (27 runs, 639 writer calls): this section's whole content was
+ * "Where and when: [object Object]." in 26, and absent in the 27th after the verified fix, because all six reads
+ * below miss: `ctx.setting` is Agent 1's outer result `{ setting: { location: {...} } }`, `historicalMoment` has no
+ * `summary`, `locationRegisters[]` has `emotionalRegister` not `register`, and the location profiles hold
+ * `primary`/`keyLocations`, not `profiles`. Repairing those reads would add the mood and four location registers
+ * to every call ("The lobby feels claustrophobic yet charged…") — the register readers quote back — so ON this is
+ * ONE line, and a place it cannot read is reported as unknown rather than silently dropped (WP-006 K4).
+ */
+export const whereAndWhen = (input: ContractInput): { line: string; unknown: string[] } => {
+  const setting = (input.setting as Record<string, unknown> | undefined) ?? {};
+  const inner = (setting.setting && typeof setting.setting === "object" ? setting.setting : setting) as Record<string, unknown>;
+  const location = (inner.location && typeof inner.location === "object" ? inner.location : {}) as Record<string, unknown>;
+  const locations = (input.locations as Record<string, unknown> | undefined) ?? {};
+  const primary = (locations.primary && typeof locations.primary === "object" ? locations.primary : {}) as Record<string, unknown>;
+  const temporal = (input.temporal as Record<string, unknown> | undefined) ?? {};
+  const date = (temporal.specificDate && typeof temporal.specificDate === "object" ? temporal.specificDate : {}) as Record<string, unknown>;
+  const seasonal = (temporal.seasonal && typeof temporal.seasonal === "object" ? temporal.seasonal : {}) as Record<string, unknown>;
+  const name = text(primary.name);
+  const kind = text(location.type).toLowerCase();
+  const place = [text(primary.place), text(primary.country)].filter(Boolean).join(", ");
+  const month = text(date.month);
+  const year = text(date.year) || text((inner.era as Record<string, unknown> | undefined)?.decade);
+  const season = text(seasonal.season).toLowerCase();
+  const unknown: string[] = [];
+  if (!name && !kind) unknown.push("the place");
+  if (!place) unknown.push("its town and country");
+  if (!year) unknown.push("the year");
+  const where = [name, kind && name ? `a ${kind}` : kind].filter(Boolean).join(", ");
+  const when = [[month, year].filter(Boolean).join(" "), season].filter(Boolean).join(", ");
+  const parts = [[where, place ? `at ${place}` : ""].filter(Boolean).join(" "), when].filter(Boolean);
+  return { line: parts.length > 0 ? `Where and when: ${parts.join("; ")}.` : "", unknown };
+};
+
 const worldSection = (input: ContractInput): string[] => {
   const lines: string[] = [];
+  if (contractFixesEnabled()) {
+    const { line } = whereAndWhen(input);
+    if (line) lines.push(line);
+    const forbidden = asArray((input.temporal as Record<string, unknown> | undefined)?.anachronisms)
+      .map((a) => (typeof a === "string" ? text(a) : field(a, "term")))
+      .filter(Boolean);
+    if (forbidden.length > 0) lines.push(`Out of period, so out of the book: ${forbidden.slice(0, 20).join(", ")}.`);
+    return lines;
+  }
   const setting = input.setting as Record<string, unknown> | undefined;
   const place = field(setting, "location", "place", "setting");
   const era = field(setting, "era", "period") || field(input.temporal, "era", "period");
@@ -360,7 +410,11 @@ const relationshipsSection = (input: ContractInput, core: ContractCore): string[
     core.scenes.flatMap((s) => (s.texture?.history ? [`${s.texture.history.a}|${s.texture.history.b}`] : [])),
   );
   const relationships = input.cast?.relationships as Record<string, unknown> | undefined;
-  const pairs = asArray(relationships?.pairs ?? relationships);
+  const rawPairs = asArray(relationships?.pairs ?? relationships);
+  // A_110 R2: `toBudget` keeps a prefix, and run bcc0d637's eight first pairs cost 591 of the 600 tokens, so every
+  // pair of the detective's — the reader's eyes — was dropped. ON: the detective's pairs, then the victim's (who he
+  // was to each of them), then the rest, inside a budget that fits them (`relationshipsBudget`).
+  const pairs = contractFixesEnabled() ? orderPairs(rawPairs, input, core) : rawPairs;
   const lines: string[] = [];
   for (const pair of pairs) {
     const a = field(pair, "character1", "characterA", "a");
@@ -376,6 +430,30 @@ const relationshipsSection = (input: ContractInput, core: ContractCore): string[
     lines.push(`  ${a} & ${b}${tension && tension !== "none" ? ` (${tension} tension)` : ""}: ${body}`);
   }
   return lines;
+};
+
+/** A_110 R2: room for eleven pairs at ~75 tokens; the 600 was self-imposed (the v2 bible has no ceiling). */
+const RELATIONSHIPS_BUDGET_FIXED = 1_200;
+
+const firstSentenceOf = (value: string): string => {
+  const m = text(value).match(/^.{12,260}?[.!?](?=\s|$)/);
+  return (m ? m[0] : text(value)).trim();
+};
+
+const orderPairs = (pairs: unknown[], input: ContractInput, core: ContractCore): unknown[] => {
+  const cast = asArray(input.cast?.characters);
+  const detective = cast
+    .map((m) => ({ name: field(m, "name"), role: field(m, "roleArchetype", "role_archetype", "role").toLowerCase() }))
+    .find((m) => /detective|investigator|sleuth|inspector/.test(m.role))?.name ?? "";
+  const victim = core.fairPlay.victim;
+  const rank = (pair: unknown): number => {
+    const a = field(pair, "character1", "characterA", "a");
+    const b = field(pair, "character2", "characterB", "b");
+    if (detective && (a === detective || b === detective)) return 0;
+    if (victim && (a === victim || b === victim)) return 1;
+    return 2;
+  };
+  return pairs.map((p, i) => ({ p, i, r: rank(p) })).sort((x, y) => x.r - y.r || x.i - y.i).map((x) => x.p);
 };
 
 // ── assembly ─────────────────────────────────────────────────────────────────────────────────────
@@ -400,9 +478,13 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
     { key: "relationships", lines: relationshipsSection(input, core) },
   ];
 
+  const fixes = contractFixesEnabled();
+  const budgetOf = (key: BibleSectionKey): number =>
+    fixes && key === "relationships" ? RELATIONSHIPS_BUDGET_FIXED : BIBLE_BUDGETS[key];
+  const totalBudget = fixes ? BIBLE_BUDGET - BIBLE_BUDGETS.relationships + RELATIONSHIPS_BUDGET_FIXED : BIBLE_BUDGET;
   let sections = built
     .map(({ key, lines }) => {
-      const body = toBudget(lines, BIBLE_BUDGETS[key]);
+      const body = toBudget(lines, budgetOf(key));
       return { key, title: SECTION_TITLES[key], body, tokens: estimateTokens(body) };
     })
     .filter((s) => s.body.length > 0);
@@ -410,7 +492,7 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
   const truncated: BibleSectionKey[] = [];
   const total = () => sections.reduce((sum, s) => sum + s.tokens + estimateTokens(s.title) + 2, 0);
   for (const key of DROPPABLE) {
-    if (total() <= BIBLE_BUDGET) break;
+    if (total() <= totalBudget) break;
     if (!sections.some((s) => s.key === key)) continue;
     sections = sections.filter((s) => s.key !== key);
     truncated.push(key);

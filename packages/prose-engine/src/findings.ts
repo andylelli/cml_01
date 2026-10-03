@@ -36,7 +36,7 @@ import {
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { extractClockValues } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
@@ -95,6 +95,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   pronoun_drift: "defect",
   victim_alive: "defect",
   scaffold_token: "defect",
+  chapter_reference: "defect",
   register_sentence: "craft",
   abstract_subject: "craft",
   operation_narrated: "craft",
@@ -182,7 +183,24 @@ const finding = (
   quote: string,
   note: string,
   source: Finding["source"] = "checker",
-): Finding => ({ class: cls, chapter, quote: normalise(quote), note, severity: SEVERITY[cls], source });
+): Finding => ({ class: cls, chapter, quote: normalise(quote), note, severity: severityOf(cls), source });
+
+/**
+ * A_110 §30.1 — `register_sentence` is counted, not sent to the editor, with PROSE_V2_CONTRACT_FIXES on. MEASURED with
+ * the real scorer: it fires on 25.5% of 31,414 canon narration sentences and 0.8% of run bcc0d637's, and 98% of
+ * 2,500-word canon windows reach the editor's cap of eight. Its slope against the reads is zero since 1 September
+ * (WP-006 §3.2). In v2 it asks the editor to turn narration into a person handling an object.
+ */
+const severityOf = (cls: FindingClass): FindingSeverity =>
+  cls === "register_sentence" && contractFixesEnabled() ? "report" : SEVERITY[cls];
+
+/**
+ * A_110 L8 — a chapter named in narration. Fiction never refers to its own chapters; every hit is our contract wording
+ * coming back ("already referenced in chapter 6", "recalled from chapter 1", "The chapter ended with…"). Narration only,
+ * because a character may say "chapter and verse". A construction, not a word list.
+ */
+const CHAPTER_REFERENCE =
+  /\b(?:(?:in|from|of|since|by|than|after|before|referenced in|recalled from)\s+chapter\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b|the (?:chapter|scene) (?:ended|ends|closed|closes|began|begins|opened|opens)\b)/i;
 
 /** The sentence in a chapter that best evidences a term — so even a checker's finding can be quoted. */
 const sentenceContaining = (body: string, needles: ReadonlyArray<string>): string => {
@@ -509,6 +527,16 @@ export const collectCheckerFindings = (
       if (/^["“]/.test(sentence)) continue; // a character may say "at length"; the narrator may not announce it
       if (!OPERATION_NARRATED.test(sentence)) continue;
       out.push(finding("operation_narrated", chapter, sentence, "the narration announces the shape of the line instead of letting the line have it; cut the announcement and keep the line"));
+    }
+  }
+
+  // 3c-bis. A_110 L8 — a chapter named in narration (PROSE_V2_CONTRACT_FIXES).
+  if (contractFixesEnabled()) {
+    for (const [chapter, written] of byChapter) {
+      for (const sentence of sentencesOf(bodyOf(written))) {
+        if (/^["“]/.test(sentence) || !CHAPTER_REFERENCE.test(sentence)) continue;
+        out.push(finding("chapter_reference", chapter, sentence, "the narration names a chapter of the book; say what happened, or cut the clause"));
+      }
     }
   }
 

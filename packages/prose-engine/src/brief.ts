@@ -29,6 +29,7 @@
 import type { Brief, BriefAsk, ContractCore } from "./types.js";
 import { estimateTokens } from "./bible.js";
 import { humourMove } from "./humour-move.js";
+import { contractFixesEnabled } from "@cml/cml";
 
 export const BRIEF_BUDGET = 1_500;
 
@@ -110,7 +111,10 @@ export const revealOperation = (core: ContractCore): string => {
     `Then ${culprit} speaks twice, in their own words on the page: one line says what ${victim} was about to do to them; ` +
     `one line names what that would have cost them — a person, a position or a place, said by its name. ` +
     // Run 98dec72a: "The confrontation ended in the scene, the truth spoken aloud". Said as a thing seen.
-    `The chapter ends with everybody still in the room.`
+    (contractFixesEnabled()
+      // A_110 L8: printed as "The chapter ended with the group in the lounge" — the word itself was the leak.
+      ? `Nobody leaves the room before the last line.`
+      : `The chapter ends with everybody still in the room.`)
   );
 };
 
@@ -187,7 +191,11 @@ export const buildBrief = (input: BriefInput): Brief => {
     );
     add(
       "shapes",
-      "The sentence after either reply is what somebody ELSE does: a movement, an object handled, a look away, the next question. The shortness stays inside the quotation marks.",
+      contractFixesEnabled()
+        // A_110 D5 (specimen audit, §30.5): "next question" reached 5 of 10 v2 cases (9x the canon) and "object
+        // handled" 2. The operation stays; the examples go.
+        ? "The sentence after either reply belongs to somebody else, and is something they do. The shortness stays inside the quotation marks."
+        : "The sentence after either reply is what somebody ELSE does: a movement, an object handled, a look away, the next question. The shortness stays inside the quotation marks.",
     );
   }
 
@@ -211,7 +219,10 @@ export const buildBrief = (input: BriefInput): Brief => {
   // the plot needed". The reason for an operation is ours; the writer is given only the operation.
   add(
     "page",
-    "One paragraph in each chapter follows one person through something of their own — a habit, a possession, a letter, a piece of work — that no other paragraph in the book comes back to.",
+    contractFixesEnabled()
+      // A_110 D5: the same examples-after-a-dash shape that leaked elsewhere; the operation needs none of them.
+      ? "One paragraph in each chapter follows one person through something of their own that no other paragraph in the book comes back to."
+      : "One paragraph in each chapter follows one person through something of their own — a habit, a possession, a letter, a piece of work — that no other paragraph in the book comes back to.",
   );
   add(
     "page",
@@ -252,7 +263,10 @@ export const buildBrief = (input: BriefInput): Brief => {
     add(
       "tests",
       `Chapter ${core.roles.aftermath} opens on the first ordinary thing somebody does once the arrest is made, and the proof comes up in one clause or not at all. ` +
-        `Two named people are each seen taking up something the case had stopped — a door unlocked, a letter sent, a piece of work begun again. ` +
+        (contractFixesEnabled()
+          // A_110 D5: "letters sent, doors unlocked" x5 on run bcc0d637 (18-21x the canon). Two things, both different.
+          ? `Two named people each take up one thing the case had stopped, and the two things are different. `
+          : `Two named people are each seen taking up something the case had stopped — a door unlocked, a letter sent, a piece of work begun again. `) +
         `Somebody handles a thing that belonged to ${dead} and remembers ${dead} using it on an ordinary day. ` +
         `It ends with somebody at the everyday work of the place.`,
     );
@@ -267,7 +281,10 @@ export const buildBrief = (input: BriefInput): Brief => {
       // 17-hitting-90, pair 2 (2026-09-25): "settled in a clause" is a qualifier, and the qualifier
       // dropped — chapter 9 re-cleared all three suspects with their clock values, the complaint 3
       // of the last 4 reads made. The count of a simple thing: one sentence, the name and the word.
-      `Chapter ${chapter} gives each suspect the arrest has already cleared one human beat — an apology, a thanks, a resentment said aloud, an assumption admitted. ` +
+      (contractFixesEnabled()
+        // A_110 D5: "apology, thanks, resentment, assumptions lingering" x3 on run bcc0d637, first in chapter 5.
+        ? `Chapter ${chapter} gives each suspect the arrest has already cleared one line, in their own words, about one person in the house. `
+        : `Chapter ${chapter} gives each suspect the arrest has already cleared one human beat — an apology, a thanks, a resentment said aloud, an assumption admitted. `) +
         `Their legal position is one sentence of the investigator's: the suspect's name and the word "cleared", and the next sentence is what that suspect does with their hands. The clock values belong to chapter ${core.roles.reveal} and were said there.`,
     );
   }
