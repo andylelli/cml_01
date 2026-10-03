@@ -1,0 +1,16 @@
+{
+  "about": "Known case-noun hits in shipped prompts (A_110 IMPLEMENTATION PLAN, G2/G6). Each is a specimen: an example place or name printed inside a prompt. Only a hit NOT listed here fails the guard. A row is deleted when its specimen is removed for good (A_110 item 0.6b moves each behind PROMPT_SPECIMEN_TRIMS first). MEASURED 2026-10-03: 'Middleton' is a place in 18 of 72 stored cases and a person in none, the uptake of Agent 3's 'e.g., \"Little Middleton, Yorkshire\"'.",
+  "entries": [
+    { "file": "packages/prompts-llm/src/agent2-cast.ts", "noun": "Finch", "reason": "worked example 'Prevent Dr. Finch's disclosure…' in the motive-seed rule; Finch is also a name-pool surname (33 of 72 casts, all as names, so uptake is not attributable to this line)" },
+    { "file": "packages/prompts-llm/src/agent2c-location-profiles.ts", "noun": "Southampton", "reason": "specimen route 'e.g., Southampton to New York, Liverpool to Boston' for ocean liners" },
+    { "file": "packages/prompts-llm/src/agent2c-location-profiles.ts", "noun": "Liverpool", "reason": "same specimen route" },
+    { "file": "packages/prompts-llm/src/agent2c-location-profiles.ts", "noun": "Boston", "reason": "same specimen route" },
+    { "file": "packages/prompts-llm/src/agent2d-temporal-context.ts", "noun": "Westminster", "reason": "specimen currentAffairs line 'cabinet instability … debated in Westminster'" },
+    { "file": "packages/prompts-llm/src/agent2d-temporal-context.ts", "noun": "Atlantic", "reason": "same specimen line '… after Atlantic losses'" },
+    { "file": "packages/prompts-llm/src/agent3-cml.ts", "noun": "Ashford", "reason": "YAML skeleton example after_reveal_reference: \"Lord Ashford\"" },
+    { "file": "packages/prompts-llm/src/agent3-cml.ts", "noun": "Little Middleton", "reason": "specimen village 'e.g., \"Little Middleton, Yorkshire\"' — MEASURED uptake: a place in 18 of 72 stored cases" },
+    { "file": "packages/prompts-llm/src/agent3-cml.ts", "noun": "Middleton", "reason": "same specimen village" },
+    { "file": "packages/prompts-llm/src/agent3-cml.ts", "noun": "Southampton", "reason": "specimen in the setting rules of the Agent 3 user prompt" },
+    { "file": "packages/prompts-llm/src/agent3-cml.ts", "noun": "Atlantic", "reason": "specimen in the setting rules of the Agent 3 user prompt" }
+  ]
+}
