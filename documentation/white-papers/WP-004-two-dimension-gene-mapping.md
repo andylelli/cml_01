@@ -32,8 +32,9 @@ occupied cells *we* have never attempted.
 > by a rule (§4.4): reachable from an attested shape by changing exactly one dimension, anchored on
 > both values, never one we have shipped, and as far from the corpus's centre of mass as the map
 > allows. What crosses into the prompt is a two-word address and a worked structural example tagged
-> *"STRUCTURES, not material."* No sentence of any book crosses, and the anti-copy gate — on, a hard
-> fail, 0.0% measured false positives at n=11 — is the guarantee at the output.
+> *"STRUCTURES, not material."* No sentence of any book crosses, and the anti-copy check — telemetry on
+> v2 since 2026-10-03 (v1's hard fail was deleted in 43b44336), 0.0% measured false positives at n=11 —
+> reports at the output whether one did.
 >
 > **It is correct for this system for four measured reasons.** Premise is already the strongest
 > category (8.05, thirteen 9s), and Agent 3b — the corpus consumer — is where A_72 traced those 9s;
@@ -194,9 +195,10 @@ every prompt and was ignored in 10 of 10 chapters. "Your case turns on a `secret
 mechanism on the `authority` axis" is a countable operation with a checkable result — the extractor
 reads the produced CML and says whether it landed.
 
-### 2.4 Shapes cannot be copied, and the gate proves nothing leaks
+### 2.4 Shapes cannot be copied, and a check reports whether anything leaked
 
-Three independent guarantees, any one of which would suffice:
+Two guarantees by construction, and one report *(corrected 2026-10-03: this section first listed the
+anti-copy gate as a third guarantee; on v2 it is telemetry only)*:
 
 - **What crosses is an address and a structural summary in our words.** The exemplar block (§3.1)
   carries the reader's wrong belief, the mechanism's logic, how the gap closed and how the truth was
@@ -204,9 +206,12 @@ Three independent guarantees, any one of which would suffice:
   mechanism, a setting or a phrase from any of them."*
 - **The destination differs from the source by construction.** A morph target is a cell the source
   does not occupy.
-- **The anti-copy gate** (`packages/prose-guard/src/anti-copy.ts`) indexes all 12.3M words of held
-  text and aborts a run on any eleven-word verbatim run. MEASURED: 0.0% false positives over 229
-  known-negative manuscripts; a 40-word synthetic lift caught at full length.
+- **The anti-copy check** (`packages/prose-guard/src/anti-copy.ts`) indexes all 12.2M words of held
+  text and reports any eleven-word verbatim run on the v2 SHIP-CHECK line. It does not abort a run: the
+  v1 hard fail was deleted with the v1 engine (43b44336), and v2 had no output-side check until this
+  line (2026-10-03). MEASURED: 0 false positives over 264 known-negative manuscripts at n=11 (10 v2-era,
+  254 archived); a 40-word synthetic lift caught at full length, and an 11-word lift from a library text
+  caught in a real manuscript.
 
 ### 2.5 The corpus is now big enough to make the map mean something
 
@@ -255,7 +260,7 @@ Four things about this pipeline that a reader of the scripts would not guess:
 | Agent 3 exemplars | `case.cml2.yaml` / `case.legacy.yaml` | **live**, unconditional | 3 worked cases on the run's axis, ~4.5k chars |
 | Agent 3b device library | `device.draft.yaml` | **live** (`DEVICE_LIBRARY_INCLUDE_CORPUS=true`) | 50 patterns; 2 of the top 4 on every axis are corpus-derived |
 | Agent 8 novelty judge | `seed-fingerprints.yaml` | **live**, 46 genes | a similarity verdict |
-| Agent 9 anti-copy gate | `library/texts/*.txt` | **live, hard fail** | nothing; it reads the output |
+| Agent 9 anti-copy check | `library/texts/*.txt` | **live as telemetry** (v1's hard fail deleted in 43b44336) | nothing; it reads the output |
 | Cell scheduler | genes + run ledger | **shadow** | a logged cell; no input changed |
 
 ### 3.2 The ranking mathematics
@@ -339,7 +344,7 @@ TIER     target ∉ {us-only, both}                    (never repetition)
 RANK     minimise freq(a') + freq(f')                (furthest from the centre of mass)
 HAND     source's worked example + "same <unchanged>; <changed> is now <v>" + "STRUCTURES, not material"
 CHECK    extract the fingerprint from the produced CML; it must land in the target
-GUARD    the anti-copy gate, unchanged, at the output
+REPORT   the anti-copy check, at the output — telemetry on v2, not a gate (2026-10-03)
 ```
 
 ---

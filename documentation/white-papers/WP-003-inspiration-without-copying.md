@@ -29,8 +29,11 @@ underneath the first: is the corpus big enough for the idea to work at all.
 > obligation rather than a prohibition, it is built from attested parts, it is novel by construction,
 > and the only thing that crosses from the corpus into the prompt is a two-field address plus a worked
 > structural example the model is told is *"STRUCTURES, not material."* The verbatim text never reaches
-> a prompt, and the anti-copy gate — on, and a hard fail, at n=11 with a measured 0.0% false-positive
-> rate — is the guarantee that it never leaks out the other end.
+> a prompt, and the anti-copy check — a report on the v2 ship-check since 2026-10-03, at n=11 with a
+> measured 0.0% false-positive rate — says whether it leaked out the other end. **Corrected 2026-10-03:**
+> this paper first called that check a hard-fail guarantee. That was v1; the call site was deleted with the
+> v1 engine (43b44336) and v2 had no output-side copy check until the ship-check line. It does not stop a
+> copied book from shipping.
 >
 > **The corpus is big enough in words, and one batch short in shapes.** 165 texts is seventeen times
 > the calibration sample the register work was built on. The 44 encoded fingerprints occupy **25 of 80
@@ -100,7 +103,7 @@ A_78 §7 found that as of August every channel from the canon to the generator w
 | **Agent 3 — worked examples** | `case.cml2.yaml` (or legacy) | **live**, unconditional since A_98 | 3 exemplars matching the run's axis, ~4.5k chars: surface, the reader's wrong belief, what was actually happening, how the gap closed, how the truth was forced |
 | **Agent 3b — device library** | `device.draft.yaml` | **live** (`DEVICE_LIBRARY_INCLUDE_CORPUS=true`) | 50 patterns; corpus entries enter the top-4 cut on every axis |
 | **Agent 8 — novelty judge** | `seed-fingerprints.yaml` | **live**, 46 fingerprints | a similarity verdict — a prohibition, not an idea |
-| **Agent 9 — anti-copy gate** | `library/texts/*.txt` | **live, hard fail** (`PROSE_ANTI_COPY_GATE=true`) | nothing; it reads the output |
+| **Agent 9 — anti-copy check** | `library/texts/*.txt` | **live as telemetry** (`PROSE_ANTI_COPY_GATE=true`; a SHIP-CHECK line, never a throw — the v1 hard fail was deleted in 43b44336) | nothing; it reads the output |
 | **Cell scheduler** | corpus + run ledger | **shadow** (`NOVELTY_CELL_SCHEDULER=shadow`, corpus feed on) | nothing yet; it logs a cell and changes no input |
 | **Calibration** | `library/calibration/*.json` | **dead — zero consumers** in `apps/` or `packages/` | nothing |
 
@@ -117,10 +120,12 @@ followed by the instruction: *"These are STRUCTURES, not material. Build a diffe
 comparable rigour: do not reuse a mechanism, a setting or a phrase from any of them."* That is a
 shape crossing the boundary with a non-reuse instruction attached, which is exactly the §7.2 rule.
 
-The second is that the **anti-copy gate is on and throws.** Its docstring still says "default OFF" and
-cites 204 manuscripts at n=10; both are stale. It indexes 12.3M words and aborts a run on any verbatim
-run of eleven words. That is what makes every other idea here safe to try: the guarantee is at the
-output, not in anyone's good intentions. A_97 §11 is why n is 11 and not 10 — at n=10 the measured
+The second is that the **anti-copy check is a report, not a guard.** *(Corrected 2026-10-03: this
+paragraph originally said the gate "is on and throws". That was true of v1 only. The call site was
+deleted with the v1 engine in 43b44336, and v2 ran with no output-side copy check from 2026-09-30 until
+`v2AntiCopyShipCheckLines` — a telemetry line, never a throw.)* It indexes 12.2M words and reports any
+verbatim run of eleven words. That makes every other idea here cheap to *try*, not safe to *ship*: a
+lift is found after the run, by whoever reads the line, and nothing stops the book. A_97 §11 is why n is 11 and not 10 — at n=10 the measured
 false-positive rate against the enlarged corpus was 0.9%, roughly one dead run in 110 for a
 coincidental phrase like *"the back of a chair as if to steady himself."*
 
@@ -281,7 +286,7 @@ not try to address them; they are what the model writes.
             the obligation "same <unchanged dimension>; <changed> is now <v>",
             and the existing "STRUCTURES, not material" instruction
 7. CHECK    extract the fingerprint from the produced CML; it must land in the target cell
-8. GUARD    the anti-copy gate, unchanged, at the output
+8. REPORT   the anti-copy check, at the output — telemetry on v2, not a gate (2026-10-03)
 ```
 
 Step 4's exclusion of tier *us* is what makes this an idea engine rather than a repetition engine.
