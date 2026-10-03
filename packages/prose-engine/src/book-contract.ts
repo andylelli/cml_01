@@ -11,6 +11,7 @@ import { buildBible, whereAndWhen } from "./bible.js";
 import { buildBrief } from "./brief.js";
 import { buildContractCore } from "./contract.js";
 import { checkContractRules } from "./contract-rules.js";
+import { checkTraceRules } from "./trace-templates.js";
 import type { BookContract, ContractInput } from "./types.js";
 
 export const buildBookContract = (input: ContractInput): BookContract => {
@@ -36,5 +37,12 @@ export const buildBookContract = (input: ContractInput): BookContract => {
   if (violated.length > 0) {
     contract.notes.push(`contract rules violated: ${violated.map((v) => `${v.rule} (${v.where})`).join(", ")}`);
   }
+  // A_110 0.3 / WP-007 §2.4: the order rules, as Declare templates, three-valued. Violations and unknowns both go to the
+  // run report — an unknown is an answer, not a pass (WP-006 K4). Telemetry, never a gate.
+  const trace = checkTraceRules(contract);
+  const traceViolated = trace.filter((t) => t.verdict === "violated");
+  if (traceViolated.length > 0) contract.notes.push(`trace rules violated: ${traceViolated.map((t) => `${t.rule} (${t.where.join(", ")})`).join("; ")}`);
+  const traceUnknown = trace.filter((t) => t.verdict === "unknown");
+  if (traceUnknown.length > 0) contract.notes.push(`trace rules unknown: ${traceUnknown.map((t) => `${t.rule} (${t.where[0]})`).join("; ")}`);
   return contract;
 };
