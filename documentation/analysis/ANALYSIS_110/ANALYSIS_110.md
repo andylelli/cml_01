@@ -115,14 +115,28 @@ by a paid run yet.
 | L6 `body_tail` finding: 4+ per chapter, every one past three, at most 12 | 3 | `PROSE_V2_TAIL_FINDING` | **DONE** — 3 tests | `3a490919` |
 | L7/M7 ship-check page shape: compressed ratio, sentence openers, length runs, distinct words per 8k, tail per 10k, each against its canon floor; report only | 3 | — (telemetry) | **DONE** — 5 tests; this book BELOW on all three floors | `3a490919` |
 | L5 overlap with the book so far, per draft in the run report | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** with M6 | `97205f28` |
-| P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |
-| N9 culprit-pointing conclusions held to the test (`withheld`); surprise ledger in the case-logic report (Part V §38.2) | 0 | TODO | TODO | |
-| N10 the read file records the reader model and date; this book re-read as the first anchor (§38.4) | 0 | — | TODO | |
-| K6 template form: D1, D2, P1, P3 as Declare precedence and chain rows, three-valued (§40) | 0 / 1 | — (telemetry) | TODO | |
-| N11 the book so far placed before the craft block and the chapter's contract; scored on S5–S9 in step 1's B arm (§38.3) | 1 | TODO | TODO | |
-| N8 the touch rule asked of one paragraph per chapter (§38.1) | 3 | TODO | TODO | |
-| N12 presence penalty plumbed and paired (§40) | 3 | TODO | TODO | |
-| 0.6 case-noun guard; 0.7 owner-read probe reads each case's own values; 0.8 step-0 fixtures from two more case shapes (IMPLEMENTATION PLAN) | 0b | — | TODO | |
+| 0.1 N5 a spoken line lost between the editor and the saved file — diagnose, then fix | 0b | — | TODO | |
+| 0.2a N9 a culprit-pointing clue shows its fact where scheduled and its conclusion at the test | 0b | `PROSE_V2_SCHEDULE` | TODO | |
+| 0.2b M9 evidence placed to minimise the largest chapter load, every clue before its use | 0b | same | TODO | |
+| 0.3 K6 template rows: D1, D2, P1 precedence and P3 chain, three-valued | 0b | — (telemetry) | TODO | |
+| 0.4 N10 the read file records the reader model and date; the ledger reads them | 0b | — | TODO | |
+| 0.5 surprise ledger: Ely surprise per chapter, settle chapter, dead-chapter share in the case-logic report | 0b | — (telemetry) | TODO | |
+| 0.6 case-noun guard (ratchet, in pretest) | 0b | — | **DONE** — 11 known specimen hits baselined, 0 new; 4 witness tests | `28767ddd` |
+| 0.6b the guard's specimens removed from the Agent 2, 2c, 2d and 3 prompts | 0b | `PROMPT_SPECIMEN_TRIMS` | TODO | |
+| 0.7 `owner-read-probe.mjs` reads each case's own place, month, year, cast and victim | 0b | — | TODO | |
+| 0.8 step-0 fixtures from two more case shapes | 0b | — | TODO | |
+| 1.7 N11 the book so far before the craft block and the chapter's contract | 1 | `PROSE_V2_BOOK_FIRST` | TODO | |
+| 2.1 P3 the Gathering scene with the victim alive; `victimAlive` derived from the beat arc | 2 | `CML_A110_UPSTREAM` | TODO | |
+| 2.2 W4 Agent 7 prefers the profiled places; Agent 2c seeded from where the clues are | 2 | same | TODO | |
+| 2.3 P2 `appearance` and `whyHere` from Agent 2b, in the first-appearance contract only | 2 | same | TODO | |
+| 2.4 L4 (prompt half) `speechMannerisms` without the humour clause | 2 | same | TODO | |
+| 2.5 P4 cast names: no shared first name; a shared surname needs a declared kinship | 2 | same | TODO | |
+| 3.1b N8 the touch rule asked of one paragraph per chapter | 3 | `PROSE_V2_TOUCH_ONCE` | TODO | |
+| 3.2 N12 presence penalty plumbed through the client and the v2 writer | 3 | `PROSE_V2_PRESENCE_PENALTY` | TODO | |
+| 3.3b M8 keyness-ranked editor findings | 3 | `PROSE_V2_KEYNESS_FINDING` | TODO | |
+| 3.4 M10 the opening chosen by profile-noun coverage, then distance from past openings | 3 | `PROSE_V2_SELECTOR_RANKS` | TODO | |
+| §39.2 the checked read: the reader answers §18's yes/no questions, compared with the probe | — | — | TODO | |
+| paid verification: steps 0.5, 1, 2, 3 on two cases (P.3) | — | — | **WAITS FOR THE OWNER'S YES** | |
 
 ## IMPLEMENTATION PLAN — generic to any story
 
