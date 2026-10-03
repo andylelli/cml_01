@@ -31,9 +31,28 @@ export const scoreCard = (card: StyleCard, input: StoryCoverInput): number => {
 
 /** Cards ranked best-first; ties keep the cards' id order. */
 export const rankCards = (cards: StyleCard[], input: StoryCoverInput) =>
-  cards
+  cardsForEra(cards, input.era)
     .map((card, i) => ({ card, score: scoreCard(card, input), i }))
     .sort((a, b) => b.score - a.score || a.i - b.i);
+
+/** "1940s", "the 1940s", "1941", "1940" → 1940; anything else → null. */
+export const decadeOf = (era: string | undefined): number | null => {
+  const m = (era ?? "").match(/(1[89]\d|20\d)(\d)s?/);
+  return m ? Number(m[1]) * 10 : null;
+};
+
+/**
+ * TRUE TO THE DECADE (owner, 2026-10-03): a story draws only from cards tagged with its own decade. With none,
+ * the NEAREST tagged decade wins (a 1950s story gets the 1940s cards, never the 1920s ones); with no era at all,
+ * every card is eligible. Named cards ("a,b", "a+b") are an explicit override and are not filtered.
+ */
+export const cardsForEra = (cards: StyleCard[], era: string | undefined): StyleCard[] => {
+  const d = decadeOf(era);
+  if (d === null) return cards;
+  const dist = (c: StyleCard) => Math.min(...c.decades.map((x) => Math.abs((decadeOf(x) ?? 9999) - d)));
+  const best = Math.min(...cards.map(dist));
+  return cards.filter((c) => dist(c) === best);
+};
 
 /** Share of "auto" covers that blend two cards (palette+medium from one, layout+motifs from the other). */
 export const BLEND_CHANCE = 0.35;
@@ -44,7 +63,7 @@ export const BLEND_CHANCE = 0.35;
  *
  *   "auto" / "auto:N" → N covers, each card a weighted random pick (weight = fit score + 1, so a good fit is
  *                       likelier but never certain); BLEND_CHANCE of them blend in a second card
- *   "all"             → every card once
+ *   "all"             → every card of the story's decade once
  *   "a,b"             → each named card
  *   "a+b"             → one explicit blend
  * Per cover the rng also draws the palette, the FRAMING (what/where — framings.ts), two mystery touches,
@@ -66,13 +85,14 @@ export const resolveStyleChoices = (
   };
   const weightOf = (c: StyleCard) => scoreCard(c, input) + 1;
   const s = (spec || "auto").trim();
+  const eraCards = cardsForEra(cards, input.era);
   let picks: Array<{ primary: StyleCard; secondary?: StyleCard }>;
-  if (s === "all") picks = cards.map((primary) => ({ primary }));
+  if (s === "all") picks = eraCards.map((primary) => ({ primary }));
   else if (/^auto(:\d+)?$/.test(s)) {
     const n = Math.max(1, Number(s.split(":")[1] ?? 1));
     picks = Array.from({ length: n }, () => {
-      const primary = weightedPick(rng, cards, weightOf);
-      const others = cards.filter((c) => c.id !== primary.id);
+      const primary = weightedPick(rng, eraCards, weightOf);
+      const others = eraCards.filter((c) => c.id !== primary.id);
       const secondary = others.length && rng() < BLEND_CHANCE ? weightedPick(rng, others, weightOf) : undefined;
       return { primary, secondary };
     });

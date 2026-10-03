@@ -48,6 +48,7 @@ Return this JSON object:
   "clue_objects": ["exactly 3 everyday period objects that belong to the place and fit ${where} — a clock, a key, a lamp, a teacup, a letter, a glove, a hat — 2-8 words each, most paintable first"],
   "mood": "2-4 words",
   "figure": "one living character who would be found in ${where}, described by period clothing and posture only, no name, 4-12 words — or null",
+  "decade": "the decade the story is set in, as e.g. \"1940s\", judged from dates, technology, clothing or events in the text — or null if the text does not say",
   "era_details": ["exactly 2 period details from ${where} (vehicles, clothing, lamps, furniture), 2-6 words each"]
 }`;
   return { system, user };
@@ -117,6 +118,7 @@ export const parseAnchors = (raw: string): CoverAnchors => {
     mood: str(o.mood, 60) || "quiet unease",
     figure: figure && figure.toLowerCase() !== "null" ? figure : null,
     era_details: list(o.era_details, 2),
+    decade: /^(18|19|20)\d0s$/.test(str(o.decade, 10)) ? str(o.decade, 10) : null,
     ...(rejected.length ? { rejected } : {}),
     source: "llm",
   };

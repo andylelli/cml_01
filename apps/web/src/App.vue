@@ -6,7 +6,7 @@ import ErrorNotification from "./components/ErrorNotification.vue";
 import { useCreateFlow } from "./composables/useCreateFlow";
 import { useErrorLog } from "./composables/useErrorLog";
 import { useUiState, type Mode } from "./composables/useUiState";
-import { fetchCoverStyles, logActivity, type Project } from "./services/api";
+import { fetchCoverStyles, logActivity, type CoverStyle, type Project } from "./services/api";
 import { useSessionState } from "./composables/useSessionState";
 import type { MysterySpec } from "./spec/vocabulary";
 import { brand } from "./design/brand";
@@ -44,24 +44,24 @@ const log = useErrorLog({
 
 const view = ref<ViewId>("create");
 
-/** Book-cover choices for the Create form (documentation/covers/). A failed read leaves only "No cover". */
-const coverOptions = ref<Array<{ value: string; label: string }>>([]);
+/**
+ * The cover-style library for the Create form (documentation/covers/). The form filters it by the chosen decade.
+ * A failed read, or no image model, leaves only "No cover".
+ */
+const coverStyles = ref<CoverStyle[]>([]);
 const coverNote = ref<string | null>(null);
 onMounted(async () => {
 	try {
 		const lib = await fetchCoverStyles();
-		coverOptions.value = [
-			{ value: "auto", label: "Best fit for the story" },
-			...lib.styles.map((s) => ({ value: s.id, label: s.label })),
-		];
+		coverStyles.value = lib.styles;
 		coverNote.value = lib.image ? null : `Unavailable — ${lib.imageError ?? "no image model configured"}`;
 		if (!lib.image) {
-			coverOptions.value = [];
+			coverStyles.value = [];
 			// Covers cannot be made here — do not send a style the server will only skip.
 			if (spec.value.coverStyle !== "off") spec.value.coverStyle = "off";
 		}
 	} catch {
-		coverOptions.value = [];
+		coverStyles.value = [];
 	}
 });
 
@@ -204,7 +204,7 @@ const revealWorkshop = () => {
 			v-if="view === 'create'"
 			v-model="spec"
 			:busy="flow.busy.value"
-			:cover-options="coverOptions"
+			:cover-styles="coverStyles"
 			:cover-note="coverNote"
 			@submit="onGenerate"
 		/>

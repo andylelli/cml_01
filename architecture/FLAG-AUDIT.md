@@ -1079,3 +1079,9 @@ of any book-writing agent changes, so none of these can move a read. Plan and ev
 | `CML_COVER_LLM_PROVIDER` | unset → `azure` | CONFIG | The anchor step's text model; `anthropic` routes it to Claude (`ANTHROPIC_API_KEY`). Verify by the `Agent10-CoverAnchors` label in `logs/llm-prompts-full.jsonl`. |
 | `CML_COVER_LLM_MODEL` | unset → `AZURE_OPENAI_DEPLOYMENT_NAME` / `claude-sonnet-5` | CONFIG | |
 | `CML_COVER_STYLES_DIR` | unset → `library/cover-styles/cards` | CONFIG | Test/alternate card sets. |
+
+## Addendum — book covers: title painted in, true to the decade (2026-10-03)
+
+| Flag | State | Verdict | Evidence / blocker |
+|---|---|---|---|
+| `CML_COVER_TITLE_CHECK` | unset → **on** | CONFIG | The vision read-back of the title the image model paints into the cover (`title-check.ts`, Azure chat deployment). On a misread the cover is repainted ONCE with the misread quoted back; the read is stored on the `cover` artifact and shown in the UI. `off` skips it (one image, no check). Not a behaviour lever on any book. |

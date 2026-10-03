@@ -166,7 +166,7 @@ describe("CreateView", () => {
 	});
 
 	it("sends the book-cover choice, and offers only 'No cover' when the library is unavailable", async () => {
-		// documentation/covers/ — coverStyle defaults to "off": a cover is a paid image call, made only when asked for.
+		// documentation/covers/ — with no style library (no image model) the only choice is "No cover".
 		const bare = mountView();
 		const select = bare.findAll("select").find((s) => s.findAll("option").some((o) => o.text() === "No cover"))!;
 		expect(select.findAll("option").map((o) => o.attributes("value"))).toEqual(["off"]);
@@ -175,10 +175,24 @@ describe("CreateView", () => {
 			props: {
 				modelValue: { ...defaultSpec(), coverStyle: "deco-portrait" },
 				"onUpdate:modelValue": () => {},
-				coverOptions: [{ value: "auto", label: "Best fit" }, { value: "deco-portrait", label: "Deco portrait" }],
+				coverStyles: [{ id: "deco-portrait", label: "Deco portrait", summary: "", family: "A", decades: ["1930s"] }],
 			},
 		});
 		await wrapper.find("form").trigger("submit");
 		expect(submitted(wrapper).coverStyle).toBe("deco-portrait");
+	});
+
+	it("offers only the chosen decade's cover styles, and drops a style that no longer belongs", async () => {
+		const styles = [
+			{ id: "deco-portrait", label: "Deco portrait", summary: "", family: "A", decades: ["1920s", "1930s"] },
+			{ id: "wpa-theatre-poster", label: "Wartime theatre poster", summary: "", family: "F", decades: ["1940s"] },
+		];
+		const spec = { ...defaultSpec(), decade: "1940s", coverStyle: "deco-portrait" } as MysterySpec;
+		const wrapper = mount(CreateView, { props: { modelValue: spec, "onUpdate:modelValue": () => {}, coverStyles: styles } });
+		const select = wrapper.findAll("select").find((s) => s.findAll("option").some((o) => o.text() === "No cover"))!;
+		expect(select.findAll("option").map((o) => o.attributes("value"))).toEqual(["off", "auto", "wpa-theatre-poster"]);
+		await wrapper.vm.$nextTick();
+		await wrapper.find("form").trigger("submit");
+		expect(submitted(wrapper).coverStyle).toBe("auto");
 	});
 });

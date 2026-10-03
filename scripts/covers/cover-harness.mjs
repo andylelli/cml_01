@@ -2,8 +2,8 @@
 /**
  * Book-cover test harness — documentation/covers/COVER-HARNESS-PLAN.md.
  *
- * Story → anchors (1 text-LLM call, chapters 1–2 only) → style card(s) → brief (template) → image model →
- * typeset title band → cover PNGs + covers.json + index.html (contact sheet).
+ * Story → anchors (1 text-LLM call, chapters 1–2 only) → style card(s) of the story's decade → brief (template,
+ * with the exact title) → image model paints the cover, title included → title read-back → covers.json + index.html.
  *
  *   node scripts/covers/cover-harness.mjs --story stories/story_20261002-1855 --styles all --dry-run
  *   node scripts/covers/cover-harness.mjs --story <dir> --styles flat-travel-poster,deco-portrait --variants 2
@@ -20,10 +20,8 @@
  *   --dry-run            anchors + briefs + contact sheet; NO image call (anchors still cost one text call;
  *                        add --no-llm for a fully free run on fallback anchors).
  *   --quality <q>        low | medium | high. Default CML_COVER_IMAGE_QUALITY or medium.
- *   --author <name>      author line on the cover.
  *   --out <dir>          default temp/covers/out/<story-id>/<timestamp>.
  *   --into-story         also copy the primary cover to <story>/cover.png (what the pipeline does).
- *   --reletter <outDir>  re-typeset an earlier output's art with the current lettering (free).
  *   --seed <n>           replay a recorded seed (printed on every run, stored in covers.json). Omitted → random.
  *   --yes                skip the paid-call confirmation line (non-interactive use).
  *
@@ -56,26 +54,8 @@ const opts = (name) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] 
 const cardsDir = covers.resolveCardsDir(root);
 const cards = covers.loadStyleCards(cardsDir);
 
-// --reletter <outDir>: re-typeset existing art-*.png with the current lettering code. No image call, no cost.
-const reletter = opt("reletter");
-if (reletter) {
-  const dir = path.resolve(root, reletter);
-  const fs = await import("node:fs");
-  const m = JSON.parse(fs.readFileSync(path.join(dir, "covers.json"), "utf8"));
-  for (const r of m.covers.filter((c) => c.artPath)) {
-    const b = JSON.parse(fs.readFileSync(path.join(dir, r.briefPath), "utf8"));
-    const png = await covers.typesetCover({
-      art: fs.readFileSync(path.join(dir, r.artPath)), title: m.title, author: opt("author"),
-      band: b.typeBand, inks: b.inks, titleFont: b.titleFont, fontsDir: path.join(path.dirname(cardsDir), "fonts"),
-    });
-    fs.writeFileSync(path.join(dir, r.coverPath ?? `cover-${r.briefId}.png`), png);
-    console.log(`[covers] relettered ${r.briefId}`);
-  }
-  process.exit(0);
-}
-
 if (flag("list-styles")) {
-  for (const c of cards) console.log(`${c.id.padEnd(24)} ${c.label} — ${c.summary}\n${"".padEnd(25)}palettes: ${c.palettes.map((p) => p.name).join(", ")}`);
+  for (const c of cards) console.log(`${c.id.padEnd(24)} [${c.decades.join(", ")}] ${c.label} — ${c.summary}\n${"".padEnd(25)}palettes: ${c.palettes.map((p) => p.name).join(", ")}`);
   process.exit(0);
 }
 
@@ -114,7 +94,7 @@ if (!dryRun && image.error) {
 }
 
 // Plan, stated before any paid call (CLAUDE.md: state the parameters first).
-const inputs = storyDirs.map((d) => ({ dir: d, input: { ...covers.readStoryDir(d), author: opt("author") } }));
+const inputs = storyDirs.map((d) => ({ dir: d, input: covers.readStoryDir(d) }));
 let imageCalls = 0;
 // Count only: "auto:N" is N covers whatever the draw, so a throwaway rng is fine here.
 for (const { input } of inputs) imageCalls += covers.resolveStyleChoices(styles, cards, input, variants, Math.random).length;
@@ -146,6 +126,8 @@ for (const { dir, input } of inputs) {
     seed: opt("seed") !== undefined ? Number(opt("seed")) : undefined,
     llm: llm.client,
     image: image.client,
+    // The title is painted into the image; a vision read-back repaints once on a misspelling (title-check.ts).
+    checkTitle: dryRun ? undefined : covers.createTitleCheckerFromEnv(process.env).check,
     cardsDir,
     logContext: { runId: `covers-${stamp}`, projectId: path.basename(dir) },
     log: (l) => console.log(l),

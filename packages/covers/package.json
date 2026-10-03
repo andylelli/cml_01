@@ -17,12 +17,12 @@
   },
   "dependencies": {
     "@cml/llm-client": "*",
-    "@napi-rs/canvas": "^1.0.10",
     "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "typescript": "^5.5.4",
-    "vitest": "^1.2.0"
+    "vitest": "^1.2.0",
+    "@napi-rs/canvas": "^1.0.10"
   }
 }

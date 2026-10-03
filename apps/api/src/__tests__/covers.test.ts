@@ -25,9 +25,13 @@ describe("cover routes", () => {
     expect(res.body.styles.map((s: { id: string }) => s.id)).toEqual([
       "deco-portrait",
       "flat-travel-poster",
+      "home-front-poster",
       "magazine-illustration",
       "painterly-poster",
+      "wpa-exhibition-poster",
+      "wpa-theatre-poster",
     ]);
+    expect(res.body.styles.find((x: { id: string }) => x.id === "wpa-theatre-poster").decades).toEqual(["1940s"]);
     expect(res.body.image).toBeNull();
     expect(res.body.imageError).toMatch(/no image model configured/);
   });

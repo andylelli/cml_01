@@ -1,8 +1,9 @@
 /**
  * @cml/covers — shared shapes.
  *
- * The pipeline is: story → ANCHORS (one LLM call, spoiler-safe) → style CARD(S) chosen deterministically →
- * BRIEF composed from a template → IMAGE model → TYPESET title band → cover.png.
+ * The pipeline is: story → ANCHORS (one LLM call, spoiler-safe) → style CARD(S) from the story's decade, drawn
+ * from a seed → BRIEF composed from a template, INCLUDING the exact title → IMAGE model letters it as part of the
+ * picture → a vision TITLE CHECK reads it back (one repaint on a misspelling) → cover.png.
  * Only the brief reaches the image model; the sample images never do (documentation/covers §1, copyright).
  */
 
@@ -12,13 +13,6 @@ export interface Palette {
   inks: string[];
 }
 
-export interface TypeBand {
-  position: "top";
-  /** framed = a solid band with a rule; full-bleed = lettering straight onto the reserved area. */
-  style: "framed" | "full-bleed";
-  /** Fraction of the image height reserved for the title. */
-  height: number;
-}
 
 /** One style card — library/cover-styles/cards/<id>.yaml. Every field is an operation, not a resemblance. */
 export interface StyleCard {
@@ -32,8 +26,14 @@ export interface StyleCard {
   composition: string[];
   motifs: string[];
   figure_treatment: string;
-  type_band: TypeBand;
-  title_font: string;
+  /** The decades the look belongs to, e.g. ["1940s"]. A story only draws cards from its own (or the nearest) decade. */
+  decades: string[];
+  /**
+   * How the IMAGE MODEL letters the title, as period operations. Owner 2026-10-03: the title is painted as part
+   * of the cover, never typeset afterwards — so this is the card's typography.
+   */
+  lettering: string;
+  title_position: "top" | "bottom" | "either";
   avoid: string[];
   suits: { axis: string[]; tone: string[]; location: string[] };
 }
@@ -76,6 +76,11 @@ export interface CoverAnchors {
   /** A figure seen in the opening, described without a name, or null. */
   figure: string | null;
   era_details: string[];
+  /**
+   * The decade the TEXT sets the story in ("1940s"), or null. Used to stay true to the decade when the run gives
+   * no era (MEASURED 2026-10-03: a UI story with no run-params drew a 1930s card for a book of unknown era).
+   */
+  decade?: string | null;
   /** Candidates the crime filter refused (anchors.ts CRIME_OBJECT_RE / CRIME_PLACE_RE). */
   rejected?: string[];
   /** "llm" when the model supplied them, "fallback" when they were derived from the inputs alone. */
@@ -105,8 +110,8 @@ export interface CoverBrief {
   /** The rng seed for the whole call — pass it back (`--seed`) to reproduce these covers. */
   seed?: number;
   prompt: string;
-  typeBand: TypeBand;
-  titleFont: string;
+  /** The exact title the image was asked to letter. */
+  title: string;
   inks: string[];
 }
 
@@ -144,6 +149,8 @@ export interface CoverChatClient {
 
 export interface CoverRecord {
   briefId: string;
+  /** The vision read-back of the lettered title (title-check.ts). Absent when no checker ran. */
+  titleCheck?: { ok: boolean; read: string; attempts: number };
   styles: string[];
   palette: string;
   framing?: string;

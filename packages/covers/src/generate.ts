@@ -1,5 +1,5 @@
 import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { join, relative } from "node:path";
 import { extractAnchors } from "./anchors.js";
 import { composeBrief } from "./brief.js";
 import { loadStyleCards, resolveCardsDir } from "./cards.js";
@@ -7,7 +7,7 @@ import { renderContactSheet } from "./contact-sheet.js";
 import { resolveImageQuality } from "./image-client.js";
 import { makeRng, randomSeed } from "./framings.js";
 import { resolveStyleChoices } from "./select.js";
-import { typesetCover } from "./typeset.js";
+import type { TitleChecker } from "./title-check.js";
 import type {
   CoverAnchors,
   CoverChatClient,
@@ -34,12 +34,14 @@ export interface GenerateCoversOptions {
   anchors?: CoverAnchors;
   cards?: StyleCard[];
   cardsDir?: string;
-  fontsDir?: string;
   logContext?: { runId: string; projectId: string };
   /** Parallel image calls. Default 3. */
   concurrency?: number;
-  /** false → paint the art only; letter it later with letterCover() once the title exists. Default true. */
-  letter?: boolean;
+  /**
+   * Reads the painted title back (title-check.ts). On a mismatch the cover is repainted ONCE with the misread
+   * quoted back to the model; the read is recorded on the cover's row either way.
+   */
+  checkTitle?: TitleChecker;
   /** Replay a recorded seed. Omitted → a fresh random seed, so every run differs. */
   seed?: number;
   log?: (line: string) => void;
@@ -48,15 +50,16 @@ export interface GenerateCoversOptions {
 export const IMAGE_SIZE = "1024x1536";
 
 /**
- * Story → anchors → briefs → images → typeset covers, all written under `outDir`, plus `covers.json`
+ * Story → anchors → briefs (with the exact title) → images, the title painted in → title check → covers, all
+ * written under `outDir`, plus `covers.json`
  * (the manifest) and `index.html` (the contact sheet). Never throws for a single failed image: the
  * failure is recorded on that cover's row and the rest carry on.
  */
 export const generateCovers = async (opts: GenerateCoversOptions): Promise<CoverManifest> => {
   const log = opts.log ?? (() => {});
   const cardsDir = opts.cardsDir ?? resolveCardsDir();
-  const fontsDir = opts.fontsDir ?? join(dirname(cardsDir), "fonts");
   const cards = opts.cards ?? loadStyleCards(cardsDir);
+  if (!opts.input.title.trim()) throw new Error("generateCovers needs the book's title — it is painted into the cover");
   mkdirSync(opts.outDir, { recursive: true });
 
   let anchors = opts.anchors;
@@ -73,8 +76,11 @@ export const generateCovers = async (opts: GenerateCoversOptions): Promise<Cover
   const seed = (opts.seed ?? randomSeed()) >>> 0;
   const rng = makeRng(seed);
   log(`[covers] seed ${seed}`);
-  const choices = resolveStyleChoices(opts.styles ?? "auto", cards, opts.input, opts.variants ?? 1, rng, anchors);
-  const briefs = choices.map((c, i) => composeBrief(opts.input, anchors!, c, i, seed));
+  // True to the decade: the run's era if it has one, else the decade the anchor step read from the text.
+  const input = opts.input.era || !anchors.decade ? opts.input : { ...opts.input, era: anchors.decade };
+  if (input !== opts.input) log(`[covers] era from the text: ${input.era}`);
+  const choices = resolveStyleChoices(opts.styles ?? "auto", cards, input, opts.variants ?? 1, rng, anchors);
+  const briefs = choices.map((c, i) => composeBrief(input, anchors!, c, i, seed));
   const quality = opts.quality ?? resolveImageQuality();
 
   const records: CoverRecord[] = briefs.map((b) => {
@@ -97,29 +103,33 @@ export const generateCovers = async (opts: GenerateCoversOptions): Promise<Cover
           const r = records[i];
           try {
             log(`[covers] ${b.id}: requesting ${image.provider}/${image.model} ${quality}`);
-            const res = await image.generate({ prompt: b.prompt, size: IMAGE_SIZE, quality });
-            const artPath = join(opts.outDir, `art-${b.id}.png`);
-            writeFileSync(artPath, res.png);
-            r.artPath = relative(opts.outDir, artPath);
-            r.image = { provider: res.provider, model: res.model, quality, latencyMs: res.latencyMs, usage: res.usage };
-            if (opts.letter === false || !opts.input.title.trim()) {
-              // Art only: the title is not known yet (a cover painted FIRST) — letterCover() sets it later.
-              log(`[covers] ${b.id}: art done in ${(res.latencyMs / 1000).toFixed(1)}s (title to come)`);
-              continue;
+            let res = await image.generate({ prompt: b.prompt, size: IMAGE_SIZE, quality });
+            let attempts = 1;
+            let latency = res.latencyMs;
+            if (opts.checkTitle) {
+              let check = await opts.checkTitle(res.png, b.title).catch((e) => ({ ok: true, read: `(check failed: ${(e as Error).message})` }));
+              if (!check.ok) {
+                log(`[covers] ${b.id}: title read back as "${check.read}" — repainting once`);
+                const retry = await image.generate({
+                  prompt: `${b.prompt}
+TITLE CHECK: a previous attempt lettered the title as "${check.read}". Letter it exactly as "${b.title}".`,
+                  size: IMAGE_SIZE,
+                  quality,
+                });
+                const recheck = await opts.checkTitle(retry.png, b.title).catch(() => ({ ok: false, read: "" }));
+                attempts = 2;
+                latency += retry.latencyMs;
+                // The retry is kept whether or not it reads right: it had the stronger prompt, and the read is recorded.
+                res = retry;
+                check = recheck;
+              }
+              r.titleCheck = { ok: check.ok, read: check.read, attempts };
             }
-            const cover = await typesetCover({
-              art: res.png,
-              title: opts.input.title,
-              author: opts.input.author,
-              band: b.typeBand,
-              inks: b.inks,
-              titleFont: b.titleFont,
-              fontsDir,
-            });
             const coverPath = join(opts.outDir, `cover-${b.id}.png`);
-            writeFileSync(coverPath, cover);
+            writeFileSync(coverPath, res.png);
             r.coverPath = relative(opts.outDir, coverPath);
-            log(`[covers] ${b.id}: done in ${(res.latencyMs / 1000).toFixed(1)}s`);
+            r.image = { provider: res.provider, model: res.model, quality, latencyMs: latency, usage: res.usage };
+            log(`[covers] ${b.id}: done in ${(latency / 1000).toFixed(1)}s${r.titleCheck ? ` · title ${r.titleCheck.ok ? "OK" : `MISREAD "${r.titleCheck.read}"`}` : ""}`);
           } catch (e) {
             r.error = String((e as Error)?.message ?? e);
             log(`[covers] ${b.id}: FAILED ${r.error}`);

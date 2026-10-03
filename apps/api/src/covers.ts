@@ -1,30 +1,34 @@
 /**
  * Book covers in the API — documentation/covers/COVER-HARNESS-PLAN.md.
  *
- * In a UI run the cover is made FIRST, so it can be seen beside the artifacts while the book is written:
+ * Owner, 2026-10-03: the cover is ONE image with the title painted in — never lettered afterwards — so it is
+ * made as soon as the book HAS a title, and true to the story's decade:
  *
- *   setting artifact (Agent 1, the run's first)  → startCoverFirst: paint the art, untitled   status "painting" → "art"
- *   cml artifact (Agent 3, CASE.meta.title)       → setCoverTitle: letter it (free)           status "ready"
- *   story saved (end of run)                      → setCoverTitle again with the final title, and copy cover.png
- *                                                   beside the manuscript
+ *   setting artifact (Agent 1)   → rememberSetting: the picture's only source (place, atmosphere, era — no crime)
+ *   cml artifact (Agent 3)       → startRunCover: CASE.meta.title is known → paint the finished cover   painting → ready
+ *   story saved (end of run)     → finishRunCover: copy cover.png beside the manuscript; if the final title differs
+ *                                  from the painted one, paint it again with the final title
  *
- * On demand, `POST /api/projects/:id/cover` makes a cover for any project with prose (from its opening
- * chapters), e.g. to remake one. A cover never fails or delays a run: every step is fire-and-forget from the
- * run's point of view, records a run event, and writes a `cover` artifact whose `status` the UI follows.
+ * On demand, `POST /api/projects/:id/cover` makes a cover for any project with prose (from its opening chapters),
+ * e.g. to remake one. A cover never fails or delays a run: every step is fire-and-forget from the run's side,
+ * records a run event, and writes a `cover` artifact whose `status` the UI follows.
  */
 import type { Express } from "express";
 import express from "express";
 import { copyFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
 import {
+  resolveCoverRequest,
   createImageClientFromEnv,
-  letterCover,
   listCoverStyles,
-  paintCoverArt,
+  paintCover,
   resolveCardsDir,
   runCoverPostPass,
   storyInputFromSetting,
+  type CoverChatClient,
   type CoverPostPassResult,
+  type ImageClient,
+  type TitleChecker,
 } from "@cml/covers";
 import { buildLlmLogger } from "@cml/worker/jobs/cli-runtime.js";
 import type { createRepository } from "./db.js";
@@ -40,41 +44,47 @@ export interface CoverPaths {
 
 /** The `cover` artifact payload. Each change appends a new artifact; the latest is the truth. */
 export interface CoverState {
-  status: "painting" | "art" | "ready" | "failed";
+  status: "painting" | "ready" | "failed";
   style: string;
-  /** The lettered cover (status "ready"), workspace-relative. */
+  /** The finished cover (title painted in), workspace-relative. */
   path?: string;
-  /** The untitled art (status "art" and after), workspace-relative. */
-  artPath?: string;
-  /** The generateCovers out dir, workspace-relative — letterCover works there. */
   outDir?: string;
+  /** The title painted into the image. */
   title?: string;
   styles?: string[];
   palette?: string;
   framing?: string;
   seed?: number;
   anchors?: unknown;
+  /** The vision read-back of the painted title. */
+  titleCheck?: { ok: boolean; read: string; attempts: number };
   provider?: string;
   model?: string;
   error?: string;
-  /** "setting" = painted first, during the run; "opening" = made from a finished book's chapters. */
+  /** "setting" = painted during the run from the setting; "opening" = made from a finished book's chapters. */
   source?: "setting" | "opening";
   generatedAt: string;
+}
+
+/** Test seams: fake image/text/title-check clients. Production builds all three from env. */
+export interface CoverDeps {
+  image?: ImageClient;
+  llm?: CoverChatClient;
+  checkTitle?: TitleChecker | null;
+  env?: NodeJS.ProcessEnv;
 }
 
 const rel = (paths: CoverPaths, abs: string) => path.relative(paths.workspaceRoot, abs).replace(/\\/g, "/");
 const abs = (paths: CoverPaths, relPath: string) => path.resolve(paths.workspaceRoot, relPath);
 
-/** Projects with a cover being painted (first) or made (on demand). A second request is refused, not queued. */
-const busy = new Set<string>();
+/** Projects with a cover being painted. A second request is refused (on demand) or waits and repaints (run). */
+const busy = new Map<string, Promise<unknown>>();
 export const coverInFlight = (projectId: string) => busy.has(projectId);
 
-/** The latest title asked for, per project — a painting that finishes after the title arrived letters itself. */
-const wantedTitle = new Map<string, string>();
-/** Where the finished manuscript went, per project — the lettered cover is copied there too. */
+/** The run's setting payload, per project — the picture is painted from it once the title exists. */
+const settings = new Map<string, unknown>();
+/** Where the finished manuscript went, per project — the cover is copied there when it is ready. */
 const storyDirOf = new Map<string, string>();
-/** Serialises lettering per project, so two titles arriving together cannot interleave their writes. */
-const letterChain = new Map<string, Promise<unknown>>();
 
 export const latestCover = async (repo: Repo, projectId: string) =>
   ((await repo.getLatestArtifact(projectId, "cover"))?.payload ?? null) as CoverState | null;
@@ -85,113 +95,107 @@ const eventFor = (repo: Repo, runId?: string) => async (step: string, message: s
   if (runId) await repo.addRunEvent(runId, step, message).catch(() => {});
 };
 
-/** Letter the current art with the wanted title, and copy it beside the manuscript when that exists. */
-const letterNow = async (repo: Repo, paths: CoverPaths, projectId: string, runId?: string) => {
-  const title = wantedTitle.get(projectId);
+/** Copy the ready cover beside the manuscript, when both exist. */
+const copyBesideManuscript = async (repo: Repo, paths: CoverPaths, projectId: string) => {
+  const dir = storyDirOf.get(projectId);
   const cur = await latestCover(repo, projectId);
-  if (!title || !cur?.outDir || !cur.artPath || cur.status === "painting" || cur.status === "failed") return;
-  const storyDir = storyDirOf.get(projectId);
-  const event = eventFor(repo, runId);
-  try {
-    if (!(cur.status === "ready" && cur.title === title && cur.path)) {
-      const r = await letterCover({ outDir: abs(paths, cur.outDir), title });
-      await save(repo, projectId, { ...cur, status: "ready", title, path: rel(paths, r.coverPath), generatedAt: new Date().toISOString() });
-      await event("cover_done", `Book cover lettered: "${title}"`);
-    }
-    if (storyDir) {
-      mkdirSync(storyDir, { recursive: true });
-      const latest = await latestCover(repo, projectId);
-      if (latest?.path) copyFileSync(abs(paths, latest.path), path.join(storyDir, "cover.png"));
-    }
-  } catch (e) {
-    await event("cover_warning", `Book cover lettering skipped: ${(e as Error).message}`);
-  }
+  if (!dir || cur?.status !== "ready" || !cur.path) return;
+  mkdirSync(dir, { recursive: true });
+  copyFileSync(abs(paths, cur.path), path.join(dir, "cover.png"));
 };
 
-const queueLetter = (repo: Repo, paths: CoverPaths, projectId: string, runId?: string) => {
-  const next = (letterChain.get(projectId) ?? Promise.resolve()).then(() => letterNow(repo, paths, projectId, runId));
-  letterChain.set(projectId, next.catch(() => {}));
-  return next;
+/** The run's setting arrived: remember it — it is the cover's only picture source. Nothing is painted yet. */
+export const rememberSetting = (projectId: string, setting: unknown) => {
+  settings.set(projectId, setting);
 };
 
 /**
- * Paint the cover FIRST — from the run's setting artifact, before the book has a title. Called from the run's
- * artifact callback; not awaited by the run.
+ * The book has a title: paint the finished cover, title included. Called when the CML arrives (and again at the
+ * end if the title changed). Not awaited by the run. If a painting is already running it is waited for, then
+ * repainted only if its title is not the one wanted.
  */
-export const startCoverFirst = async (
+export const startRunCover = async (
   repo: Repo,
   paths: CoverPaths,
-  a: { projectId: string; runId: string; style: string; setting: unknown; inputs?: Record<string, unknown> },
-  /** Test seam: fake image/text clients. Production builds both from env. */
-  deps: Pick<Parameters<typeof paintCoverArt>[0], "image" | "llm" | "env"> = {},
-) => {
-  if (busy.has(a.projectId)) return;
-  busy.add(a.projectId);
+  a: { projectId: string; runId: string; style: string; title: string; inputs?: Record<string, unknown> },
+  deps: CoverDeps = {},
+): Promise<void> => {
+  const title = a.title.trim();
+  const pending = busy.get(a.projectId);
+  if (pending) {
+    await pending.catch(() => {});
+    const cur = await latestCover(repo, a.projectId);
+    if (cur?.status === "ready" && cur.title === title) return;
+  }
+  const setting = settings.get(a.projectId) ?? (await repo.getLatestArtifact(a.projectId, "setting"))?.payload;
   const event = eventFor(repo, a.runId);
-  const started = new Date().toISOString();
-  try {
-    await save(repo, a.projectId, { status: "painting", style: a.style, source: "setting", generatedAt: started });
-    await event("cover_started", `Book cover: painting (${a.style})`);
-    const outDir = path.join(paths.storiesDir, "_covers", a.projectId, started.replace(/[:.]/g, "-"));
-    const r = await paintCoverArt({
-      outDir,
+  const job = (async () => {
+    const started = new Date().toISOString();
+    await save(repo, a.projectId, { status: "painting", style: a.style, source: "setting", title, generatedAt: started });
+    await event("cover_started", `Book cover: painting "${title}" (${a.style})`);
+    const r = await paintCover({
+      outDir: path.join(paths.storiesDir, "_covers", a.projectId, started.replace(/[:.]/g, "-")),
       style: a.style,
-      input: storyInputFromSetting({ setting: a.setting as Record<string, unknown>, inputs: a.inputs }),
+      input: storyInputFromSetting({ setting: setting as Record<string, unknown>, inputs: a.inputs, title }),
       logger: buildLlmLogger(paths.workspaceRoot),
       logContext: { runId: a.runId, projectId: a.projectId },
       log: (line) => console.log(line),
       ...deps,
     });
-    if (!r.ok || !r.artPath) {
-      await save(repo, a.projectId, { status: "failed", style: a.style, source: "setting", error: r.error, generatedAt: new Date().toISOString() });
+    const rec = r.manifest?.covers.find((c) => c.coverPath);
+    if (!r.ok || !r.coverPath || !rec) {
+      await save(repo, a.projectId, { status: "failed", style: a.style, source: "setting", title, error: r.error, generatedAt: new Date().toISOString() });
       await event("cover_warning", `Book cover skipped: ${r.error ?? "unknown error"}`);
       return;
     }
-    const rec = r.manifest?.covers.find((c) => c.artPath);
     await save(repo, a.projectId, {
-      status: "art",
+      status: "ready",
       style: a.style,
       source: "setting",
-      artPath: rel(paths, r.artPath),
+      title,
+      path: rel(paths, r.coverPath),
       outDir: rel(paths, r.outDir),
-      styles: rec?.styles,
-      palette: rec?.palette,
-      framing: rec?.framing,
+      styles: rec.styles,
+      palette: rec.palette,
+      framing: rec.framing,
       seed: r.manifest?.seed,
       anchors: r.manifest?.anchors,
+      titleCheck: rec.titleCheck,
       provider: r.provider,
       model: r.model,
       generatedAt: new Date().toISOString(),
     });
-    await event("cover_art_done", `Book cover painted (${(rec?.styles ?? []).join(" + ")}, ${rec?.framing ?? ""}) — title to come`);
+    const check = rec.titleCheck ? (rec.titleCheck.ok ? " · title read back OK" : ` · title read back as "${rec.titleCheck.read}"`) : "";
+    await event("cover_done", `Book cover ready (${rec.styles.join(" + ")}, ${rec.framing ?? ""})${check}`);
+    await copyBesideManuscript(repo, paths, a.projectId);
+  })();
+  busy.set(a.projectId, job);
+  try {
+    await job;
   } finally {
-    busy.delete(a.projectId);
+    if (busy.get(a.projectId) === job) busy.delete(a.projectId);
   }
-  // A title may have arrived while the art was painting.
-  await queueLetter(repo, paths, a.projectId, a.runId);
 };
 
 /**
- * The book has a (new) title — letter the cover with it. `storyDir`, when given, is where the manuscript was
- * saved; the lettered cover is copied there as cover.png.
+ * End of the run: the manuscript is saved. Copy the cover beside it, and repaint when the final title differs from
+ * the one painted (rare — the CML title is normally the book's title).
  */
-export const setCoverTitle = async (
+export const finishRunCover = async (
   repo: Repo,
   paths: CoverPaths,
-  a: { projectId: string; runId?: string; title: string; storyDir?: string },
+  a: { projectId: string; runId: string; style: string; title: string; storyDir: string; inputs?: Record<string, unknown> },
+  deps: CoverDeps = {},
 ) => {
-  const title = a.title.trim();
-  if (!title) return;
-  wantedTitle.set(a.projectId, title);
-  if (a.storyDir) storyDirOf.set(a.projectId, a.storyDir);
-  await queueLetter(repo, paths, a.projectId, a.runId);
+  storyDirOf.set(a.projectId, a.storyDir);
+  await busy.get(a.projectId)?.catch(() => {});
+  const cur = await latestCover(repo, a.projectId);
+  if (cur?.status === "ready" && cur.title === a.title.trim()) return copyBesideManuscript(repo, paths, a.projectId);
+  return startRunCover(repo, paths, a, deps);
 };
 
-/** Is there an early (painted-first) cover for this project that lettering can use? */
-export const hasPaintedCover = async (repo: Repo, projectId: string) => {
-  const cur = await latestCover(repo, projectId);
-  return !!cur && (cur.status === "painting" || !!cur.artPath);
-};
+/** Has this run already started (or made) its cover? */
+export const hasRunCover = async (repo: Repo, projectId: string) => busy.has(projectId) || !!(await latestCover(repo, projectId));
 
 export interface StartCoverArgs {
   projectId: string;
@@ -205,18 +209,17 @@ export interface StartCoverArgs {
   cml?: Record<string, unknown> | null;
 }
 
-/** A cover made from a FINISHED book's opening chapters — on demand, or when a run's early cover never started. */
+/** A cover made from a FINISHED book's opening chapters — on demand, or when a run never produced a setting. */
 export const startCover = async (
   repo: Repo,
   paths: CoverPaths,
   a: StartCoverArgs,
 ): Promise<CoverPostPassResult | { ok: false; error: string }> => {
   if (busy.has(a.projectId)) return { ok: false, error: "a cover is already being made for this project" };
-  busy.add(a.projectId);
   const event = eventFor(repo, a.runId);
-  try {
-    await save(repo, a.projectId, { status: "painting", style: a.style, source: "opening", generatedAt: new Date().toISOString() });
-    await event("cover_started", `Book cover: generating (${a.style})`);
+  const job = (async () => {
+    await save(repo, a.projectId, { status: "painting", style: a.style, source: "opening", title: a.title, generatedAt: new Date().toISOString() });
+    await event("cover_started", `Book cover: painting "${a.title}" (${a.style})`);
     const r = await runCoverPostPass({
       storyDir: a.storyDir,
       style: a.style,
@@ -229,46 +232,47 @@ export const startCover = async (
       log: (line) => console.log(line),
     });
     const chosen = r.manifest?.covers.find((c) => c.coverPath);
-    if (r.ok && r.coverPath && chosen?.artPath) {
-      wantedTitle.set(a.projectId, a.title);
+    if (r.ok && r.coverPath && chosen) {
       await save(repo, a.projectId, {
         status: "ready",
         style: a.style,
         source: "opening",
         title: a.title,
         path: rel(paths, r.coverPath),
-        artPath: rel(paths, path.join(r.outDir, chosen.artPath)),
         outDir: rel(paths, r.outDir),
         styles: chosen.styles,
         palette: chosen.palette,
         framing: chosen.framing,
         seed: r.manifest?.seed,
         anchors: r.manifest?.anchors,
+        titleCheck: chosen.titleCheck,
         provider: r.provider,
         model: r.model,
         generatedAt: new Date().toISOString(),
       });
       await event("cover_done", `Book cover ready (${chosen.styles.join(" + ")}, ${r.provider}/${r.model})`);
     } else {
-      await save(repo, a.projectId, { status: "failed", style: a.style, source: "opening", error: r.error, generatedAt: new Date().toISOString() });
+      await save(repo, a.projectId, { status: "failed", style: a.style, source: "opening", title: a.title, error: r.error, generatedAt: new Date().toISOString() });
       await event("cover_warning", `Book cover skipped: ${r.error ?? "unknown error"}`);
       console.log(`[covers] ${a.projectId}: ${r.error}`);
     }
     return r;
+  })();
+  busy.set(a.projectId, job);
+  try {
+    return await job;
   } finally {
     busy.delete(a.projectId);
   }
 };
 
-/** What the cases list needs: the image to show (lettered if possible) and a cache-busting version. */
+/** What the cases list needs: the finished cover's URL (cache-busted) and the status. */
 export const coverSummaryFor = async (repo: Repo, projectId: string) => {
   const cur = await latestCover(repo, projectId);
   if (!cur) return null;
-  const hasImage = !!(cur.path || cur.artPath);
   return {
     status: cur.status,
-    imageUrl: hasImage ? `/api/projects/${projectId}/cover.png?v=${encodeURIComponent(cur.generatedAt)}` : null,
-    lettered: !!cur.path,
+    imageUrl: cur.path ? `/api/projects/${projectId}/cover.png?v=${encodeURIComponent(cur.generatedAt)}` : null,
   };
 };
 
@@ -281,7 +285,7 @@ const latestProse = async (repo: Repo, projectId: string) => {
 };
 
 export const registerCoverRoutes = (app: Express, repoPromise: RepoPromise, paths: CoverPaths) => {
-  /** The style library and whether an image model is configured — the UI's select reads this. */
+  /** The style library (with each card's decades) and whether an image model is configured. */
   app.get("/api/cover-styles", (_req, res) => {
     try {
       const styles = listCoverStyles(resolveCardsDir(paths.workspaceRoot));
@@ -304,29 +308,20 @@ export const registerCoverRoutes = (app: Express, repoPromise: RepoPromise, path
       res.status(inProgress ? 202 : 404).json({ inProgress, error: inProgress ? undefined : "No cover yet" });
       return;
     }
-    // Keep the cover's lettering in step with the title the app shows. Re-lettering is local and free; it runs
-    // in the background and the next read returns the new image (generatedAt busts the cache).
-    const shownTitle = await storyTitleFor(repo, req.params.id);
-    if (shownTitle && cur.title !== shownTitle && cur.artPath && (cur.status === "ready" || cur.status === "art")) {
-      void setCoverTitle(repo, paths, { projectId: req.params.id, title: shownTitle });
-    }
-    const hasImage = !!(cur.path || cur.artPath);
     res.json({
       ...cur,
       inProgress,
-      lettered: !!cur.path,
-      imageUrl: hasImage ? `/api/projects/${req.params.id}/cover.png?v=${encodeURIComponent(cur.generatedAt)}` : null,
+      imageUrl: cur.path ? `/api/projects/${req.params.id}/cover.png?v=${encodeURIComponent(cur.generatedAt)}` : null,
     });
   });
 
-  /** The lettered cover when there is one, else the untitled art (a cover painted first, title to come). */
+  /** The finished cover. A painting cover has no image yet (it appears whole, title included). */
   app.get("/api/projects/:id/cover.png", async (req, res) => {
     const repo = await repoPromise;
     const cur = await latestCover(repo, req.params.id);
-    const relPath = cur?.path ?? cur?.artPath;
-    const file = relPath ? abs(paths, relPath) : "";
+    const file = cur?.path ? abs(paths, cur.path) : "";
     // The path comes from our own artifact, but it is still confined to stories/ before it is served.
-    if (!relPath || !file.startsWith(paths.storiesDir + path.sep) || !existsSync(file)) {
+    if (!cur?.path || !file.startsWith(paths.storiesDir + path.sep) || !existsSync(file)) {
       res.status(404).json({ error: "No cover image" });
       return;
     }
@@ -355,13 +350,11 @@ export const registerCoverRoutes = (app: Express, repoPromise: RepoPromise, path
     const style = typeof req.body?.style === "string" && req.body.style.trim() ? req.body.style.trim() : "auto";
     const spec = (await repo.getLatestSpec(projectId))?.spec as Record<string, unknown> | undefined;
     const cml = (await repo.getLatestArtifact(projectId, "cml"))?.payload as Record<string, any> | undefined;
-    const synopsis = (await repo.getLatestArtifact(projectId, "synopsis"))?.payload as { title?: string } | undefined;
     const storyFile = (await repo.getLatestArtifact(projectId, "story_file"))?.payload as { relPath?: string } | undefined;
     const storyDir = storyFile?.relPath
       ? path.join(paths.storiesDir, path.dirname(storyFile.relPath))
       : path.join(paths.storiesDir, "_covers", projectId, "opening");
-    // The SAME title the app shows (synopsis first — storyTitleFor), not the prose's own: MEASURED, they differ
-    // ("The Manor Clock's Silent Betrayal" vs "The Shadows of Ashford Manor") and the cover read the wrong one.
+    // The SAME title the app shows (synopsis first — storyTitleFor); it is painted into the cover.
     const title =
       (await storyTitleFor(repo, projectId)) ??
       cleanStoryTitle(prose.title) ??
@@ -378,6 +371,60 @@ export const registerCoverRoutes = (app: Express, repoPromise: RepoPromise, path
       inputs: spec ? { ...spec, eraPreference: spec.decade } : undefined,
       cml,
     });
-    res.status(202).json({ started: true, style, provider: image.client.provider, model: image.client.model });
+    res.status(202).json({ started: true, style, title, provider: image.client.provider, model: image.client.model });
   });
 };
+
+/**
+ * The run's cover hooks, so server.ts carries two calls instead of the logic (size ratchet).
+ */
+export const createRunCoverHooks = (
+  repo: Repo,
+  paths: CoverPaths,
+  run: { projectId: string; runId: string; spec?: Record<string, unknown> },
+) => {
+  // The UI's "Book cover" choice (spec.coverStyle), else CML_COVER_GEN → "auto"; null = no cover this run.
+  const coverStyle = resolveCoverRequest(run.spec?.coverStyle);
+  return {
+  /** Called for every artifact as the run persists it: remember the setting; paint once the CML names the book. */
+  onArtifact(type: string, payload: unknown) {
+    if (!coverStyle) return;
+    if (type === "setting") rememberSetting(run.projectId, payload);
+    else if (type === "cml") {
+      const title = cleanStoryTitle((payload as { CASE?: { meta?: { title?: unknown } } } | null)?.CASE?.meta?.title);
+      if (title) void startRunCover(repo, paths, { projectId: run.projectId, runId: run.runId, style: coverStyle, title, inputs: run.spec });
+    }
+  },
+  /**
+   * Called once the manuscript is saved: copy the cover beside it, repainting only if the final title differs.
+   * Only when the run never started a cover (no titled CML) is one made now, from the finished chapters.
+   */
+  async onStorySaved(a: { storyRelPath: string; title: unknown; prose: Record<string, unknown>; inputs: unknown; cml: unknown }) {
+    // Where the manuscript went — recorded for every run, so a cover made later (button) lands beside it.
+    await repo.createArtifact(run.projectId, "story_file", { relPath: a.storyRelPath }, null);
+    if (!coverStyle) return;
+    const storyDir = path.join(paths.storiesDir, path.dirname(a.storyRelPath));
+    const title = cleanStoryTitle(a.title) ?? "Untitled Mystery";
+    if (await hasRunCover(repo, run.projectId)) {
+      void finishRunCover(repo, paths, { projectId: run.projectId, runId: run.runId, style: coverStyle, title, storyDir, inputs: run.spec });
+    } else {
+      void startCover(repo, paths, {
+        projectId: run.projectId,
+        runId: run.runId,
+        style: coverStyle,
+        storyDir,
+        title,
+        prose: a.prose,
+        inputs: a.inputs as Record<string, unknown>,
+        cml: a.cml as Record<string, unknown>,
+      });
+    }
+  },
+  };
+};
+
+/** A project row for the cases list, with its cover summary (null when it has none). */
+export const withCover = async <P extends { id: string }>(repo: Repo, project: P) => ({
+  ...project,
+  cover: await coverSummaryFor(repo, project.id),
+});

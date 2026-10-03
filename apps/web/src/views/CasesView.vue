@@ -32,7 +32,6 @@ const coverOf = (project: Project): CoverInfo => ({
 	inProgress: project.cover?.status === "painting",
 	status: project.cover?.status as CoverInfo["status"],
 	imageUrl: project.cover?.imageUrl ?? undefined,
-	lettered: project.cover?.lettered,
 });
 
 const emit = defineEmits<{ openWorkshop: []; open: [Project] }>();

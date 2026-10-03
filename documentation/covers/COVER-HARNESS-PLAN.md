@@ -1,6 +1,6 @@
 # Book-cover harness — plan
 
-**Status:** BUILDING (approved 2026-10-02). Live STATUS in §5; findings from building it in §6.
+**Status:** BUILT and in the UI (2026-10-03). Live STATUS in §5; findings in §6.
 **Goal:** given a finished story in `stories/<id>/`, produce an original cover whose look derives from
 the sample images in `temp/covers/`, reproducibly, and cheaply enough to compare several styles per book.
 
@@ -80,6 +80,23 @@ They group by **visual family** much better than by decade.
 **What none of the samples have (INFERRED):** menace. They are fashion and travel images. Every family
 therefore gets a mystery modifier: one clue object in the foreground, one long shadow or one figure
 half out of frame, and an unlit window or doorway. The detail comes from the story, not the card.
+
+### 1b. The 1940s samples (MEASURED — 64 images viewed as contact sheets, 2026-10-03)
+
+`temp/covers/1940s/` — Library of Congress WPA posters, 1936–1943 (generally public domain; still analysed into words,
+never sent to the image model). The defining trait, MEASURED across the set: **the lettering IS the design** — a big
+hand-drawn title integral to the picture on almost every sheet. Three families, written as cards:
+
+- **F `wpa-theatre-poster`** — Federal Theatre silkscreen (Carmen, Day is Darkness, Volpone, Twilight of the Theatre,
+  The Warrior's Husband, High Tor, Swing Mikado): one dramatic figure or symbolic object, 3–5 flat inks on a dark
+  ground, hand-drawn display title on an arc/ribbon/diagonal. Best mystery fit (INFERRED).
+- **G `home-front-poster`** — wartime warnings (Careless Talk Costs Lives, Censored, Blackout Means Black, Visibility
+  Zero, No Enemy Sub, Save Rubber): one bold symbol of secrecy/threat, primaries + black, condensed slab lettering.
+- **H `wpa-exhibition-poster`** — WPA art exhibitions (Water Colors, Exhibition, Sculpture, Art Week): geometric
+  modernist planes, soft flat inks on a pale ground, elegant thin lettering.
+
+Every card now carries `decades`; the 1920s–30s cards are tagged from §1 (Deco portrait and magazine illustration
+1920s–30s, flat travel poster 1920s–30s, painterly poster 1930s).
 
 ### Copyright (INFERRED; the reason for the design in §2)
 
@@ -196,6 +213,9 @@ The first full matrix costs under **£1**, which is less than one book run.
 | 11 | First paid matrix: 3 stories × 4 cards at medium (existing stories only, no book runs) | DONE — 12/12; §6 | `docs(covers): matrix` |
 | 12 | **Cover made FIRST in UI runs**: painted from the `setting` artifact (Agent 1) while the book is written, lettered when the `cml` names it, re-lettered with the final title and copied beside the manuscript; statuses painting → art → ready/failed; Create defaults to *auto* | DONE — paint-first path pinned by fake-client tests (no story run, per owner) | `feat(covers): first` |
 | 13 | UI placement: cover at the top of the case beside progress (CoverFigure), controls in *The Cover* card, thumbnail in My Cases (`cover` on `GET /api/projects`) | DONE — verified in the browser on one on-demand cover | `feat(covers): first` |
+| 14 | **Title painted INTO the image** (owner 2026-10-03): typesetting, fonts and `letterCover` removed; each card's `lettering` is the typography; a vision read-back (`title-check.ts`) repaints once on a misspelling | DONE — 6/6 real covers read back correct first time | `feat(covers): decade` |
+| 15 | **True to the decade**: cards tagged `decades`; `auto`/`all` draw only from the story's decade (else nearest; a 1950s story gets the 1940s cards); UI choices filtered the same way; era-less input takes the decade the anchor step reads from the text | DONE — 200-draw test never leaves the decade | `feat(covers): decade` |
+| 16 | **Painted when the title exists**: the setting is remembered (no painting); the `cml` artifact's title starts the one paint; the end of the run repaints only if the final title differs, then copies beside the manuscript | DONE — fake-client API tests; no story run (owner) | `feat(covers): decade` |
 
 ## 6. Findings from building it
 
@@ -221,6 +241,15 @@ The first full matrix costs under **£1**, which is less than one book run.
   now split into main + subtitle (`splitTitle`), re-lettered from the saved art with `--reletter` at no cost.
   **Observed, not yet acted on:** every cover repeats one composition — a woman seen from behind, the object in the
   foreground — because the anchors are per story and the brief template fixes the object's position.
+- **MEASURED — titled 1940s covers (2026-10-03, 3 newest stories × `auto:2`, gpt-image-2 medium, ~$0.25 ASSUMED).**
+  Output `temp/covers/out/<story>/2026-10-03T05-34-31/`, sheet `temp/covers/out/sheet-1940s-titled.png`. Predictions:
+  (1) every cover from the story's decade's cards — YES for the two 1950s stories (4/4 from F/G/H); **NO for the third**,
+  a UI-run story with no run-params, so no era: it drew a 1930s painterly poster and a Deco blend — fixed by reading
+  the decade from the text (that story's text reads as 1930s, an INFERENCE: it names no year); (2) title painted and
+  read back right — **6/6 first time, 0 repaints**; (3) no other text — 6/6 by eye; (4) a 1940s look — YES on the
+  four F/G/H covers (silkscreen inks, the home-front "eye", theatre script lettering, modernist exhibition).
+- **SUPERSEDED — "the cover is made first, lettered later" (2026-10-02).** Owner: no lettering after generation; the
+  title is painted in. Painting now waits for the title (the CML, Agent 3), and still draws only from the setting.
 - **BUILT — the cover is made first (2026-10-02).** The setting artifact carries place, atmosphere (visual description,
   weather, time of day, mood) and era, and NO crime — so a cover painted from it is spoiler-free by construction,
   which the opening-chapter source never was. The theme (which names the crime) and `physicalConstraints` (which can

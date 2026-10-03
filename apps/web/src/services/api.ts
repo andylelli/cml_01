@@ -23,7 +23,7 @@ export type Project = {
   status?: string;
   createdAt?: string;
   /** The book's cover (documentation/covers/), for the cases list; null/absent when there is none. */
-  cover?: { status: string; imageUrl: string | null; lettered: boolean } | null;
+  cover?: { status: string; imageUrl: string | null } | null;
 };
 
 export type Spec = {
@@ -700,6 +700,8 @@ export interface CoverStyle {
   label: string;
   summary: string;
   family: string;
+  /** The decades the style belongs to — a story only uses its own decade's styles. */
+  decades: string[];
 }
 
 export interface CoverStylesResponse {
@@ -713,9 +715,10 @@ export interface CoverStylesResponse {
 export const apiUrl = (pathname: string) => `${apiBase}${pathname}`;
 
 export interface CoverInfo {
-  /** painting → art (untitled, title to come) → ready (lettered); or failed. */
-  status?: "painting" | "art" | "ready" | "failed";
-  lettered?: boolean;
+  /** painting → ready (one image, title painted in), or failed. */
+  status?: "painting" | "ready" | "failed";
+  /** The vision read-back of the painted title. */
+  titleCheck?: { ok: boolean; read: string; attempts: number };
   title?: string;
   error?: string;
   path?: string;

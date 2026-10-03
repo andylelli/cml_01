@@ -5,6 +5,7 @@
 id: flat-travel-poster
 label: Flat travel poster
 family: C
+decades: ["1920s", "1930s"]
 summary: A place is the subject, in silhouette and a few flat inks.
 medium: >-
   flat-colour lithographic poster print, hard-edged shapes, no outlines, at most one soft gradient (the sky),
@@ -22,9 +23,10 @@ composition:
   - "any people are small, faceless and dark unless the framing says otherwise"
 motifs: [long cast shadows, reflections broken into flat ripple shapes, a single lit window]
 figure_treatment: small faceless silhouettes, no facial detail
-type_band: { position: top, style: framed, height: 0.24 }
-title_font: display-deco
-avoid: [photographic realism, 3d rendering, gradients on figures, outlines around shapes, text or lettering of any kind]
+lettering: >-
+  bold geometric sans-serif capitals set in a solid band of one ink at the top or bottom, like a railway poster
+title_position: either
+avoid: [photographic realism, 3d rendering, gradients on figures, outlines around shapes, any text other than the title]
 suits:
   axis: [spatial, temporal, physical]
   tone: [Classic, Dark, Cozy]

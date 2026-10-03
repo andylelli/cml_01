@@ -1,0 +1,32 @@
+# 1940s — Federal Theatre / WPA silkscreen theatre poster.
+# Derived from temp/covers/1940s samples (Library of Congress WPA collection, 1936–1943): Carmen, Day is Darkness,
+# Volpone, Twilight of the Theatre, The Warrior's Husband, High Tor, Swing Mikado, It Might Happen to You.
+# Analysis: documentation/covers/COVER-HARNESS-PLAN.md §1b. Operations only; no artist or publication named.
+id: wpa-theatre-poster
+label: Wartime theatre poster
+family: F
+decades: ["1940s"]
+summary: One dramatic figure or symbolic object in flat silkscreen inks, with a big hand-drawn title.
+medium: >-
+  silkscreen poster print: 3 to 5 flat opaque inks, hard edges, no gradients, slight ink texture and paper grain,
+  shapes cut like stencils
+palette_rule: 3 to 5 flat inks; a dark ground (black, deep brown or navy) with one warm and one light ink
+palettes:
+  - { name: footlights, inks: ["#1a1410", "#c8442b", "#e8c04a", "#efe3c8"] }
+  - { name: playbill,   inks: ["#2a1b14", "#d9a23a", "#7a2a1f", "#f0e6cf", "#3e5e6b"] }
+  - { name: nightshow,  inks: ["#101820", "#b3302a", "#d8c9a3", "#5b7d8c"] }
+composition:
+  - "one strong central motif — a figure in a dramatic pose, or a single symbolic object — set against a plain dark ground"
+  - "the title is a major part of the design, sharing the space with the motif rather than sitting in a separate box"
+  - "a few thin rules, a ribbon or a starburst behind the motif"
+motifs: [a spotlight beam, a theatrical mask, a flaming torch, a skull with coins, a curtain edge, a starburst]
+figure_treatment: stencilled flat silhouette or posterised figure with two or three tones, strong gesture
+lettering: >-
+  hand-drawn 1940s display lettering — a bold condensed slab-serif or a flowing brush script — very large, in one
+  or two lines, set on a gentle arc, a ribbon or a slight diagonal, in the light ink against the dark ground
+title_position: either
+avoid: [photographic realism, 3d rendering, gradients, airbrush glow, any text other than the title]
+suits:
+  axis: [psychological, behavioural, temporal]
+  tone: [Dark, Classic]
+  location: [Theatre, City, CityHouse, Hotel, London]

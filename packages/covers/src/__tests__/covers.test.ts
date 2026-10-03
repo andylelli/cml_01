@@ -9,17 +9,18 @@ import {
   composeBrief,
   createImageClientFromEnv,
   extractAnchors,
-  fitTitle,
   generateCovers,
   loadStyleCards,
   parseAnchors,
   parseManuscript,
   readStoryDir,
-  splitTitle,
   runCoverPostPass,
-  paintCoverArt,
-  letterCover,
   storyInputFromSetting,
+  paintCover,
+  cardsForEra,
+  decadeOf,
+  titleMatches,
+  normaliseTitle,
   listCoverStyles,
   resolveCoverRequest,
   resolveStyleChoices,
@@ -27,7 +28,6 @@ import {
   makeRng,
   FRAMINGS,
   storyInputFromRun,
-  typesetCover,
   validateCard,
   type CoverAnchors,
   type ImageClient,
@@ -37,7 +37,6 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(here, "../../../..");
 const CARDS = join(ROOT, "library/cover-styles/cards");
-const FONTS = join(ROOT, "library/cover-styles/fonts");
 const cards = loadStyleCards(CARDS);
 const tmp = mkdtempSync(join(tmpdir(), "cml-covers-"));
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
@@ -74,8 +73,12 @@ const fakeArt = (colour = "#203040") => {
 };
 
 describe("style cards", () => {
-  it("loads the four library cards, sorted by id", () => {
-    expect(cards.map((c) => c.id)).toEqual(["deco-portrait", "flat-travel-poster", "magazine-illustration", "painterly-poster"]);
+  it("loads the library cards, sorted by id, each tagged with its decades", () => {
+    expect(cards.map((c) => c.id)).toEqual([
+      "deco-portrait", "flat-travel-poster", "home-front-poster", "magazine-illustration",
+      "painterly-poster", "wpa-exhibition-poster", "wpa-theatre-poster",
+    ]);
+    for (const c of cards) expect(c.decades.length).toBeGreaterThan(0);
   });
   it("rejects a card whose ink is not #rrggbb, naming the card", () => {
     const bad = { ...cards[0], palettes: [{ name: "x", inks: ["#123", "#ffffff"] }] };
@@ -176,9 +179,11 @@ describe("brief", () => {
     expect(b.prompt).toContain(choice.object!);
     expect(b.seed).toBe(3);
     expect(b.id).toContain(choice.framing!.id);
-    expect(b.prompt).toContain("top 24%");
+    expect(b.prompt).toContain(`exactly: "${input.title}"`);
+    expect(b.prompt).toMatch(/TEXT: the title is the ONLY text/);
+    expect(b.title).toBe(input.title);
     for (const ink of choice.palette.inks) expect(b.prompt).toContain(ink);
-    expect(b.prompt).toMatch(/EXCLUDE:.*words, letters/);
+    expect(b.prompt).toMatch(/EXCLUDE:.*any words other than the title/);
     expect(b.prompt).toContain("1930s");
     expect(b.prompt).not.toMatch(/in the style of/i);
   });
@@ -223,30 +228,6 @@ describe("image client from env", () => {
     const bad = createImageClientFromEnv({ OPENAI_API_KEY: "k" } as NodeJS.ProcessEnv, (async () =>
       new Response('{"error":{"code":"DeploymentNotFound"}}', { status: 404 })) as unknown as typeof fetch).client!;
     await expect(bad.generate({ prompt: "p", size: "1024x1536", quality: "low" })).rejects.toThrow(/HTTP 404 .*DeploymentNotFound/);
-  });
-});
-
-describe("typeset", () => {
-  it("splitTitle breaks at a colon or dash, and leaves a plain title alone", () => {
-    expect(splitTitle("THE HALF-HOUR HAND: A THEATRE CLOCK DECEPTION")).toEqual({ main: "THE HALF-HOUR HAND", sub: "A THEATRE CLOCK DECEPTION" });
-    expect(splitTitle("DEATH — A STUDY")).toEqual({ main: "DEATH", sub: "A STUDY" });
-    expect(splitTitle("THE HALF-HOUR HAND")).toEqual({ main: "THE HALF-HOUR HAND" });
-  });
-  it("fitTitle wraps within width and line limits", () => {
-    const measure = (s: string, size: number) => s.length * size * 0.6;
-    const fit = fitTitle("THE ROTATING WALL AT HALLOWAY MANOR", measure, { maxWidth: 900, maxHeight: 300, maxLines: 3, maxSize: 132, minSize: 36, lineHeight: 1.08 });
-    expect(fit.lines.length).toBeLessThanOrEqual(3);
-    for (const l of fit.lines) expect(measure(l, fit.size)).toBeLessThanOrEqual(900);
-  });
-  it("produces a 1024x1536 PNG for both band styles", async () => {
-    for (const style of ["framed", "full-bleed"] as const) {
-      const png = await typesetCover({
-        art: fakeArt(), title: input.title, author: "A. N. Author",
-        band: { position: "top", style, height: 0.24 }, inks: ["#1d2b3a", "#e9a03b", "#f3e6c8"], titleFont: "display-deco", fontsDir: FONTS,
-      });
-      const img = await loadImage(png);
-      expect([img.width, img.height]).toEqual([1024, 1536]);
-    }
   });
 });
 
@@ -364,7 +345,95 @@ describe("framing light", () => {
   });
 });
 
-describe("cover made FIRST — from the setting, lettered later", () => {
+describe("true to the decade", () => {
+  it("decadeOf reads the forms the pipeline uses", () => {
+    expect(decadeOf("1940s")).toBe(1940);
+    expect(decadeOf("the 1930s")).toBe(1930);
+    expect(decadeOf("1941")).toBe(1940);
+    expect(decadeOf("auto")).toBeNull();
+  });
+  it("a story draws only from its decade's cards; a decade with none takes the nearest", () => {
+    const ids = (era?: string) => cardsForEra(cards, era).map((c) => c.id).sort();
+    expect(ids("1940s")).toEqual(["home-front-poster", "wpa-exhibition-poster", "wpa-theatre-poster"]);
+    expect(ids("1950s")).toEqual(ids("1940s"));
+    expect(ids("1920s")).toEqual(["deco-portrait", "flat-travel-poster", "magazine-illustration"]);
+    expect(ids("1930s")).toEqual(["deco-portrait", "flat-travel-poster", "magazine-illustration", "painterly-poster"]);
+    expect(ids(undefined)).toHaveLength(cards.length);
+  });
+  it("auto never leaves the decade, over 200 draws, blends included", () => {
+    const forties = { ...input, era: "1940s" };
+    const allowed = new Set(cardsForEra(cards, "1940s").map((c) => c.id));
+    for (let i = 1; i <= 200; i++) {
+      const [c] = resolveStyleChoices("auto", cards, forties, 1, makeRng(i), anchors);
+      expect(allowed.has(c.primary.id)).toBe(true);
+      if (c.secondary) expect(allowed.has(c.secondary.id)).toBe(true);
+    }
+  });
+});
+
+describe("title painted into the image", () => {
+  it("titleMatches ignores case and punctuation, not spelling", () => {
+    expect(titleMatches("THE MIRRORS DECEIT AT HALLOWAY MANOR", "The Mirror's Deceit at Halloway Manor")).toBe(true);
+    expect(titleMatches("the mirror's deceit\nat halloway manor", "The Mirror's Deceit at Halloway Manor")).toBe(true);
+    expect(titleMatches("THE MIRRORS DECIET AT HALLOWAY MANOR", "The Mirror's Deceit at Halloway Manor")).toBe(false);
+    expect(normaliseTitle("The Half-Hour Hand: A Theatre")).toBe("THE HALF HOUR HAND A THEATRE");
+  });
+  it("needs a title — there is no lettering step afterwards", async () => {
+    await expect(
+      generateCovers({ input: { ...input, title: " " }, outDir: join(tmp, "nt"), dryRun: true, anchors, cardsDir: CARDS }),
+    ).rejects.toThrow(/needs the book's title/);
+  });
+  it("repaints ONCE on a misread title, quoting the misread back, and records the check", async () => {
+    const prompts: string[] = [];
+    const reads = ["THE ROTATING WAL", "THE ROTATING WALL AT HALLOWAY MANOR"];
+    const m = await generateCovers({
+      input: { ...input, title: "The Rotating Wall at Halloway Manor" },
+      outDir: join(tmp, "tc"),
+      styles: "flat-travel-poster",
+      anchors,
+      cardsDir: CARDS,
+      image: {
+        provider: "fake",
+        model: "m",
+        generate: async (r) => {
+          prompts.push(r.prompt);
+          return { png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 };
+        },
+      },
+      checkTitle: async () => {
+        const read = reads.shift()!;
+        return { ok: read === "THE ROTATING WALL AT HALLOWAY MANOR", read };
+      },
+    });
+    expect(prompts).toHaveLength(2);
+    expect(prompts[1]).toContain('lettered the title as "THE ROTATING WAL"');
+    expect(m.covers[0].titleCheck).toEqual({ ok: true, read: "THE ROTATING WALL AT HALLOWAY MANOR", attempts: 2 });
+    expect(existsSync(join(tmp, "tc", "cover.png"))).toBe(true);
+  });
+  it("a correct first read costs one image call", async () => {
+    let calls = 0;
+    const m = await generateCovers({
+      input,
+      outDir: join(tmp, "tc1"),
+      styles: "deco-portrait",
+      anchors,
+      cardsDir: CARDS,
+      image: {
+        provider: "fake",
+        model: "m",
+        generate: async () => {
+          calls++;
+          return { png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 };
+        },
+      },
+      checkTitle: async (_png, t) => ({ ok: true, read: t }),
+    });
+    expect(calls).toBe(1);
+    expect(m.covers[0].titleCheck?.attempts).toBe(1);
+  });
+});
+
+describe("cover painted once the title is known — from the setting", () => {
   const SETTING = {
     setting: {
       era: { decade: "1940s", transportation: ["petrol rationing", "estate carriages"], technology: ["wireless sets"] },
@@ -372,37 +441,69 @@ describe("cover made FIRST — from the setting, lettered later", () => {
       atmosphere: { visualDescription: "Stone facade under a leaden sky.", weather: "damp spring rain", timeOfDay: "early evening", mood: "dark" },
     },
   };
-  it("storyInputFromSetting reads place + atmosphere, never the constraints or the theme", () => {
-    const s = storyInputFromSetting({ setting: SETTING, inputs: { theme: "POISON IN THE PORT", tone: "Dark", primaryAxis: "spatial" } });
+  it("storyInputFromSetting reads place + atmosphere + title, never the constraints or the theme", () => {
+    const s = storyInputFromSetting({
+      setting: SETTING,
+      title: "The Manor Clock",
+      inputs: { theme: "POISON IN THE PORT", tone: "Dark", primaryAxis: "spatial" },
+    });
     expect(s.source).toBe("setting");
+    expect(s.title).toBe("The Manor Clock");
     expect(s.era).toBe("1940s");
     expect(s.openingText).toContain("leaden sky");
     expect(s.openingText).not.toContain("SECRET PASSAGE");
     expect(s.openingText).not.toContain("POISON");
     expect(buildAnchorPrompt(s).user).toContain("SETTING NOTES");
   });
-  it("paints untitled art, then letterCover sets — and resets — the title for free", async () => {
+  it("paintCover makes the finished cover in one image call, from a 1940s card, and refuses without a title", async () => {
     process.env.CML_COVER_STYLES_DIR = CARDS;
     try {
-      const out = join(tmp, "first");
-      let calls = 0;
-      const r = await paintCoverArt({
-        outDir: out, style: "auto", input: storyInputFromSetting({ setting: SETTING }), env: {} as NodeJS.ProcessEnv,
-        image: { provider: "fake", model: "m", generate: async () => { calls++; return { png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 }; } },
-        llm: { chat: async () => ({ content: JSON.stringify({ place: "a manor", clue_objects: ["a lamp"] }) }) },
+      const prompts: string[] = [];
+      const fake = {
+        provider: "fake",
+        model: "m",
+        generate: async (r: { prompt: string }) => {
+          prompts.push(r.prompt);
+          return { png: fakeArt(), provider: "fake", model: "m", latencyMs: 1 };
+        },
+      };
+      const llm = { chat: async () => ({ content: JSON.stringify({ place: "a manor", clue_objects: ["a lamp"] }) }) };
+      const none = await paintCover({
+        outDir: join(tmp, "p0"), style: "auto", input: storyInputFromSetting({ setting: SETTING }),
+        env: {} as NodeJS.ProcessEnv, image: fake, llm, checkTitle: null,
+      });
+      expect(none.ok).toBe(false);
+      expect(none.error).toMatch(/no title yet/);
+      const r = await paintCover({
+        outDir: join(tmp, "p1"), style: "auto", input: storyInputFromSetting({ setting: SETTING, title: "The Manor Clock" }),
+        env: {} as NodeJS.ProcessEnv, image: fake, llm, checkTitle: null,
       });
       expect(r.ok).toBe(true);
-      expect(existsSync(r.artPath!)).toBe(true);
-      expect(existsSync(join(out, "cover.png"))).toBe(false);
-      const a = await letterCover({ outDir: out, title: "The Manor Clock", fontsDir: FONTS });
-      expect(existsSync(a.coverPath)).toBe(true);
-      const first = readFileSync(a.coverPath);
-      await letterCover({ outDir: out, title: "A Different Title", fontsDir: FONTS });
-      expect(readFileSync(a.coverPath).equals(first)).toBe(false);
-      expect(calls).toBe(1);
-      expect(JSON.parse(readFileSync(join(out, "covers.json"), "utf8")).title).toBe("A Different Title");
+      expect(existsSync(r.coverPath!)).toBe(true);
+      expect(prompts).toHaveLength(1);
+      expect(prompts[0]).toContain('exactly: "The Manor Clock"');
+      expect(cardsForEra(cards, "1940s").map((c) => c.id)).toContain(r.manifest!.covers[0].styles[0]);
     } finally {
       delete process.env.CML_COVER_STYLES_DIR;
     }
+  });
+});
+
+describe("decade from the text when the run gives none", () => {
+  it("parseAnchors keeps a well-formed decade and drops anything else", () => {
+    expect(parseAnchors(JSON.stringify({ place: "a hotel", clue_objects: ["a key"], decade: "1940s" })).decade).toBe("1940s");
+    expect(parseAnchors(JSON.stringify({ place: "a hotel", clue_objects: ["a key"], decade: "the forties" })).decade).toBeNull();
+  });
+  it("an era-less story uses the anchors' decade, so every cover is from that decade's cards", async () => {
+    const m = await generateCovers({
+      input: { ...input, era: undefined },
+      outDir: join(tmp, "eraless"),
+      styles: "auto:6",
+      dryRun: true,
+      anchors: { ...anchors, decade: "1940s" },
+      cardsDir: CARDS,
+    });
+    const forties = new Set(cardsForEra(cards, "1940s").map((c) => c.id));
+    for (const c of m.covers) for (const id of c.styles) expect(forties.has(id)).toBe(true);
   });
 });

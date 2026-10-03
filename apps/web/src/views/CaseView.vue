@@ -62,7 +62,7 @@ const isRunning = computed(() => status.value === "running");
 /* ── the cover (documentation/covers/) ───────────────────────────────────────────────────────── */
 
 /**
- * Made FIRST in a run — painted from the setting while the book is written, lettered when it has a title —
+ * Painted during the run once the book has its title (one image, title included), from the setting —
  * so it is loaded with everything else and polled while it paints. A failed read just means no cover.
  */
 const cover = ref<CoverInfo | null>(null);
@@ -315,8 +315,8 @@ onBeforeUnmount(() => {
 		<p v-if="loading" class="t-subtitle">Opening the case file…</p>
 
 		<!-- ── the cover, beside the progress ───────────────────────────
-		     The cover is made first, so a reader following a run watches it arrive (painting → art →
-		     lettered) next to the stages. Without a cover the progress keeps the full width. -->
+		     The cover is painted during the run, once the book has its title, so a reader following a run
+		     watches it arrive next to the stages. Without a cover the progress keeps the full width. -->
 		<div
 			v-if="!loading && (cover || isRunning || hasFailed)"
 			class="grid items-start gap-4"
@@ -334,7 +334,6 @@ onBeforeUnmount(() => {
 				<p v-if="cover && !isRunning && !hasFailed" class="t-subtitle text-[0.8rem]">
 					<template v-if="cover.status === 'ready'">The cover for this case.</template>
 					<template v-else-if="coverPainting">The cover is being painted.</template>
-					<template v-else-if="cover.status === 'art'">The cover is painted; its title is set when the book has one.</template>
 					<template v-else>No cover was made this time.</template>
 					<span v-if="hasStory"> Change it under <a href="#the-cover" class="underline">The Cover</a> below.</span>
 				</p>
@@ -545,7 +544,13 @@ onBeforeUnmount(() => {
 			title="The Cover"
 			subtitle="A jacket in the manner of the period. Make a new one in any style."
 		>
-			<CoverPanel :project-id="projectId" :has-story="hasStory" :cover="cover" @requested="onCoverRequested" />
+			<CoverPanel
+				:project-id="projectId"
+				:has-story="hasStory"
+				:cover="cover"
+				:decade="settingData?.decade ?? backgroundContextData?.era?.decade ?? null"
+				@requested="onCoverRequested"
+			/>
 		</StepCard>
 
 		<!-- ── read aloud ──────────────────────────────────────────────── -->

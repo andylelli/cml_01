@@ -4,8 +4,8 @@ import { apiUrl, type CoverInfo } from "../services/api";
 
 /**
  * The book's cover as a picture — at the top of a case, and as a thumbnail in the cases list
- * (documentation/covers/). Covers are made FIRST in a run, so this has three honest states:
- * painting (a placeholder), art without its title yet ("title to come"), and the finished, lettered cover.
+ * (documentation/covers/). A cover is ONE image with its title painted in, made once the book has a title, so
+ * there are two honest states: painting (a placeholder) and the finished cover.
  */
 const props = withDefaults(
 	defineProps<{
@@ -20,7 +20,6 @@ const props = withDefaults(
 const src = computed(() => (props.cover?.imageUrl ? apiUrl(props.cover.imageUrl) : null));
 const painting = computed(() => !src.value && (props.cover?.inProgress || props.cover?.status === "painting"));
 const failed = computed(() => !src.value && props.cover?.status === "failed");
-const untitled = computed(() => !!src.value && props.cover?.lettered === false);
 const alt = computed(() => (props.title ? `Cover of ${props.title}` : "The book's cover"));
 </script>
 
@@ -37,7 +36,7 @@ const alt = computed(() => (props.title ? `Cover of ${props.title}` : "The book'
 			role="status"
 		>
 			<span v-if="size === 'lg'" class="text-[0.78rem] leading-snug text-ink-soft">
-				Painting the cover…<br />it appears here while the story is written.
+				Painting the cover…<br />it appears here once the story has its title.
 			</span>
 			<span v-else class="sr-only">Painting the cover</span>
 		</div>
@@ -46,12 +45,5 @@ const alt = computed(() => (props.title ? `Cover of ${props.title}` : "The book'
 			<span class="text-[0.75rem] leading-snug text-ink-faint">No cover this time.</span>
 		</div>
 
-		<!-- Painted before the book has a name: the band is left plain and lettered when the title exists. -->
-		<figcaption
-			v-if="untitled && size === 'lg'"
-			class="absolute inset-x-0 top-0 bg-black/45 px-2 py-1.5 text-center text-[0.7rem] uppercase tracking-[0.2em] text-white"
-		>
-			Title to come
-		</figcaption>
 	</figure>
 </template>

@@ -3,6 +3,7 @@
 id: magazine-illustration
 label: Magazine illustration
 family: B
+decades: ["1920s", "1930s"]
 summary: An elongated figure in profile against a flat ground, with one seasonal motif.
 medium: >-
   period magazine-cover illustration in gouache and watercolour, flat background colour, simple confident outlines,
@@ -18,9 +19,10 @@ composition:
   - "generous empty space around the subject"
 motifs: [cloche hat, scarf caught by wind, gloved hand holding an object, falling leaves]
 figure_treatment: elongated neck, small features, closed or lowered eyes, rouged cheek
-type_band: { position: top, style: full-bleed, height: 0.20 }
-title_font: display-thin
-avoid: [photographic realism, busy backgrounds, text or lettering of any kind, modern clothing]
+lettering: >-
+  thin geometric Art Deco capitals, widely letter-spaced, like a period magazine masthead, in one dark ink
+title_position: top
+avoid: [photographic realism, busy backgrounds, any text other than the title, modern clothing]
 suits:
   axis: [behavioural, psychological, temporal]
   tone: [Cozy, Classic]

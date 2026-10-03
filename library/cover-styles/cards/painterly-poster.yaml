@@ -3,6 +3,7 @@
 id: painterly-poster
 label: Painterly poster
 family: D
+decades: ["1930s"]
 summary: A deep landscape or building painted in gouache, with dramatic atmospheric light.
 medium: >-
   vintage poster painted in opaque gouache and oil, visible brush texture, atmospheric perspective,
@@ -18,9 +19,10 @@ composition:
   - "a framing border of 2-3% around the image in a dark colour"
 motifs: [weather in the sky, a single lit window, smoke or steam, a figure seen from behind at a distance]
 figure_treatment: small and distant, painted loosely
-type_band: { position: top, style: framed, height: 0.22 }
-title_font: display-serif
-avoid: [photographic realism, 3d rendering, text or lettering of any kind, lens flare]
+lettering: >-
+  classic inscriptional serif capitals, cream on a dark band across the bottom of the poster
+title_position: bottom
+avoid: [photographic realism, 3d rendering, any text other than the title, lens flare]
 suits:
   axis: [spatial, physical, temporal]
   tone: [Dark, Classic]

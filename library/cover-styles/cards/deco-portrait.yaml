@@ -3,6 +3,7 @@
 id: deco-portrait
 label: Deco portrait
 family: A
+decades: ["1920s", "1930s"]
 summary: One stylised figure framed by Art Deco geometry, jewel tones and gold line-work.
 medium: >-
   stylised Art Deco illustration, smooth matte gouache shading, thin metallic-gold line-work separating colour planes
@@ -17,9 +18,10 @@ composition:
   - "colour planes are separated by thin gold lines"
 motifs: [sunburst rays, stepped arches, pearls or beads, feathers, a cigarette holder or glove]
 figure_treatment: elongated stylised features, closed or heavy-lidded eyes, no photographic skin detail
-type_band: { position: top, style: full-bleed, height: 0.22 }
-title_font: display-thin
-avoid: [photographic realism, nudity, cleavage emphasis, text or lettering of any kind, cartoon style]
+lettering: >-
+  Art Deco display lettering — tall thin geometric capitals with high-contrast strokes, generously letter-spaced, in gold or cream
+title_position: top
+avoid: [photographic realism, nudity, cleavage emphasis, any text other than the title, cartoon style]
 suits:
   axis: [psychological, behavioural, temporal]
   tone: [Classic, Dark, Glamorous]
