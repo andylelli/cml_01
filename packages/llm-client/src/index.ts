@@ -5,6 +5,9 @@
 export { AzureOpenAIClient, resolveResponseFormat, StructuredOutputError } from "./client.js";
 export { AnthropicClient, DEFAULT_ANTHROPIC_MODEL, extractJsonPayload } from "./anthropic-client.js";
 export { LLMLogger } from "./logger.js";
+// CR-03 — offline replay of a recorded run: every call answered from a cassette, prompts byte-checked.
+export { ReplayClient, ReplayMismatchError, readCassette, writeCassette, promptHashOf } from "./replay.js";
+export type { Cassette, CassetteEntry, ReplayReport, ReplayMode } from "./replay.js";
 export { CostTracker, defaultCostConfig } from "./cost-tracker.js";
 export { RateLimiter } from "./ratelimit.js";
 export { withRetry, CircuitBreaker, defaultRetryConfig, isRetryableError, isRateLimitError, isTransportFailureMessage, readRetryAfterMs } from "./retry.js";

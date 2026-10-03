@@ -24,6 +24,9 @@ const ALLOWED_INPUT_KEYS = new Set([
   // book before this parameter existed had. This list is a SILENT filter: a key missing from it is
   // dropped without a warning, so a generated parameter that is not here never reaches the run.
   "humourLevel",
+  // documentation/covers — the book-cover post-pass ("auto", a card id, "a+b", "off"). Inert to the
+  // pipeline; read by canary-core after the manuscript is saved.
+  "coverStyle",
   "skipNoveltyCheck",
   "similarityThreshold",
   "proseBatchSize",

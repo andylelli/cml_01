@@ -64,6 +64,9 @@ data/store.json
 # chunk cache beside it is larger still. Both are reproducible from the manuscript,
 # and the cache is content-addressed, so a re-render of unchanged text is free.
 data/narration/
+# The same output when the API runs with apps/api as its working directory (`data/narration/` above is
+# anchored to the root and does not match it): 54 cached mp3s, 324 MB, were untracked there on 2026-10-03.
+apps/api/data/narration/
 apps/api/data/reports/
 documentation/prompts/actual/*/
 results/
@@ -115,3 +118,11 @@ library/.pg-catalog.csv
 library/.pubyear-cache.json
 library/.acquire-report.json
 library/.survey-cache.json
+
+# Book-cover samples (may be in copyright, never committed) and harness output — documentation/covers/.
+temp/covers/
+
+# Book covers (documentation/covers/): 2–3 MB PNGs per cover, regenerable from their brief + seed — never tracked.
+stories/_covers/
+stories/*/covers/
+stories/*/cover.png

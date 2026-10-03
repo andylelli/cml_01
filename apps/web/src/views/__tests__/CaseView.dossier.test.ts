@@ -19,6 +19,7 @@ import { useProjectStore } from "../../stores/projectStore";
  */
 
 vi.mock("../../services/api", () => ({
+	fetchCover: vi.fn(async () => null),
 	fetchProjectStatus: vi.fn(async () => ({ projectId: "p1", status: "idle" })),
 	downloadStoryPdf: vi.fn(async () => new Blob()),
 }));
@@ -300,6 +301,23 @@ describe("the lede does not give the method away", () => {
 		const wrapper = mountCase();
 		await settled();
 		expect(wrapper.text()).toContain("Six guests, one snowed-in weekend");
+		wrapper.unmount();
+	});
+
+	it("reports the story's title to the shell, so the nav tab stops showing the spec label", async () => {
+		const wrapper = mountCase();
+		await settled();
+		expect(wrapper.emitted("titled")?.at(-1)).toEqual(["The Manor Clock's Silent Betrayal"]);
+		wrapper.unmount();
+	});
+
+	it("treats the API's 'Untitled Mystery' placeholder as no title", async () => {
+		const store = useProjectStore();
+		store.synopsisData = { title: "Untitled Mystery" } as never;
+		const wrapper = mountCase();
+		await settled();
+		expect(wrapper.find("h1").text()).toBe("A Test Case");
+		expect(wrapper.emitted("titled")).toBeUndefined();
 		wrapper.unmount();
 	});
 });

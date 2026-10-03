@@ -6,6 +6,8 @@
  * the story's facts.
  */
 
+import { readBooleanFlag } from "@cml/cml";
+import { resolveIdentity } from "@cml/cml";
 import { applyHardCaps } from "./hard-caps.js";
 import { extractStoryFacts, mergeFacts, type ScoringCaseInput } from "./facts.js";
 import { buildRubricSystemPrompt, buildRubricUserMessage } from "./prompt.js";
@@ -14,7 +16,6 @@ import {
   splitProseIntoChapters,
   verifyCitations,
   verifyStructure,
-  type FindUnplantedFn,
   type FlagCitation,
 } from "./structural-verifiers.js";
 import type { CappedScore, RubricScore, StoryFacts, StructuralAdjustments } from "./types.js";
@@ -46,11 +47,6 @@ export interface ScoreStoryInput {
    * have it — the structural verifiers and citation checks are sharper with true chapter boundaries.
    */
   chapters?: string[];
-  /**
-   * The real `findUnplantedDiscriminatingClues` (@cml/prompts-llm). Injected by the orchestrator so the
-   * planted-evidence verifier reuses the live A_50 §9.3 logic; a faithful local fallback runs without it.
-   */
-  findUnplanted?: FindUnplantedFn;
   /**
    * A_57 D2 — the discriminating clue's canonical staged/true value pair (from the world-state ledger).
    * When supplied, enables the high-precision dual-value-without-contrast detector (caps *clues* when the
@@ -94,14 +90,13 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
   const caseData = unwrapCase(input.cml);
 
   const chapters = input.chapters && input.chapters.length ? input.chapters : splitProseIntoChapters(input.prose);
-  const victimName = caseData.cast?.find((c) => /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`))?.name;
+  const victimName = caseData.cast?.find((c) => resolveIdentity("rubric.victim", "victim", c, /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`)))?.name;
 
   // Run the structural verifiers BEFORE the judge so the test-chapter context can be handed to it.
   const verdict = verifyStructure({
     cml: input.cml,
     chapters,
     victimName,
-    findUnplanted: input.findUnplanted,
   });
 
   const userMessage = buildRubricUserMessage(input.prose, {
@@ -169,7 +164,7 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
   // surfaced in `structural` for telemetry, but they only clamp the score once an A/B confirms no
   // false-positives (probe-before-default-on, §2.8). Runtime env read — never a frozen module const.
   const a68CapsOn =
-    process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "true" || process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "1";
+    readBooleanFlag("RUBRIC_STRUCTURAL_CAPS_A68", false);
   if (a68CapsOn && verdict.temporalContradiction) deterministic.temporalContradiction = true;
   if (a68CapsOn && verdict.duplicateReveal) deterministic.duplicateReveal = true;
 

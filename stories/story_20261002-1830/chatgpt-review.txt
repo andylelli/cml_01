@@ -1,0 +1,123 @@
+This is a strong country-house mechanism draft with one serious continuity problem. The mirror-passage idea is excellent, the atmosphere is good, and Harriet/Marguerite/Adela have more life than many recent casts. But the ending currently breaks the story: Ottoline is exposed as the killer and apparently taken away, then Chapter 10 has her calmly tending the fire and doing “one last sweep” as if she is still free in the house. That has to be fixed.
+I’d score it around 80/100 as written.
+The roles are:
+Investigator: Adela Halloway
+Victim: Cecil Thorne
+Culprit: Ottoline Fairweather
+False suspects: Harriet Bellamy, Ivor Yardley, Marguerite Selwyn
+Murder method: stabbing/puncture wound with hunting knife
+Cover-up mechanism: Ottoline uses the concealed passage behind the angled corridor mirror to reach Cecil’s room unseen, then relies on dust, clock confusion, and false suspicion around the greenhouse/kitchen knife to misdirect suspicion
+Key clues: angled mirror set at forty-five degrees, sharp dust outline around the mirror, two-foot space behind the panel, floorboard misalignment, scratches on mirror/floor, Ottoline’s knowledge of the mechanism, hunting knife scratches matching greenhouse tools, Cecil’s watch at 7:15, manor clock at 6:45, alibis clearing Harriet/Ivor/Marguerite
+Motive: Cecil was about to expose Ottoline’s identity/place/past connection to Halloway Manor, threatening the life and authority she had built there
+
+Area	Mark	Notes
+Premise / concept	8/10	Mirror passage + dust outline is a good classic clue.
+Opening hook	8/10	Body, mirror, dust outline, knife, old resentments — strong setup.
+Plot structure	7/10	Good clue progression, but clock clue and mirror clue compete slightly.
+Character clarity	8/10	Adela, Harriet, Marguerite, Ivor, Ottoline are distinct.
+Dialogue	7/10	Some strong dry lines, but long generated speeches remain.
+Atmosphere / setting	9/10	Manor corridors, greenhouse, velvet curtains, frost, hearths — very cohesive.
+Mystery clues / evidence logic	7/10	Mirror proof is strong; time logic needs cleaner integration.
+Pacing	8/10	Better than the Ashford draft; not as repetitive.
+Ending / reveal	6/10	Chapter 8 reveal works, but Chapter 10 contradicts it.
+Prose / polish	7/10	Mostly better, but still has scaffold/meta phrasing and repeated constructions.
+Character Life / Relationship Richness	8/10	Harriet/Marguerite/Adela especially have real emotional texture.
+Humour / Wit	7/10	Harriet and Ottoline get good dry lines; some wit still over-explained.
+
+
+What works
+The opening image is strong. The angled mirror, the precise dust outline, the knife, Cecil’s body, the locked-after-dinner corridor, and the tension between Harriet and Marguerite all create a proper country-house puzzle immediately.    Pasted text
+The mirror mechanism is the best part. The mirror is set at forty-five degrees, shows only the corridor wall, and hides a two-foot space behind it. That is a concrete, visual trick the reader can understand.    Pasted text
+The final demonstration in Chapter 8 is also good. Harriet touches the frame and leaves no disturbance; Ottoline instinctively presses the notch beneath the molding, the mirror gives way, and the dust shifts around her fingers. That is exactly the kind of live proof these mysteries need.    Pasted text
+Biggest problem: Chapter 10 contradicts the reveal
+Chapter 8 names Ottoline as the killer, gives her confession, and explains that she used the mirror passage to reach Cecil unseen.    Pasted text
+Chapter 9 then shows Ottoline being escorted down the staircase by constables.    Pasted text(20261002-173737)
+But Chapter 10 opens with Ottoline calmly asking whether she should relight the fire, tending the coals, making a joke, writing in the logbook, and then going for “one last sweep before bed.”    Pasted text(20261002-173737)
+That cannot stand unless Chapter 10 is meant to happen before her arrest, but it clearly reads as aftermath. Fix it one of two ways:
+Option A — remove Ottoline from Chapter 10.
+Replace her fire-tending role with a new maid, Harriet, or Marguerite.
+
+Option B — make Chapter 10 occur before the constables take her away.
+Then reorder Chapter 9/10 so the arrest happens at the end.
+
+The cleaner fix is Option A. Ottoline should be absent in the aftermath. Her absence should be felt through the house’s disorder.
+The clock clue is interesting but under-integrated
+You have a good time contradiction:
+Manor clock: 6:45
+Cecil’s wristwatch: 7:15
+Difference: 30 minutes
+
+That is introduced clearly.    Pasted text
+But the final reveal mostly depends on the mirror passage and knife scratches. The clock clue does not land as strongly as it should. At the reveal, Adela says the crime window ran 6:15 to 7:15, but the story needs a simpler explanation of why the clock discrepancy matters.    Pasted text
+Use this:
+“The hall clock was not the murder time,” Adela said. “It was the house’s alibi. Cecil’s watch held the true hour: quarter past seven.”
+
+Then connect it directly to Ottoline:
+“Only someone moving behind the mirror could reach him after the household believed the corridor watched and closed.”
+
+Ottoline’s motive needs one more concrete sentence
+Her confession is atmospheric:
+“He was about to expose me.”
+“My name, my place—Halloway Manor.”
+
+That has emotional force, but it is still slightly vague.    Pasted text
+Add one specific fact:
+“He knew I was not Fairweather by birth,” Ottoline said. “He knew whose child I was, and what I had taken to remain here.”
+
+Or:
+“He meant to put my name in the ledger,” Ottoline said. “Not as housekeeper. As fraud.”
+
+That would make the motive click.
+Character Life / Relationship Richness: 8/10
+This is one of the stronger areas.
+Harriet is vivid: suitcase, circus past, hunger, blunt speech, old exclusion, desire to stay or leave. Marguerite has pride, inheritance, old rivalry, fear of disgrace, and a complicated connection to Harriet. Adela has a past legal scandal and a need to prove she will not walk away again.    Pasted text
+Chapter 9 has good emotional fallout between Harriet and Marguerite. The question “Do you want to stay?” and Harriet’s “Not sure yet” are simple and effective.    Pasted text(20261002-173737)
+The best aftermath material is the house trying to resume: letters, sherry, correspondence, suitcase, Cecil’s pipe, signet ring, and the mantel clock. Those objects give the ending life.    Pasted text(20261002-173737)
+But Chapter 10 must be rewritten around Ottoline’s absence, not her continued presence.
+Humour / Wit: 7/10
+Harriet gets the best wit:
+“If the horses could talk, we'd be done by now.”
+
+Good line: dry, character-specific, and grounded in the scene.    Pasted text
+Ottoline also has a good dry domestic voice:
+“Or the ghosts learning to sweep.”
+
+That fits her role and the house.    Pasted text
+The problem is that the “long speech followed by a short reply” pattern is still overused. Ivor and Marguerite both get long explanatory speeches that feel generated, then someone replies with a punchline. It works once; after that, it becomes a format.
+Chapter 8 reveal is good, but could be sharper
+The live proof is strong. Keep the order:
+1. Harriet touches the mirror: no disturbance.
+2. Ottoline touches the mirror: finds the notch instinctively.
+3. Dust shifts around Ottoline’s fingers.
+4. Knife scratches match greenhouse tools.
+5. Adela names Ottoline.
+
+That is a clean reveal engine.
+I would sharpen Adela’s accusation:
+“Harriet guessed there was a passage. Ottoline used it.”
+
+Then:
+“The knife came from her greenhouse. The mirror opened to her hand. The dust kept the shape of her passage.”
+
+That would make the solution memorable.
+Prose/scaffold issues to remove
+These are the main ones:
+“The absence of any digital clocks or mobile telephones…” — too meta; just show reliance on watches/clocks.    Pasted text
+“The period pressed at all of them…” — too explanatory.    Pasted text
+“The limitations of the period pressed at every turn…” — same problem.    Pasted text
+“Miss Fairweather is cleared” in Chapter 9 appears to be wrong, because Ottoline Fairweather is the culprit. This should likely be Ivor Yardley is cleared or another name.    Pasted text(20261002-173737)
+Ottoline free in Chapter 10 after arrest — biggest continuity error.    Pasted text(20261002-173737)
+
+Fastest fixes
+1. Rewrite Chapter 10 so Ottoline is absent after arrest.
+2. Fix “Miss Fairweather is cleared” in Chapter 9.
+3. Clarify the clock logic: hall clock 6:45 false, Cecil’s watch 7:15 true.
+4. Add one concrete sentence explaining what Cecil was about to expose about Ottoline.
+5. Cut meta period explanations; replace them with physical constraints.
+6. Reduce long explanatory speeches by 50%.
+7. Keep the mirror demonstration; it is the draft’s strongest scene.
+Overall
+This is a good mirror-passage country-house mystery with strong atmosphere and one of the better emotional casts. The mirror/dust mechanism is stronger than the theatre clock’s forward/backward issue, and the characters are richer than the Ashford/Pike draft.
+But the ending contradiction with Ottoline seriously damages the score.
+As written: 80/100.
+With Chapter 10 corrected, the clock clue integrated, and Ottoline’s motive sharpened, this could reach 87–89/100.

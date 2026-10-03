@@ -5,14 +5,13 @@
  * Includes season, fashion, current affairs, cultural trends, and daily life details.
  */
 
+import { MONTH_TO_SEASON } from "./shared/temporal-anchor.js";
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
 import type { SettingRefinement } from "./agent1-setting.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 import { simpleHash, generateSpecificDate } from "./shared/temporal-anchor.js";
 
 export interface SeasonalContext {
@@ -113,11 +112,10 @@ export { simpleHash, generateSpecificDate };
  * before the season feeds the Agent 9 lock).
  */
 export const deriveSeasonFromMonth = (month: string | undefined): "spring" | "summer" | "fall" | "winter" => {
-  const m = String(month ?? "").trim().toLowerCase();
-  if (["march", "april", "may"].includes(m)) return "spring";
-  if (["june", "july", "august"].includes(m)) return "summer";
-  if (["september", "october", "november"].includes(m)) return "fall";
-  return "winter"; // december, january, february (+ unknown fallback)
+  // A1X-08: the one MONTH_TO_SEASON table, in this function's "fall" vocabulary. Exact full month names only (no
+  // abbreviation normalising), and anything unknown is winter — exactly as before.
+  const season = MONTH_TO_SEASON[String(month ?? "").trim().toLowerCase()] ?? "winter";
+  return season === "autumn" ? "fall" : season;
 };
 
 const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousErrors?: string[]) => {
@@ -321,54 +319,23 @@ export async function generateTemporalContext(
   inputs: TemporalContextInputs,
   maxAttempts?: number
 ): Promise<TemporalContextResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2d_temporal_context.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs } = await generateJsonArtifact<Omit<TemporalContextResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2d (Temporal Context)",
-    validationFn: (data) => {
-      const validationPayload = {
-        ...(data as Record<string, unknown>),
-        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
-        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
-      };
-      const validation = validateArtifact("temporal_context", validationPayload);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildTemporalContextPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2d-TemporalContext",
-          retryAttempt: attempt,
-        },
-      });
-
-      let context: Omit<TemporalContextResult, "cost" | "durationMs">;
-      try {
-        context = JSON.parse(response.content);
-      } catch (error) {
-        // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
-        if (looksTruncatedJson(response.content)) {
-          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
-        }
-        const repaired = jsonrepair(response.content);
-        context = JSON.parse(repaired);
-      }
-
+    label: "Agent2d-TemporalContext",
+    logName: "[Agent 2d] Temporal context",
+    schema: "temporal_context",
+    withRunMeta: true,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: true,
+    buildMessages: (previousErrors) => buildTemporalContextPrompt(inputs, previousErrors).messages,
+    structuralCheck: (context) => {
       // Basic structure validation
       if (!context.specificDate || !context.specificDate.year || !context.specificDate.month) {
         throw new Error("Invalid temporal context output: missing specific date");
@@ -381,36 +348,13 @@ export async function generateTemporalContext(
       if (!Array.isArray(context.paragraphs) || context.paragraphs.length === 0) {
         throw new Error("Invalid temporal context output: missing paragraphs");
       }
-
-      const costTracker = client.getCostTracker();
-      const cost = costTracker.getSummary().byAgent["Agent2d-TemporalContext"] || 0;
-
-      return { result: context, cost };
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2d] Temporal context validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2d] Temporal context failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as TemporalContextResult;
+  const validatedResult = result as TemporalContextResult;
 
   return {
     ...validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
   };
 }

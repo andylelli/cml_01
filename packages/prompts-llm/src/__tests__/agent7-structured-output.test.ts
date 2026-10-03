@@ -122,8 +122,11 @@ describe("isAgent7StructuredOutputEnabled", () => {
     expect(isAgent7StructuredOutputEnabled({ AGENT7_STRUCTURED_OUTPUT: "1" })).toBe(true);
   });
 
-  it("stays OFF for anything else, so a typo cannot silently enable it", () => {
-    for (const v of ["yes", "on", "TRUE", "", "false", "0"]) {
+  it("reads the one flag vocabulary (owner decision 9): yes/on/TRUE are on, a typo stays OFF", () => {
+    for (const v of ["yes", "on", "TRUE"]) {
+      expect(isAgent7StructuredOutputEnabled({ AGENT7_STRUCTURED_OUTPUT: v })).toBe(true);
+    }
+    for (const v of ["", "false", "0", "enabled", "y"]) {
       expect(isAgent7StructuredOutputEnabled({ AGENT7_STRUCTURED_OUTPUT: v })).toBe(false);
     }
   });

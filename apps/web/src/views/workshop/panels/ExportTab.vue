@@ -37,6 +37,7 @@ const {
 	proseReady,
 	selectedProseLength,
 	settingArtifact,
+	storyTitle,
 } = useWorkshop();
 </script>
 
@@ -128,6 +129,7 @@ const {
 	          v-if="projectId"
 	          :project-id="projectId"
 	          :has-story="Boolean(proseReady)"
+	          :story-title="storyTitle"
 	        />
 	        <p v-else class="t-subtitle">Open or create a project first.</p>
 	      </div>

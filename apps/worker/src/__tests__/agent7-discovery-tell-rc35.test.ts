@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, afterEach } from "vitest";
 import { ensureDiscoverySceneMethodTellPresent } from "../jobs/agents/agent7-run.js";
 
 // A_61 RC3.5 — additively guarantee the body-discovery scene references a cause-of-death "key tell" clue.

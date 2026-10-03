@@ -18,9 +18,17 @@
  * Output Format: JSON (structured similarity scores)
  */
 
+import { parseLlmJson } from "./shared/llm-json.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { isVictimMember, promptTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
+import {
+  AGENT8_CASE_POLICY,
+  culpritMotiveSeedOf,
+  projectCaseForPrompt,
+  victimMemberOf,
+} from "./shared/cml-prompt-view.js";
 import type { PromptComponents } from "./types.js";
 
 // ============================================================================
@@ -66,18 +74,53 @@ export interface NoveltyAuditResult {
 // Prompt Builder
 // ============================================================================
 
-export function buildNoveltyPrompt(inputs: NoveltyAuditInputs): PromptComponents {
-  const config = getGenerationParams().agent8_novelty.params;
-  const { generatedCML, seedCMLs } = inputs;
-  const configuredThreshold =
+/**
+ * A1X-12 — the novelty threshold policy, resolved once and read by BOTH the prompt and the verdict.
+ *
+ * The two used to compute it separately: the prompt hard-coded a +10-point fail band, the verdict read
+ * `thresholds.fail_delta`. Under the shipped config (fail_delta 0.1) they state the same band, so both
+ * now read `failDelta` from here. Two differences are KEPT, because removing either changes behaviour
+ * (R2, not done): the prompt guards the threshold to (0,1) and falls back to 0.9 (`promptThreshold`)
+ * while the verdict uses the configured value unguarded (`similarityThreshold`, where >= 1 means
+ * "always pass"); and the prompt prints whole percentages (0.875 → 88% / 98%) while the verdict
+ * compares the exact value (0.875 / 0.975).
+ */
+export interface NoveltyPolicy {
+  /** The input's similarityThreshold, else the config default — unguarded; the verdict's threshold. */
+  similarityThreshold: number;
+  /** similarityThreshold when it lies strictly inside (0,1), else 0.9 — the threshold the prompt states. */
+  promptThreshold: number;
+  /** `thresholds.fail_delta` — the width of the warning band. */
+  failDelta: number;
+  /** The verdict's fail threshold: min(1, similarityThreshold + failDelta). */
+  failThreshold: number;
+}
+
+/** The slice of `agent8_novelty.params` the policy reads. */
+interface NoveltyThresholdConfig {
+  thresholds: { similarity_threshold_default: number; fail_delta: number };
+}
+
+export function resolveNoveltyPolicy(
+  inputs: Pick<NoveltyAuditInputs, "similarityThreshold">,
+  config: NoveltyThresholdConfig = getGenerationParams().agent8_novelty.params,
+): NoveltyPolicy {
+  const similarityThreshold =
     typeof inputs.similarityThreshold === "number"
       ? inputs.similarityThreshold
       : config.thresholds.similarity_threshold_default;
   // Prevent invalid/out-of-range config from collapsing thresholds to 100%.
-  const similarityThreshold =
-    Number.isFinite(configuredThreshold) && configuredThreshold > 0 && configuredThreshold < 1
-      ? configuredThreshold
+  const promptThreshold =
+    Number.isFinite(similarityThreshold) && similarityThreshold > 0 && similarityThreshold < 1
+      ? similarityThreshold
       : 0.9;
+  const failDelta = config.thresholds.fail_delta;
+  return { similarityThreshold, promptThreshold, failDelta, failThreshold: Math.min(1, similarityThreshold + failDelta) };
+}
+
+export function buildNoveltyPrompt(inputs: NoveltyAuditInputs): PromptComponents {
+  const { generatedCML, seedCMLs } = inputs;
+  const policy = resolveNoveltyPolicy(inputs);
 
   // System: Define the novelty auditor role
   const system = `You are an expert plagiarism and similarity detection specialist for mystery fiction. Your role is to compare a newly generated mystery (CML) against a set of seed examples to ensure sufficient novelty.
@@ -107,7 +150,7 @@ Your task is to compute similarity scores across multiple dimensions and flag an
   const developer = buildDeveloperContext(generatedCML, seedCMLs);
 
   // User: Request the similarity analysis
-  const user = buildUserRequest(similarityThreshold);
+  const user = buildUserRequest(policy.promptThreshold, policy.failDelta);
 
   return { system, developer, user };
 }
@@ -135,35 +178,30 @@ ${seeds}`;
 }
 
 function summarizeCML(cml: CaseData, label: string): string {
-  const legacy = cml as any;
-  const cmlCase = (legacy?.CASE ?? {}) as any;
-  const meta = cmlCase.meta ?? legacy.meta ?? {};
-  const crimeClass = meta.crime_class ?? {};
-
-  const title = meta?.title || "Untitled";
-  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
-  const era = meta?.era?.decade
-    ? `${meta.era.decade} - ${meta.setting?.location ?? "Unknown"}`
-    : legacy.setup?.era
-      ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
-      : "Unknown era";
+  // A1X-12 / A7-03: the shared header projection. Agent 8 keeps its older precedence (meta.primary_axis
+  // first, setup.crime first) and the "Untitled" fallback — byte-preserving; see shared/cml-prompt-view.ts.
+  const view = projectCaseForPrompt(cml, AGENT8_CASE_POLICY);
+  const { legacy, cmlCase, meta, crimeClass, title, primaryAxis, era, crime, culpritName } = view;
   const eraDetails = Array.isArray(meta?.era?.realism_constraints)
     ? meta.era.realism_constraints.slice(0, 3).join(", ")
     : legacy.setup?.era?.key_details?.slice(0, 3).join(", ") || "";
-  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
-  const victim = legacy.setup?.crime?.victim || "Unknown";
+  const castList = view.cast;
+  // A1X-D03 (owner decision 12, CML_VERIFIED_FIXES): read the victim and motive from CML 2.0
+  // (CASE.cast), not the CML-1.x setup/solution paths that summarised every case as "Unknown".
+  const fixA1XD03 = verifiedFixesEnabled();
+  const victimMember = fixA1XD03 ? victimMemberOf(view, isVictimMember) : undefined;
+  const victim = (fixA1XD03 && typeof victimMember?.name === "string" && victimMember.name) || legacy.setup?.crime?.victim || "Unknown";
   const method = legacy.setup?.crime?.method || crimeClass.subtype || "Unknown";
 
-  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
   const castSummary = castList.map((c: any) => c.name || "Unknown").join(", ");
   const castCount = castList.length;
 
-  const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
-  const motive = legacy.solution?.culprit?.motive || "Unknown";
-  const solutionMethod = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
-  const falseAssumption =
-    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const motive = (fixA1XD03 && culpritMotiveSeedOf(view, culpritName))
+    || legacy.solution?.culprit?.motive || "Unknown";
+  const mechanism = cmlCase.hidden_model?.mechanism?.description;
+  const solutionMethod = (fixA1XD03 && typeof mechanism === "string" && mechanism.trim())
+    || legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
+  const falseAssumption = view.falseAssumptionStatement;
   const discrimTest = cmlCase.discriminating_test?.design || legacy.inference_path?.discriminating_test?.test || "Unknown";
 
   const timeConstraints = cmlCase.constraint_space?.time ?? legacy.constraint_space?.time ?? [];
@@ -185,7 +223,7 @@ function summarizeCML(cml: CaseData, label: string): string {
       : countConstraintEntries(physicalConstraints, ["laws", "traces"]),
   };
 
-  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).length;
+  const inferenceSteps = view.inferenceSteps.length;
 
   return `### ${label}
 **Title**: ${title}
@@ -210,8 +248,14 @@ function summarizeCML(cml: CaseData, label: string): string {
 **Inference Path**: ${inferenceSteps} steps`;
 }
 
-function buildUserRequest(similarityThreshold: number): string {
+function buildUserRequest(similarityThreshold: number, failDelta: number): string {
+  // A1X-11(c) (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time. auditNovelty recomputes status,
+  // overallNovelty, mostSimilarSeed, highestSimilarity and every row's overallSimilarity from the per-dimension
+  // scores and overwrites the model's values, so ON stops asking for them. OFF: byte-identical.
+  const trims = promptTrimsEnabled();
   const thresholdPercent = Math.round(similarityThreshold * 100);
+  // A1X-12: the fail band is config `fail_delta` (0.1 shipped = the +10 points this used to hard-code).
+  const failPercent = Math.min(100, thresholdPercent + Math.round(failDelta * 100));
 
   return `# Novelty Audit Task
 
@@ -268,8 +312,8 @@ For each seed CML, evaluate:
 ## Pass/Fail Threshold
 
 - **Pass**: Overall similarity < ${thresholdPercent}% for ALL seeds
-- **Warning**: Overall similarity ${thresholdPercent}-${Math.min(100, thresholdPercent + 10)}% for any seed
-- **Fail**: Overall similarity > ${Math.min(100, thresholdPercent + 10)}% for any seed
+- **Warning**: Overall similarity ${thresholdPercent}-${failPercent}% for any seed
+- **Fail**: Overall similarity > ${failPercent}% for any seed
 
 ## Quality Bar
 - Justify high similarity scores with specific matched elements, not vague summaries.
@@ -282,9 +326,7 @@ For each seed CML, evaluate:
 
 ## Silent Pre-Output Checklist
 - all similarity dimensions scored for each seed
-- weighted overall similarity matches configured formula
-- status matches threshold policy
-- violations/warnings cite concrete matched elements
+${trims ? "" : "- weighted overall similarity matches configured formula\n- status matches threshold policy\n"}- violations/warnings cite concrete matched elements
 - JSON only, no markdown fences
 
 ## Output Format
@@ -293,15 +335,15 @@ Return a JSON object:
 
 \`\`\`json
 {
-  "status": "pass" | "fail" | "warning",
+${trims ? "" : `  "status": "pass" | "fail" | "warning",
   "overallNovelty": 0.75,
   "mostSimilarSeed": "The Moonstone",
   "highestSimilarity": 0.62,
-  "similarityScores": [
+`}  "similarityScores": [
     {
       "seedTitle": "The Moonstone",
-      "overallSimilarity": 0.62,
-      "plotSimilarity": 0.55,
+${trims ? "" : `      "overallSimilarity": 0.62,
+`}      "plotSimilarity": 0.55,
       "characterSimilarity": 0.70,
       "settingSimilarity": 0.80,
       "solutionSimilarity": 0.50,
@@ -360,6 +402,17 @@ export const dropSelfAndUnknownSeeds = <T extends { seedTitle?: string }>(
   return { kept, dropped };
 };
 
+/**
+ * A1X-D03 follow-up (owner decision 12, CML_VERIFIED_FIXES): with the flag on, every seed summary carries its real
+ * victim, motive and method instead of "Unknown", and the audit's reply grows with them. MEASURED on run
+ * mystery-1790895750302 (seed 5670, 2026-10-02): "Unknown" in the prompt 250 → 40, the prompt 160k → 206k chars,
+ * and the reply hit the 2,500-token cap (finishReason "length", unterminated JSON) where the five previous audits
+ * stopped at 891–1,020 tokens — so the run aborted. ON raises the cap to 8,000; OFF keeps the configured value.
+ */
+export function noveltyMaxTokens(configured: number): number {
+  return verifiedFixesEnabled() ? Math.max(configured, 8000) : configured;
+}
+
 export async function auditNovelty(
   client: AzureOpenAIClient,
   inputs: NoveltyAuditInputs
@@ -370,6 +423,7 @@ export async function auditNovelty(
   // Build the novelty prompt
   const prompt = buildNoveltyPrompt(inputs);
 
+
   // Call LLM with JSON mode
   const response = await client.chat({
     messages: [
@@ -378,7 +432,7 @@ export async function auditNovelty(
       { role: "user", content: prompt.user }
     ],
     temperature: config.model.temperature,
-    maxTokens: config.model.max_tokens,
+    maxTokens: noveltyMaxTokens(config.model.max_tokens),
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",
@@ -400,23 +454,21 @@ export async function auditNovelty(
     + config.weighting.structural * score.structuralSimilarity;
 
   // Parse the novelty result
-  let noveltyData: Omit<NoveltyAuditResult, "cost" | "durationMs">;
-  try {
-    noveltyData = JSON.parse(response.content);
-  } catch (error) {
-    throw new Error(`Failed to parse novelty audit JSON: ${error}`);
-  }
+  // A1X-D09: this parse was strict only, and its throw leaves runAgent3 — a sloppy but complete payload
+  // (a trailing comma) aborted the run. The guarded ladder repairs that; a truncated payload is still
+  // refused, and a failure throws the message it always did.
+  const parsedJson = parseLlmJson<Omit<NoveltyAuditResult, "cost" | "durationMs">>(response.content, { guard: true });
+  if (parsedJson.data === undefined) throw new Error(`Failed to parse novelty audit JSON: ${parsedJson.parseError}`);
+  const noveltyData = parsedJson.data;
 
   // Validate required fields
-  if (!noveltyData.status || !noveltyData.similarityScores || !noveltyData.summary) {
+  // A1X-11(c): with CML_PROMPT_TRIMS on the prompt no longer asks for `status` (recomputed below), so it is not required.
+  if ((!noveltyData.status && !promptTrimsEnabled()) || !noveltyData.similarityScores || !noveltyData.summary) {
     throw new Error("Invalid novelty audit result: missing required fields (status, similarityScores, summary)");
   }
 
-  const similarityThreshold =
-    typeof inputs.similarityThreshold === "number"
-      ? inputs.similarityThreshold
-      : config.thresholds.similarity_threshold_default;
-  const failThreshold = Math.min(1, similarityThreshold + config.thresholds.fail_delta);
+  // A1X-12: the same policy the prompt stated (the verdict keeps the unguarded threshold — see NoveltyPolicy).
+  const { similarityThreshold, failThreshold } = resolveNoveltyPolicy(inputs, config);
 
   // A_105: the model can echo the GENERATED mystery back as a "seed" at 1.00 (seed 18179 did, and
   // the binding gate blocked the run on it). Its own verdict ignored that row; the maximum below did

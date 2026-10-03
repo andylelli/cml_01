@@ -12,6 +12,7 @@ session transcript. This directory is the durable record.
 |---|---|---|---|---|
 | [WF-001](WF-001-ch910-root-cause.md) | ch9/ch10 root cause | 2026-08-30 | 10 | **Root cause found.** The suspect roll-call was ORDERED in ch8/ch9/ch10 (172 prompts, never ch1–7) and a lint gate regenerated any chapter omitting it. Cause of the cause: CML and outline number scenes incompatibly, so only 1 of 116 coordinate refs ever matched and exclusivity fell through to keyword matching. 4 fixes built. |
 | [WF-002](WF-002-boundary-audit-abf.md) | boundary audit A/B/F | 2026-08-31 | 13 | **9 findings, 3 survived, 6 refuted.** Caught a same-day regression before a paid run: the clearance trim treated the CULPRIT as clearable on 31/31 books. Established the triage rule — divergence is harmful only where it feeds a WRITE. |
+| [WF-003](WF-003-function-inventory-decide-estimate-allocate.md) | function inventory: decide / estimate / allocate | 2026-10-03 | 3 | **185 functions inventoried by job, for WP-006.** 63 compute a statistic and three of those decide anything live; error bars exist in three scripts and no shipped code. 64 decide a logical property; 20 treat unreadable input as a pass; three solvers exist and none can stop a run. 58 allocate or select; 13 hand-set weighted sums pick a winner; no apportionment function exists. Verified: a repeated-passage finding that cannot fire, and an anti-copy gate set ON with no caller. One claim narrowed, one found harmless. |
 
 ## What these runs established, carried forward
 

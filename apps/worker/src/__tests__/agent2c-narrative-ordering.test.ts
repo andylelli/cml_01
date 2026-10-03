@@ -24,6 +24,7 @@ import { buildLocationProfilesPrompt } from "@cml/prompts-llm";
 // Resolved from this file, not process.cwd() — vitest's cwd is the repo root, not the package root.
 const AGENT2C_RUN = fileURLToPath(new URL("../jobs/agents/agent2c-run.ts", import.meta.url));
 const ORCHESTRATOR = fileURLToPath(new URL("../jobs/mystery-orchestrator.ts", import.meta.url));
+const PIPELINE_STAGES = fileURLToPath(new URL("../jobs/pipeline/stages.ts", import.meta.url));
 
 const minimalInputs = () =>
   ({
@@ -43,34 +44,16 @@ const minimalInputs = () =>
   }) as any;
 
 describe("Agent 2c location profiles without a narrative", () => {
-  it("builds a usable prompt when narrative is undefined — the state of EVERY real run", () => {
-    const prompt = buildLocationProfilesPrompt({ ...minimalInputs(), narrative: undefined });
+  it("builds a usable prompt — Agent 2c never has a narrative (A1X-15: the input is retired)", () => {
+    const prompt = buildLocationProfilesPrompt(minimalInputs());
 
     expect(typeof prompt.user).toBe("string");
     expect(prompt.user.length).toBeGreaterThan(200);
-    // The setting still reaches the prompt: degrading on narrative must not degrade the rest.
     expect(`${prompt.system}${prompt.user}`).toContain("Thornfield Manor");
   });
 
-  it("does not throw on the shapes an absent narrative can take", () => {
-    for (const narrative of [undefined, null, {}, { acts: undefined }, { acts: [] }] as any[]) {
-      expect(() => buildLocationProfilesPrompt({ ...minimalInputs(), narrative })).not.toThrow();
-    }
-  });
-
-  it("still uses a narrative when one IS supplied, so the parameter is not vestigial", () => {
-    // The other half of the fix's premise: if this produced identical output either way, the right
-    // change would have been to delete the parameter instead of making it optional.
-    const withNarrative = buildLocationProfilesPrompt({
-      ...minimalInputs(),
-      narrative: {
-        acts: [{ scenes: [{ setting: "The Observatory Tower" }, { setting: "The Boathouse" }] }],
-      },
-    } as any);
-    const without = buildLocationProfilesPrompt({ ...minimalInputs(), narrative: undefined });
-
-    expect(withNarrative.user).toContain("Observatory Tower");
-    expect(without.user).not.toContain("Observatory Tower");
+  it("keeps the empty scene-location header byte-for-byte (the list it introduced was always empty)", () => {
+    expect(buildLocationProfilesPrompt(minimalInputs()).user).toContain("Key locations mentioned in narrative:\n\n\nSetting constraints:");
   });
 });
 
@@ -111,11 +94,20 @@ describe("R2 sweep — non-null assertions vs the orchestrator's call order", ()
     const orchestrator = readFileSync(ORCHESTRATOR, "utf8");
     // Anchor on the STAGE CALLS, not the first textual occurrence — `"narrative"` also appears in
     // type declarations far above the pipeline, which would make a naive indexOf pass by accident.
-    const locationProfilesAt = orchestrator.indexOf('stage("locationProfiles"');
-    const narrativeAt = orchestrator.indexOf('stage("narrative"');
+    // CR-25 (ORC-01): the profile trio (2b/2c/2d) runs inside `runProfileStages` (jobs/pipeline/stages.ts),
+    // so the order that matters is the order of the CALLS inside generateMystery.
+    const pipelineAt = orchestrator.indexOf("export async function generateMystery(");
+    const profilesCallAt = orchestrator.indexOf("await runProfileStages(", pipelineAt);
+    const narrativeAt = orchestrator.indexOf('stage("narrative"', pipelineAt);
+    const stages = readFileSync(PIPELINE_STAGES, "utf8");
+    const profilesFnAt = stages.indexOf("async function runProfileStages(");
 
-    expect(locationProfilesAt).toBeGreaterThan(-1);
+    expect(pipelineAt).toBeGreaterThan(-1);
+    expect(profilesCallAt).toBeGreaterThan(-1);
     expect(narrativeAt).toBeGreaterThan(-1);
-    expect(locationProfilesAt).toBeLessThan(narrativeAt);
+    expect(profilesCallAt).toBeLessThan(narrativeAt);
+    // …and the location-profiles stage is one of the stages that phase runs.
+    expect(profilesFnAt).toBeGreaterThan(-1);
+    expect(stages.indexOf('stage("locationProfiles"', profilesFnAt)).toBeGreaterThan(profilesFnAt);
   });
 });

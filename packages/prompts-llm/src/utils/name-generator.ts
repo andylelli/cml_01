@@ -12,19 +12,13 @@
  * English), giving cultural variety across runs while staying era-authentic.
  */
 
+// ORC-13: the one string hash (was a local copy; identical for every string, and the only call site
+// passes `runId || 'default'`, so the copy's missing undefined-coercion was unreachable).
+import { simpleHash } from "../shared/temporal-anchor.js";
+
 // ---------------------------------------------------------------------------
 // PRNG — linear congruential generator seeded from runId hash
 // ---------------------------------------------------------------------------
-
-const simpleHash = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // 32-bit integer
-  }
-  return Math.abs(hash);
-};
 
 class LCG {
   private state: number;
@@ -588,16 +582,11 @@ export function generateCastNames(
   const era = eraFromDecade(context?.decade);
   const eraNames = ERA_NAMES[era];
 
-  // Pool names at 2× weight + era names at 1× weight, deduped.
-  const maleFirstBlended = [
-    ...pool.maleFirst, ...pool.maleFirst,
-    ...eraNames.male,
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  // Pool names first, then era names, deduped. (ORC-D11: a "2× weight" spread here was removed by this
+  // dedupe before the uniform pick, so it never weighted anything; the order — and every name — is unchanged.)
+  const maleFirstBlended = [...pool.maleFirst, ...eraNames.male].filter((v, i, a) => a.indexOf(v) === i);
 
-  const femaleFirstBlended = [
-    ...pool.femaleFirst, ...pool.femaleFirst,
-    ...eraNames.female,
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  const femaleFirstBlended = [...pool.femaleFirst, ...eraNames.female].filter((v, i, a) => a.indexOf(v) === i);
 
   // ── Gender split ──────────────────────────────────────────────────────────
   const maleCount = rng.next() % 2 === 0 ? Math.ceil(count / 2) : Math.floor(count / 2);

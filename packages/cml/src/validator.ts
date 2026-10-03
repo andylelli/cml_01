@@ -1,3 +1,4 @@
+import { resolveIdentity } from "./roles.js";
 import fs from "fs";
 import { checkCaseTimelineDeception } from "./timeline-deception.js";
 import path from "path";
@@ -5,13 +6,11 @@ import { fileURLToPath } from "url";
 import yaml from "js-yaml";
 import {
   DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS,
-  GROUNDING_STOP_WORDS,
   collectCaseNameTokens,
   collectReaderVisibleEvidenceCorpus,
   extractGroundingPhrases,
   extractGroundingTerms,
   normalizeGroundingText,
-  normalizeGroundingToken,
 } from "./grounding.js";
 
 export type CmlValidationResult = {
@@ -53,24 +52,6 @@ const DETECTIVE_ONLY_BEHAVIOR_PATTERNS = [
   /\bconfess(?:ion|es|ed)?\b/i,
 ];
 
-const IRREGULAR_GROUNDING_TOKEN_MAP: Record<string, string> = {
-  testimonies: "testimony",
-  comparison: "compare",
-  comparing: "compare",
-  revealed: "reveal",
-  reveals: "reveal",
-  proven: "prove",
-  proves: "prove",
-  manipulation: "manipulate",
-  manipulated: "manipulate",
-  manipulates: "manipulate",
-  controlled: "control",
-  controlling: "control",
-  shifting: "shift",
-  shifted: "shift",
-  investigations: "investigation",
-  rewound: "wound",
-};
 
 const loadSchemaFile = (filename: string): Record<string, SchemaNode> => {
   if (schemaFileCache.has(filename)) return schemaFileCache.get(filename)!;
@@ -392,10 +373,10 @@ const validateCulpritIntegrity = (caseBlock: any, errors: string[]): void => {
       continue;
     }
     const role = roleOf(member);
-    if (role.includes("victim")) {
+    if (resolveIdentity("validator.culprit", "victim", member, role.includes("victim"))) {
       errors.push(`CASE.culpability.culprits names "${culprit}", who is the victim`);
     }
-    if (role.includes("detective")) {
+    if (resolveIdentity("validator.culprit", "detective", member, role.includes("detective"))) {
       errors.push(`CASE.culpability.culprits names "${culprit}", who is the detective`);
     }
     if (norm(member?.culprit_eligibility) === "ineligible") {

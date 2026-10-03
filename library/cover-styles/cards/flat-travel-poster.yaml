@@ -1,0 +1,33 @@
+# Family C — flat lithographic travel poster.
+# Derived from temp/covers samples: 1930s/image_03, 05, 06, 07, 08 (analysis: documentation/covers/COVER-HARNESS-PLAN.md §1).
+# `composition` is STYLE-level layout only — WHAT is shown and from where is the framing's job
+# (packages/covers/src/framings.ts), chosen per cover. Every line is an OPERATION the image model can carry out, not a resemblance. No artist or publication is named.
+id: flat-travel-poster
+label: Flat travel poster
+family: C
+decades: ["1920s", "1930s"]
+summary: A place is the subject, in silhouette and a few flat inks.
+medium: >-
+  flat-colour lithographic poster print, hard-edged shapes, no outlines, at most one soft gradient (the sky),
+  slight paper grain and faint ink registration offset
+palette_rule: exactly 4 flat inks plus the paper colour; one ink is near-black used only for silhouettes
+palettes:
+  - { name: dusk,      inks: ["#1d2b3a", "#e9a03b", "#c4462e", "#f3e6c8"] }
+  - { name: sea,       inks: ["#0b5a8c", "#f2a81d", "#e8572f", "#f4ecd8"] }
+  - { name: night,     inks: ["#141629", "#3b4a8f", "#9fb4e3", "#f1ead6"] }
+  - { name: heath,     inks: ["#2b1d33", "#7a4e7e", "#e98f87", "#f6dcc2"] }
+composition:
+  - "shapes are reduced to large flat silhouettes"
+  - "one strong diagonal or a horizon line organises the picture"
+  - "large unbroken areas of a single colour"
+  - "any people are small, faceless and dark unless the framing says otherwise"
+motifs: [long cast shadows, reflections broken into flat ripple shapes, a single lit window]
+figure_treatment: small faceless silhouettes, no facial detail
+lettering: >-
+  bold geometric sans-serif capitals set in a solid band of one ink at the top or bottom, like a railway poster
+title_position: either
+avoid: [photographic realism, 3d rendering, gradients on figures, outlines around shapes, any text other than the title]
+suits:
+  axis: [spatial, temporal, physical]
+  tone: [Classic, Dark, Cozy]
+  location: [CountryHouse, Village, Seaside, Coastal, Island, Train, Ship, Hotel, Abroad, Resort]

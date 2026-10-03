@@ -47,7 +47,8 @@
     "@cml/clue-spec": "file:../../packages/clue-spec",
     "@cml/story-geometry": "file:../../packages/story-geometry",
     "@cml/novelty": "file:../../packages/novelty",
-    "@cml/device-library": "file:../../packages/device-library"
+    "@cml/device-library": "file:../../packages/device-library",
+    "@cml/prose-engine": "file:../../packages/prose-engine"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

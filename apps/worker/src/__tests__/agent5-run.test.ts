@@ -1507,7 +1507,7 @@ describe("purgeUnmappableDiscriminatingEvidenceIds — A_61 evidence-mapping FP 
     redHerrings: [],
   } as any);
 
-  it("FP: purges a placeholder id (clue_1) while keeping the real evidence id, without reseeding", () => {
+  it("FP: purges a placeholder id (clue_1), keeps the real evidence id first, and tops up to the floor of two (owner decision 6)", () => {
     const cml = {
       CASE: {
         discriminating_test: {
@@ -1519,8 +1519,10 @@ describe("purgeUnmappableDiscriminatingEvidenceIds — A_61 evidence-mapping FP 
 
     const result = __testables.purgeUnmappableDiscriminatingEvidenceIds(cml, clueSet());
     expect(result.removed).toEqual(["clue_1"]);
-    expect(result.reseeded).toEqual([]);
-    expect(cml.CASE.discriminating_test.evidence_clues).toEqual(["clue_clock_smudge"]);
+    // Before decision 6 a list left with one id was not re-seeded; the floor now adds the best candidate.
+    expect(result.reseeded).toHaveLength(1);
+    expect(result.reseeded[0]).not.toBe("clue_clock_smudge");
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual(["clue_clock_smudge", result.reseeded[0]]);
   });
 
   it("FP: purging ALL placeholder ids reseeds from real canonical clue IDs (no junk survives)", () => {

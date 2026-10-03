@@ -78,13 +78,13 @@ export type NoveltyMode = "off" | "shadow" | "active";
  * confirmed clone always shipped). off = skip the audit; shadow (default) = run + downgrade a fail to
  * a warning; active = run + block a fail. Back-compat: legacy NOVELTY_HARD_FAIL=true ⇒ active.
  */
-export const resolveNoveltyMode = (): NoveltyMode => {
-  const raw = (process.env.NOVELTY_MODE ?? "").trim().toLowerCase();
+export const resolveNoveltyMode = (env: Record<string, string | undefined> = process.env): NoveltyMode => {
+  const raw = (env.NOVELTY_MODE ?? "").trim().toLowerCase();
   if (raw === "off") return "off";
   if (raw === "active" || raw === "on" || raw === "enforce") return "active";
   if (raw === "shadow" || raw === "warn") return "shadow";
   // Unset: honour the legacy hard-fail flag, else default to shadow.
-  if (/^(1|true|yes|on)$/i.test(process.env.NOVELTY_HARD_FAIL ?? "")) return "active";
+  if (/^(1|true|yes|on)$/i.test(env.NOVELTY_HARD_FAIL ?? "")) return "active";
   return "shadow";
 };
 

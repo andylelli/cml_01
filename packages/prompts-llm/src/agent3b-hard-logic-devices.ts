@@ -217,6 +217,19 @@ export function extractThemeMechanismFamilies(theme?: string, mechanismFamilies?
   return shared.slice(0, 4);
 }
 
+/**
+ * A34-09 — the theme as the user gave it, without the "Retry guidance:" block the worker's plausibility
+ * regenerate appends to it (apps/worker stage-runner `appendRetryFeedback`: `<theme>\n\nRetry guidance:\n<feedback>`,
+ * or the bare block when the theme is empty). Feedback words ("poison", "clock") otherwise enter the
+ * mechanism-family match. A theme with no appended block is returned unchanged.
+ */
+export function themeWithoutRetryFeedback(theme?: string): string | undefined {
+  if (typeof theme !== "string") return theme;
+  if (theme.startsWith("Retry guidance:\n")) return "";
+  const at = theme.indexOf("\n\nRetry guidance:\n");
+  return at >= 0 ? theme.slice(0, at) : theme;
+}
+
 /** How many of the theme's locked mechanism families a single device realizes. */
 export function scoreDeviceThemeMatch(device: HardLogicDeviceIdea, themeFamilies: string[]): number {
   if (themeFamilies.length === 0) return 0;
@@ -390,7 +403,7 @@ Novelty constraints:
 
   // A_50 §9.3: when the theme commits to a concrete mechanism, the PRIMARY device must realize it.
   // The de-anchoring "explore many families" guidance below then applies only to SECONDARY devices.
-  const themeFamilies = extractThemeMechanismFamilies(inputs.theme, mechanismFamilies);
+  const themeFamilies = extractThemeMechanismFamilies(themeWithoutRetryFeedback(inputs.theme), mechanismFamilies); // A34-09
   const themeLockSection = themeFamilies.length > 0
     ? `
 LOCKED THEME — PRIMARY DEVICE CONSTRAINT (non-negotiable):
@@ -663,7 +676,7 @@ export async function generateHardLogicDevices(
 
       // A_50 §9.3: keep the PRIMARY device coherent with a theme that commits to a concrete
       // mechanism (the locked-fact registry + CML are built from devices[0]). No-op for open themes.
-      const themeFamilies = extractThemeMechanismFamilies(inputs.theme, inputs.mechanismFamilies);
+      const themeFamilies = extractThemeMechanismFamilies(themeWithoutRetryFeedback(inputs.theme), inputs.mechanismFamilies); // A34-09
       const primarySelection = selectThemeCoherentPrimary(normalized, themeFamilies);
       const devices = primarySelection.devices;
       if (primarySelection.reorderedFrom > 0) {

@@ -30,12 +30,13 @@
  * Same case, same cast, same clues, same outline, same geometry contract — one flag apart.
  */
 
+import { readBooleanFlag } from "@cml/cml";
 import { join } from "node:path";
 
 import { generateMystery, type MysteryGenerationInputs } from "./mystery-orchestrator.js";
 import { loadArtifactStore, resolveProjectSpec, specToInputs } from "./artifact-store.js";
 import { makeJsonArtifactPersister } from "./json-artifact-store.js";
-import { buildClient, loadEnvFiles } from "./cli-runtime.js";
+import { buildClient, loadEnvFiles, replayCompletenessProblems } from "./cli-runtime.js";
 import {
   checkBuildFingerprint,
   computeBuildFingerprint,
@@ -47,11 +48,17 @@ import {
   type ResumeArtifactName,
 } from "./resume-hydration.js";
 import { saveReadableStory, storyFolderName } from "./story-output.js";
+import { temporalAnchorRunId } from "./agents/agent2d-run.js";
 
 /**
  * Enough of the pipeline to be worth resuming. Below `cml` there is nothing expensive to preserve —
  * agents 1–3 are a small fraction of run cost — and resuming from a sliver invites the subtler
  * failure of a run that is neither fresh nor faithful.
+ *
+ * Checked against what the project's run PRODUCED, not what a deliberate `RESUME_REDO` keeps: a redo
+ * of `setting` keeps nothing and re-runs the whole pipeline on the recorded spec, which is fresh AND
+ * faithful. CR-03: that is the replay entry point for Agents 1–4 (`scripts/replay-stage.mjs --stage
+ * setting`); it used to be refused because the redo had already dropped the CML it then looked for.
  */
 const MINIMUM_USEFUL_ARTIFACT: ResumeArtifactName = "cml";
 
@@ -66,7 +73,7 @@ async function main(): Promise<void> {
 
   const workspaceRoot = process.env.CML_WORKSPACE_ROOT || process.cwd();
   const workerAppRoot = join(workspaceRoot, "apps", "worker");
-  const dry = process.env.RESUME_DRY === "1";
+  const dry = readBooleanFlag("RESUME_DRY", false);
   loadEnvFiles(workspaceRoot);
 
   console.log(`[resume-run] project    : ${projectId}`);
@@ -104,7 +111,8 @@ async function main(): Promise<void> {
   console.log(`[resume-run] restored   : ${found.join(", ") || "(nothing)"}`);
   console.log(`[resume-run] will re-run: ${missing.join(", ") || "(nothing — run already complete)"}`);
 
-  if (!found.includes(MINIMUM_USEFUL_ARTIFACT)) {
+  const produced = redoFrom ? loadResumeBundle(store, projectId).found : found;
+  if (!produced.includes(MINIMUM_USEFUL_ARTIFACT)) {
     console.error(
       `[resume-run] REFUSING: no '${MINIMUM_USEFUL_ARTIFACT}' artifact for this project. There is not enough ` +
         `upstream work to be worth resuming — start a fresh run instead.`,
@@ -186,8 +194,16 @@ async function main(): Promise<void> {
         `back. This run is NOT a controlled matched pair on those parameters — say so in the ledger.`,
     );
   }
-  const runId = `resume-${Date.now()}`;
-  const redoChapter = Number(process.env.AGENT9_REDO_CHAPTER ?? "") || 0;
+  // RESUME_RUN_ID (CR-03): a replay pins the recorded run's id. The id is not only a label — Agent 2d
+  // seeds the story DATE from it (generateSpecificDate), so `resume-${Date.now()}` re-dates every resumed
+  // run that re-runs Agent 2d (MEASURED: 1935 May recorded, 1933 April on the next replay).
+  const runId = (process.env.RESUME_RUN_ID ?? "").trim() || `resume-${Date.now()}`;
+  // A_106's one-chapter redo (AGENT9_REDO_CHAPTER) was implemented by v1's generate.ts, deleted by owner
+  // decision 1. v2 has no per-chapter redo, so refuse the flag here — before any LLM call — rather than
+  // spend a run that silently rewrites the whole book.
+  if ((process.env.AGENT9_REDO_CHAPTER ?? "").trim()) {
+    throw new Error("AGENT9_REDO_CHAPTER is not supported: the one-chapter redo was a v1 feature (owner decision 1). Unset it; RESUME_REDO=prose rewrites the whole book.");
+  }
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),
     theme: (spec.theme as string) || "A classic murder mystery",
@@ -197,18 +213,23 @@ async function main(): Promise<void> {
     projectId,
     resumeFromRunId: originalRunId || projectId,
     resumeArtifacts: bundle,
-    // A_106 — ONE-CHAPTER REDO. With AGENT9_REDO_CHAPTER=N, the run is handed the project's Agent 9
-    // checkpoint (the resume never passed one, so a resumed prose stage always started from scratch);
-    // generate.ts then keeps chapters 1..N-1 and N+1..end and writes N again.
-    ...(redoChapter
-      ? {
-          agent9CheckpointPath: join(workspaceRoot, "apps", "worker", "logs", `agent9-checkpoint-${projectId}.json`),
-          resumeAgent9FromCheckpoint: true,
-        }
+    // CR-03 — a replay keeps its checkpoint in its sandbox. Without this the v2 engine writes (and on
+    // the next run REUSES) apps/worker/logs/agent9v2-checkpoint-<project>.json, so one replay would
+    // silently make a later paid resume skip the writer.
+    ...((process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim()
+      ? { agent9CheckpointPath: (process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim() }
       : {}),
   };
-  if (redoChapter) {
-    console.log(`[resume-run] REDO CHAPTER: ${redoChapter} — chapters before it stand, chapters after it are kept from the checkpoint, only chapter ${redoChapter} is written again.`);
+
+  // A1X-Q04: if Agent 2d re-runs, its date is hashed from the SOURCE run's id (`resumeFromRunId`), not this
+  // run's `resume-<ms>` id — runAgent2d reads it through temporalAnchorRunId. Without an originalRunId the
+  // source id is unknown and this run's id is used (set RESUME_RUN_ID to the recorded id to pin it).
+  if (missing.includes("temporal_context")) {
+    const anchor = temporalAnchorRunId({ runId, projectId, inputs });
+    console.log(
+      `[resume-run] date anchor: Agent 2d re-runs; story date hashed from ${anchor}` +
+        (originalRunId ? " (the source run)" : " (no originalRunId given — NOT the source run unless RESUME_RUN_ID pins it)"),
+    );
   }
 
   if (dry) {
@@ -306,7 +327,9 @@ async function main(): Promise<void> {
   }
   for (const error of result.errors ?? []) console.log(`[resume-run] ERROR      : ${error}`);
 
-  const storyDir = join(workspaceRoot, "stories", storyFolderName(new Date()));
+  // CML_STORIES_DIR (CR-03): a replay writes its book beside its scratch store, not into stories/.
+  const storiesRoot = (process.env.CML_STORIES_DIR ?? "").trim() || join(workspaceRoot, "stories");
+  const storyDir = join(storiesRoot, storyFolderName(new Date()));
   const { filePath } = saveReadableStory(result.prose, runId, storyDir, `Resumed ${runId}`);
   const chapters = Array.isArray((result.prose as { chapters?: unknown[] })?.chapters)
     ? (result.prose as { chapters: unknown[] }).chapters.length
@@ -328,9 +351,17 @@ async function main(): Promise<void> {
     `[resume-run] NOTE       : regenerated stages WERE written back to data/store.json under ` +
       `projectId '${projectId}' (A_86 item 5). A second failure resumes from where this run reached.`,
   );
+
+  // CR-03 — a replay that served fewer calls than it recorded is not a match, whatever it printed.
+  const replay = replayCompletenessProblems();
+  for (const line of replay.lines) console.log(line);
+  if (replay.failed) process.exitCode = 5;
 }
 
 main().catch((e) => {
   console.error("[resume-run] FAILED:", e?.stack ?? e);
+  // CR-03 — a replay that aborted the stage still owes its diagnosis (the mismatch, the byte) and, in
+  // rebase mode, the rebased cassette.
+  for (const line of replayCompletenessProblems().lines) console.log(line);
   process.exit(1);
 });

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 /**
  * One chapter of the normalised outline.
@@ -61,6 +61,18 @@ const GENERATION_RESIDUE = /generated in scene batches|batch\(es\)\s*required|re
 const stripResidueNote = (value: unknown): string | undefined =>
   typeof value === "string" && !GENERATION_RESIDUE.test(value) ? value : undefined;
 
+/**
+ * The story's title, or null. It lives in the synopsis artifact, never in the prose (0 of 9 finished
+ * stories carried a prose title). "Untitled Mystery" is the API's placeholder for a CML with no title,
+ * and the project name is a better label than that. Mirrors apps/api/src/project-title.ts.
+ */
+export const cleanStoryTitle = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed || /^untitled mystery$/i.test(trimmed) || GENERATION_RESIDUE.test(trimmed)) return null;
+  return trimmed;
+};
+
 export const useProjectStore = defineStore("project", () => {
   const artifactsStatus = ref<"idle" | "loading" | "ready" | "partial" | "error">("idle");
 
@@ -89,6 +101,13 @@ export const useProjectStore = defineStore("project", () => {
    */
   const outlineData = ref<{ chapters?: OutlineChapter[] } | null>(null);
   const synopsisData = ref<{ title?: string; summary?: string } | null>(null);
+  const storyTitle = computed(() => cleanStoryTitle(synopsisData.value?.title));
+  /**
+   * Whose artifacts these are. The case file and the Workshop share this store, so a view that has
+   * not loaded its own project would otherwise show the last case anyone opened — MEASURED: the
+   * Workshop with no project open headed itself with the title of the case just read.
+   */
+  const loadedProjectId = ref<string | null>(null);
   const proseData = ref<ProseData | null>(null);
   const characterProfilesData = ref<CharacterProfilesData | null>(null);
   const locationProfilesData = ref<LocationProfilesData | null>(null);
@@ -266,6 +285,7 @@ export const useProjectStore = defineStore("project", () => {
     options: { includeCml?: boolean } = {},
   ): Promise<LoadSummary> => {
     artifactsStatus.value = "loading";
+    loadedProjectId.value = projectId;
 
     const latestRun = await fetchLatestRun(projectId).catch(() => null);
     if (!latestRun) {
@@ -395,7 +415,7 @@ export const useProjectStore = defineStore("project", () => {
 
     proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
     synopsisData.value = synopsisPayload;
-    proseData.value = prose.status === "fulfilled" ? normalizeProse(prosePayload, synopsisPayload?.title) : null;
+    proseData.value = prose.status === "fulfilled" ? normalizeProse(prosePayload, cleanStoryTitle(synopsisPayload?.title) ?? undefined) : null;
 
     characterProfilesArtifact.value = characterProfiles.status === "fulfilled"
       ? JSON.stringify(characterProfiles.value.payload, null, 2)
@@ -515,6 +535,7 @@ export const useProjectStore = defineStore("project", () => {
   // without touching latestRunId, runEventsData, or llmLogs.
   const clearArtifactsOnly = () => {
     artifactsStatus.value = "idle";
+    loadedProjectId.value = null;
     cmlArtifact.value = null;
     cluesArtifact.value = null;
     outlineArtifact.value = null;
@@ -571,6 +592,8 @@ export const useProjectStore = defineStore("project", () => {
     fairPlayReport,
     outlineData,
     synopsisData,
+    storyTitle,
+    loadedProjectId,
     proseData,
     characterProfilesData,
     locationProfilesData,

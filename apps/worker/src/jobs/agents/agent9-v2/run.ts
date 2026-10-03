@@ -18,6 +18,7 @@
  * nothing saved.
  */
 
+import { verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -39,7 +40,6 @@ import {
   parseEditList,
   parseWriterOutput,
   planSegments,
-  priorChapters,
   revealOperation,
   mechanismOperation,
   humourMove,
@@ -63,10 +63,6 @@ import { buildCaseModel, isCaseLogicEnabled, summariseReader, walkReader } from 
 import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
 import { resolveRole, roleLabel, type ResolvedRole, type RoleTelemetry } from "./roles.js";
-
-/** The master switch. Read at call time (ADR-0004); anything but `v2` leaves v1 untouched. */
-export const isProseEngineV2 = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  String(env.PROSE_ENGINE ?? "").trim().toLowerCase() === "v2";
 
 /**
  * How many continuation calls one draft may use.
@@ -224,8 +220,20 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
    * transition "two scene versions spliced together".
    */
   const victim = contract.fairPlay.victim;
-  const living = scene.present.filter((n) => n !== victim);
+  /**
+   * After the reveal the culprit is in custody. MEASURED on run mystery-1790960614933 (seed 82094): chapter 10's
+   * brief said "this chapter comes after Ottoline Fairweather was named… On the page: Adela Halloway, Ottoline
+   * Fairweather, …", and the writer had the arrested culprit tending the fire and doing "one last sweep" — the
+   * reader's biggest complaint (ending 6/10). With CML_VERIFIED_FIXES on, a chapter after the reveal leaves the
+   * culprits off the page and says where they are — a job, not a prohibition (this model ignores prohibitions).
+   */
+  const afterReveal = chapter > contract.roles.reveal && verifiedFixesEnabled();
+  const culprits = contract.fairPlay.culprits;
+  const living = scene.present.filter((n) => n !== victim && !(afterReveal && culprits.includes(n)));
   if (living.length > 0) lines.push(`  On the page: ${living.join(", ")}.`);
+  if (afterReveal && culprits.length > 0) {
+    lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
+  }
   if (victim && scene.present.includes(victim) && !scene.wound) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
   }
@@ -396,6 +404,8 @@ export interface V2Result {
   telemetry: string[];
   ship: boolean;
   stops: string[];
+  /** The gate's warnings (everything that is not one of the two fair-play stops). */
+  gateWarnings: string[];
 }
 
 /**
@@ -763,7 +773,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   checkpoint = { ...checkpoint, findings: { anchored, discarded }, edits: editOutcomes };
   writeCheckpoint(checkpointPath, checkpoint);
 
-  return { chapters: written, contract, telemetry, ship: verdict.ship, stops: verdict.stops };
+  return { chapters: written, contract, telemetry, ship: verdict.ship, stops: verdict.stops, gateWarnings: verdict.warnings };
 };
 
 /**
@@ -794,4 +804,25 @@ export const runProseEngineV2 = async (ctx: OrchestratorContext): Promise<void> 
     // The two fair-play stops. Everything else shipped with a warning, which is L4.
     ctx.errors.push(...result.stops.map((s) => `[Agent 9 v2] ${s}`));
   }
+  recordV2ReleaseGate(ctx, result);
 };
+
+/**
+ * The run report's release gate, from v2's own gate. Only v1 ever wrote the `release_gate_summary` diagnostic, and
+ * it went with v1 (owner decision 1, 43b44336) — so every v2 run's gate read "unknown" and its run_outcome fell back
+ * to phase thresholds, the rule A_65b retired. MEASURED on run mystery-1790896091454 (seed 5670, 2026-10-02): a
+ * 10-chapter book with no fair-play stop reported run_outcome "failed — One or more phases failed threshold".
+ * The same three fields v1 wrote: a stop is a hard stop (as v1's were), warnings make it shipped-needs-review.
+ */
+export function recordV2ReleaseGate(ctx: OrchestratorContext, result: Pick<V2Result, "ship" | "stops" | "gateWarnings">): void {
+  const details: Record<string, unknown> = {
+    engine: "v2",
+    validation_status: !result.ship ? "failed" : result.gateWarnings.length > 0 ? "needs_review" : "passed",
+    release_gate_hard_stop_count: result.ship ? 0 : result.stops.length,
+    release_gate_warning_count: result.gateWarnings.length,
+    release_gate_stops: result.stops,
+    release_gate_warnings: result.gateWarnings,
+  };
+  ctx.scoreAggregator?.upsertDiagnostic("agent9_prose_release_gate_summary", "agent9_prose", "Release Gate", "release_gate_summary", details);
+  ctx.scoringLogger?.logPhaseDiagnostic("agent9_prose", "Release Gate", "release_gate_summary", details, ctx.runId, ctx.projectId || "");
+}

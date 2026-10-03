@@ -3,7 +3,7 @@
  * Coordinates all validators and provides comprehensive quality checking
  */
 
-import type { Validator, Story, CMLData, ValidationResult, ValidationError, ProseConsistencyReport } from './types.js';
+import type { Validator, Story, CMLData, ValidationError, ProseConsistencyReport } from './types.js';
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { getPronounPolicySettings } from './generation-params.js';
 import { EncodingValidator } from './encoding-validator.js';

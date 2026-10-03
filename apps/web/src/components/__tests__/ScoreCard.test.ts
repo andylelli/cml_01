@@ -196,9 +196,12 @@ describe("ScoreCard", () => {
     expect(wrapper.text()).toContain("2");
   });
 
-  it("shows threshold config mode", () => {
+  // SCO-Q03 (2026-10-02): the threshold modes are deleted — one table — so the card no longer labels a mode,
+  // even for an archived report that still carries threshold_config.mode.
+  it("does not show a threshold mode", () => {
     const wrapper = mount(ScoreCard, { props: { report: makeReport() } });
-    expect(wrapper.text()).toContain("standard");
+    expect(wrapper.text()).not.toContain("Mode:");
+    expect(wrapper.text()).not.toMatch(/\bstandard\b/i);
   });
 
   // These two used to assert `[class*='emerald']` and `[class*='rose']` — the raw Tailwind palette,

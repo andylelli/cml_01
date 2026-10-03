@@ -6,7 +6,7 @@
  */
 
 import { appendFileSync, existsSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { join } from "path";
 import type { PhaseScore, GenerationReport } from "@cml/story-validation";
 
 export interface ScoringLogEntry {

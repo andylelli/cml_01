@@ -10,7 +10,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "express": "^4.19.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "@cml/llm-client": "file:../../packages/llm-client",
+    "@cml/story-validation": "file:../../packages/story-validation",
+    "@cml/covers": "file:../../packages/covers"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -24,6 +27,7 @@
     "@types/pg": "^8.10.9",
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
-    "vitest": "^2.1.5"
+    "vitest": "^2.1.5",
+    "@napi-rs/canvas": "^1.0.10"
   }
 }

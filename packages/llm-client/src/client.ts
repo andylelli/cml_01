@@ -3,7 +3,7 @@
  */
 
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
-import type { ChatOptions, ChatResponse, Message } from "./types.js";
+import type { ChatOptions, ChatResponse } from "./types.js";
 import { withRetry, CircuitBreaker, defaultRetryConfig } from "./retry.js";
 import { RateLimiter } from "./ratelimit.js";
 import { CostTracker } from "./cost-tracker.js";
@@ -253,15 +253,18 @@ export class AzureOpenAIClient {
     /**
      * A_73 — the one line where every agent's model is chosen.
      *
-     * An explicit `options.model` always wins, so Agent 9's stage tiering (generate/regen/polish)
-     * is untouched. Everything else — Agents 1 through 8, 65, the rubric judge — passed no model at
+     * Owner decision 12 (ORC-Q07, CR-32, 2026-10-01): a per-agent override (`AGENTn_MODEL`) outranks an
+     * explicit `options.model` — eleven call sites pass the design tier or the base deployment explicitly,
+     * which silently disabled the router for Agents 1, 3, 3b, 5, 6 and 7. With no override set the explicit
+     * model (else the default) is used exactly as before. Agent 9 v2's role labels map to variables nobody
+     * sets, so its per-role `PROSE_V2_*` models are unaffected. Before the decision: everything else — Agents 1 through 8, 65, the rubric judge — passed no model at
      * all and silently took the default deployment, which is why 28% of a run had no cost knob.
      * `resolveAgentModel` keys off `logContext.agent`, the same label the cost audit attributes
      * spend by, so routing and accounting cannot disagree about which stage a call belongs to.
      *
      * Unset env → `this.defaultModel`, byte-identical to previous behaviour.
      */
-    const model = options.model || resolveAgentModel(options.logContext?.agent, this.defaultModel);
+    const model = resolveAgentModel(options.logContext?.agent, options.model || this.defaultModel);
     const baseTemperature = options.temperature ?? 0.7;
     // Salt repeated retries by escalating temperature (logged value reflects the escalated temp).
     const temperature = escalateRetryTemperature(baseTemperature, options.logContext?.retryAttempt ?? 0);
@@ -415,6 +418,7 @@ export class AzureOpenAIClient {
         model, // Use deployment name since response may not have model property
         finishReason,
         latencyMs,
+        cost: estimatedCost, // CR-19 — the tracker's own figure for this call, never recomputed
       };
 
       // Log response

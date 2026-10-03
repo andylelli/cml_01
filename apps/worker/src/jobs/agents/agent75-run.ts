@@ -21,6 +21,7 @@
  */
 
 // X39 — the case's two temporal spines, checked while a repair is still cheap (REVIEW_09 §3).
+import { resolveIdentity, verifiedFixesEnabled, type CaseCastMember, type CaseView } from "@cml/cml";
 import { checkCaseTimelineDeception, checkCaseTimeCoherence } from "@cml/prompts-llm";
 import {
   applyGeometryOutlineRepair,
@@ -33,6 +34,7 @@ import {
 } from "@cml/story-geometry";
 
 import { type OrchestratorContext } from "./shared.js";
+import type { LiveClue } from "./agent7/outline-types.js";
 
 // ── flags (runtime getters, never module consts — the dotenv-freeze trap) ─────
 
@@ -72,12 +74,14 @@ const RESOLVE_SYSTEM =
   "clues it already contains. You make exactly two selections. You never invent a clue, a character, " +
   "or a fact, and you never write prose.";
 
-const buildResolvePrompt = (caseData: any, clues: ReadonlyArray<GeometryClue>): string => {
+const buildResolvePrompt = (caseData: CaseView, clues: ReadonlyArray<GeometryClue>): string => {
   const culprit = String((caseData?.culpability?.culprits ?? [])[0] ?? "");
-  const suspects = ((caseData?.cast ?? []) as any[])
+  const suspects = ((caseData?.cast ?? []) as CaseCastMember[])
     .filter((c) => {
       const role = roleOf(c);
-      return !role.includes("detective") && !role.includes("victim") && String(c?.name ?? "") !== culprit;
+      return !resolveIdentity("agent75.suspects", "detective", c, role.includes("detective"))
+        && !resolveIdentity("agent75.suspects", "victim", c, role.includes("victim"))
+        && String(c?.name ?? "") !== culprit;
     })
     .map((c) => String(c?.name ?? "").trim())
     .filter(Boolean);
@@ -113,7 +117,7 @@ const resolveOpenChoices = async (
   ctx: OrchestratorContext,
   clues: ReadonlyArray<GeometryClue>,
 ): Promise<{ resolution: GeometryResolution | null; cost: number }> => {
-  const caseData = caseOf(ctx.cml);
+  const caseData: CaseView = caseOf(ctx.cml);
   const costBefore = ctx.client.getCostTracker().getTotalCost();
   try {
     const response = await ctx.client.chat({
@@ -129,7 +133,7 @@ const resolveOpenChoices = async (
         projectId: ctx.projectId ?? "",
         agent: "Agent75-StoryGeometry",
       },
-    } as any);
+    });
 
     const parsed = JSON.parse(response.content) as Record<string, unknown>;
     const clueId = String(parsed.clincher_clue_id ?? "").trim();
@@ -137,7 +141,7 @@ const resolveOpenChoices = async (
     const accused = String(parsed.false_solution_accused ?? "").trim();
 
     const culprit = String((caseData?.culpability?.culprits ?? [])[0] ?? "").trim();
-    const castNames = new Set(((caseData?.cast ?? []) as any[]).map((c) => String(c?.name ?? "").trim()));
+    const castNames = new Set(((caseData?.cast ?? []) as CaseCastMember[]).map((c) => String(c?.name ?? "").trim()));
     const knownClue = clues.some((c) => String(c.id ?? "") === clueId);
 
     return {
@@ -161,7 +165,7 @@ const resolveOpenChoices = async (
 
 /** The clue shape geometry reads, mapped off the live Agent-5 distribution. */
 const readClues = (ctx: OrchestratorContext): GeometryClue[] =>
-  ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+  ((ctx.clues?.clues ?? []) as LiveClue[]).map((c) => ({
     id: String(c?.id ?? ""),
     description: typeof c?.description === "string" ? c.description : undefined,
     pointsTo: typeof c?.pointsTo === "string" ? c.pointsTo : undefined,
@@ -202,10 +206,12 @@ const summarise = (geometry: StoryGeometry): string =>
  * and no deterministic check compared an artifact to the case's own time — this one now does.
  *
  * ON: the facts X39 names — the two device clocks and the duration that is their gap — are removed
- * from BOTH places Agent 9 reads: `ctx.lockedFactRegistry` and `hardLogicDevices.devices[*].lockedFacts`
- * (the latter is what `proseLockedFacts` is built from; dropping from the registry alone would change
- * nothing on the page). The device text stays; only the obligation to print its numbers goes, so the
- * case's own anchors are the one time on the page. OFF: byte-identical. Env read at call time.
+ * from BOTH locked-fact copies: `ctx.lockedFactRegistry` (the one Agent 9 reads — the v2 engine reads
+ * only the registry; v1's `proseLockedFacts`, built from the raw device list, retired with v1) and
+ * `hardLogicDevices.devices[*].lockedFacts` (the raw copy the Agent 5 / Agent 6 clue gates still read
+ * unless A5-D07 is on — see `agent5GateLockedFacts`). A34-03. The device text stays; only the
+ * obligation to print its numbers goes, so the case's own anchors are the one time on the page.
+ * OFF: byte-identical. Env read at call time.
  *
  * KNOWN LIMIT: a resume that skips Agent 7.5 as "survived" restores the stored devices artifact and
  * keeps the facts. The drop is logged so a run that carried them is distinguishable from one that did not.
@@ -214,7 +220,7 @@ export const isDropForeignClockFactsEnabled = (env: NodeJS.ProcessEnv = process.
   /^(1|true|yes|on)$/i.test(String(env.AGENT75_DROP_FOREIGN_CLOCK_FACTS ?? "").trim());
 
 export const dropForeignClockFacts = (
-  ctx: { lockedFactRegistry?: any[]; hardLogicDevices?: any; warnings: string[] },
+  ctx: { lockedFactRegistry?: Array<{ id?: unknown }>; hardLogicDevices?: unknown; warnings: string[] },
   violations: ReadonlyArray<{ code: string; factIds?: string[] }>,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] => {
@@ -228,7 +234,7 @@ export const dropForeignClockFacts = (
   ids.delete("");
   if (ids.size === 0) return [];
   const dropped = new Set<string>();
-  const keep = (fact: any): boolean => {
+  const keep = (fact: { id?: unknown } | null | undefined): boolean => {
     const id = String(fact?.id ?? "").trim();
     if (ids.has(id)) {
       dropped.add(id);
@@ -237,7 +243,7 @@ export const dropForeignClockFacts = (
     return true;
   };
   if (Array.isArray(ctx.lockedFactRegistry)) ctx.lockedFactRegistry = ctx.lockedFactRegistry.filter(keep);
-  for (const device of ((ctx.hardLogicDevices as any)?.devices ?? []) as any[]) {
+  for (const device of ((ctx.hardLogicDevices as { devices?: unknown } | null | undefined)?.devices ?? []) as Array<{ lockedFacts?: unknown } | null | undefined>) {
     if (Array.isArray(device?.lockedFacts)) device.lockedFacts = device.lockedFacts.filter(keep);
   }
   const unique = [...dropped];
@@ -250,7 +256,13 @@ export const dropForeignClockFacts = (
   return unique;
 };
 
-export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
+/**
+ * Returns true only when the caller must re-persist the outline: A7-D09 (owner decision 12,
+ * CML_VERIFIED_FIXES) — the outline artifact is persisted BEFORE this stage, so a gate-mode repair to
+ * `ctx.narrative` was lost on resume. Otherwise it resolves undefined, exactly as before — so with the
+ * flag OFF the return value is unchanged.
+ */
+export async function runAgent75(ctx: OrchestratorContext): Promise<true | undefined> {
   const mode = resolveGeometryStageMode();
   if (mode === "off") return;
 
@@ -285,6 +297,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
 
   const started = Date.now();
   let cost = 0;
+  let outlineRepaired = false; // A7-D09
   try {
     ctx.reportProgress("narrative", "Compiling story geometry...", 94);
 
@@ -309,7 +322,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
     const geometry = deriveStoryGeometry({
       cml: ctx.cml,
       clues,
-      narrative: (ctx.narrative as any) ?? null,
+      narrative: ctx.narrative ?? null,
       timelineViolations,
       // REVIEW_05 §10.2 (N2) — the device's other fixed clock values. Without them the two-time check
       // reports a locked timer setting as an incoherence the story invented.
@@ -321,8 +334,12 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
     if (mode === "gate" && !geometry.closure.closed) {
       // Bounded, additive, and re-checked. It buys outline repair before the expensive stage; it does
       // not stop the run. Calling it a hard gate would claim an enforcement strength it does not have.
-      const result = applyGeometryOutlineRepair(geometry, (ctx.narrative as any) ?? null, ctx.cml);
+      // A7-D09 (owner decision 12, CML_VERIFIED_FIXES): detect a mutation by content, not by the
+      // repair list, so whatever the repair wrote into ctx.narrative is re-persisted by the caller.
+      const outlineBefore = verifiedFixesEnabled() && ctx.narrative ? JSON.stringify(ctx.narrative) : null;
+      const result = applyGeometryOutlineRepair(geometry, ctx.narrative ?? null, ctx.cml);
       repairs = result.repairs;
+      if (outlineBefore !== null && JSON.stringify(ctx.narrative) !== outlineBefore) outlineRepaired = true;
     }
 
     /**
@@ -386,6 +403,7 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
     );
     ctx.agentDurations["agent75_geometry"] = Date.now() - started;
   }
+  return outlineRepaired ? true : undefined;
 }
 
 /**

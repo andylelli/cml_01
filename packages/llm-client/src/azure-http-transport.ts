@@ -66,7 +66,7 @@ export const supportsJsonSchema = (apiVersion: string | undefined): boolean => {
  * the pipeline, which is a behaviour change under the corpus regime — probed, not assumed.
  */
 export const isHttpTransportEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  env.LLM_HTTP_TRANSPORT === "true" || env.LLM_HTTP_TRANSPORT === "1";
+  /^(1|true|yes|on)$/i.test(String(env.LLM_HTTP_TRANSPORT ?? "").trim()); // owner decision 9's vocabulary (no @cml/cml dependency here)
 
 export type WireResponseFormat =
   | { type: "json_object" }

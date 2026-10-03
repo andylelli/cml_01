@@ -1,0 +1,29 @@
+# Family B — period magazine-cover illustration.
+# Derived from temp/covers samples: 1920s/image_03, 04; 1930s/image_02.
+id: magazine-illustration
+label: Magazine illustration
+family: B
+decades: ["1920s", "1930s"]
+summary: An elongated figure in profile against a flat ground, with one seasonal motif.
+medium: >-
+  period magazine-cover illustration in gouache and watercolour, flat background colour, simple confident outlines,
+  soft rounded shading on faces and fabric
+palette_rule: one dominant flat background colour, one contrasting accent, and muted skin and cloth tones
+palettes:
+  - { name: autumn,   inks: ["#5a2f1b", "#e8c22a", "#7f86d6", "#e98b2a", "#f3ebe0"] }
+  - { name: cobalt,   inks: ["#2340a8", "#e9b84a", "#f07f8f", "#151515", "#f5ead7"] }
+  - { name: winter,   inks: ["#3f5d6e", "#f2f0ea", "#b8433a", "#1d1d1d", "#c9c2a6"] }
+composition:
+  - "the background is one flat colour, broken by tall vertical stripes (trees, columns, curtains or panelling)"
+  - "one seasonal or weather motif is scattered across the frame (falling leaves, snow, rain, petals)"
+  - "generous empty space around the subject"
+motifs: [cloche hat, scarf caught by wind, gloved hand holding an object, falling leaves]
+figure_treatment: elongated neck, small features, closed or lowered eyes, rouged cheek
+lettering: >-
+  thin geometric Art Deco capitals, widely letter-spaced, like a period magazine masthead, in one dark ink
+title_position: top
+avoid: [photographic realism, busy backgrounds, any text other than the title, modern clothing]
+suits:
+  axis: [behavioural, psychological, temporal]
+  tone: [Cozy, Classic]
+  location: [CountryHouse, Village, Garden, Vicarage, CityHouse, Hotel]

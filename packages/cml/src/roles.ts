@@ -124,3 +124,47 @@ export const roleTextsOf = (entry: unknown): string[] => {
     .map((v) => String(v ?? "").trim())
     .filter(Boolean);
 };
+
+/** The schema's cast `role` enum. */
+export const CAST_ROLE_ENUM = ["detective", "victim", "culprit", "suspect", "witness", "bystander"] as const;
+export type CastRole = (typeof CAST_ROLE_ENUM)[number];
+
+/** The entry's explicit, schema-typed `role` (case-insensitive), or undefined when it carries none. */
+export const explicitRoleOf = (entry: unknown): CastRole | undefined => {
+  const role = String((entry as Record<string, unknown> | null)?.role ?? "").trim().toLowerCase();
+  return (CAST_ROLE_ENUM as readonly string[]).includes(role) ? (role as CastRole) : undefined;
+};
+
+/**
+ * Owner decision 2 (2026-10-01, A1X-Q01 / A34-02): ONE answer to "is this member the detective / the victim".
+ * The explicit `role` enum wins when present — it is the one field that answers the question (X50) — so an
+ * "Outsider Investigator" with `role: suspect` is a suspect; without it, the archetype predicates over every
+ * role text decide.
+ */
+export const isDetectiveMember = (entry: unknown): boolean => {
+  const role = explicitRoleOf(entry);
+  return role ? role === "detective" : roleTextsOf(entry).some(isDetectiveArchetype);
+};
+export const isVictimMember = (entry: unknown): boolean => {
+  const role = explicitRoleOf(entry);
+  return role ? role === "victim" : roleTextsOf(entry).some(isVictimArchetype);
+};
+
+/**
+ * Owner decision 2's shadow phase. Each site that decided "detective" / "victim" its own way passes its old
+ * verdict here: a disagreement with the unified predicate is logged as `[identity-disagree]` — the counter
+ * the owner flips on after N runs — and the old verdict is kept unless `CML_IDENTITY_ROLE_WINS` is on
+ * (default OFF, read at call time, ADR-0004). MEASURED before shipping: 577 old-vs-new disagreements over
+ * 2,502 archived cast members (scripts/role-predicate-disagreement.mjs), so the switch changes cases.
+ */
+export const isIdentityRoleWinsEnabled = (env: Record<string, string | undefined> = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.CML_IDENTITY_ROLE_WINS ?? "").trim());
+
+export const resolveIdentity = (site: string, kind: "detective" | "victim", entry: unknown, oldVerdict: boolean): boolean => {
+  const unified = kind === "detective" ? isDetectiveMember(entry) : isVictimMember(entry);
+  if (unified !== oldVerdict) {
+    const name = String((entry as Record<string, unknown> | null)?.name ?? "(unnamed)");
+    console.warn(`[identity-disagree] site=${site} kind=${kind} member="${name}" old=${oldVerdict} unified=${unified}`);
+  }
+  return isIdentityRoleWinsEnabled() ? unified : oldVerdict;
+};

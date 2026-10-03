@@ -167,6 +167,12 @@ export interface MysterySpec {
 	targetLength: TargetLength;
 	humourLevel: HumourLevel;
 	proseBatchSize: number;
+	/**
+	 * Book cover (documentation/covers/): "off", "auto", or a style id from GET /api/cover-styles. Free text,
+	 * because the style list is the server's library, not a vocabulary compiled into the app. Default "off" —
+	 * "auto" — every run makes a cover first (one image call); "off" opts out.
+	 */
+	coverStyle: string;
 }
 
 export const CAST_SIZE_MIN = 4;
@@ -185,6 +191,8 @@ export const defaultSpec = (): MysterySpec => ({
 	targetLength: "medium",
 	humourLevel: DEFAULT_HUMOUR_LEVEL,
 	proseBatchSize: 1,
+	// "auto": a cover is made first in every run, unless the user picks "No cover" (or no image model is configured).
+	coverStyle: "auto",
 });
 
 /**
@@ -219,5 +227,6 @@ export const coerceSpec = (stored: Partial<MysterySpec> | null | undefined): Mys
 		targetLength: pick(TARGET_LENGTHS, stored.targetLength, base.targetLength),
 		humourLevel: pick(HUMOUR_LEVELS, stored.humourLevel, base.humourLevel),
 		proseBatchSize: Number.isFinite(Number(stored.proseBatchSize)) ? Number(stored.proseBatchSize) : base.proseBatchSize,
+		coverStyle: typeof stored.coverStyle === "string" && /^[a-z0-9:+-]+$/.test(stored.coverStyle) ? stored.coverStyle : base.coverStyle,
 	};
 };

@@ -165,6 +165,7 @@ const castCases: CastInputs[] = [
   {
     runId: "eval-a2-001",
     projectId: "eval-a2",
+    characterNames: ["Lionel Ashcombe", "Margery Fenn", "Ralph Cotterell", "Winifred Hale", "Gerald Strang", "Phyllis Dore"],
     castSize: 6,
     setting: "1930s English country manor",
     crimeType: "Murder",
@@ -175,6 +176,7 @@ const castCases: CastInputs[] = [
   {
     runId: "eval-a2-002",
     projectId: "eval-a2",
+    characterNames: ["Conrad Maitland", "Vera Lisle", "Oscar Brandt", "Hilda Renwick", "Felix Ormond", "Ines Delgado", "Walter Pike"],
     castSize: 7,
     setting: "1940s Atlantic ocean liner",
     crimeType: "Theft and blackmail",

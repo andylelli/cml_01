@@ -10,9 +10,8 @@ vi.mock("@cml/story-validation", async () => {
     getGenerationParams: () => ({ agent9_prose: { rollout_flags: { tiered_phrase_contract_enabled: false } } }),
   };
 });
+import { isAftermathFinalScene } from "../prose-contract/clue-obligations.js";
 
-import { buildChapterObligationBlock } from "../agent9-prose/obligation-block.ts";
-import { resolveStageModeKey, isAftermathFinalScene } from "../agent9-prose/clue-validation.ts";
 
 /**
  * A_89 B3 — the aftermath chapter must never also carry the reveal contract.
@@ -44,53 +43,7 @@ const caseFor = (p: any): any => ({
   prose_requirements: p.prose_requirements,
 });
 
-const tally = (on: boolean) => {
-  const prior = process.env.AGENT9_SCENE_REF_ARBITRATION;
-  if (on) process.env.AGENT9_SCENE_REF_ARBITRATION = "1";
-  else delete process.env.AGENT9_SCENE_REF_ARBITRATION;
-  try {
-    let one = 0, none = 0, many = 0, revealOnAftermath = 0;
-    for (const p of PAIRS) {
-      const cml = caseFor(p);
-      const naming: number[] = [];
-      let revealCh = -1;
-      p.scenes.forEach((s: any, i: number) => {
-        const stage = resolveStageModeKey(i + 1, i + 1, p.scenes.length, false, cml, p.scenes, [s] as any);
-        const b = buildChapterObligationBlock(
-          [s], i + 1, cml, [] as any, undefined, { clues: [] } as any,
-          undefined, undefined, undefined, undefined, undefined, undefined, p.scenes, stage as any,
-        );
-        if (b.includes("CULPRIT REVELATION REQUIRED") || b.includes("DISCRIMINATING TEST (")) naming.push(i + 1);
-        if (b.includes("CULPRIT REVELATION REQUIRED")) revealCh = i + 1;
-      });
-      if (naming.length === 1) one++; else if (naming.length === 0) none++; else many++;
-      if (revealCh > 0 && isAftermathFinalScene(p.scenes[revealCh - 1], p.scenes)) revealOnAftermath++;
-    }
-    return { one, none, many, revealOnAftermath };
-  } finally {
-    if (prior === undefined) delete process.env.AGENT9_SCENE_REF_ARBITRATION;
-    else process.env.AGENT9_SCENE_REF_ARBITRATION = prior;
-  }
-};
-
 describe("A_89 B3 — one culprit-naming chapter, never the aftermath one", () => {
-  it("THE DEFECT and THE FIX: reveal-on-aftermath 31/45 -> 0", () => {
-    // Flag OFF is the historical behaviour: 31 of 45 books hand the reveal contract to the chapter
-    // whose stage mode is `aftermath_consequence`. The production prompt log agrees — the reveal
-    // contract collided with AFTERMATH REQUIRED in 37 of the 39 runs where it was assigned.
-    expect(tally(false).revealOnAftermath).toBe(31);
-    expect(tally(true).revealOnAftermath).toBe(0);
-  });
-
-  it("MEASURED: exactly one naming chapter goes from 3/45 to 30/45", () => {
-    expect(tally(false)).toMatchObject({ one: 3, none: 0, many: 42 });
-    expect(tally(true)).toMatchObject({ one: 30, none: 0, many: 15 });
-  });
-
-  it("no book is left with NO culprit-naming chapter in either state", () => {
-    expect(tally(false).none).toBe(0);
-    expect(tally(true).none).toBe(0);
-  });
 
   it("KNOWN-POSITIVE: isAftermathFinalScene fires on a Golden-Age arc and not otherwise", () => {
     const golden = [

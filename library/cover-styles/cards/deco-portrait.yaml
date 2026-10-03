@@ -1,0 +1,28 @@
+# Family A — Art Deco portrait.
+# Derived from temp/covers samples: 1920s/image_01, 02, 05; 1930s/image_01.
+id: deco-portrait
+label: Deco portrait
+family: A
+decades: ["1920s", "1930s"]
+summary: One stylised figure framed by Art Deco geometry, jewel tones and gold line-work.
+medium: >-
+  stylised Art Deco illustration, smooth matte gouache shading, thin metallic-gold line-work separating colour planes
+palette_rule: 2 jewel tones plus black, cream and gold; no other hues
+palettes:
+  - { name: emerald,  inks: ["#0f4d3a", "#1c1c1c", "#d4af37", "#efe4cc", "#5f8f6e"] }
+  - { name: teal,     inks: ["#2f7f86", "#0e1a20", "#d6a94a", "#f2ead8", "#9cc7c3"] }
+  - { name: oxblood,  inks: ["#6e1420", "#1b1b2a", "#d1a44a", "#f1e3d0", "#2c4a6b"] }
+composition:
+  - "a sunburst, arch or stepped geometric frame sits behind the main subject"
+  - "strong symmetry or a single bold curve organises the picture"
+  - "colour planes are separated by thin gold lines"
+motifs: [sunburst rays, stepped arches, pearls or beads, feathers, a cigarette holder or glove]
+figure_treatment: elongated stylised features, closed or heavy-lidded eyes, no photographic skin detail
+lettering: >-
+  Art Deco display lettering — tall thin geometric capitals with high-contrast strokes, generously letter-spaced, in gold or cream
+title_position: top
+avoid: [photographic realism, nudity, cleavage emphasis, any text other than the title, cartoon style]
+suits:
+  axis: [psychological, behavioural, temporal]
+  tone: [Classic, Dark, Glamorous]
+  location: [Hotel, Theatre, CityHouse, London, Paris, Resort, Ship, CountryHouse]

@@ -72,6 +72,20 @@ export interface ChatResponse {
   model: string;
   finishReason: string;
   latencyMs: number;
+  /**
+   * CR-19 (ORC-03 / A1X-09) — what THIS call cost, in the cost tracker's unit (GBP).
+   *
+   * Exactly the value the client's `CostTracker.trackCost` returned for this call — the same number it
+   * added to `totalCost`, `byModel[model]` and (when `logContext.agent` is set) `byAgent[agent]`, and
+   * the `estimatedCost` written to the chat_response log line. A generator that sums its own calls'
+   * `cost` from 0, in call order, reproduces `byAgent[label]` bit for bit when it is the only charger
+   * of that label since the tracker was created.
+   *
+   * Optional only so hand-written test doubles stay valid; every client in this package sets it. An
+   * attempt that was charged and then thrown (a schema-constrained reply stopped by `length` or the
+   * content filter — `StructuredOutputError`) returns no response, so its cost is in the tracker only.
+   */
+  cost?: number;
 }
 
 export interface LogContext {

@@ -1,0 +1,29 @@
+# Family D — painterly railway / shipping poster.
+# Derived from temp/covers samples: 1930s/image_04, 09.
+id: painterly-poster
+label: Painterly poster
+family: D
+decades: ["1930s"]
+summary: A deep landscape or building painted in gouache, with dramatic atmospheric light.
+medium: >-
+  vintage poster painted in opaque gouache and oil, visible brush texture, atmospheric perspective,
+  dramatic low-angle light
+palette_rule: a natural landscape palette with one saturated accent colour where the light falls
+palettes:
+  - { name: highland, inks: ["#2a2433", "#4f5a7a", "#e7e2c8", "#c0532f", "#5f7f3a"] }
+  - { name: harbour,  inks: ["#1f3b55", "#8db1c7", "#efe7d2", "#b23a2a", "#2b2b2b"] }
+  - { name: storm,    inks: ["#22272e", "#59646e", "#d8d0b8", "#d1a03a", "#3e4a3a"] }
+composition:
+  - "deep space: a foreground element, a middle ground, a distant background"
+  - "light falls from one direction and leaves half the scene in shadow"
+  - "a framing border of 2-3% around the image in a dark colour"
+motifs: [weather in the sky, a single lit window, smoke or steam, a figure seen from behind at a distance]
+figure_treatment: small and distant, painted loosely
+lettering: >-
+  classic inscriptional serif capitals, cream on a dark band across the bottom of the poster
+title_position: bottom
+avoid: [photographic realism, 3d rendering, any text other than the title, lens flare]
+suits:
+  axis: [spatial, physical, temporal]
+  tone: [Dark, Classic]
+  location: [CountryHouse, Highlands, Moor, Island, Coastal, Abbey, Castle, Train, Ship]

@@ -6,9 +6,10 @@ import ErrorNotification from "./components/ErrorNotification.vue";
 import { useCreateFlow } from "./composables/useCreateFlow";
 import { useErrorLog } from "./composables/useErrorLog";
 import { useUiState, type Mode } from "./composables/useUiState";
-import { logActivity, type Project } from "./services/api";
+import { fetchCoverStyles, logActivity, type CoverStyle, type Project } from "./services/api";
 import { useSessionState } from "./composables/useSessionState";
 import type { MysterySpec } from "./spec/vocabulary";
+import { brand } from "./design/brand";
 import CaseView from "./views/CaseView.vue";
 import CasesView from "./views/CasesView.vue";
 import CreateView from "./views/CreateView.vue";
@@ -43,6 +44,27 @@ const log = useErrorLog({
 
 const view = ref<ViewId>("create");
 
+/**
+ * The cover-style library for the Create form (documentation/covers/). The form filters it by the chosen decade.
+ * A failed read, or no image model, leaves only "No cover".
+ */
+const coverStyles = ref<CoverStyle[]>([]);
+const coverNote = ref<string | null>(null);
+onMounted(async () => {
+	try {
+		const lib = await fetchCoverStyles();
+		coverStyles.value = lib.styles;
+		coverNote.value = lib.image ? null : `Unavailable — ${lib.imageError ?? "no image model configured"}`;
+		if (!lib.image) {
+			coverStyles.value = [];
+			// Covers cannot be made here — do not send a style the server will only skip.
+			if (spec.value.coverStyle !== "off") spec.value.coverStyle = "off";
+		}
+	} catch {
+		coverStyles.value = [];
+	}
+});
+
 // B13: one mode and one spec for the whole app. The console reads the same refs, so a story
 // configured in Create is the story the Workshop shows.
 const { mode, spec } = useSessionState();
@@ -53,9 +75,23 @@ const projectName = ref("");
 const openCase = ref<{ id: string; name: string } | null>(null);
 
 const openCaseFile = (project: Project) => {
-	openCase.value = { id: project.id, name: project.name };
+	openCase.value = { id: project.id, name: project.title || project.name };
 	view.value = "case";
 };
+
+/** The case view reports the story's title when it lands; the nav tab is named from it. */
+const onCaseTitled = (title: string) => {
+	if (openCase.value && openCase.value.name !== title) openCase.value = { ...openCase.value, name: title };
+};
+
+/** The browser tab names the case being read; everywhere else it is the product. */
+watch(
+	() => (view.value === "case" && openCase.value ? `${openCase.value.name} · ${brand.documentTitle}` : brand.documentTitle),
+	(title) => {
+		document.title = title;
+	},
+	{ immediate: true },
+);
 
 const flow = useCreateFlow({
 	existingProjectId: () => null, // every generation opens its own case
@@ -168,6 +204,8 @@ const revealWorkshop = () => {
 			v-if="view === 'create'"
 			v-model="spec"
 			:busy="flow.busy.value"
+			:cover-styles="coverStyles"
+			:cover-note="coverNote"
 			@submit="onGenerate"
 		/>
 
@@ -187,6 +225,7 @@ const revealWorkshop = () => {
 			:project-name="openCase.name"
 			@back="view = 'cases'"
 			@open-workshop="revealWorkshop"
+			@titled="onCaseTitled"
 		/>
 
 		<WorkshopView v-else-if="view === 'workshop'" @open-create="view = 'create'" />

@@ -2,10 +2,13 @@
  * Agent 2c: Location Profiles
  *
  * Extracted from mystery-orchestrator.ts. Runs generateLocationProfiles()
- * via executeAgentWithRetry when scoring is enabled, validates against schema,
+ * via runUnscoredStage, validates against schema, scores the shipped profiles (A1X-Q02),
  * and writes ctx.locationProfiles.
  */
 
+import { runBoundedGate } from "./quality-gate.js";
+import { readModeFlag } from "./mode-flag.js";
+import { recordShippedPhaseScore, runUnscoredStage, scoreLocationsPhase } from "./phase-scoring.js";
 import {
   generateLocationProfiles,
   compileSensoryAtoms,
@@ -17,14 +20,10 @@ import {
   buildSceneGateFeedback,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { LocationProfilesScorer, scoreRealLocations } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
-  executeAgentWithRetry,
-  applyHonestScorer,
 } from "./shared.js";
-import { adaptLocationsForScoring } from "../scoring-adapters/index.js";
 
 const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
 
@@ -76,7 +75,7 @@ const SENSORY_FALLBACK_ATOMS: string[] = ([
   ...SENSORY_FALLBACK_VARIANTS.sounds,
   ...SENSORY_FALLBACK_VARIANTS.smells,
   ...SENSORY_FALLBACK_VARIANTS.tactile,
-] as ReadonlyArray<(place: string) => string>).map((make) => make("").replace(/s+/g, " ").trim());
+] as ReadonlyArray<(place: string) => string>).map((make) => make("").replace(/\s+/g, " ").trim()); // A1X-D02: was /s+/g (the letter s)
 
 const normalizeSensoryPhrase = (value: unknown): string => {
   if (typeof value !== "string") return "";
@@ -91,21 +90,7 @@ const normalizeSensoryPhrase = (value: unknown): string => {
   return normalized;
 };
 
-const buildLocationFallback = (locationName: string, field: "sights" | "sounds" | "smells" | "tactile"): string => {
-  const lowerName = locationName.trim().toLowerCase() || "the room";
-  switch (field) {
-    case "sights":
-      return `shadowed corners in ${lowerName}`;
-    case "sounds":
-      return `subdued noise carrying through ${lowerName}`;
-    case "smells":
-      return `stale air lingering in ${lowerName}`;
-    case "tactile":
-      return `cold surfaces at ${lowerName}`;
-  }
-};
-
-const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string[]): any => {
+export const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string[]): any => {
   if (!locationProfiles || typeof locationProfiles !== "object") return locationProfiles;
   const keyLocations = Array.isArray(locationProfiles.keyLocations) ? locationProfiles.keyLocations : [];
   let fallbackInsertions = 0;
@@ -113,7 +98,7 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
   for (const location of keyLocations) {
     if (!location || typeof location !== "object") continue;
     const locationName = String((location as any).name ?? (location as any).id ?? "the room");
-    // Same normalisation buildLocationFallback uses, so both paths name the place identically.
+    // A1X-07: the one place-name normalisation every fallback uses.
     const lowerLocationName = locationName.trim().toLowerCase() || "the room";
     const sensoryDetails = ((location as any).sensoryDetails ??= {});
 
@@ -121,10 +106,9 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
       const existing = Array.isArray(sensoryDetails[field]) ? sensoryDetails[field] : [];
       const normalized = Array.from(new Set(existing.map(normalizeSensoryPhrase).filter(Boolean)));
       while (normalized.length < 2) {
-        const variants = SENSORY_FALLBACK_VARIANTS[field];
-        const variant = variants[normalized.length];
-        const fallback = variant ? variant(lowerLocationName) : buildLocationFallback(locationName, field);
-        normalized.push(fallback);
+        // A1X-07: every table holds two variants and this loop runs at length 0 or 1, so the index is
+        // always defined (the old `buildLocationFallback` branch was unreachable and restated variant 0).
+        normalized.push(SENSORY_FALLBACK_VARIANTS[field][normalized.length](lowerLocationName));
         fallbackInsertions += 1;
       }
       sensoryDetails[field] = normalized;
@@ -139,7 +123,8 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
         const variantEntries = Array.isArray((variant as any)[field]) ? (variant as any)[field] : [];
         const normalizedVariant = Array.from(new Set(variantEntries.map(normalizeSensoryPhrase).filter(Boolean)));
         if (normalizedVariant.length === 0) {
-          normalizedVariant.push((sensoryDetails[field] ?? [])[0] ?? buildLocationFallback(locationName, field));
+          // A1X-07: sensoryDetails[field] was padded to >= 2 non-empty entries just above, so [0] is defined.
+          normalizedVariant.push(sensoryDetails[field][0]);
           fallbackInsertions += 1;
         }
         (variant as any)[field] = normalizedVariant;
@@ -159,67 +144,26 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
 export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("location-profiles", "Generating location profiles...", 89);
 
-  if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
-    const { result, duration, cost } = await executeAgentWithRetry(
-      "agent2c_location_profiles",
-      "Location Profiles",
-      async (retryFeedback?: string) => {
-        const locResult = await generateLocationProfiles(ctx.client, {
-          settingRefinement: ctx.setting!.setting,
-          caseData: ctx.cml!,
-          narrative: ctx.narrative,
-          tone: appendRetryFeedback(ctx.inputs.tone || "Classic", retryFeedback),
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-        return { result: locResult, cost: locResult.cost };
-      },
-      async (locResult) => {
-        const scorer = new LocationProfilesScorer();
-        const adapted = adaptLocationsForScoring(locResult);
-        const score = await scorer.score({}, adapted, {
-          previous_phases: {
-            agent1_setting: ctx.setting!.setting,
-            agent2e_background_context: ctx.backgroundContext!,
-          },
-          cml: undefined as any,
-          threshold_config: { mode: "standard" },
-        });
-        return { adapted, score: applyHonestScorer(score, () => scoreRealLocations(locResult), ctx.warnings, "agent2c-location") };
-      },
-      ctx.retryManager,
-      ctx.scoreAggregator,
-      ctx.scoringLogger,
-      ctx.runId,
-      ctx.projectId || "",
-      ctx.warnings,
-      ctx.savePartialReport
-    );
-    ctx.locationProfiles = compileSensoryAtoms(result);
-    ctx.agentCosts["agent2c_location_profiles"] = cost;
-    ctx.agentDurations["agent2c_location_profiles"] = duration;
-  } else {
-    const locationProfilesStart = Date.now();
-    const rawProfiles = await generateLocationProfiles(ctx.client, {
-      settingRefinement: ctx.setting!.setting,
-      caseData: ctx.cml!,
-      // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
-      // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
-      // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
-      // generateLocationProfiles declares the field optional and degrades cleanly (it derives
-      // scene locations only when acts are present). This used to carry a `!` assertion, which
-      // was a no-op at runtime but told every reader the value was available. It is not.
-      narrative: ctx.narrative,
-      tone: ctx.inputs.tone || "Classic",
-      targetWordCount: 1000,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.locationProfiles = compileSensoryAtoms(rawProfiles);
-    ctx.agentCosts["agent2c_location_profiles"] = rawProfiles.cost;
-    ctx.agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
-  }
+  // CR-21 (ORC-02): the one generateLocationProfiles input — the scored attempt and the scene-gate regen.
+  const locationInputs = (feedback?: string): Parameters<typeof generateLocationProfiles>[1] => ({
+    settingRefinement: ctx.setting!.setting,
+    caseData: ctx.cml!,
+    tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
+    targetWordCount: 1000,
+    runId: ctx.runId,
+    projectId: ctx.projectId || "",
+  });
+
+  // A1X-Q02: generate here; the phase is scored below, on the profiles that ship (atoms compiled, fallbacks
+  // enforced, after the scene gate).
+  ctx.locationProfiles = compileSensoryAtoms(await runUnscoredStage(ctx, {
+    agentId: "agent2c_location_profiles",
+    phaseName: "Location Profiles",
+    generate: async () => {
+      const locResult = await generateLocationProfiles(ctx.client, locationInputs());
+      return { result: locResult, cost: locResult.cost };
+    },
+  }));
 
   ctx.locationProfiles = enforceLocationSensoryFallbacks(ctx.locationProfiles, ctx.warnings);
 
@@ -230,41 +174,14 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   }
   validation.warnings.forEach((w) => ctx.warnings.push(`  - Schema warning: ${w}`));
 
-  // F5b: Warn if any sensoryDetails entry contains a conjugated verb — indicates the model
-  // wrote a full sentence instead of a noun phrase, which bleeds into Agent 9 as prose.
-  const sensoryBleedWarnings: string[] = [];
-  for (const loc of (ctx.locationProfiles?.keyLocations ?? [])) {
-    const details = (loc as any).sensoryDetails ?? {};
-    for (const field of ['sights', 'sounds', 'smells', 'tactile'] as const) {
-      for (const entry of (details[field] ?? []) as string[]) {
-        if (isFullSentenceBleed(entry)) {
-          sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryDetails.${field}: "${entry}" (full-sentence bleed — should be noun phrase)`);
-        }
-      }
-    }
-    for (const variant of (loc as any).sensoryVariants ?? []) {
-      for (const field of ['sights', 'sounds', 'smells'] as const) {
-        for (const entry of (variant[field] ?? []) as string[]) {
-          if (isFullSentenceBleed(entry)) {
-            sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryVariants[${variant.id ?? '?'}].${field}: "${entry}" (full-sentence bleed)`);
-          }
-        }
-      }
-    }
-  }
-  if (sensoryBleedWarnings.length > 0) {
-    console.warn('[Agent 2c] F5b: sensoryDetails full-sentence bleed detected — these will be copied verbatim by Agent 9:');
-    sensoryBleedWarnings.forEach((w) => { console.warn(w); ctx.warnings.push(w); });
-  }
-
   // Phase-1 shadow: project the eager location "spine" and run its deterministic sanity check
   // for telemetry only. Default OFF; when AGENT2C_SPINE_CHECK is set (shadow/on) it LOGS findings
   // (missing purpose/accessControl, empty baseline palette, duplicate ids) into warnings WITHOUT
   // changing behavior — the deterministic foundation for the Agent 2c redesign
   // (documentation/12_system_redesign/04_agent_2c_location_profiles.md §4, §9). The enforcement
   // path (carrying the spine eagerly + lazy per-scene texture) waits on later phases.
-  const spineCheckMode = (process.env.AGENT2C_SPINE_CHECK ?? "").trim().toLowerCase();
-  if (spineCheckMode && spineCheckMode !== "off" && spineCheckMode !== "false" && spineCheckMode !== "0") {
+  const spineCheckMode = readModeFlag(process.env.AGENT2C_SPINE_CHECK);
+  if (spineCheckMode) {
     try {
       const spine = extractLocationSpine(ctx.locationProfiles!);
       const check = checkLocationSpine(spine);
@@ -304,58 +221,26 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
         ? Math.min(2, Math.max(0, Math.trunc(Number(process.env.AGENT2C_SCENE_GATE_MAX_RETRIES ?? 1)) || 0))
         : 0;
 
-    let bestProfiles = ctx.locationProfiles;
-    let bestIssues = countIssues(bestProfiles);
-    let attempt = 0;
-    while (sceneGateMode === "enforce" && bestIssues > 0 && attempt < boundedRetries) {
-      attempt += 1;
-      const feedback = buildSceneGateFeedback(
-        checkLocationDistinctness(bestProfiles, distinctnessOpts),
-        checkCrimeSceneProfiled(bestProfiles),
-      );
-      ctx.warnings.push(
-        `[agent2c-scene-gate][enforce] ${bestIssues} issue(s) (attempt ${attempt}/${boundedRetries}); regenerating with distinctness/crime-scene feedback.`,
-      );
-      const regenStart = Date.now();
-      // True marginal cost via byAgent delta — the generator's returned .cost is a cumulative total.
-      const costLabel = "Agent2c-LocationProfiles";
-      const costBefore = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
-      let regenerated: Awaited<ReturnType<typeof generateLocationProfiles>>;
-      try {
-        regenerated = await generateLocationProfiles(ctx.client, {
-          settingRefinement: ctx.setting!.setting,
-          caseData: ctx.cml!,
-          narrative: ctx.narrative,
-          tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
-          targetWordCount: 1000,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
-      } catch (err) {
-        // A gate must never kill a run: a regeneration failure keeps the best-so-far.
-        ctx.warnings.push(`[agent2c-scene-gate][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);
-        break;
-      }
-      const costAfter = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
-      ctx.agentCosts["agent2c_location_profiles"] =
-        (ctx.agentCosts["agent2c_location_profiles"] || 0) + Math.max(0, costAfter - costBefore);
-      ctx.agentDurations["agent2c_location_profiles"] =
-        (ctx.agentDurations["agent2c_location_profiles"] || 0) + (Date.now() - regenStart);
-
-      const candidate = enforceLocationSensoryFallbacks(compileSensoryAtoms(regenerated), ctx.warnings);
-      const candidateValidation = validateArtifact("location_profiles", candidate);
-      if (!candidateValidation.valid) {
-        ctx.warnings.push(
-          "[agent2c-scene-gate][enforce] regenerated candidate failed schema validation; keeping previous best.",
-        );
-        continue;
-      }
-      const candidateIssues = countIssues(candidate);
-      if (candidateIssues < bestIssues) {
-        bestProfiles = candidate;
-        bestIssues = candidateIssues;
-      }
-    }
+    const { best: bestProfiles, verdict: bestIssues, attempts: attempt } = await runBoundedGate(ctx, {
+      label: "agent2c-scene-gate",
+      enforce: sceneGateMode === "enforce",
+      maxRetries: boundedRetries,
+      initial: ctx.locationProfiles,
+      evaluate: countIssues,
+      needsRetry: (issues) => issues > 0,
+      feedback: (best) => buildSceneGateFeedback(
+        checkLocationDistinctness(best, distinctnessOpts),
+        checkCrimeSceneProfiled(best),
+      ),
+      retryWarning: (issues, n, max) =>
+        `[agent2c-scene-gate][enforce] ${issues} issue(s) (attempt ${n}/${max}); regenerating with distinctness/crime-scene feedback.`,
+      regenerate: (feedback) => generateLocationProfiles(ctx.client, locationInputs(feedback)),
+      costLabel: "Agent2c-LocationProfiles",
+      costKey: "agent2c_location_profiles",
+      prepare: (raw) => enforceLocationSensoryFallbacks(compileSensoryAtoms(raw), ctx.warnings),
+      validate: (candidate) => validateArtifact("location_profiles", candidate).valid,
+      isBetter: (cand, cur) => cand.verdict < cur.verdict,
+    });
     ctx.locationProfiles = bestProfiles;
 
     // Surface the final findings (shadow always; enforce after exhaustion).
@@ -376,6 +261,10 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       );
     }
   }
+
+  // A1X-Q02 (owner decision, 2026-10-02): the report scores the location profiles that ship, not the raw LLM output.
+  await recordShippedPhaseScore(ctx, "agent2c_location_profiles", "Location Profiles", () =>
+    scoreLocationsPhase(ctx.locationProfiles, ctx.setting!.setting, ctx.backgroundContext!, ctx.warnings));
 
   ctx.reportProgress(
     "location-profiles",

@@ -1,0 +1,113 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`reviseCml characterisation (A34-07) > a YAML reply 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+  ],
+  "result": {
+    "attempt": 1,
+    "cml": "5aa5313f77f1d116",
+    "degraded": false,
+    "errors": 0,
+    "revisions": 1,
+    "unresolved": 0,
+    "valid": true,
+  },
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > garbage throughout, degrade off 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+    "c887f8290c7e8417",
+    "4ad7d4c047f9f5d5",
+  ],
+  "threw": "Output parsing failed after 3 attempts: Unexpected token 'g', "garbage" is not valid JSON",
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > garbage throughout, degrade on 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+    "c887f8290c7e8417",
+    "4ad7d4c047f9f5d5",
+  ],
+  "result": {
+    "attempt": 3,
+    "cml": "3b8699e9e2f7c45e",
+    "degraded": true,
+    "errors": 1,
+    "revisions": 3,
+    "unresolved": 1,
+    "valid": false,
+  },
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > garbage, then valid 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+    "c887f8290c7e8417",
+  ],
+  "result": {
+    "attempt": 2,
+    "cml": "5aa5313f77f1d116",
+    "degraded": false,
+    "errors": 0,
+    "revisions": 2,
+    "unresolved": 0,
+    "valid": true,
+  },
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > stays invalid (no-progress guard), degrade on 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+    "eff90b59fdca26b0",
+    "8f654ad663fd53fa",
+  ],
+  "result": {
+    "attempt": 3,
+    "cml": "3b8699e9e2f7c45e",
+    "degraded": true,
+    "errors": 1,
+    "revisions": 4,
+    "unresolved": 1,
+    "valid": false,
+  },
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > stays invalid, degrade off 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+    "eff90b59fdca26b0",
+    "8f654ad663fd53fa",
+  ],
+  "threw": "CML revision failed after 3 attempts. Remaining errors: CASE.culpability.culprits is empty - the case states no answer to its own mystery, so every downstream stage that reads the culprit runs against undefined",
+}
+`;
+
+exports[`reviseCml characterisation (A34-07) > valid on the first reply 1`] = `
+{
+  "calls": [
+    "fc96621f12550bbf",
+  ],
+  "result": {
+    "attempt": 1,
+    "cml": "5aa5313f77f1d116",
+    "degraded": false,
+    "errors": 0,
+    "revisions": 1,
+    "unresolved": 0,
+    "valid": true,
+  },
+}
+`;

@@ -15,12 +15,19 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { isDetectiveMember, isVictimMember, verifiedFixesEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
-import type { ClueDistributionResult } from "./agent5-clues.js";
+import type { ClueDistributionResult } from "./types/clue-distribution.js";
 import type { PromptComponents } from "./types.js";
-import { jsonrepair } from "jsonrepair";
-import { looksTruncatedJson } from "./shared/json-boundary.js";
+import { parseLlmJson } from "./shared/llm-json.js";
+import {
+  AGENT6_CASE_POLICY,
+  constraintSpaceOf,
+  formatConstraintList,
+  projectCaseForPrompt,
+  renderDiscriminatingTest,
+} from "./shared/cml-prompt-view.js";
 
 // ============================================================================
 // Types
@@ -89,44 +96,15 @@ export interface FairPlayAuditResult {
 }
 
 function parseJsonWithRepair<T>(raw: string, contextLabel: string): T {
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    // Fall through to repair/extraction attempts.
-  }
-
+  // CR-20: the one parse ladder — guarded, then the outermost {…} span, strict then repaired.
+  const parsed = parseLlmJson<T>(raw, { guard: true, extract: "strict+repair" });
   // A_65b Ph8 — truncation guard: a completion-limit truncated payload must be REFUSED, not
   // jsonrepair-closed into a phantom structure (the a3c2973f class). Routes to the existing
   // parse-failure path.
-  if (looksTruncatedJson(raw)) {
+  if (parsed.truncated) {
     throw new Error(`LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk)`);
   }
-
-  try {
-    const repaired = jsonrepair(raw);
-    return JSON.parse(repaired) as T;
-  } catch {
-    // Fall through to bounded extraction attempts.
-  }
-
-  const trimmed = raw.trim();
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start !== -1 && end > start) {
-    const candidate = trimmed.slice(start, end + 1);
-    try {
-      return JSON.parse(candidate) as T;
-    } catch {
-      // Fall through to repaired candidate.
-    }
-
-    try {
-      const repairedCandidate = jsonrepair(candidate);
-      return JSON.parse(repairedCandidate) as T;
-    } catch {
-      // Fall through to terminal error.
-    }
-  }
+  if (parsed.data !== undefined) return parsed.data;
 
   const preview = raw.slice(0, 280).replace(/\s+/g, " ");
   throw new Error(`Failed to parse ${contextLabel} JSON after repair attempts. Preview: ${preview}`);
@@ -283,42 +261,18 @@ function buildNarrativeDeveloperContext(
   clues: ClueDistributionResult,
   structuralAuditResult?: StructuralAuditResult,
 ): string {
-  const legacy = caseData as any;
-  const cmlCase = (legacy?.CASE ?? {}) as any;
-  const meta = cmlCase.meta ?? legacy.meta ?? {};
-  const crimeClass = meta.crime_class ?? {};
-  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
-
-  const title = meta?.title || "Untitled Mystery";
-  const primaryAxis = cmlCase.false_assumption?.type || meta?.primary_axis || "unknown";
-  const crime = crimeClass.subtype || crimeClass.category || legacy.setup?.crime?.description || "crime";
-  const culpritName = cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
-
-  const falseAssumptionStatement =
-    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  // A6-10: the shared header projection (Agent 6 precedence — FA-5).
+  const view = projectCaseForPrompt(caseData, AGENT6_CASE_POLICY);
+  const { cmlCase, title, primaryAxis, crime, culpritName, falseAssumptionStatement } = view;
   const falseAssumptionWhyReasonable: string = cmlCase.false_assumption?.why_it_seems_reasonable ?? "";
   const falseAssumptionWhatHides: string = cmlCase.false_assumption?.what_it_hides ?? "";
 
   const surfaceNarrative: string = cmlCase.surface_model?.narrative?.summary ?? "";
   const hiddenMechanism: string = cmlCase.hidden_model?.mechanism?.description ?? "";
 
-  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).map(
-    (step: any, idx: number) => {
-      const observation = step.observation || "Observation";
-      const correction = step.correction || "Correction";
-      const effect = step.effect ? ` → ${step.effect}` : "";
-      const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
-      return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}`;
-    },
-  );
-
-  const discrimTest = cmlCase.discriminating_test
-    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
-    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**What**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Why**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
-
-  const redHerrings = clues.redHerrings
-    .map((rh) => `- ${rh.description} (supports: ${rh.supportsAssumption})`)
-    .join("\n");
+  const inferenceSteps = formatInferenceSteps(view.inferenceSteps, false);
+  const discrimTest = renderDiscriminatingTest(view, "what_why");
+  const redHerrings = formatRedHerrings(clues);
 
   const structuralStatusBlock = structuralAuditResult?.passed
     ? `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive)\nAll structural checks PASSED before this call: discriminating-test evidence present, every inference step has essential early|mid coverage, and non-culprit eliminations are in place.\n\n> Your task: assess NARRATIVE QUALITY only.`
@@ -365,220 +319,279 @@ ${summarizeCluesForNarrative(clues)}
 ${redHerrings || "None"}`;
 }
 
-function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult, structuralAuditResult?: StructuralAuditResult): string {
-  const legacy = caseData as any;
-  const cmlCase = (legacy?.CASE ?? {}) as any;
-  const meta = cmlCase.meta ?? legacy.meta ?? {};
-  const crimeClass = meta.crime_class ?? {};
-  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
+// A6-10: the inference-step lines both Agent 6 contexts print. The full audit appends the step's
+// `required_evidence` as labelled authoring notes (FB-4); the narrative-only context does not.
+function formatInferenceSteps(steps: any, withAuthoringNotes: boolean): string[] {
+  return steps.map((step: any, idx: number) => {
+    const observation = step.observation || "Observation"; // FA-2: removed duplicate + non-schema fallbacks (step.type not in schema)
+    const correction = step.correction || "Correction";   // FA-1: removed non-schema step.reasoning fallback
+    const effect = step.effect ? ` → ${step.effect}` : "";
+    // FB-9: flag steps only visible to detective, not directly to reader
+    const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
+    // FB-4: required_evidence items are CML authoring scaffold — NOT formal clue IDs
+    // Label them clearly so the LLM does not treat them as clue obligations
+    const reqEvidence = withAuthoringNotes && Array.isArray(step.required_evidence) && step.required_evidence.length > 0
+      ? `\n   **CML authoring notes (scaffold only — NOT formal clue IDs; do not audit against these)**:\n${(step.required_evidence as string[]).map((e) => `   • ${e}`).join("\n")}`
+      : "";
+    return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}${reqEvidence}`;
+  });
+}
 
-  // Extract essential information
-  const title = meta?.title || "Untitled Mystery";
-  // FA-5: meta.primary_axis not in CML 2.0 schema; false_assumption.type is the canonical field
-  const primaryAxis = cmlCase.false_assumption?.type || meta?.primary_axis || "unknown";
-  // FA-5: schema canonical order: subtype → category; setup.crime not in CML 2.0
-  const crime = crimeClass.subtype || crimeClass.category || legacy.setup?.crime?.description || "crime";
-  // FA-3: CML 2.0 has no setup.crime.victim field; victim info lives in hidden_model.outcome.result
-  const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
-  // FB-3: extract all three false_assumption fields (schema: statement, why_it_seems_reasonable, what_it_hides)
-  const falseAssumptionStatement =
-    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
-  const falseAssumptionWhyReasonable: string = cmlCase.false_assumption?.why_it_seems_reasonable ?? "";
-  const falseAssumptionWhatHides: string = cmlCase.false_assumption?.what_it_hides ?? "";
-  // FB-1: surface_model — the false narrative the reader is meant to accept
-  const surfaceNarrative: string = cmlCase.surface_model?.narrative?.summary ?? "";
-  const acceptedFacts: string[] = Array.isArray(cmlCase.surface_model?.accepted_facts)
-    ? cmlCase.surface_model.accepted_facts as string[]
-    : [];
-  const inferredConclusions: string[] = Array.isArray(cmlCase.surface_model?.inferred_conclusions)
-    ? cmlCase.surface_model.inferred_conclusions as string[]
-    : [];
-  // FB-2: hidden_model — the actual crime mechanism
-  const hiddenMechanism: string = cmlCase.hidden_model?.mechanism?.description ?? "";
-  const deliveryPath: string[] = Array.isArray(cmlCase.hidden_model?.mechanism?.delivery_path)
-    ? (cmlCase.hidden_model.mechanism.delivery_path as any[]).map((d) => d.step ?? String(d))
-    : [];
-  const hiddenOutcome: string = cmlCase.hidden_model?.outcome?.result ?? "";
+const formatRedHerrings = (clues: ClueDistributionResult): string =>
+  clues.redHerrings.map((rh) => `- ${rh.description} (supports: ${rh.supportsAssumption})`).join("\n");
 
-  // Inference path steps
-  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).map(
-    (step: any, idx: number) => {
-      const observation = step.observation || "Observation"; // FA-2: removed duplicate + non-schema fallbacks (step.type not in schema)
-      const correction = step.correction || "Correction";   // FA-1: removed non-schema step.reasoning fallback
-      const effect = step.effect ? ` → ${step.effect}` : "";
-      // FB-9: flag steps only visible to detective, not directly to reader
-      const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
-      // FB-4: required_evidence items are CML authoring scaffold — NOT formal clue IDs
-      // Label them clearly so the LLM does not treat them as clue obligations
-      const reqEvidence = Array.isArray(step.required_evidence) && step.required_evidence.length > 0
-        ? `\n   **CML authoring notes (scaffold only — NOT formal clue IDs; do not audit against these)**:\n${(step.required_evidence as string[]).map((e) => `   • ${e}`).join("\n")}`
-        : "";
-      return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}${reqEvidence}`;
-    },
-  );
+type AuditClue = ClueDistributionResult["clues"][number];
 
-  // Discriminating test
-  const discrimTest = cmlCase.discriminating_test
-    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
-    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**What**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Why**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
+/** A6-11: the one clue line the early, mid and late listings share. */
+const formatClueLine = (c: AuditClue): string =>
+  `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`;
 
-  const constraintSpace = cmlCase.constraint_space ?? legacy.constraint_space ?? {};
-  const formatConstraintList = (value: any, keys: string[]) => {
-    if (Array.isArray(value)) {
-      return value.map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
-    }
-    const lines = keys.flatMap((key) => (Array.isArray(value?.[key]) ? value[key] : []));
-    return lines.map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
-  };
-  const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
-  const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
-  const physicalConstraints = formatConstraintList(constraintSpace.physical, ["laws", "traces"]);
-  // FB-5: social constraints (trust_channels, authority_sources) — absent from original
-  const socialConstraints = formatConstraintList(constraintSpace.social, ["trust_channels", "authority_sources"]);
-  // FB-6: CML fair_play self-assertion block — for cross-checking author declarations
-  const fairPlayBlock = cmlCase.fair_play
+// FA-4: evidence_sensitivity items are plain strings in CML 2.0 (not objects with evidence_type/vulnerability)
+// FC-2: add alibi_window, access_plausibility, opportunity_channels per cast member for No Withholding check
+function formatCastEvidenceLine(c: any): string {
+  const evSensitivity = Array.isArray(c.evidence_sensitivity) && c.evidence_sensitivity.length > 0
+    ? c.evidence_sensitivity
+        .map((entry: unknown) => {
+          if (typeof entry === "string") return entry;
+          if (entry && typeof entry === "object") {
+            const obj = entry as { evidence_type?: unknown; vulnerability?: unknown };
+            const type = typeof obj.evidence_type === "string" ? obj.evidence_type : undefined;
+            const vulnerability = typeof obj.vulnerability === "string" ? obj.vulnerability : undefined;
+            if (type && vulnerability) return `${type}: ${vulnerability}`;
+            if (vulnerability) return vulnerability;
+            if (type) return type;
+          }
+          return "";
+        })
+        .filter((v: string) => v.length > 0)
+        .join(", ") || "none"
+    : "none";
+  const alibi = c.alibi_window ?? "unknown";
+  const access = c.access_plausibility ?? "unknown";
+  const opportunities = Array.isArray(c.opportunity_channels) && c.opportunity_channels.length > 0
+    ? (c.opportunity_channels as string[]).join("; ")
+    : "none";
+  return `- **${c.name}**: alibi="${alibi}" | access="${access}" | opportunities: ${opportunities} | evidence_sensitivity: ${evSensitivity}`;
+}
+
+function formatInferenceStepCoverage(essentialClues: AuditClue[]): string {
+  const stepMap = new Map<number, string[]>();
+  for (const clue of essentialClues) {
+    const step = Number(clue.supportsInferenceStep);
+    if (!step) continue;
+    if (!stepMap.has(step)) stepMap.set(step, []);
+    stepMap.get(step)!.push(`${clue.id ?? "?"}(${clue.placement})`);
+  }
+  if (stepMap.size === 0) return "  No essential clues mapped to inference steps";
+  return Array.from(stepMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([step, ids]) => `  Step ${step}: ${ids.join(", ")}`)
+    .join("\n");
+}
+
+// Structural status block — shown when deterministic audit result is provided
+function formatFullStructuralStatus(structuralAuditResult?: StructuralAuditResult): string {
+  if (!structuralAuditResult) return "";
+  if (structuralAuditResult.passed) {
+    const checks = [
+      `✓ All discriminating_test.evidence_clues IDs present in early|mid: ${structuralAuditResult.evidenceCluesPresent.join(", ") || "none required"}`,
+      `✓ All ${structuralAuditResult.stepsCovered.length} inference step(s) have essential early|mid coverage: steps ${structuralAuditResult.stepsCovered.join(", ")}`,
+      `✓ Elimination clues present for: ${structuralAuditResult.eliminationPresent.join(", ") || "no non-culprits"}`,
+    ].join("\n");
+    return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nAll structural checks PASSED before this LLM call:\n${checks}\n\n> Your task: assess NARRATIVE QUALITY only (see user request). Do not re-check structural facts above.`;
+  }
+  const gapLines = structuralAuditResult.gaps.map((g) => `✗ ${g.description}`).join("\n");
+  return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nSome structural gaps remain despite deterministic backstop fixes:\n${gapLines}\n\n> These gaps are being escalated separately. Assess narrative quality and flag any additional structural issues you observe in the clue distribution.`;
+}
+
+const formatFairPlayDeclarations = (fairPlay: any): string =>
+  fairPlay
     ? [
-        `all_clues_visible: ${cmlCase.fair_play.all_clues_visible}`,
-        `no_special_knowledge_required: ${cmlCase.fair_play.no_special_knowledge_required}`,
-        `no_late_information: ${cmlCase.fair_play.no_late_information}`,
-        `reader_can_solve: ${cmlCase.fair_play.reader_can_solve}`,
-        `explanation: ${cmlCase.fair_play.explanation ?? "none"}`,
+        `all_clues_visible: ${fairPlay.all_clues_visible}`,
+        `no_special_knowledge_required: ${fairPlay.no_special_knowledge_required}`,
+        `no_late_information: ${fairPlay.no_late_information}`,
+        `reader_can_solve: ${fairPlay.reader_can_solve}`,
+        `explanation: ${fairPlay.explanation ?? "none"}`,
       ].join("\n")
     : "Not declared in CML";
+
+function formatClueToSceneMapping(mapping: any): string {
+  if (!Array.isArray(mapping) || mapping.length === 0) return "Not specified in CML";
+  return mapping.map((m: any) => `- clue ${m.clue_id}: Act ${m.act_number}${m.scene_number ? `, Scene ${m.scene_number}` : ""}${m.delivery_method ? ` (${m.delivery_method})` : ""}`).join("\n");
+}
+
+/** A6-11: everything the full-audit developer context prints, derived once; the renderer only lays it out. */
+interface FairPlayAuditView {
+  title: string;
+  primaryAxis: string;
+  crime: string;
+  culpritName: string;
+  structuralStatusBlock: string;
+  surfaceNarrative: string;
+  acceptedFacts: string[];
+  inferredConclusions: string[];
+  hiddenMechanism: string;
+  deliveryPath: string[];
+  hiddenOutcome: string;
+  falseAssumptionStatement: string;
+  falseAssumptionWhyReasonable: string;
+  falseAssumptionWhatHides: string;
+  inferenceSteps: string[];
+  discrimTest: string;
+  discriminatingEvidenceIds: string[];
+  earlyIds: string;
+  midIds: string;
+  lateIds: string;
+  inferenceStepCoverage: string;
+  clueCount: number;
+  earlyClues: AuditClue[];
+  midClues: AuditClue[];
+  lateClues: AuditClue[];
+  essentialClues: AuditClue[];
+  redHerrings: string;
+  timeConstraints: string;
+  accessConstraints: string;
+  physicalConstraints: string;
+  socialConstraints: string;
+  castEvidence: string;
+  fairPlayBlock: string;
+  qcDiscrimTiming: string;
+  qcEssentialMin: unknown;
+  qcEssentialBeforeTest: unknown;
+  qcEarlyMin: unknown;
+  qcMidMin: unknown;
+  qcLateMin: unknown;
+  clueToSceneMapping: string;
+}
+
+function deriveFairPlayAuditView(
+  caseData: CaseData,
+  clues: ClueDistributionResult,
+  structuralAuditResult?: StructuralAuditResult,
+): FairPlayAuditView {
+  // A6-10: the shared header projection (Agent 6 precedence — FA-5; FA-3: culprit, not setup.crime.victim).
+  const view = projectCaseForPrompt(caseData, AGENT6_CASE_POLICY);
+  const { cmlCase } = view;
+  const castList = view.cast;
+  // FB-1: surface_model — the false narrative the reader is meant to accept
+  const surfaceModel = cmlCase.surface_model;
+  // FB-2: hidden_model — the actual crime mechanism
+  const mechanism = cmlCase.hidden_model?.mechanism;
+  const constraintSpace = constraintSpaceOf(view);
   // FB-7: quality_controls — clue count gates and discriminating test timing
   const qc = cmlCase.quality_controls ?? {};
   const qcClueVis = qc.clue_visibility_requirements ?? {};
-  const qcDiscrimTiming: string = qc.discriminating_test_requirements?.timing ?? "not specified";
-  const qcEssentialMin = qcClueVis.essential_clues_min ?? "not specified";
-  const qcEarlyMin = qcClueVis.early_clues_min ?? "not specified";
-  const qcMidMin = qcClueVis.mid_clues_min ?? "not specified";
-  const qcLateMin = qcClueVis.late_clues_min ?? "not specified";
-  const qcEssentialBeforeTest = qcClueVis.essential_clues_before_test ?? "not specified";
-  // FA-4: evidence_sensitivity items are plain strings in CML 2.0 (not objects with evidence_type/vulnerability)
-  // FC-2: add alibi_window, access_plausibility, opportunity_channels per cast member for No Withholding check
-  const castEvidence = castList
-    .map((c: any) => {
-      const evSensitivity = Array.isArray(c.evidence_sensitivity) && c.evidence_sensitivity.length > 0
-        ? c.evidence_sensitivity
-            .map((entry: unknown) => {
-              if (typeof entry === "string") return entry;
-              if (entry && typeof entry === "object") {
-                const obj = entry as { evidence_type?: unknown; vulnerability?: unknown };
-                const type = typeof obj.evidence_type === "string" ? obj.evidence_type : undefined;
-                const vulnerability = typeof obj.vulnerability === "string" ? obj.vulnerability : undefined;
-                if (type && vulnerability) return `${type}: ${vulnerability}`;
-                if (vulnerability) return vulnerability;
-                if (type) return type;
-              }
-              return "";
-            })
-            .filter((v: string) => v.length > 0)
-            .join(", ") || "none"
-        : "none";
-      const alibi = c.alibi_window ?? "unknown";
-      const access = c.access_plausibility ?? "unknown";
-      const opportunities = Array.isArray(c.opportunity_channels) && c.opportunity_channels.length > 0
-        ? (c.opportunity_channels as string[]).join("; ")
-        : "none";
-      return `- **${c.name}**: alibi="${alibi}" | access="${access}" | opportunities: ${opportunities} | evidence_sensitivity: ${evSensitivity}`;
-    })
-    .join("\n");
 
   // Clue timeline
   const earlyClues = clues.clues.filter((c) => c.placement === "early");
   const midClues = clues.clues.filter((c) => c.placement === "mid");
   const lateClues = clues.clues.filter((c) => c.placement === "late");
   const essentialClues = clues.clues.filter((c) => c.criticality === "essential");
+  const idsOf = (set: AuditClue[]) => set.map((c) => c.id ?? "?").join(", ") || "none";
 
-  // Red herrings
-  const redHerrings = clues.redHerrings.map((rh) => `- ${rh.description} (supports: ${rh.supportsAssumption})`).join("\n");
+  return {
+    title: view.title,
+    primaryAxis: view.primaryAxis,
+    crime: view.crime,
+    culpritName: view.culpritName,
+    // FB-3: all three false_assumption fields (schema: statement, why_it_seems_reasonable, what_it_hides)
+    falseAssumptionStatement: view.falseAssumptionStatement,
+    falseAssumptionWhyReasonable: cmlCase.false_assumption?.why_it_seems_reasonable ?? "",
+    falseAssumptionWhatHides: cmlCase.false_assumption?.what_it_hides ?? "",
+    surfaceNarrative: surfaceModel?.narrative?.summary ?? "",
+    acceptedFacts: Array.isArray(surfaceModel?.accepted_facts) ? surfaceModel.accepted_facts as string[] : [],
+    inferredConclusions: Array.isArray(surfaceModel?.inferred_conclusions) ? surfaceModel.inferred_conclusions as string[] : [],
+    hiddenMechanism: mechanism?.description ?? "",
+    deliveryPath: Array.isArray(mechanism?.delivery_path)
+      ? (mechanism.delivery_path as any[]).map((d) => d.step ?? String(d))
+      : [],
+    hiddenOutcome: cmlCase.hidden_model?.outcome?.result ?? "",
+    inferenceSteps: formatInferenceSteps(view.inferenceSteps, true),
+    discrimTest: renderDiscriminatingTest(view, "what_why"),
+    timeConstraints: formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]),
+    accessConstraints: formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]),
+    physicalConstraints: formatConstraintList(constraintSpace.physical, ["laws", "traces"]),
+    // FB-5: social constraints (trust_channels, authority_sources) — absent from original
+    socialConstraints: formatConstraintList(constraintSpace.social, ["trust_channels", "authority_sources"]),
+    // FB-6: CML fair_play self-assertion block — for cross-checking author declarations
+    fairPlayBlock: formatFairPlayDeclarations(cmlCase.fair_play),
+    qcDiscrimTiming: qc.discriminating_test_requirements?.timing ?? "not specified",
+    qcEssentialMin: qcClueVis.essential_clues_min ?? "not specified",
+    qcEarlyMin: qcClueVis.early_clues_min ?? "not specified",
+    qcMidMin: qcClueVis.mid_clues_min ?? "not specified",
+    qcLateMin: qcClueVis.late_clues_min ?? "not specified",
+    qcEssentialBeforeTest: qcClueVis.essential_clues_before_test ?? "not specified",
+    castEvidence: castList.map(formatCastEvidenceLine).join("\n"),
+    clueCount: clues.clues.length,
+    earlyClues,
+    midClues,
+    lateClues,
+    essentialClues,
+    redHerrings: formatRedHerrings(clues),
+    // Clue ID manifest — system-generated ground truth for structural checks
+    discriminatingEvidenceIds: Array.isArray(cmlCase?.discriminating_test?.evidence_clues)
+      ? (cmlCase.discriminating_test.evidence_clues as unknown[]).map((id) => String(id ?? "").trim()).filter(Boolean)
+      : [],
+    earlyIds: idsOf(earlyClues),
+    midIds: idsOf(midClues),
+    lateIds: idsOf(lateClues),
+    inferenceStepCoverage: formatInferenceStepCoverage(essentialClues),
+    structuralStatusBlock: formatFullStructuralStatus(structuralAuditResult),
+    clueToSceneMapping: formatClueToSceneMapping(cmlCase.prose_requirements?.clue_to_scene_mapping),
+  };
+}
 
-  // Clue ID manifest — system-generated ground truth for structural checks
-  const discriminatingEvidenceIds = Array.isArray(cmlCase?.discriminating_test?.evidence_clues)
-    ? (cmlCase.discriminating_test.evidence_clues as unknown[]).map((id) => String(id ?? "").trim()).filter(Boolean)
-    : [];
-  const earlyIds = earlyClues.map((c) => c.id ?? "?").join(", ") || "none";
-  const midIds = midClues.map((c) => c.id ?? "?").join(", ") || "none";
-  const lateIds = lateClues.map((c) => c.id ?? "?").join(", ") || "none";
+function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult, structuralAuditResult?: StructuralAuditResult): string {
+  return renderFairPlayDeveloperContext(deriveFairPlayAuditView(caseData, clues, structuralAuditResult));
+}
 
-  const inferenceStepCoverage = (() => {
-    const stepMap = new Map<number, string[]>();
-    for (const clue of essentialClues) {
-      const step = Number(clue.supportsInferenceStep);
-      if (!step) continue;
-      if (!stepMap.has(step)) stepMap.set(step, []);
-      stepMap.get(step)!.push(`${clue.id ?? "?"}(${clue.placement})`);
-    }
-    if (stepMap.size === 0) return "  No essential clues mapped to inference steps";
-    return Array.from(stepMap.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([step, ids]) => `  Step ${step}: ${ids.join(", ")}`)
-      .join("\n");
-  })();
-
-  // Structural status block — shown when deterministic audit result is provided
-  const structuralStatusBlock = structuralAuditResult
-    ? (() => {
-        if (structuralAuditResult.passed) {
-          const checks = [
-            `\u2713 All discriminating_test.evidence_clues IDs present in early|mid: ${structuralAuditResult.evidenceCluesPresent.join(", ") || "none required"}`,
-            `\u2713 All ${structuralAuditResult.stepsCovered.length} inference step(s) have essential early|mid coverage: steps ${structuralAuditResult.stepsCovered.join(", ")}`,
-            `\u2713 Elimination clues present for: ${structuralAuditResult.eliminationPresent.join(", ") || "no non-culprits"}`,
-          ].join("\n");
-          return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nAll structural checks PASSED before this LLM call:\n${checks}\n\n> Your task: assess NARRATIVE QUALITY only (see user request). Do not re-check structural facts above.`;
-        }
-        const gapLines = structuralAuditResult.gaps.map((g) => `\u2717 ${g.description}`).join("\n");
-        return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nSome structural gaps remain despite deterministic backstop fixes:\n${gapLines}\n\n> These gaps are being escalated separately. Assess narrative quality and flag any additional structural issues you observe in the clue distribution.`;
-      })()
-    : "";
-
+function renderFairPlayDeveloperContext(v: FairPlayAuditView): string {
   return `# Fair Play Audit Context
 
 ## Mystery Overview
-**Title**: ${title}
-**Primary Axis / False Assumption Type**: ${primaryAxis}
-**Crime**: ${crime}
-**Culprit**: ${culpritName}
-${structuralStatusBlock}
+**Title**: ${v.title}
+**Primary Axis / False Assumption Type**: ${v.primaryAxis}
+**Crime**: ${v.crime}
+**Culprit**: ${v.culpritName}
+${v.structuralStatusBlock}
 
 ---
 
 ## Surface Model (What the Reader Is Meant to Believe)
-**Narrative**: ${surfaceNarrative || "not specified"}
+**Narrative**: ${v.surfaceNarrative || "not specified"}
 
 ### Accepted Facts (reader takes these as given)
-${acceptedFacts.map((f: string) => `- ${f}`).join("\n") || "None"}
+${v.acceptedFacts.map((f: string) => `- ${f}`).join("\n") || "None"}
 
 ### Inferred Conclusions (reader draws these from accepted facts)
-${inferredConclusions.map((c: string) => `- ${c}`).join("\n") || "None"}
+${v.inferredConclusions.map((c: string) => `- ${c}`).join("\n") || "None"}
 
 ---
 
 ## Hidden Model (What Is Actually True)
-**Mechanism**: ${hiddenMechanism || "not specified"}
+**Mechanism**: ${v.hiddenMechanism || "not specified"}
 
 ### Delivery Path
-${deliveryPath.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n") || "None"}
+${v.deliveryPath.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n") || "None"}
 
-**Outcome**: ${hiddenOutcome || "not specified"}
+**Outcome**: ${v.hiddenOutcome || "not specified"}
 
 ---
 
 ## False Assumption
-**Statement**: ${falseAssumptionStatement}
-**Why it seems reasonable**: ${falseAssumptionWhyReasonable || "not specified"}
-**What it hides**: ${falseAssumptionWhatHides || "not specified"}
+**Statement**: ${v.falseAssumptionStatement}
+**Why it seems reasonable**: ${v.falseAssumptionWhyReasonable || "not specified"}
+**What it hides**: ${v.falseAssumptionWhatHides || "not specified"}
 
 ---
 
 ## Inference Path (Detective's Logic)
 The detective follows these logical steps to reach the solution:
 
-${inferenceSteps.join("\n")}
+${v.inferenceSteps.join("\n")}
 
 ### Discriminating Test
-${discrimTest}
+${v.discrimTest}
 
 ---
 
@@ -593,35 +606,35 @@ ${discrimTest}
 ## Clue ID Manifest (system-generated — use for structural checks)
 
 **discriminating_test.evidence_clues** (must each be present in early|mid distribution):
-${discriminatingEvidenceIds.length > 0 ? discriminatingEvidenceIds.map((id) => `- ${id}`).join("\n") : "- (none specified)"}
+${v.discriminatingEvidenceIds.length > 0 ? v.discriminatingEvidenceIds.map((id) => `- ${id}`).join("\n") : "- (none specified)"}
 
 **All clue IDs by placement**:
-- Early: ${earlyIds}
-- Mid:   ${midIds}
-- Late:  ${lateIds}
+- Early: ${v.earlyIds}
+- Mid:   ${v.midIds}
+- Late:  ${v.lateIds}
 
 **Essential clues by inference step**:
-${inferenceStepCoverage}
+${v.inferenceStepCoverage}
 
 ---
 
 ## Clue Distribution
-The mystery distributes ${clues.clues.length} clues to the reader:
+The mystery distributes ${v.clueCount} clues to the reader:
 
-### Early Clues (Act I) - ${earlyClues.length} clues
-${earlyClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
+### Early Clues (Act I) - ${v.earlyClues.length} clues
+${v.earlyClues.map(formatClueLine).join("\n") || "None"}
 
-### Mid Clues (Act II) - ${midClues.length} clues
-${midClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
+### Mid Clues (Act II) - ${v.midClues.length} clues
+${v.midClues.map(formatClueLine).join("\n") || "None"}
 
-### Late Clues (Act III) - ${lateClues.length} clues
-${lateClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
+### Late Clues (Act III) - ${v.lateClues.length} clues
+${v.lateClues.map(formatClueLine).join("\n") || "None"}
 
 ### Essential Clues (per inference step)
-${essentialClues.map((c) => `- ${c.description} (${c.placement}${c.supportsInferenceStep ? `, step ${c.supportsInferenceStep}` : ""})`).join("\n") || "None"}
+${v.essentialClues.map((c) => `- ${c.description} (${c.placement}${c.supportsInferenceStep ? `, step ${c.supportsInferenceStep}` : ""})`).join("\n") || "None"}
 
 ### Red Herrings
-${redHerrings || "None"}
+${v.redHerrings || "None"}
 
 ---
 
@@ -629,42 +642,38 @@ ${redHerrings || "None"}
 The mystery establishes these constraints:
 
 ### Temporal Constraints
-${timeConstraints}
+${v.timeConstraints}
 
 ### Access Constraints
-${accessConstraints}
+${v.accessConstraints}
 
 ### Physical Evidence
-${physicalConstraints}
+${v.physicalConstraints}
 
 ### Social Constraints
-${socialConstraints}
+${v.socialConstraints}
 
 ---
 
 ## Cast — Alibi, Access & Evidence Sensitivity
-${castEvidence || "None"}
+${v.castEvidence || "None"}
 
 ---
 
 ## CML Fair Play Declarations
-${fairPlayBlock}
+${v.fairPlayBlock}
 
 ---
 
 ## Quality Controls
-**Discriminating test must appear**: ${qcDiscrimTiming}
-**Essential clues minimum**: ${qcEssentialMin} | before discriminating test: ${qcEssentialBeforeTest}
-**Clues per act minimum**: early=${qcEarlyMin}, mid=${qcMidMin}, late=${qcLateMin}
+**Discriminating test must appear**: ${v.qcDiscrimTiming}
+**Essential clues minimum**: ${v.qcEssentialMin} | before discriminating test: ${v.qcEssentialBeforeTest}
+**Clues per act minimum**: early=${v.qcEarlyMin}, mid=${v.qcMidMin}, late=${v.qcLateMin}
 
 ---
 
 ## Clue-to-Scene Mapping (when present)
-${(() => {
-  const mapping = (cmlCase as any).prose_requirements?.clue_to_scene_mapping;
-  if (!Array.isArray(mapping) || mapping.length === 0) return "Not specified in CML";
-  return mapping.map((m: any) => `- clue ${m.clue_id}: Act ${m.act_number}${m.scene_number ? `, Scene ${m.scene_number}` : ""}${m.delivery_method ? ` (${m.delivery_method})` : ""}`).join("\n");
-})()}`;
+${v.clueToSceneMapping}`;
 }
 
 function buildUserRequest(structurallyVerified: boolean): string {
@@ -858,6 +867,27 @@ export async function auditFairPlay(
 // WP5: Blind Reader Simulation
 // ============================================================================
 
+/**
+ * A6-D04 (owner decision 12, CML_VERIFIED_FIXES): the names the blind-reader prompt calls "the suspects".
+ * OFF: every name the caller passed — the whole CASE cast, so the detective and the victim were offered as
+ * suspects. ON, when the caller supplies the CASE cast: only names whose cast entry is neither the detective
+ * nor the victim (@cml/cml isDetectiveMember / isVictimMember — the explicit role wins, else the archetype).
+ * A name with no matching entry is kept. Falls back to the full list when fewer than two names would remain,
+ * or when no cast is supplied.
+ */
+export function blindReaderSuspectNames(castNames: string[], caseCast?: unknown[]): string[] {
+  if (!verifiedFixesEnabled() || !Array.isArray(caseCast) || caseCast.length === 0) return castNames;
+  const key = (n: unknown) => String(n ?? "").trim().toLowerCase();
+  const excluded = new Set(
+    caseCast
+      .filter((entry) => isDetectiveMember(entry) || isVictimMember(entry))
+      .map((entry) => key((entry as { name?: unknown } | null)?.name))
+      .filter(Boolean),
+  );
+  const suspects = castNames.filter((n) => !excluded.has(key(n)));
+  return suspects.length >= 2 ? suspects : castNames;
+}
+
 export interface BlindReaderResult {
   suspectedCulprit: string;
   reasoning: string;
@@ -876,6 +906,11 @@ export async function blindReaderSimulation(
     runId?: string;
     projectId?: string;
     placementFilter?: Array<"early" | "mid" | "late">;
+    /**
+     * A6-D04: the CASE cast entries `castNames` came from. With CML_VERIFIED_FIXES on, the detective and the
+     * victim are dropped from "The suspects are:" (see blindReaderSuspectNames). Omitted = the names as given.
+     */
+    caseCast?: unknown[];
     /**
      * X33 continued, 2026-09-07 — the second framing, tried only after a content-filter refusal.
      *
@@ -936,7 +971,7 @@ export async function blindReaderSimulation(
   const user = "Here are all the clues you encountered while reading this mystery:\n\n" +
     clueList + "\n\n" +
     (redHerringList ? "Additional observations:\n" + redHerringList + "\n\n" : "") +
-    "The suspects are: " + castNames.join(", ") + "\n\n" +
+    "The suspects are: " + blindReaderSuspectNames(castNames, inputs.caseCast).join(", ") + "\n\n" + // A6-D04
     "The initial assumption is: \"" + falseAssumption + "\"\n\n" +
     "Based ONLY on these clues, who do you think committed the crime and why? " +
     "If you cannot determine the culprit, explain what information is missing.\n\n" +

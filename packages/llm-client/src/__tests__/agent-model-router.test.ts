@@ -73,3 +73,16 @@ describe("resolveAgentModel", () => {
     for (const a of agents) expect(resolveAgentModel(a, DEFAULT, {})).toBe(DEFAULT);
   });
 });
+
+describe("override outranks an explicit model (owner decision 12, ORC-Q07)", () => {
+  it("a set AGENTn_MODEL wins over the explicit tier the call site passed; unset keeps the explicit model", () => {
+    // client.ts resolves resolveAgentModel(label, options.model || default) — the explicit model is the fallback.
+    expect(resolveAgentModel("Agent6-FairPlayAuditor", "design-deployment", { AGENT6_MODEL: "gpt-4.1" })).toBe("gpt-4.1");
+    expect(resolveAgentModel("Agent6-FairPlayAuditor", "design-deployment", {})).toBe("design-deployment");
+  });
+
+  it("Agent 9 v2 role labels map to no variable anyone sets, so per-role models are untouched", () => {
+    expect(agentModelEnvVar("Agent9v2-Writer-S0-D1")).toBe("AGENT9V2_WRITER_S0_D1_MODEL");
+    expect(resolveAgentModel("Agent9v2-Writer-S0-D1", "prose-model", { AGENT9_MODEL: "other" })).toBe("prose-model");
+  });
+});

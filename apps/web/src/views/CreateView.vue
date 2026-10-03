@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import AppButton from "../components/ui/AppButton.vue";
 import AppIcon from "../components/ui/AppIcon.vue";
 import FieldNumber from "../components/ui/FieldNumber.vue";
@@ -9,6 +9,9 @@ import OptionGroup from "../components/ui/OptionGroup.vue";
 import QuotePanel from "../components/ui/QuotePanel.vue";
 import ScriptNote from "../components/ui/ScriptNote.vue";
 import StepCard from "../components/ui/StepCard.vue";
+import type { Option } from "../components/ui/types";
+import type { CoverStyle } from "../services/api";
+import { stylesForDecade } from "../spec/coverStyles";
 import { brand } from "../design/brand";
 import { composeTheme, mechanismNote } from "../spec/composeTheme";
 import { ANGLE_GROUPS, randomAngle } from "../spec/storyAngles";
@@ -41,10 +44,38 @@ import {
  */
 const spec = defineModel<MysterySpec>({ required: true });
 
-const props = withDefaults(defineProps<{ busy?: boolean; disabled?: boolean }>(), {
-	busy: false,
-	disabled: false,
-});
+const props = withDefaults(
+	defineProps<{
+		busy?: boolean;
+		disabled?: boolean;
+		/**
+		 * The cover-style library (documentation/covers/), from GET /api/cover-styles via the caller — this view
+		 * stays network-free. Empty means covers are unavailable; the select then offers only "No cover".
+		 */
+		coverStyles?: readonly CoverStyle[];
+		/** Why covers are unavailable (no image model), shown under the select. */
+		coverNote?: string | null;
+	}>(),
+	{ busy: false, disabled: false, coverStyles: () => [], coverNote: null },
+);
+
+/**
+ * True to the decade (owner, 2026-10-03): the choices are "No cover", "Surprise me" and the styles of the
+ * decade picked in step 1 — the same rule the server applies to "auto". Changing the decade drops a style
+ * that no longer belongs back to "Surprise me".
+ */
+const coverChoices = computed<readonly Option[]>(() =>
+	props.coverStyles.length === 0
+		? [{ value: "off", label: "No cover" }]
+		: [
+				{ value: "off", label: "No cover" },
+				{ value: "auto", label: "Surprise me (true to the decade)" },
+				...stylesForDecade(props.coverStyles, spec.value.decade).map((s) => ({ value: s.id, label: s.label })),
+			],
+);
+watch(coverChoices, (choices) => {
+	if (props.coverStyles.length && !choices.some((c) => c.value === spec.value.coverStyle)) spec.value.coverStyle = "auto";
+}, { immediate: true });
 
 const emit = defineEmits<{ submit: [MysterySpec] }>();
 
@@ -297,6 +328,15 @@ const onSubmit = () => {
 						label="Length"
 						icon="book"
 						:options="LENGTH_OPTIONS"
+					/>
+					<FieldSelect
+						v-model="spec.coverStyle"
+						label="Book cover"
+						note=" (optional)"
+						icon="bookmark"
+						:options="coverChoices"
+						:help="coverNote ?? 'Painted with the title once the book has one, in a jacket style of its decade.'"
+						:disabled="coverStyles.length === 0"
 					/>
 				</div>
 

@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { join, dirname } from 'path';
+import { join } from 'path';
 import { randomUUID } from 'crypto';
 import type { GenerationReport } from './scoring/types.js';
 import { assertGenerationReportInvariants } from './scoring/report-invariants.js';

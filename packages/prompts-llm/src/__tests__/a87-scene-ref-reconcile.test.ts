@@ -12,10 +12,9 @@ vi.mock("@cml/story-validation", async () => {
     }),
   };
 });
+import { resolveSceneRef } from "../prose-contract/clue-obligations.js";
+import { reconcileCmlSceneRefs, selectRevealScene } from "../prose-contract/scene-ref-reconcile.js";
 
-import { buildChapterObligationBlock } from "../agent9-prose/obligation-block.ts";
-import { resolveSceneRef } from "../agent9-prose/clue-validation.ts";
-import { reconcileCmlSceneRefs, selectRevealScene } from "../agent9-prose/scene-ref-reconcile.ts";
 
 /**
  * A_87 P7 — reconcile the CML scene refs once the outline exists, and prove it against the archive.
@@ -108,30 +107,5 @@ describe("A_87 P7 — reconciling the scene refs against the outline that exists
       return Number(ref.act_number) === finalAct;
     });
     expect(finalActReveals.length).toBe(45);
-  });
-
-  it("P7 and P4c agree on the reveal scene for all 45 pairs", () => {
-    const prior = process.env.AGENT9_SCENE_REF_ARBITRATION;
-    process.env.AGENT9_SCENE_REF_ARBITRATION = "1";
-    try {
-      for (const pair of PAIRS) {
-        const chosen = selectRevealScene({ prose_requirements: pair.prose_requirements }, pair.scenes);
-        const contracted: number[] = [];
-        pair.scenes.forEach((scene: any, i: number) => {
-          const block = buildChapterObligationBlock(
-            [scene], i + 1, caseFor(pair), [] as any, undefined, { clues: [] } as any,
-            undefined, undefined, undefined, undefined, undefined, undefined, pair.scenes, undefined,
-          );
-          if (block.includes("CULPRIT REVELATION REQUIRED")) contracted.push(Number(scene.sceneNumber));
-        });
-        // A_89 B3: both may legitimately decide there is NO separate reveal chapter. The point of
-        // this test is that they never disagree — not that they always find one.
-        if (chosen == null) expect(contracted).toEqual([]);
-        else expect(contracted).toEqual([Number(chosen.sceneNumber)]);
-      }
-    } finally {
-      if (prior === undefined) delete process.env.AGENT9_SCENE_REF_ARBITRATION;
-      else process.env.AGENT9_SCENE_REF_ARBITRATION = prior;
-    }
   });
 });

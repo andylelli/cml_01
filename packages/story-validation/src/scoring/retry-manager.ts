@@ -186,12 +186,14 @@ export class RetryManager {
    */
   recordRetry(agent: string, reason: string, scoreBefore?: number): void {
     const currentCount = this.retryCounts.get(agent) || 0;
+    // The delay before THIS retry: read before the count moves (SCO-D05 — it was read after, so the
+    // first retry recorded and waited the second retry's delay).
+    const backoffMs = this.getBackoffDelay(agent);
     this.retryCounts.set(agent, currentCount + 1);
     this.totalRetries++;
 
     // Add to history
     const history = this.retryHistory.get(agent) || [];
-    const backoffMs = this.getBackoffDelay(agent);
 
     history.push({
       attempt: currentCount + 1,
@@ -280,13 +282,6 @@ export class RetryManager {
   }
 
   /**
-   * Check if enhanced feedback should be provided on retry
-   */
-  shouldProvideEnhancedFeedback(): boolean {
-    return this.config.global.enhanced_feedback;
-  }
-
-  /**
    * Check if generation should be aborted when a phase exceeds max retries
    * Reads abort_on_max_retries from the global config section
    */
@@ -294,19 +289,4 @@ export class RetryManager {
     return this.config.global.abort_on_max_retries;
   }
 
-  /**
-   * Reset retry tracking (for new generation attempt)
-   */
-  reset(): void {
-    this.retryCounts.clear();
-    this.totalRetries = 0;
-    this.retryHistory.clear();
-  }
-
-  /**
-   * Get the complete configuration
-   */
-  getConfig(): RetryLimitsConfig {
-    return this.config;
-  }
 }

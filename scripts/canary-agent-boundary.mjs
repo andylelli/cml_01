@@ -830,8 +830,6 @@ async function buildBaseContext({ client, runId, projectId, canaryInputs = {} })
     maxCmlRevisionAttempts: Number(process.env.MAX_CML_REVISION_ATTEMPTS ?? 2),
     revisedByAgent4: false,
     revisionAttempts: undefined,
-    revisedByAgent4FairPlay: false,
-    fairPlayRevisionAttempts: 0,
     errors: [],
     warnings: [],
     agentCosts: {},

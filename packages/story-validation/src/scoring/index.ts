@@ -15,7 +15,7 @@
  * ```typescript
  * import { ScoreAggregator, RetryManager, ThresholdConfig } from '@cml/story-validation/scoring';
  * 
- * const config: ThresholdConfig = { mode: 'standard' };
+ * const config: ThresholdConfig = {};
  * const retryManager = new RetryManager();
  * const aggregator = new ScoreAggregator(config, retryManager);
  * ```
@@ -36,7 +36,7 @@ export {
 export {
   DEFAULT_THRESHOLDS,
   COMPONENT_MINIMUMS,
-  THRESHOLD_MODES,
+  FALLBACK_THRESHOLD,
   passesThreshold,
   getFailedComponents,
   calculateGrade,
@@ -58,17 +58,6 @@ export {
   GenerationMetadata,
 } from './aggregator.js';
 
-// A/B prompt harness
-export {
-  comparePromptVariants,
-} from './ab-prompt-harness.js';
-export type {
-  PromptVariantRun,
-  PromptVariantSample,
-  AbHarnessConfig,
-  PromptVariantComparison,
-} from './ab-prompt-harness.js';
-
 // Scorer utilities
 export {
   createTest,
@@ -76,42 +65,23 @@ export {
   fail,
   partial,
   exists,
-  hasMinLength,
-  hasMaxLength,
-  inRange,
   hasMinWords,
-  hasRequiredFields,
   calculateWeightedScore,
   calculateCategoryScore,
-  getFailedTests,
   getCriticalFailures,
-  hasCriticalFailures,
-  calculatePassRate,
-  validateSchema,
-  scoreTextQuality,
   scoreArrayCompleteness,
   checkDuplicates,
-  scoreConsistency,
   Severity,
   TestCategory,
 } from './scorer-utils.js';
 
-// Phase scorers
-export { BackgroundContextScorer } from './phase-scorers/agent2e-background-scorer.js';
-export { CastDesignScorer } from './phase-scorers/agent2-cast-scorer.js';
-export { CharacterProfilesScorer } from './phase-scorers/agent2b-character-profiles-scorer.js';
-export { LocationProfilesScorer } from './phase-scorers/agent2c-location-profiles-scorer.js';
-export { TemporalContextScorer } from './phase-scorers/agent2d-temporal-context-scorer.js';
-export { HardLogicScorer } from './phase-scorers/agent4-hard-logic-scorer.js';
-export { NarrativeScorer } from './phase-scorers/agent7-narrative-scorer.js';
-export { SettingRefinementScorer } from './phase-scorers/agent1-setting-refinement-scorer.js';
-export { ProseScorer } from './phase-scorers/agent9-prose-scorer.js';
-export { Agent65WorldBuilderScorer } from './phase-scorers/agent65-world-builder-scorer.js';
-
 // Honest scorers (ANALYSIS_50 Phase 3 — grade the REAL artifact; default OFF, off/shadow/enforce)
-export { parseHonestScorerMode, assembleHonestScore, normalizeAtom } from './honest-scorer.js';
-export type { HonestScorerMode } from './honest-scorer.js';
+export { assembleHonestScore, normalizeAtom } from './honest-scorer.js';
 export { scoreRealCast } from './phase-scorers/agent2-cast-real-scorer.js';
+// SCO-Q07 (2026-10-02): 2b, 2d and 6.5 — the last three vanity scorers — replaced by honest tables.
+export { scoreRealCharacterProfiles } from './phase-scorers/agent2b-character-profiles-real-scorer.js';
+export { scoreRealTemporalContext } from './phase-scorers/agent2d-temporal-context-real-scorer.js';
+export { scoreRealWorldDocument } from './phase-scorers/agent65-world-builder-real-scorer.js';
 export { scoreRealSetting } from './phase-scorers/agent1-setting-real-scorer.js';
 export { scoreRealLocations } from './phase-scorers/agent2c-location-real-scorer.js';
 export { scoreRealBackground } from './phase-scorers/agent2e-background-real-scorer.js';
@@ -119,12 +89,6 @@ export { scoreRealCml } from './phase-scorers/agent3-cml-real-scorer.js';
 export { scoreRealHardLogic } from './phase-scorers/agent3b-device-real-scorer.js';
 export { scoreRealNarrative } from './phase-scorers/agent7-narrative-real-scorer.js';
 
-// Retry feedback
-export { 
-  buildRetryFeedback, 
-  buildConciseRetryFeedback, 
-  getTopFailures 
-} from './retry-feedback.js';
 
 // Report invariant guardrails
 export {
@@ -132,3 +96,11 @@ export {
   assertGenerationReportInvariants,
 } from './report-invariants.js';
 export type { ReportInvariantViolation } from './report-invariants.js';
+
+// SCO-05 — the run outcome, derived once.
+export { deriveRunOutcome, INFRA_SIGNAL_PATTERN } from './run-outcome.js';
+
+// SCO-09 — the scorers' input types.
+export type { RealCharacterProfile } from './phase-scorers/agent2b-character-profiles-real-scorer.js';
+export type { RealTemporalContext } from './phase-scorers/agent2d-temporal-context-real-scorer.js';
+export type { RealWorldDocument } from './phase-scorers/agent65-world-builder-real-scorer.js';

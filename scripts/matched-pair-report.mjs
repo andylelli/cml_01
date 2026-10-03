@@ -51,7 +51,7 @@ for (const f of ["machine-register.js", "voice-spec.js"]) {
 const { machineRegisterRate } = await import(pathToFileURL(join(guardPath, "machine-register.js")).href);
 const { measureVoice, voiceConformance } = await import(pathToFileURL(join(guardPath, "voice-spec.js")).href);
 
-const templates = join(ROOT, "packages", "prompts-llm", "dist", "agent9-prose", "injection-templates.js");
+const templates = join(ROOT, "packages", "prompts-llm", "dist", "prose-contract", "injected-sentences.js");
 const { isInjectedSentence } = existsSync(templates)
   ? await import(pathToFileURL(templates).href)
   : { isInjectedSentence: () => false };

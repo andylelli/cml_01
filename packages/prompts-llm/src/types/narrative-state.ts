@@ -42,8 +42,6 @@ export interface NarrativeState {
   /** Optional chapter-level quality steering values for next-batch prompt shaping. */
   lastChapterQualityScore?: number;
   lastChapterDeficits?: string[];
-  /** [PHASE 4] Beat fingerprints from all committed chapters — injected as FORBIDDEN REPEATS in NSD. */
-  beatHistory?: import('../agent9-prose.js').BeatFingerprint[];
   /** Optional NSD parity checkpoint emitted at every commit. */
   lastNSDCheckpoint?: {
     chapter: number;
@@ -117,32 +115,8 @@ export function initNarrativeState(
     deployedAssets: {},
     lastUsedSensoryVariant: {},
     recurringPhraseWarnings: [],
-    beatHistory: [],
     // victimConfirmedDeadChapter and previousChapterArcPosition default to undefined
   };
-}
-
-/**
- * Migrate a raw (possibly partial/old) NarrativeState from checkpoint storage.
- * Fills in any missing fields added after the checkpoint was written so the
- * orchestrator can safely access all fields on the restored object.
- */
-export function migrateNarrativeState(raw: Partial<NarrativeState> & Record<string, unknown>): NarrativeState {
-  const base = initNarrativeState(raw.lockedFacts ?? [], {});
-  return {
-    ...base,
-    ...raw,
-    // Ensure required array/map fields are never undefined even if raw is old
-    version: 1,  // always pin — raw may have version:undefined from a pre-versioned checkpoint
-    deployedAssets: raw.deployedAssets ?? {},
-    lastUsedSensoryVariant: raw.lastUsedSensoryVariant ?? {},
-    recurringPhraseWarnings: raw.recurringPhraseWarnings ?? [],
-    lastChapterDeficits: raw.lastChapterDeficits ?? [],
-    cluesRevealedToReader: raw.cluesRevealedToReader ?? [],
-    continuityTail: raw.continuityTail ?? '',
-    characterPronouns: raw.characterPronouns ?? {},
-    beatHistory: raw.beatHistory ?? [],
-  } as NarrativeState;
 }
 
 export function stampDeployedAtoms(

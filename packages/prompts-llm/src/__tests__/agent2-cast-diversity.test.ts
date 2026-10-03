@@ -4,6 +4,7 @@ import { designCast, type CastInputs } from "../agent2-cast.js";
 const makeInputs = (): CastInputs => ({
   runId: "run-cast-diversity",
   projectId: "proj-cast-diversity",
+  characterNames: ["Ada Blythe", "Bruno Cade", "Clara Dune", "Dylan Eames", "Etta Firth"],
   castSize: 5,
   setting: "1940s country house",
   crimeType: "murder",

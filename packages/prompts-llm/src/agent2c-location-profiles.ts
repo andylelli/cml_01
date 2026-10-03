@@ -5,14 +5,13 @@
  * Similar to character profiles, but for places and atmosphere.
  */
 
+import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateArtifact } from "@cml/cml";
+import { promptTrimsEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
-import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
-import type { NarrativeOutline } from "./agent7-narrative.js";
-import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface SensoryDetails {
   sights: string[];
@@ -82,7 +81,6 @@ export interface LocationProfilesResult {
 export interface LocationProfilesInputs {
   settingRefinement: SettingRefinement;
   caseData: CaseData;
-  narrative?: NarrativeOutline; // optional — agent2c runs before agent7 so narrative may not exist yet
   tone?: string;
   targetWordCount?: number;
   runId?: string;
@@ -90,19 +88,20 @@ export interface LocationProfilesInputs {
 }
 
 /**
- * R2 (architecture/REVIEW_01.md) — exported so the `narrative`-absent path is testable.
- *
- * `narrative` is undefined on EVERY production run: Agent 2c runs long before Agent 7, which is the
- * only writer of `ctx.narrative`, and the order cannot reverse because Agent 7 consumes these
- * profiles. The degradation path below (empty `narrativeActs` → no scene-derived locations) is
- * therefore the only path that has ever executed, and nothing asserted it until now.
+ * Exported so the prompt is testable. A1X-15 (owner decision 12, CR-30): the `narrative` input is gone — Agent 2c
+ * runs long before Agent 7, the only writer of `ctx.narrative`, so it was undefined on every run and its
+ * scene-location list always rendered empty. The empty "Key locations mentioned in narrative:" line is kept so the
+ * prompt stays byte-identical.
  */
 export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErrors?: string[]) => {
+  // A1X-11(a) (CML_PROMPT_TRIMS, owner decision 12 CR-28), read at call time. ON: the sensory-format rule and the F30-5
+  // minimum are each stated once (they were 3x and 2x), and the schema example no longer models the atoms its own
+  // CROSS-LOCATION DISTINCTNESS rule forbids (beeswax, damp stone, a clock's tick, long shadows). OFF: byte-identical.
+  const trims = promptTrimsEnabled();
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
   const era = inputs.settingRefinement.era.decade ?? "Unknown era";
-  const location = inputs.settingRefinement.location.type ?? "Unknown location";
   const locationType = inputs.settingRefinement.location.type ?? "Unknown";
   const locationDescription = inputs.settingRefinement.location.description ?? "";
   const weather = inputs.settingRefinement.atmosphere.weather ?? "Clear";
@@ -111,20 +110,6 @@ export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, prev
   const crimeScene = cmlCase.meta?.setting?.location ?? "Unknown";
   const tone = inputs.tone ?? "Classic";
   const targetWordCount = inputs.targetWordCount ?? 1000;
-
-  // Extract key locations from narrative scenes (narrative is optional — may not exist yet)
-  const narrativeActs = inputs.narrative && Array.isArray(inputs.narrative.acts) ? inputs.narrative.acts : [];
-  const allScenes = narrativeActs.flatMap((act) => Array.isArray(act.scenes) ? act.scenes : []);
-  const sceneLocations = allScenes
-    .map((scene: any) => {
-      const raw = scene.setting || scene.location;
-      if (typeof raw === 'string') return raw;
-      // Support both { name: "..." } and { location: "..." } object shapes
-      if (raw && typeof raw === 'object') return raw.name || raw.location || raw.id || null;
-      return null;
-    })
-    .filter((loc): loc is string => Boolean(loc));
-  const uniqueLocations = Array.from(new Set(sceneLocations)).slice(0, 5);
 
   // Era markers from setting
   const eraMarkers = [
@@ -172,9 +157,10 @@ Rules:
 - Create mood appropriate to mystery type
 - Balance atmospheric description with functional detail
 - The output JSON MUST include a top-level \`atmosphere\` object with ALL of these required fields: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting this object or any of its required fields will cause schema validation failure and the entire output will be rejected.
-- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no gerund clauses, no subject-verb constructions. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
+${trims ? `- **CRITICAL — Sensory Format (F5a noun-phrase rule)**: Every value in the sensoryDetails arrays (sights, sounds, smells, tactile) and the sensoryVariants arrays MUST be a short noun phrase or gerund of 3–8 words. No complete sentences, no gerund clauses, no conjugated verbs or subject-verb constructions — full sentences WILL be rejected. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold ash in the grate". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
+- F30-5 SENSORY MINIMUM: Each keyLocation's sensoryDetails MUST have at least 4 noun-phrase entries in EACH of sights, sounds, smells, and tactile. The quality scorer counts entries: a location with fewer than 4 in any sense field scores 0 on sensory richness and fails the quality gate. Aim for 5–6 entries per sense; do not generate placeholder or thin lists.` : `- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no gerund clauses, no subject-verb constructions. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
 - F5a NOUN-PHRASE RULE: All values in sensoryDetails arrays (sights, sounds, smells, tactile) and sensoryVariants arrays MUST be short noun phrases of 3–8 words. Do NOT write full sentences, gerund clauses, or any phrase containing a conjugated verb. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
-- F30-5 SENSORY MINIMUM: Each keyLocation's sensoryDetails MUST have at least 4 entries in EACH of sights, sounds, smells, and tactile. Fewer than 4 entries per sense field will fail the quality gate. Aim for 5–6 entries per sense for richness. Sensory richness scoring requires ≥4 noun-phrase entries per field — do not generate placeholder or thin lists.
+- F30-5 SENSORY MINIMUM: Each keyLocation's sensoryDetails MUST have at least 4 entries in EACH of sights, sounds, smells, and tactile. Fewer than 4 entries per sense field will fail the quality gate. Aim for 5–6 entries per sense for richness. Sensory richness scoring requires ≥4 noun-phrase entries per field — do not generate placeholder or thin lists.`}
 - Output valid JSON only.`;
 
   const developer = `# Location Profiles Output Schema
@@ -220,7 +206,7 @@ object will cause schema validation failure and the entire output will be reject
       "sensoryDetails": {
         "sights": ["candlelight on dark oak", "rain-streaked window panes"],
         "sounds": ["crackling fire", "pages turning in the silence"],
-        "smells": ["beeswax and cold ash", "damp stone and old leather"],
+        "smells": ${trims ? `["a scent unique to this room", "a second, contrasting scent"]` : `["beeswax and cold ash", "damp stone and old leather"]`},
         "tactile": ["worn leather armchair", "chill draft from the casement"]
       },
       "accessControl": "Who can access this location and when",
@@ -239,16 +225,16 @@ object will cause schema validation failure and the entire output will be reject
           "timeOfDay": "afternoon",
           "weather": "overcast",
           "sights": ["flat pewter light", "shadows without edges"],
-          "sounds": ["silence broken by a distant clock", "the creak of old timbers"],
-          "smells": ["beeswax", "dust", "woodsmoke"],
+          "sounds": ${trims ? `["a sound unique to this hour", "the creak of old timbers"]` : `["silence broken by a distant clock", "the creak of old timbers"]`},
+          "smells": ${trims ? `["dust", "woodsmoke", "a scent unique to this room"]` : `["beeswax", "dust", "woodsmoke"]`},
           "mood": "uneasy stillness"
         },
         {
           "id": "evening_clear",
           "timeOfDay": "evening",
           "weather": "clear",
-          "sights": ["candlelight catching brass fittings", "long shadows across the floor"],
-          "sounds": ["the tick of a mantel clock", "distant voices from below stairs"],
+          "sights": ${trims ? `["candlelight catching brass fittings", "a sight unique to this hour"]` : `["candlelight catching brass fittings", "long shadows across the floor"]`},
+          "sounds": ${trims ? `["a sound unique to this room", "distant voices from below stairs"]` : `["the tick of a mantel clock", "distant voices from below stairs"]`},
           "smells": ["candle wax", "tobacco", "cold fireplace ash"],
           "mood": "tense anticipation"
         }
@@ -265,11 +251,11 @@ Requirements:
 - CROSS-LOCATION DISTINCTNESS (critical): every location must have a DIFFERENT dominant sensory signature and mood. Do NOT reuse the same scents/sounds (e.g. "tick of the clock", "damp stone", "beeswax", "long shadows") across multiple locations — a reader should tell the rooms apart by palette alone. The crime scene in particular must have its own unmistakable sensory identity. Each location's sensoryVariants must also differ from the top-level atmosphere block, so chapters set in different rooms don't all open the same way.
 - If the narrative does not suggest specific sub-locations, invent context-appropriate ones for the setting type (rooms, outbuildings, grounds, nearby places). A country house has a library, a study, a drawing room, a servants\'s hall, gardens. An ocean liner has a dining saloon, a promenade deck, a cabin corridor, a cargo hold.
 - Atmosphere: 2-3 paragraphs
-- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 5–6 entries per sense field to ensure richness.
+${trims ? `- All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)` : `- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 5–6 entries per sense field to ensure richness.
   ✓ CORRECT: "crackling fire" / "damp stone underfoot" / "wood smoke and tallow" / "worn leather armrest"
   ✗ WRONG: "The fire crackles in the hearth, providing warmth." / "A rich scent of beeswax fills the air."
 - All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)
-- **F30-5 SENSORY MINIMUM**: MINIMUM 4 noun-phrase entries per sense field (sights, sounds, smells, tactile). The quality scorer counts entries — locations with fewer than 4 entries in any sense field score 0 on sensory richness and will fail quality validation. Target 5–6 entries per field.
+- **F30-5 SENSORY MINIMUM**: MINIMUM 4 noun-phrase entries per sense field (sights, sounds, smells, tactile). The quality scorer counts entries — locations with fewer than 4 entries in any sense field score 0 on sensory richness and will fail quality validation. Target 5–6 entries per field.`}
 - Era-authentic markers: ${eraMarkers.join(', ')}
 - Tone: ${tone}
 - No anachronisms
@@ -321,7 +307,7 @@ IMPORTANT - Geographic Specificity:
 - Make the choice contextually appropriate to the era (${era}) and setting type
 
 Key locations mentioned in narrative:
-${uniqueLocations.map((loc, idx) => `${idx + 1}. ${loc}`).join('\n')}
+
 
 Setting constraints:
 - Physical constraints: ${(inputs.settingRefinement.location.physicalConstraints || []).join(', ')}
@@ -348,51 +334,23 @@ export async function generateLocationProfiles(
   inputs: LocationProfilesInputs,
   maxAttempts?: number
 ): Promise<LocationProfilesResult> {
-  const start = Date.now();
   const config = getGenerationParams().agent2c_location_profiles.params;
   const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
-  const retryResult = await withValidationRetry({
-    maxAttempts: resolvedMaxAttempts,
+  // CR-20 (A1X-03): the shell 2b, 2c, 2d and 2e each wrote out — shared/json-artifact-generator.ts.
+  const { result, cost, durationMs } = await generateJsonArtifact<Omit<LocationProfilesResult, "cost" | "durationMs">>(client, {
     agentName: "Agent 2c (Location Profiles)",
-    validationFn: (data) => {
-      // Validate against location_profiles schema
-      const validationPayload = {
-        ...(data as Record<string, unknown>),
-        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
-        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
-      };
-      const validation = validateArtifact("location_profiles", validationPayload);
-      return {
-        valid: validation.valid,
-        errors: validation.errors,
-        warnings: validation.warnings,
-      };
-    },
-    generateFn: async (attempt, previousErrors) => {
-      const prompt = buildLocationProfilesPrompt(inputs, previousErrors);
-
-      const response = await client.chat({
-        messages: prompt.messages,
-        temperature: config.model.temperature,
-        maxTokens: config.model.max_tokens,
-        jsonMode: true,
-        logContext: {
-          runId: inputs.runId ?? "",
-          projectId: inputs.projectId ?? "",
-          agent: "Agent2c-LocationProfiles",
-          retryAttempt: attempt,
-        },
-      });
-
-      let profiles: Omit<LocationProfilesResult, "cost" | "durationMs">;
-      try {
-        profiles = JSON.parse(response.content);
-      } catch (error) {
-        const repaired = jsonrepair(response.content);
-        profiles = JSON.parse(repaired);
-      }
-
+    label: "Agent2c-LocationProfiles",
+    logName: "[Agent 2c] Location profiles",
+    schema: "location_profiles",
+    withRunMeta: true,
+    maxAttempts: resolvedMaxAttempts,
+    model: config.model,
+    runId: inputs.runId,
+    projectId: inputs.projectId,
+    guard: true, // owner decision 3 (ORC-Q03)
+    buildMessages: (previousErrors) => buildLocationProfilesPrompt(inputs, previousErrors).messages,
+    structuralCheck: (profiles) => {
       // Basic structure validation
       if (!profiles.primary || !Array.isArray(profiles.primary.paragraphs) || profiles.primary.paragraphs.length === 0) {
         throw new Error("Invalid location profiles output: missing primary location");
@@ -441,36 +399,13 @@ export async function generateLocationProfiles(
           'Invalid location profiles output: atmosphere.paragraphs must be a non-empty string array (2-3 narrative paragraphs).'
         );
       }
-
-      const costTracker = client.getCostTracker();
-      const cost = costTracker.getSummary().byAgent["Agent2c-LocationProfiles"] || 0;
-
-      return { result: profiles, cost };
     },
   });
-
-  // Log validation warnings if any
-  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
-    console.warn(
-      `[Agent 2c] Location profiles validation warnings:\n` +
-      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
-    );
-  }
-
-  // If validation failed after all retries, log errors but continue
-  if (!retryResult.validationResult.valid) {
-    console.error(
-      `[Agent 2c] Location profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
-      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
-    );
-  }
-
-  const durationMs = Date.now() - start;
-  const validatedResult = retryResult.result as LocationProfilesResult;
+  const validatedResult = result as LocationProfilesResult;
 
   return {
     ...validatedResult,
-    cost: retryResult.totalCost,
+    cost: cost,
     durationMs,
   };
 }

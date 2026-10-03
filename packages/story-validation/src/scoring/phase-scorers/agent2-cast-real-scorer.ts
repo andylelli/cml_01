@@ -15,9 +15,9 @@
  * metrics — distinctness, graph connectivity, gender completeness, dangling references —
  * never fabricated arrays.
  *
- * It is NOT wired into the live scoring path. It introduces zero risk to current scoring:
- * the existing scorer, adapter, and all live wiring are untouched. It returns a
- * `PhaseScore`-compatible shape so it can be slotted in when the redesign lands.
+ * It is wired: Agent 2's scoring step (apps/worker/src/jobs/agents/phase-scoring.ts) passes it to
+ * `applyHonestScorer`, which logs it under HONEST_SCORERS=shadow and returns it under =enforce; the
+ * default (off) keeps the vanity score. (The header said "NOT wired" long after it was — SCO-11.)
  *
  * Dependency note: `@cml/prompts-llm` is NOT a dependency of `@cml/story-validation`
  * (its deps are `@cml/cml`, `@cml/llm-client`, `js-yaml`). To keep that boundary clean,

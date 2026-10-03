@@ -1,3 +1,4 @@
+import { readBooleanFlag } from "@cml/cml";
 import express from "express";
 import cors from "cors";
 import { promises as fs } from "fs";
@@ -7,6 +8,7 @@ import { createRepository } from "./db.js";
 import { validateCml, MOJIBAKE_REPLACEMENTS } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle } from "@cml/prompts-llm";
+import { storyTitleFor, withStoryTitle } from "./project-title.js";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import {
   buildLlmLogger as buildWorkerLlmLogger,
@@ -17,6 +19,8 @@ import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { registerNarrationRoutes } from "./narration.js";
+import { registerRunRoute } from "./run-route.js";
+import { createRunCoverHooks, registerCoverRoutes, withCover } from "./covers.js";
 
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"] as const);
 
@@ -53,7 +57,8 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "../../..");
 const libraryWorksDir = path.resolve(workspaceRoot, "library", "works");
-const storiesDir = path.resolve(workspaceRoot, "stories");
+// CML_STORIES_DIR — the same override resume-run honours; the API tests point it at a temp dir.
+const storiesDir = path.resolve((process.env.CML_STORIES_DIR ?? "").trim() || path.join(workspaceRoot, "stories"));
 
 /**
  * A_98 — the samples endpoints read `library/works/`, which is where the corpus lives.
@@ -703,7 +708,7 @@ const runPipeline = async (
     // Only the explicit operator skip is decided here. The threshold-based skip is the WORKER's call
     // (agent3-run.ts), which applies effectiveNoveltyThreshold() first — otherwise the raw `>= 1`
     // here would override the NOVELTY_CROSS_RUN cap and silently disable the audit (P1.1 dead flip).
-    const skipNoveltyCheck = String(process.env.NOVELTY_SKIP || "").toLowerCase() === "true";
+    const skipNoveltyCheck = readBooleanFlag("NOVELTY_SKIP", false);
 
 
     const storyAngle = typeof specPayload?.storyAngle === "string" && specPayload.storyAngle.trim()
@@ -750,8 +755,11 @@ const runPipeline = async (
     // Artifact callback — persists each artifact to the DB immediately after the
     // agent that generated it completes. This allows the UI to display data via
     // polling during the run rather than waiting for the full pipeline to finish.
+    // Book cover (documentation/covers/, covers.ts): painted once the CML names the book; never fails the run.
+    const cover = createRunCoverHooks(repo, { workspaceRoot, storiesDir }, { projectId, runId, spec: specPayload });
     const onArtifact = async (type: string, payload: unknown) => {
       await repo.createArtifact(projectId, type, payload, null);
+      cover.onArtifact(type, payload);
     };
 
     // Call real LLM pipeline
@@ -886,6 +894,7 @@ const runPipeline = async (
     await repo.addRunEvent(runId, "prose_done", `Prose generated (${inputs.targetLength} format)`);
     try {
       const storyFilename = await saveReadableStoryText(projectId, sanitizedProse, runId, synopsis.title as string | undefined);
+      await cover.onStorySaved({ storyRelPath: storyFilename, title: synopsis.title, prose: sanitizedProse, inputs, cml: result.cml });
       await repo.addRunEvent(runId, "story_text_done", `Story text saved (${storyFilename})`);
     } catch (storySaveError) {
       await repo.addRunEvent(runId, "story_text_warning", `Story text save skipped: ${describeError(storySaveError)}`);
@@ -1325,20 +1334,20 @@ export const createServer = () => {
 
   app.get("/api/projects", (_req, res) => {
     repoPromise
-      .then((repo) => repo.listProjects())
+      .then(async (repo) => Promise.all((await repo.listProjects()).map(async (p) => withCover(repo, await withStoryTitle(repo, p)))))
       .then((projects) => res.json({ projects }))
       .catch(() => res.status(500).json({ error: "Failed to list projects" }));
   });
 
   app.get("/api/projects/:id", (_req, res) => {
     repoPromise
-      .then((repo) => repo.getProject(_req.params.id))
-      .then((project) => {
+      .then(async (repo) => {
+        const project = await repo.getProject(_req.params.id);
         if (!project) {
           res.status(404).json({ error: "Project not found" });
           return;
         }
-        res.json(project);
+        res.json(await withStoryTitle(repo, project));
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
   });
@@ -1388,53 +1397,8 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch latest spec" }));
   });
 
-  app.post("/api/projects/:id/run", (_req, res) => {
-    repoPromise
-      .then((repo) => repo.getProject(_req.params.id))
-      .then((project) => {
-        if (!project) {
-          res.status(404).json({ error: "Project not found" });
-          return null;
-        }
-
-        const hasAzureCreds = Boolean(process.env.AZURE_OPENAI_ENDPOINT && process.env.AZURE_OPENAI_API_KEY);
-        if (!hasAzureCreds) {
-          res.status(503).json({ error: "Azure OpenAI credentials missing; pipeline requires LLM access." });
-          return null;
-        }
-
-        return repoPromise.then(async (repo) => {
-          const run = await repo.createRun(project.id, "running");
-          await repo.setProjectStatus(project.id, "running");
-          await repo.addRunEvent(run.id, "run_started", "Pipeline run started");
-
-          const latestSpec = await repo.getLatestSpec(project.id);
-          const specPayload = (latestSpec?.spec as Record<string, unknown>) ?? undefined;
-
-          setTimeout(() => {
-            const PIPELINE_TIMEOUT_MS = parseInt(process.env.PIPELINE_TIMEOUT_MS || "7200000", 10); // default 2 hours
-            const timeoutPromise = new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("Pipeline exceeded maximum allowed duration")), PIPELINE_TIMEOUT_MS)
-            );
-            Promise.race([runPipeline(repoPromise, project.id, run.id, specPayload), timeoutPromise])
-              .then(async () => {
-                await repo.updateRunStatus(run.id, "idle");
-                await repo.setProjectStatus(project.id, "idle");
-                await repo.addRunEvent(run.id, "run_finished", "Pipeline run finished");
-              })
-              .catch(async () => {
-                await repo.updateRunStatus(run.id, "idle");
-                await repo.setProjectStatus(project.id, "idle");
-                await repo.addRunEvent(run.id, "run_failed", "Pipeline failed");
-              });
-          }, 0);
-
-          res.status(202).json({ status: "running", projectId: project.id, runId: run.id });
-          return project;
-        });
-      })
-      .catch(() => res.status(500).json({ error: "Failed to start run" }));
-  });
+  registerRunRoute(app, repoPromise, runPipeline); // owner decision 11: one run at a time (run-route.ts)
+  registerCoverRoutes(app, repoPromise, { workspaceRoot, storiesDir }); // documentation/covers/
 
   app.get("/api/projects/:id/status", (_req, res) => {
     repoPromise
@@ -2148,19 +2112,13 @@ export const createServer = () => {
         res.status(404).json({ error: "Prose artifact not found" });
         return;
       }
-      const synopsis = await repo.getLatestArtifact(req.params.id, "synopsis");
       const project = await repo.getProject(req.params.id);
       const prosePayload = artifact.payload as Record<string, unknown>;
-      const synopsisTitle = synopsis?.payload && typeof synopsis.payload === "object"
-        ? (synopsis.payload as Record<string, unknown>).title
-        : undefined;
       const fallbackTitle =
         (typeof prosePayload.title === "string" && prosePayload.title.trim().length > 0
           ? prosePayload.title
           : undefined)
-        || (typeof synopsisTitle === "string" && synopsisTitle.trim().length > 0
-          ? synopsisTitle
-          : undefined)
+        || (await storyTitleFor(repo, req.params.id))
         || (typeof project?.name === "string" && project.name.trim().length > 0
           ? project.name
           : undefined)

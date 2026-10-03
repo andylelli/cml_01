@@ -7,7 +7,9 @@ import HeroBanner from "../components/ui/HeroBanner.vue";
 import ProgressTrack from "../components/ui/ProgressTrack.vue";
 import StepCard from "../components/ui/StepCard.vue";
 import NarrationPanel from "../components/NarrationPanel.vue";
-import { downloadStoryPdf, fetchProjectStatus } from "../services/api";
+import CoverPanel from "../components/CoverPanel.vue";
+import CoverFigure from "../components/CoverFigure.vue";
+import { downloadStoryPdf, fetchCover, fetchProjectStatus, type CoverInfo } from "../services/api";
 import { deriveProgress, deriveStages } from "../run/timeline";
 import { useProjectStore } from "../stores/projectStore";
 
@@ -32,13 +34,14 @@ import { useProjectStore } from "../stores/projectStore";
  */
 
 const props = defineProps<{ projectId: string; projectName?: string }>();
-const emit = defineEmits<{ back: []; openWorkshop: [] }>();
+const emit = defineEmits<{ back: []; openWorkshop: []; titled: [string] }>();
 
 const store = useProjectStore();
 const {
 	settingData,
 	castData,
 	synopsisData,
+	storyTitle,
 	proseData,
 	characterProfilesData,
 	locationProfilesData,
@@ -55,6 +58,26 @@ const error = ref<string | null>(null);
 let poll: ReturnType<typeof setInterval> | null = null;
 
 const isRunning = computed(() => status.value === "running");
+
+/* ── the cover (documentation/covers/) ───────────────────────────────────────────────────────── */
+
+/**
+ * Painted during the run once the book has its title (one image, title included), from the setting —
+ * so it is loaded with everything else and polled while it paints. A failed read just means no cover.
+ */
+const cover = ref<CoverInfo | null>(null);
+const coverPainting = computed(() => !!cover.value?.inProgress || cover.value?.status === "painting");
+const loadCover = async () => {
+	try {
+		cover.value = await fetchCover(props.projectId);
+	} catch {
+		cover.value = null;
+	}
+};
+const onCoverRequested = async () => {
+	cover.value = { ...(cover.value ?? {}), inProgress: true, status: "painting" };
+	syncPoll();
+};
 const stages = computed(() => deriveStages(runEventsData.value ?? []));
 const progress = computed(() => deriveProgress(runEventsData.value ?? []));
 const hasFailed = computed(() => stages.value.some((s) => s.status === "failed"));
@@ -87,6 +110,7 @@ const toggleSpoilers = () => {
 
 const refresh = async () => {
 	try {
+		void loadCover();
 		const [projectStatus] = await Promise.all([
 			fetchProjectStatus(props.projectId),
 			store.loadRunEvents(props.projectId),
@@ -103,13 +127,14 @@ const refresh = async () => {
 	syncPoll();
 };
 
-/** Poll only while the pipeline is actually working. */
+/** Poll only while the pipeline — or the cover — is actually working. */
 const syncPoll = () => {
-	if (isRunning.value && !poll) {
+	const working = isRunning.value || coverPainting.value;
+	if (working && !poll) {
 		poll = setInterval(refresh, 4000);
 		return;
 	}
-	if (!isRunning.value && poll) {
+	if (!working && poll) {
 		clearInterval(poll);
 		poll = null;
 	}
@@ -138,7 +163,15 @@ const download = async () => {
 
 /* ── derived ─────────────────────────────────────────────────────────────────────────────────── */
 
-const title = computed(() => synopsisData.value?.title || props.projectName || "Untitled case");
+const title = computed(() => storyTitle.value || props.projectName || "Untitled case");
+
+/**
+ * The title lands mid-run (the synopsis is written after Agent 3), long after the shell named this
+ * case from the spec. Tell the shell, so the nav tab and the browser tab stop saying "1930s · …".
+ */
+watch(storyTitle, (t) => {
+	if (t) emit("titled", t);
+}, { immediate: true });
 
 /**
  * THE LEDE MUST NOT GIVE THE METHOD AWAY.
@@ -281,14 +314,31 @@ onBeforeUnmount(() => {
 
 		<p v-if="loading" class="t-subtitle">Opening the case file…</p>
 
-		<!-- ── progress, while it is being written ─────────────────────── -->
-		<ProgressTrack
-			v-if="!loading && (isRunning || hasFailed)"
-			:stages="stages"
-			:percent="progress.percent"
-			:label="progress.label"
-			:failed="hasFailed"
-		/>
+		<!-- ── the cover, beside the progress ───────────────────────────
+		     The cover is painted during the run, once the book has its title, so a reader following a run
+		     watches it arrive next to the stages. Without a cover the progress keeps the full width. -->
+		<div
+			v-if="!loading && (cover || isRunning || hasFailed)"
+			class="grid items-start gap-4"
+			:class="cover ? 'sm:grid-cols-[minmax(0,200px)_1fr]' : ''"
+		>
+			<CoverFigure v-if="cover" :cover="cover" :title="title" />
+			<div class="flex min-w-0 flex-col gap-3">
+				<ProgressTrack
+					v-if="isRunning || hasFailed"
+					:stages="stages"
+					:percent="progress.percent"
+					:label="progress.label"
+					:failed="hasFailed"
+				/>
+				<p v-if="cover && !isRunning && !hasFailed" class="t-subtitle text-[0.8rem]">
+					<template v-if="cover.status === 'ready'">The cover for this case.</template>
+					<template v-else-if="coverPainting">The cover is being painted.</template>
+					<template v-else>No cover was made this time.</template>
+					<span v-if="hasStory"> Change it under <a href="#the-cover" class="underline">The Cover</a> below.</span>
+				</p>
+			</div>
+		</div>
 
 		<!-- ── the dossier, appearing as each piece lands ──────────────── -->
 
@@ -486,6 +536,23 @@ onBeforeUnmount(() => {
 			</article>
 		</StepCard>
 
+		<!-- ── the cover (documentation/covers/) ───────────────────────── -->
+		<StepCard
+			v-if="hasStory"
+			id="the-cover"
+			icon="bookmark"
+			title="The Cover"
+			subtitle="A jacket in the manner of the period. Make a new one in any style."
+		>
+			<CoverPanel
+				:project-id="projectId"
+				:has-story="hasStory"
+				:cover="cover"
+				:decade="settingData?.decade ?? backgroundContextData?.era?.decade ?? null"
+				@requested="onCoverRequested"
+			/>
+		</StepCard>
+
 		<!-- ── read aloud ──────────────────────────────────────────────── -->
 		<StepCard
 			v-if="hasStory"
@@ -493,7 +560,7 @@ onBeforeUnmount(() => {
 			title="Listen"
 			subtitle="The manuscript, narrated. Play it here or take the file with you."
 		>
-			<NarrationPanel :project-id="projectId" :has-story="hasStory" />
+			<NarrationPanel :project-id="projectId" :has-story="hasStory" :story-title="storyTitle" />
 		</StepCard>
 
 		<!-- ── spoilers ────────────────────────────────────────────────── -->

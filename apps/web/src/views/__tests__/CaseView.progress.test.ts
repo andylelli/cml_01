@@ -15,6 +15,7 @@ import { deriveProgress, deriveStages } from "../../run/timeline";
  */
 
 vi.mock("../../services/api", () => ({
+	fetchCover: vi.fn(async () => null),
 	fetchProjectStatus: vi.fn(async () => ({ projectId: "p1", status: "running" })),
 	downloadStoryPdf: vi.fn(async () => new Blob()),
 }));

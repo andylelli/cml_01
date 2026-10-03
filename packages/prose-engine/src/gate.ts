@@ -21,6 +21,7 @@
  */
 
 import { indexChapters } from "./chapter-index.js";
+import { keyTermHits } from "./clue-terms.js";
 import { namesAsCulprit } from "./culprit.js";
 import type { ContractCore, Finding, ProseChapterLike } from "./types.js";
 
@@ -103,7 +104,7 @@ export const applyGate = (args: {
   for (const id of args.core.fairPlay.decisiveClueIds) {
     const surface = args.core.scenes.flatMap((s) => s.mustSurface).find((s) => s.id === id);
     if (!surface || surface.keyTerms.length < 3) continue;
-    const hits = surface.keyTerms.filter((t) => beforeReveal.includes(t)).length;
+    const hits = keyTermHits(surface.keyTerms, beforeReveal, "substring");
     if (hits === 0) {
       stops.push(`the decisive clue ${id} is on no page before the reveal (${surface.keyTerms.slice(0, 4).join(", ")})`);
     }

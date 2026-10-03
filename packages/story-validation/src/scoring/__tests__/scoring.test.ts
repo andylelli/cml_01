@@ -36,9 +36,8 @@ function makeScore(
   };
 }
 
-const standardConfig: ThresholdConfig = { mode: "standard" };
-const strictConfig: ThresholdConfig = { mode: "strict" };
-const lenientConfig: ThresholdConfig = { mode: "lenient" };
+// SCO-Q03: one threshold table — the strict / lenient modes are deleted. `mode` is accepted and ignored.
+const standardConfig: ThresholdConfig = {};
 
 // ─── Grade Calculation ────────────────────────────────────────────────────────
 
@@ -76,22 +75,32 @@ describe("calculateGrade", () => {
 // ─── Threshold Resolution ─────────────────────────────────────────────────────
 
 describe("getThreshold", () => {
-  it("returns phase-specific strict threshold for agent4-hard-logic", () => {
-    // strict mode has agent4-hard-logic = 90
-    expect(getThreshold("agent4-hard-logic", strictConfig)).toBe(90);
+  it("returns the phase-specific hard-logic bar for agent3b-hard-logic", () => {
+    expect(getThreshold("agent3b-hard-logic", standardConfig)).toBe(85);
   });
 
-  it("returns DEFAULT_THRESHOLDS value in standard mode", () => {
+  it("returns the DEFAULT_THRESHOLDS value", () => {
     expect(getThreshold("agent2-cast", standardConfig)).toBe(DEFAULT_THRESHOLDS["agent2-cast"]);
-    expect(getThreshold("agent4-hard-logic", standardConfig)).toBe(DEFAULT_THRESHOLDS["agent4-hard-logic"]);
+    expect(getThreshold("agent3b-hard-logic", standardConfig)).toBe(DEFAULT_THRESHOLDS["agent3b-hard-logic"]);
+    expect(getThreshold("agent9-prose", standardConfig)).toBe(80); // still emitted (pipeline/abort.ts) — kept
+  });
+
+  it("ignores a legacy `mode` (SCO-Q03): the production constructor's { mode: 'standard' } reads the one table", () => {
+    for (const agent of ["agent2-cast", "agent3b-hard-logic", "agent9-prose", "agent2d-temporal-context", "agent-unknown"]) {
+      expect(getThreshold(agent, { mode: "standard" })).toBe(getThreshold(agent, {}));
+    }
+  });
+
+  it("no longer carries the dead agent4-hard-logic key (SCO-Q03)", () => {
+    expect(DEFAULT_THRESHOLDS["agent4-hard-logic"]).toBeUndefined();
   });
 
   it("uses override when provided", () => {
-    const cfg: ThresholdConfig = { mode: "standard", overrides: { "agent2-cast": 90 } };
+    const cfg: ThresholdConfig = { overrides: { "agent2-cast": 90 } };
     expect(getThreshold("agent2-cast", cfg)).toBe(90);
   });
 
-  it("falls back to 75 for unknown agents in standard mode", () => {
+  it("falls back to 75 for unknown agents", () => {
     expect(getThreshold("agent-unknown", standardConfig)).toBe(75);
   });
 });
@@ -157,16 +166,14 @@ describe("passesThreshold", () => {
     expect(passesThreshold(score, standardConfig)).toBe(true);
   });
 
-  it("strict mode raises the bar — a score of 80 fails agent4-hard-logic under strict", () => {
-    // strict has agent4-hard-logic = 90
-    const score = makeScore({ agent: "agent4-hard-logic", total: 80 });
-    expect(passesThreshold(score, strictConfig)).toBe(false);
+  it("a phase-specific bar applies — a score of 80 fails agent3b-hard-logic (85), passes agent2-cast (75)", () => {
+    expect(passesThreshold(makeScore({ agent: "agent3b-hard-logic", total: 80 }), standardConfig)).toBe(false);
+    expect(passesThreshold(makeScore({ agent: "agent2-cast", total: 80 }), standardConfig)).toBe(true);
   });
 
-  it("lenient mode lowers the bar — a score of 68 passes agent1-background under lenient", () => {
-    // lenient default = 65
-    const score = makeScore({ agent: "agent1-background", total: 68 });
-    expect(passesThreshold(score, lenientConfig)).toBe(true);
+  it("an agent the table does not name uses the 75 fallback — 74 fails, 75 passes agent1-background", () => {
+    expect(passesThreshold(makeScore({ agent: "agent1-background", total: 74 }), standardConfig)).toBe(false);
+    expect(passesThreshold(makeScore({ agent: "agent1-background", total: 75 }), standardConfig)).toBe(true);
   });
 });
 
@@ -254,6 +261,13 @@ describe("RetryManager", () => {
     expect(delay1).toBeGreaterThan(delay0);
   });
 
+  it("records the delay BEFORE the retry it precedes (SCO-D05: the first retry is the base delay)", () => {
+    manager.recordRetry("agent3b_hard_logic_devices", "low score", 60);
+    manager.recordRetry("agent3b_hard_logic_devices", "low score", 62);
+    const history = (manager as any).retryHistory.get("agent3b_hard_logic_devices");
+    expect(history.map((h: any) => h.backoff_ms)).toEqual([2000, 4000]);
+  });
+
   it("returns zero delay for 'none' backoff strategy", () => {
     // agent2d_temporal_context uses none
     const delay = manager.getBackoffDelay("agent2d_temporal_context");
@@ -305,9 +319,9 @@ describe("ScoreAggregator", () => {
       1000
     );
     agg.addPhaseScore(
-      "agent4-hard-logic",
+      "agent3b-hard-logic",
       "Hard Logic",
-      makeScore({ agent: "agent4-hard-logic", total: 60, passed: false }),
+      makeScore({ agent: "agent3b-hard-logic", total: 60, passed: false }),
       2000
     );
     const report = agg.generateReport(metadata);
@@ -338,24 +352,24 @@ describe("ScoreAggregator", () => {
     const agg = new ScoreAggregator(standardConfig);
     agg.addPhaseScore("agent2-cast", "Cast Design", makeScore(), 1000);
     agg.addPhaseScore(
-      "agent4-hard-logic",
+      "agent3b-hard-logic",
       "Hard Logic",
-      makeScore({ agent: "agent4-hard-logic" }),
+      makeScore({ agent: "agent3b-hard-logic" }),
       2000
     );
     const report = agg.generateReport(metadata);
     expect(report.phases).toHaveLength(2);
     expect(report.phases.map((p) => p.agent)).toContain("agent2-cast");
-    expect(report.phases.map((p) => p.agent)).toContain("agent4-hard-logic");
+    expect(report.phases.map((p) => p.agent)).toContain("agent3b-hard-logic");
   });
 
   it("calculates summary stats: phases_passed and phases_failed", () => {
     const agg = new ScoreAggregator(standardConfig);
     agg.addPhaseScore("agent2-cast", "Cast", makeScore({ total: 85 }), 1000);
     agg.addPhaseScore(
-      "agent4-hard-logic",
+      "agent3b-hard-logic",
       "Hard Logic",
-      makeScore({ agent: "agent4-hard-logic", total: 50, passed: false, validation_score: 40 }),
+      makeScore({ agent: "agent3b-hard-logic", total: 50, passed: false, validation_score: 40 }),
       2000
     );
     const report = agg.generateReport(metadata);
@@ -591,5 +605,21 @@ describe("ScoreAggregator", () => {
     expect(report.run_outcome).toBe("infra_failure");
     expect(report.run_outcome_reason).toBe("Infrastructure failure (DNS/connectivity)");
     expect(report.passed).toBe(false);
+  });
+});
+
+// SCO-D02 — the honest Agent 3b scorer names itself 'agent3b-hard-logic'; its bar is the hard-logic 85, not the
+// 75 fallback. SCO-Q03 deleted the dead 'agent4-hard-logic' key it used to be compared with, and the modes.
+describe("thresholds — Agent 3b's honest scorer has the hard-logic bar (SCO-D02)", () => {
+  const score = (agent: string, total: number): PhaseScore => ({
+    agent, total, grade: "B", passed: true, tests: [],
+    validation_score: 100, quality_score: 100, completeness_score: 100, consistency_score: 100,
+  } as PhaseScore);
+  it("agent3b-hard-logic passes at 85 and above, fails below — with or without a legacy mode", async () => {
+    const { passesThreshold } = await import("../thresholds.js");
+    for (const config of [{}, { mode: "standard" as const }]) {
+      for (const total of [74, 76, 80, 84]) expect(passesThreshold(score("agent3b-hard-logic", total), config)).toBe(false);
+      for (const total of [85, 86, 91]) expect(passesThreshold(score("agent3b-hard-logic", total), config)).toBe(true);
+    }
   });
 });

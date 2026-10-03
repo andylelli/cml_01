@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   deriveClueObservable,
-  deriveClueDescription,
   checkPointsToDistinctness,
   type Clue,
 } from "../agent5-clues.js";
-import { chapterMentionsRequiredClue } from "../agent9-prose/clue-validation.js";
+import { chapterMentionsRequiredClue } from "../prose-contract/clue-obligations.js";
+
 
 function clue(partial: Partial<Clue>): Clue {
   return {
@@ -39,20 +39,6 @@ describe("deriveClueObservable (P1.2)", () => {
   it("falls back when observable is blank/whitespace", () => {
     expect(deriveClueObservable({ observable: "   ", description: "fallback text" })).toBe(
       "fallback text",
-    );
-  });
-});
-
-describe("deriveClueDescription (P1.2)", () => {
-  it("keeps the planning description as the canonical value", () => {
-    expect(
-      deriveClueDescription({ description: "spec sentence", observable: "on-page thing" }),
-    ).toBe("spec sentence");
-  });
-
-  it("falls back to observable only when description is blank", () => {
-    expect(deriveClueDescription({ description: "  ", observable: "on-page thing" })).toBe(
-      "on-page thing",
     );
   });
 });

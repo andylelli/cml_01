@@ -488,3 +488,30 @@ describe("Agent 8: Novelty Auditor - Prompt Building", () => {
     expect(prompt.user).toContain("Same era (Victorian England)");
   });
 });
+
+/**
+ * A1X-D09 — auditNovelty's parse was strict only and its throw leaves runAgent3, so a sloppy but
+ * complete payload aborted the run. It now takes the guarded ladder: sloppy is repaired, truncated
+ * is still refused with the message it always threw.
+ */
+describe("Agent 8: parse (A1X-D09)", () => {
+  const audit = async (content: string) => {
+    const { auditNovelty } = await import("../agent8-novelty.js");
+    const client = {
+      chat: async () => ({ content, model: "m", latencyMs: 1, finishReason: "stop" }),
+      getCostTracker: () => ({ getSummary: () => ({ byAgent: {} }) }),
+      getLogger: () => ({ logRequest: async () => {}, logResponse: async () => {}, logError: async () => {} }),
+    };
+    return auditNovelty(client as any, { generatedCML: mockGeneratedCML, seedCMLs: mockSeedCMLs, runId: "r", projectId: "p" } as any);
+  };
+  const row = '{"seedTitle": "Seed One", "overallSimilarity": 0.2, "plotSimilarity": 0.2, "characterSimilarity": 0.2, "settingSimilarity": 0.2, "solutionSimilarity": 0.2, "structuralSimilarity": 0.2}';
+
+  it("repairs a sloppy but complete payload instead of aborting the run", async () => {
+    const result = await audit(`{"status": "pass", "similarityScores": [${row},], "summary": "distinct", "violations": [], "warnings": [], "recommendations": [],}`);
+    expect(result.similarityScores).toHaveLength(1);
+  });
+
+  it("still refuses a truncated payload, with the same message", async () => {
+    await expect(audit(`{"status": "pass", "similarityScores": [${row}], "summary": "dist`)).rejects.toThrow(/^Failed to parse novelty audit JSON: SyntaxError/);
+  });
+});

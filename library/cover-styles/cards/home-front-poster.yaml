@@ -1,0 +1,31 @@
+# 1940s — wartime home-front warning poster (secrecy, blackout, salvage, civil defence).
+# Derived from temp/covers/1940s samples: Careless Talk Costs Lives, Censored, Blackout Means Black, Visibility Zero,
+# Your Binoculars Could Prevent This, No Enemy Sub, I Pledge Silence, Save Rubber, This Is Your Air Raid Protection.
+id: home-front-poster
+label: Home-front warning poster
+family: G
+decades: ["1940s"]
+summary: One bold symbol of secrecy or threat, primaries and black, with blunt condensed lettering.
+medium: >-
+  wartime silkscreen poster: flat primary inks, hard edges, bold black shapes, slightly rough registration,
+  no gradients except one simple sky
+palette_rule: red, cream and a strong blue or yellow, plus black; nothing pastel
+palettes:
+  - { name: warning,   inks: ["#111111", "#c62a24", "#f1e6c8", "#1f4e8c"] }
+  - { name: blackout,  inks: ["#0d0d0d", "#e2b23a", "#efe7d4", "#8a2a22"] }
+  - { name: civil,     inks: ["#141414", "#3f6e8f", "#ede3c6", "#c9452e", "#6b8f5a"] }
+composition:
+  - "one bold symbol fills the middle of the picture — an eye, a pair of lips, a hand, a lit window, a shadowed doorway or a single object"
+  - "a strong diagonal or a burst shape gives urgency"
+  - "the title is set in large blocks across the top or bottom, as part of the poster, not in a separate box"
+motifs: [a searchlight beam, a blacked-out window, a finger to lips, a burst shape, a silhouetted rooftop line]
+figure_treatment: simplified flat figures or just hands and silhouettes, no facial detail
+lettering: >-
+  blunt 1940s poster lettering — heavy condensed sans-serif or slab capitals, very large, stacked in two or three
+  lines, possibly on a diagonal, in cream or red against black or blue
+title_position: either
+avoid: [photographic realism, 3d rendering, weapons, explosions, wounded people, any text other than the title]
+suits:
+  axis: [behavioural, psychological, spatial]
+  tone: [Dark, Classic]
+  location: [City, Village, CountryHouse, Coastal, Seaside, Train, London]

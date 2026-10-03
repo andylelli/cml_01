@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import AppButton from "../components/ui/AppButton.vue";
+import CoverFigure from "../components/CoverFigure.vue";
 import AppIcon from "../components/ui/AppIcon.vue";
 import HeroBanner from "../components/ui/HeroBanner.vue";
 import StepCard from "../components/ui/StepCard.vue";
@@ -9,6 +10,7 @@ import {
 	fetchNarrationLibrary,
 	fetchProjects,
 	narrationDownloadUrl,
+	type CoverInfo,
 	type NarrationSummary,
 	type Project,
 } from "../services/api";
@@ -25,6 +27,13 @@ import {
  */
 
 const props = defineProps<{ activeProjectId: string | null }>();
+/** The list row's cover in the shape CoverFigure takes (documentation/covers/). */
+const coverOf = (project: Project): CoverInfo => ({
+	inProgress: project.cover?.status === "painting",
+	status: project.cover?.status as CoverInfo["status"],
+	imageUrl: project.cover?.imageUrl ?? undefined,
+});
+
 const emit = defineEmits<{ openWorkshop: []; open: [Project] }>();
 
 const projects = ref<Project[]>([]);
@@ -76,6 +85,9 @@ const syncPoll = () => {
 	}
 };
 
+/** The story's title once there is one; until then the name the case was created under. */
+const displayName = (project: Project) => project.title || project.name;
+
 const download = async (project: Project) => {
 	downloading.value = project.id;
 	try {
@@ -83,14 +95,14 @@ const download = async (project: Project) => {
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement("a");
 		link.href = url;
-		link.download = `${project.name.replace(/[^\w-]+/g, "_") || "mystery"}.pdf`;
+		link.download = `${displayName(project).replace(/[^\w-]+/g, "_") || "mystery"}.pdf`;
 		document.body.appendChild(link);
 		link.click();
 		link.remove();
 		// Revoking immediately can cancel the download in some browsers; one frame is enough.
 		requestAnimationFrame(() => URL.revokeObjectURL(url));
 	} catch (e) {
-		error.value = `Could not download "${project.name}": ${message(e)}`;
+		error.value = `Could not download "${displayName(project)}": ${message(e)}`;
 	} finally {
 		downloading.value = null;
 	}
@@ -144,7 +156,23 @@ onBeforeUnmount(() => {
 							: 'border-line bg-surface'
 					"
 				>
+					<!-- The book's cover when it has one (documentation/covers/) — it is made first in a run, so a
+					     running case shows its cover as soon as it is painted. Otherwise the status glyph. -->
+					<button
+						v-if="project.cover?.imageUrl || project.cover?.status === 'painting'"
+						type="button"
+						class="shrink-0 self-start sm:self-center"
+						:aria-label="`Open ${displayName(project)}`"
+						@click="emit('open', project)"
+					>
+						<CoverFigure
+							size="sm"
+							:cover="coverOf(project)"
+							:title="displayName(project)"
+						/>
+					</button>
 					<AppIcon
+						v-else
 						:name="project.status === 'running' ? 'gear' : 'bookmark'"
 						:size="18"
 						:class="[
@@ -160,10 +188,10 @@ onBeforeUnmount(() => {
 						@click="emit('open', project)"
 					>
 						<span class="block truncate text-[0.92rem] font-semibold underline-offset-2 hover:underline">
-							{{ project.name }}
+							{{ displayName(project) }}
 						</span>
 						<span class="t-subtitle block text-[0.75rem]">
-							{{ statusLabel(project.status) }}
+							<span v-if="project.title">{{ project.name }} · </span>{{ statusLabel(project.status) }}
 							<span v-if="project.createdAt"> · {{ new Date(project.createdAt).toLocaleString() }}</span>
 							<span v-if="narrations[project.id]" class="text-ink-faint">
 								· narrated, {{ narrations[project.id].durationLabel }}

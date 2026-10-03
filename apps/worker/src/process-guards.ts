@@ -28,33 +28,46 @@
 
 type FlushFn = () => Promise<void>;
 
-let activeFlush: FlushFn | null = null;
+/**
+ * ORC-12 / ORC-D09: keyed by run. A single slot let a second concurrent run (the API starts one per
+ * request) replace the first's flush, and the first run's `finally` then cleared the second's.
+ */
+const activeFlushes = new Map<string, FlushFn>();
 let installed = false;
 let shuttingDown = false;
 
 /**
- * Register the current run's partial-report writer. Called by the orchestrator once per run,
- * immediately after the closure exists; cleared in that function's `finally`.
+ * Register a run's partial-report writer. Called by the orchestrator once per run, immediately after
+ * the closure exists; cleared, for that run only, in that function's `finally`.
  */
-export const registerShutdownFlush = (fn: FlushFn): void => {
-  activeFlush = fn;
+export const registerShutdownFlush = (runId: string, fn: FlushFn): void => {
+  activeFlushes.set(runId, fn);
 };
 
-export const clearShutdownFlush = (): void => {
-  activeFlush = null;
+export const clearShutdownFlush = (runId: string): void => {
+  activeFlushes.delete(runId);
 };
 
-/** Exposed for tests: whether a flush is currently registered. */
-export const hasShutdownFlush = (): boolean => activeFlush !== null;
+/** Exposed for tests: the runs with a flush registered. */
+export const shutdownFlushRuns = (): string[] => [...activeFlushes.keys()];
 
 const FLUSH_TIMEOUT_MS = 10_000;
 
+/** Every run in progress, together: one run's failing flush must not stop the others'. */
+const flushAll = async (): Promise<void> => {
+  const results = await Promise.allSettled([...activeFlushes.values()].map((fn) => fn()));
+  const failed = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+  if (failed.length) {
+    throw new AggregateError(failed.map((r) => r.reason), `${failed.length} of ${results.length} flush(es) failed`);
+  }
+};
+
 const flushWithTimeout = async (label: string): Promise<void> => {
-  const flush = activeFlush;
-  if (!flush) {
+  if (activeFlushes.size === 0) {
     console.error(`[process-guards] ${label}: no run in progress — nothing to flush.`);
     return;
   }
+  const flush = flushAll;
   // A hung filesystem must not turn "dying loudly" into "hanging forever".
   let timer: NodeJS.Timeout | undefined;
   try {
