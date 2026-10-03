@@ -2,7 +2,8 @@
 
 **2026-10-03 · £0 · no run · nothing here is built. Part I (§0–§11) is the owner's five points traced to
 their causes; Part II (§12–§19) tests every proposal and changes 14 of the 26; Part III (§20–§28) applies
-logic, statistics and optimisation to the implementation; Part IV (§29–§36) applies WP-006's kit.**
+logic, statistics and optimisation to the implementation; Part IV (§29–§36) applies WP-006's kit; Part V
+(§37–§42) applies WP-007's literature and methods to this book's run.**
 
 The owner read *The Fog-Bound Masquerade at
 Cliffhaven Hotel* (`stories/story_20261002-2110`, run `run_bcc0d637`, external read 82/100) and found it
@@ -42,6 +43,21 @@ The table below stands as amended by these:
 | L7 | the owner's instrument for point 5; predicts no read (§32.1) |
 | P3, P2, W1, D4, M1 | construct the victim's state; `whyHere` beside K2; three-valued W1; allocate after a feasibility check; K6 as the linter (§33) |
 | matched pair | three arms, A, A′ with no lever, and B (§32.2) |
+
+**Part V (§37–§42) applies WP-007** (*Prior art for decide, estimate, allocate*), each finding run on this
+book's own run. Nine change the plan and four corroborate it:
+
+| row | Part V amendment |
+|---|---|
+| **N8** (new; amends L6) | the brief's touch rule (`brief.ts:229`) asks for gesture in every paragraph; *hands* sits at z = +10.1 in this book (v2 books 6.0, pre-v2 4.4). Ask it of one paragraph per chapter; step 3, its own pair (§38.1) |
+| **N9** (new) | six of the culprit's ten pointing clues land in ch 6, and p = 1.00 from ch 6 against a test in ch 8; no single clue is necessary. Hold their conclusions to the test; step 0 (§38.2) |
+| **N11** (new) | by ch 10 the craft block and the chapter's contract sit at 19–25% of the prompt. Put the book so far before them; it rides in step 1's B arm, scored on S5–S9 only (§38.3) |
+| **N10** (new) | no read records its model; this book is the first anchor, re-read before step 1's B arm is read (§38.4) |
+| N12 (new) | presence penalty, never sent today: a step-3 pair of its own, on K10 (§40) |
+| matched pair | a B-against-A read difference under about 8 marks credits no lever (σ ≤ 2.72 per read); §18's counts are the test (§39.1) |
+| §8 | the reader is asked §18's yes/no questions and checked against the probe — the owner's decision (§39.2) |
+| K6 rows | D1, D2, P1, P3 are precedence and chain rules: Declare templates, three-valued (§40) |
+| §33, §22.3 | the manuscript's page list from BookNLP's speaker attribution (§40) |
 
 | id | item, as it now stands | verdict | works by | step |
 |---|---|---|---|---|
@@ -96,6 +112,12 @@ by a paid run yet.
 | W2, W3, P1, D1, D2, L3 the opening | 1 | `PROSE_V2_OPENING` | TODO | |
 | L6 tail finding at 4+ per chapter; L7 ship-check numbers; L5 overlap telemetry | 3 | — | TODO | |
 | P3 the Gathering; W4 profiled places to Agent 7; P2 `appearance`, `whyHere`; L4 prompt half; P4 names | 2 | TODO | TODO | |
+| N9 culprit-pointing conclusions held to the test (`withheld`); surprise ledger in the case-logic report (Part V §38.2) | 0 | TODO | TODO | |
+| N10 the read file records the reader model and date; this book re-read as the first anchor (§38.4) | 0 | — | TODO | |
+| K6 template form: D1, D2, P1, P3 as Declare precedence and chain rows, three-valued (§40) | 0 / 1 | — (telemetry) | TODO | |
+| N11 the book so far placed before the craft block and the chapter's contract; scored on S5–S9 in step 1's B arm (§38.3) | 1 | TODO | TODO | |
+| N8 the touch rule asked of one paragraph per chapter (§38.1) | 3 | TODO | TODO | |
+| N12 presence penalty plumbed and paired (§40) | 3 | TODO | TODO | |
 
 ### As first proposed (Part I) — superseded by the table above, kept for the record
 
@@ -1729,6 +1751,215 @@ byte, so it matters only for step 2's fresh run; §3.7 (axis shrinkage) — no b
 
 ---
 
+# PART V — what WP-007 adds
+
+## 37. The comparison, and the answer
+
+WP-007 (*Prior art for decide, estimate, allocate*, `03243e66`) takes WP-006 into the published
+literature: more than a hundred studies and libraries checked (WF-004), and five probes that apply
+published methods to the archive. This part asks which of its findings change A_110's plan. Each was
+**run on this book's own run** (`probes/wp007-leverage.mjs`, `run_bcc0d637`, `proj_5eb8c115`), with
+`PROSE_V2_CONTRACT_FIXES` OFF and ON where the contract is involved. Each probe first fired on a known
+positive.
+
+**Nine findings change A_110, and four corroborate it without changing anything.** Four of the nine
+change what gets built (§38), two change how a result is read (§39), and three change the form of
+items already planned (§40).
+
+| # | WP-007 | A_110 item | measured here | change |
+|---|---|---|---|---|
+| 1 | §4.2, K33 — the brief's touch rule raises the words it names | L6, point 5 | *hands* at **z = +10.1** in this book (v2 books 6.0, before v2 4.4); the touch rule (`brief.ts:229`) is untouched by step 0 | new **N8**: the rule asked of one paragraph per chapter; L6's v2 doubling gains a second instructed cause |
+| 2 | §5.1, §2.2, K17 — the reader settles before the test | outside the five; pacing and plot | the culprit is **cleared in ch 3** (p = 0.00), then **six of her ten pointing clues land in ch 6** (p = 1.00); the test is ch 8; no single clue is necessary; step 0 ON changes nothing | new **N9**: those clues show their facts in ch 6 and their conclusions at the test |
+| 3 | §6.1, K27 — position in the prompt | L3, D4, D5, L1, P5, and THE PAGE | at ch 10 the craft block sits at **19–23%** of the prompt and the chapter's contract at **23–25%**; the book so far fills 25–99% | new **N11**: the book so far before the craft block and the contract; L3 and the late-chapter items scored by call position |
+| 4 | §3.1 — the reader is ChatGPT, unrecorded | §8; the 82 | this book's `chatgpt-review.txt` names no model (0 of 79 read files do) | new **N10**: every read records its model; this book is the first anchor of WP-007 K22 |
+| 5 | §3.2–3.3, K24 — noise and retrodesign | §32.2's pair | σ ≤ 2.72 per read, so the SE of an A-to-B read difference is 3.85 | no lever is credited from the B-against-A read under about 8 marks; §18's count predictions stand as the test |
+| 6 | §3.1, K29 — LLM judges cannot see craft | §8, the owner's five | the rubric scores none of the first four (Part I §8) | the reader is asked §18's yes/no questions in its own call, and its answers are checked against the probe's counts — **the owner's decision** |
+| 7 | §2.4, K20 — Declare templates | §33's K6 rows | step 0's nine rules are the "always" family as functions (`contract-rules.ts`) | D1, D2, P1 and P3 are *precedence* and *chain* rules; write them as templates, three-valued |
+| 8 | §5.3 — BookNLP | §33's "run the checks on the manuscript"; §22.3 | the page list is wrong in 47% of chapters (§22.3) | speaker attribution and character clustering give the page list from the text; offline, not run here |
+| 9 | §4.4, K26 — presence penalty | point 5 | the writer is sent `temperature: 0.7` and a token cap (`run.ts:135`); no penalty | new **N12**: a separate step-3 pair, scored on K10 against the A′ spread |
+| 10 | §2.2 — over-determination | D6, P5 | 24 clues, 10 pointing at Isabel Morton, none necessary, the test alone proves her | corroborates N9: holding conclusions back cannot break the proof |
+| 11 | §4.1 — the sameness is the model's | §25's attribution | — | corroborates §25's two-thirds: published classifiers identify a model from its word choice alone at 88.9% |
+| 12 | §6.1 — published measurements for the house rules | §14 | — | corroborates §14 (operations obeyed, statistics and prohibitions not); no change |
+| 13 | §3.4 — screening designs | step 1's six levers under one flag | — | no change: §18 scores step 1 by counts per lever, which needs no design; never credit one step-1 lever from a read |
+
+---
+
+## 38. The four that change what gets built
+
+### 38.1 The brief asks for the gesture vocabulary in every paragraph — MEASURED (N8, amends L6)
+
+WP-007 §4.2 measured our books' function-word signature with Burrows's Cosine Delta. They over-use
+*hands, against, set, voice, hand, between, window* and under-use *that, there, what, it*: gesture
+instead of clause and talk. The v2 brief asks for gesture three times. The format line says what the
+speaker does comes after the words (`writer-format.ts:140`, L6). THE PAGE says "Every paragraph has a
+thing in it somebody could touch, and a person doing something with it or to it" (`brief.ts:229`).
+TWO EXCHANGES asks for "a movement, an object handled" (`brief.ts:198`; step 0's D5 removes those
+examples when its flag is on, and leaves the touch rule).
+
+| mean z on the 300-word profile | *hands* | *hand* | *set* | *against* | *between* | *window* | *that* | *what* |
+|---|---|---|---|---|---|---|---|---|
+| our books before 2026-09-18 (30 cases) | 4.4 | 1.5 | 2.8 | 4.7 | 3.3 | 1.9 | −2.1 | −1.9 |
+| our books from 2026-09-18, the v2 brief (10 cases) | 6.0 | 3.9 | 4.9 | 4.9 | 3.2 | 2.6 | −2.5 | −2.2 |
+| **this book** | **10.1** | 1.4 | 2.1 | **7.0** | **6.5** | 4.5 | −2.7 | −2.6 |
+
+Across the archive, the three words the touch rule names rose by 1.6 to 2.4 z when the v2 brief
+landed, and the words it does not name stayed flat (WP-007 §4.2). That is **INFERRED**, because every
+v2 change landed on the same day. This book is the extreme case: *hands* at 10 standard deviations
+above the canon mean. On the same profile it sits 0.90 from the nearest canon author's centroid
+(Wallace); a canon book sits 0.58 from its own author's.
+
+Part II §15 half-refuted L6's cause. v1 wrote 42 to 61 tails per 10k, so the format line can explain
+only v2's doubling. The touch rule is the second instructed source of that doubling, and it asks for
+the habit in every paragraph. **N8:** ask for the touchable thing in one paragraph per chapter, behind
+a flag. Counter: on its pair, *hands*, *hand* and *set* fall toward their pre-v2 z, the tail (L6's
+count) falls, and THE PAGE's other counts hold. N8 belongs with L6 in step 3. Like L6's own fix it is a
+deletion, the safest kind of edit.
+
+### 38.2 The reader is told who did it two chapters before the test — MEASURED (N9)
+
+Ely, Frankel and Kamenica (JPE 2015) define surprise as the distance the reader's belief over suspects
+moves in a chapter. Their suspense-optimal plot holds uncertainty to the end and spends it in late,
+rare, large twists. A_109's reader model walks that belief chapter by chapter over the contract. For
+this case:
+
+| chapter | 1 | 2 | 3 | 4 | 5 | **6** | 7 | **8 (test)** | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| clues pointing at Isabel Morton, owned here | 1 | | | 2 | 1 | **6** | | | | |
+| p(Isabel Morton), `reader.ts` ratios | 0.18 | 0.06 | **0.00** | 0.06 | 0.07 | **1.00** | 1.00 | 1.00 | 1.00 | 1.00 |
+| p, ratios weakened to 1.5 / 1.2 / 0.5 | 0.26 | 0.22 | 0.14 | 0.22 | 0.25 | **0.87** | 0.87 | 0.87 | 0.87 | 0.87 |
+
+The shape is better than the archive's median: the false alibi clears her in chapter 3, which is a
+twist. But chapter 6 then hands the reader six conclusions at once, and chapter 7 and the test in
+chapter 8 confirm what the reader already holds. Across the archive the same happens in every book:
+the culprit is the favourite by chapter 6 in 64 of 64 contracts, and by chapter 4 in 52 (WP-007 §5.1).
+Step 0 does not touch the schedule. The walk is identical with `PROSE_V2_CONTRACT_FIXES` ON.
+
+The deletion loop (WP-007 §2.2) shows nothing is lost by holding conclusions back. Of 24 clues, 10
+point at her. Deleting any single clue leaves her proven, and the test alone proves her. **N9:** the
+clues that point at the culprit show their *fact* when the schedule places them, and their
+*conclusion* at the test. That is A_109's `withheld`, already in the reader model, at `WITHHELD_RATIO`
+1.5. Counter for this case: the culprit stays under p = 0.5 until chapter 7 under `reader.ts` ratios.
+Over the next ten contracts, the same in at least seven (today 0 of 64). The pointing clues are only as
+reliable as their regex-read wording (WP-006 §2.2), and the ratios are ASSUMED. The ratio-free fact is
+six pointing clues owned in chapter 6.
+
+N9 is not one of the owner's five. It is here because it is a defect of this book, it is deterministic,
+and it touches pacing and plot, the categories the external read marks.
+
+### 38.3 By chapter 10 the instructions sit in the first quarter of the prompt — MEASURED (N11)
+
+WP-007 §6.1 read this run's own writer calls. The user message is laid out the same way in every call:
+the bible's case data, then the craft block (HOW THEY SPEAK, TWO EXCHANGES, THE PAGE, THE CLOCK, WHAT
+THIS BOOK DOES, LENGTH), then THE CHAPTERS TO WRITE (this chapter's contract, then "THE BOOK SO FAR —
+every word of it"), then the format rules.
+
+| | chapter 1 call (S0) | chapter 10 call (S9) |
+|---|---|---|
+| total | 24,700 chars, ~6,200 tokens | 92,700 chars, ~23,200 tokens |
+| craft block | 70–89% | **19–23%** |
+| this chapter's contract | 88–98% | **23–25%** |
+| the book so far | — (empty) | 25–99% |
+| format rules | last | last |
+
+Liu et al. (TACL 2024) measured that information in the middle of a long context is used least.
+Levy et al. (ACL 2024) found reasoning degrading from a few thousand tokens. Our instruction count
+is about 35, where GPT-4.1 follows 98% (IFScale), so count is not the cause. The late-chapter
+operations A_110 adds live in the part that moves: D5's aftermath (ch 10), P5's culprit on the test and
+reveal pages (ch 8–9), L1's trait owned before the reveal, D4's wit carriers, and L3's exchange cap and
+THE PAGE in every chapter. Memory records that v2's taper is per call position.
+
+**N11:** place THE BOOK SO FAR before the craft block and the chapter's contract. The operations then
+ride next to the format rules in every call, as they do in chapter 1. In chapter 1 the book so far is
+empty, so N11 changes nothing there. It can therefore ride in step 1's B arm without confounding
+§18's chapter-1 predictions; its effect is scored on S5–S9 only. Counter: L3's cap, D4's carriers and
+THE PAGE's counts, tabulated by call position, fall less from S0 to S9 on B than on A and A′. Two
+INFERRED side effects to watch: continuity may suffer, because the book so far then sits mid-prompt
+(watch `clue_missing` and the contract rules); and the shared prompt prefix lengthens from the bible
+to the bible plus the earlier chapters, which matters for prompt caching if the deployment caches
+prefixes (ASSUMED, not checked).
+
+### 38.4 The reader of the 82 is not recorded — MEASURED (N10)
+
+All 79 read files are `chatgpt-*`, and none records a model, this book's included. WP-007 §3.1 collects
+why that matters. Judges recognise and favour their own family's text (Panickssery et al., NeurIPS
+2024), and the writer is GPT-4.1. A same-family upgrade moved essay marks by up to 13% of the scale
+(Sunkavalli, preprint 2026). Ten categories scored in one output correlate at r = 0.979 between two
+aspects (Stureborg et al.), the likely source of WP-006's 57% single factor. **N10:** every read file
+records the reader model and date. This book, with its external 82 and the owner's read, is the first
+anchor of WP-007 K22. Re-read it before step 1's B arm is read; a re-read that moves by more than
+about 5 means the reader moved, not the book.
+
+---
+
+## 39. How a result is read
+
+**39.1 What one read of B can say (K24).** WP-007 §3.2 bounds reader-plus-draw noise at σ ≤ 2.72 per
+read (CI 1.6–7.8). The SE of an A-to-B read difference is then 3.85, and a true two-mark gain that
+happens to read as significant reads about 4.6 times too large (Gelman and Carlin). §18 already tests
+step 1 by counts on the page, which is the right form. Part IV's A′ arm stays. Add one rule: **a read
+difference between B and A under about 8 marks is not a lever result**. It is reported with its
+exaggeration ratio, and the owner's read decides "wooden".
+
+**39.2 Can the reader see the owner's points at all (K29)? — the owner's decision.** Expert creative
+writers and LLM judges agree on yes/no craft tests at κ close to zero (Chakrabarty et al., CHI 2024).
+Part I §8 found the rubric scores none of the owner's first four. Test this directly on arm A. In a
+separate call, ask the reader §18's yes/no questions: is the place described before anyone speaks
+(1, 3)? Are the people in chapter 1 given an occupation and a relation to the dead (4)? Does each
+person present speak of the death before the evidence (5)? Then compare the answers with
+`owner-read-probe.mjs`'s counts. If the reader disagrees with the counts, no 1–10 mark will move with
+P1, D1 or W2, and the owner's read is the only judge of them. This adds a call to the read, so it is
+the owner's decision.
+
+---
+
+## 40. The form of items already planned
+
+- **K6's next rows are Declare templates.** Step 0 built nine rules as data. They are the "always"
+  family, and each `check` is a function returning the failing chapters (`contract-rules.ts`). The
+  acceptance rows §33 asked for are not "always" rules. D1 (each person present speaks of the death
+  before the first evidence) and P1 (introduced before they first speak) are *precedence* per person.
+  D2 (authority sent for before the arrest) is *precedence*. P3 (alive, then dead, then found) is
+  *chain precedence*. WP-007 §2.4 maps all of them to Declare's catalogue (Pesic and van der Aalst).
+  Write the evaluator over the templates, so that a rule is a template name and two predicates. Have
+  it return pass, fail or unknown, so a manuscript the probe cannot read is not a pass.
+- **The manuscript's page list from BookNLP.** §22.3: the contract's page list is wrong in 47% of
+  chapters, so §33 wanted the acceptance rows run on the manuscript too. BookNLP (MIT, Python,
+  English) clusters character names and attributes quotations to speakers (B³ 86–90), in 2 to 15
+  minutes a book. That gives who is present and who speaks, per chapter, from the text, for D4's
+  carriers, P1's first appearances and D1's speakers. It is offline and was not run here.
+- **N12, presence penalty, as a step-3 pair of its own.** Point 5's main lever is still points 1–4
+  (§34). Presence penalty is the one sampling control with a measured diversity effect on GPT-class
+  models (Martínez et al., ACM TIST 2024, on chat answers, not fiction). The client never sends it.
+  Plumb it behind a flag. One pair at 0.3, scored on K10 (Heaps β, distinct words per 8,000) and the
+  tail against A′'s spread. It must not ride with N8, which moves the same instruments.
+
+---
+
+## 41. Build order — amends §35
+
+- **Step 0 gains N9** (deterministic; contract `withheld` for the culprit-pointing conclusions before
+  the test, behind its own flag) and the **surprise ledger** in the case-logic report (telemetry). It
+  also gains **N10**, a line in the read template, and the K6 evaluator's template form for the step-1
+  rows.
+- **Step 1's B arm also carries N11**, scored on S5–S9 only. Step 1's pair is read only after this
+  book's anchor re-read (N10). A B-against-A read difference under about 8 marks credits no lever.
+- **Step 3 gains N8**, with L6, on its own pair. **N12** gets a separate pair after it.
+- The reader-sees-the-points test (§39.2) runs on arm A if the owner agrees.
+
+## 42. What Part V could not determine
+
+- **Whether the touch rule causes the gesture vocabulary.** The rise coincides with every other v2
+  change; N8's pair is the test.
+- **Whether a reader experiences chapter 6 as the solution.** The reader model's ratios are ASSUMED.
+  The ratio-free fact is six pointing clues in one chapter.
+- **Whether N11 costs continuity.** The book so far moves to the middle of the prompt, where Liu et
+  al. found information used least.
+- **Whether this deployment caches prompt prefixes**, and so whether N11 changes cost.
+- **BookNLP's accuracy on our prose.** Its published figures are on literary English. It was not run.
+- **Which model read the 82.** Nothing records it.
+
+---
+
 ## Probes
 
 `documentation/analysis/ANALYSIS_110/probes/`:
@@ -1750,6 +1981,10 @@ byte, so it matters only for step 2's fresh run; §3.7 (axis shrinkage) — no b
 - `wp006-leverage.mjs [budget|witness|dedup|null|k7|k16|specimen|reservoir]` — WP-006's kit applied to this
   plan (Part IV). `null`, `k7` and `specimen` read the canon and want `--max-old-space-size=6000`.
 - `tail-threshold.mjs [manuscript]` — K9's book-level threshold for the tail finding (§30.2).
+- `wp007-leverage.mjs [surprise|necessity|delta]` — WP-007's methods on this run (Part V): Ely surprise on the
+  reader walk with the contract fixes OFF and ON, the clue-deletion loop with its known positive, and this
+  book's Cosine Delta profile. `delta` reads the canon and wants `--max-old-space-size=6000`. The prompt
+  layout of §38.3 comes from WP-007's `brief-sections.mjs`.
 
 The upstream figures (artifact shapes, contract lines per chapter) were read from the run's stored
 artifacts in `data/store.json` and its prompts in `logs/llm-prompts-full.jsonl`, paired by projectId and
