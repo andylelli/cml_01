@@ -119,12 +119,12 @@ by a paid run yet.
 | 0.2a N9 a culprit-pointing clue shows its fact where scheduled and its conclusion at the test | 0b | `PROSE_V2_SCHEDULE` | TODO | |
 | 0.2b M9 evidence placed to minimise the largest chapter load, every clue before its use | 0b | same | TODO | |
 | 0.3 K6 template rows: D1, D2, P1 precedence and P3 chain, three-valued | 0b | — (telemetry) | TODO | |
-| 0.4 N10 the read file records the reader model and date; the ledger reads them | 0b | — | TODO | |
-| 0.5 surprise ledger: Ely surprise per chapter, settle chapter, dead-chapter share in the case-logic report | 0b | — (telemetry) | TODO | |
+| 0.4 N10 the read file records the reader model and date; the ledger reads them | 0b | — | **DONE** — the ledger prints reader recorded: 0 of 79; template in documentation/external-read-template.md | `1accc558` |
+| 0.5 surprise ledger: Ely surprise per chapter, settle chapter, dead-chapter share in the case-logic report | 0b | — (telemetry) | **DONE** — 64 contracts: the culprit leads before the chapter ahead of the test in 64; median dead share 0.71; the report fixed on Windows | `7b8aa6be` |
 | 0.6 case-noun guard (ratchet, in pretest) | 0b | — | **DONE** — 11 known specimen hits baselined, 0 new; 4 witness tests | `28767ddd` |
 | 0.6b the guard's specimens removed from the Agent 2, 2c, 2d and 3 prompts | 0b | `PROMPT_SPECIMEN_TRIMS` | TODO | |
-| 0.7 `owner-read-probe.mjs` reads each case's own place, month, year, cast and victim | 0b | — | TODO | |
-| 0.8 step-0 fixtures from two more case shapes | 0b | — | TODO | |
+| 0.7 `owner-read-probe.mjs` reads each case's own place, month, year, cast and victim | 0b | — | **DONE** — new generic owner-needs-probe.mjs (Part I's probe kept as its record); baseline over 10 v2 books in P.4 | `37ee7aad` |
+| 0.8 step-0 fixtures from two more case shapes | 0b | — | **DONE** — W1 on two more shapes; D2 counterfactual on real cases; both branches in the archive | `a4d8ae51` |
 | 1.7 N11 the book so far before the craft block and the chapter's contract | 1 | `PROSE_V2_BOOK_FIRST` | TODO | |
 | 2.1 P3 the Gathering scene with the victim alive; `victimAlive` derived from the beat arc | 2 | `CML_A110_UPSTREAM` | TODO | |
 | 2.2 W4 Agent 7 prefers the profiled places; Agent 2c seeded from where the clues are | 2 | same | TODO | |
@@ -280,6 +280,13 @@ the motivating instance.
 | 11 | THE PAGE's counts and L3's cap fall less from S0 to S9 on B than on A′ | per-position taper (memory) | N11 |
 | 12 | the culprit's guilt is first stated on the page in the test chapter or later | ch 6 here | N9 (step 0b) |
 | 13 | compressed ratio rises ≥ 0.016 and opener entropy ≥ 0.45, toward the canon floors | 0.346 and 5.12 are the floors | reported (§27) |
+
+**Baseline across books — MEASURED** with `probes/owner-needs-probe.mjs --all` (item 0.7) over the 10 v2 books
+it matches to a stored case. Prediction 1: 0 of 10 meet it. Prediction 3: 0 of 10 for each of place, month and
+year. Prediction 4: 0 of 10. Prediction 5 (authority sent for, amateur detectives): 0 of 8. Prediction 8: 6 of 10.
+Prediction 9: 7 of 10. Prediction 12: the culprit is first *implicated* in a sentence at chapter 6 (median) and
+first named with a verb of guilt at chapter 8. So N9's page counter is the implicating sentence, not the verb of
+guilt. Every prediction is scored against this baseline on both cases, not against this book alone.
 
 ### P.5 Budget and order
 
