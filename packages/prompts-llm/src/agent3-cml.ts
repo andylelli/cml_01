@@ -11,7 +11,7 @@ import {
   validateCml, parseClockTime, parseDurationMinutes,
   checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
   isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
-  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled, promptTrimsEnabled,
+  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair, verifiedFixesEnabled, promptTrimsEnabled, promptSpecimenTrimsEnabled,
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
@@ -805,7 +805,7 @@ ${revealSceneExampleLines()}
       - character_name: "(if identity axis)"
         revealed_in_act: 3
         before_reveal_reference: "the stranger" 
-        after_reveal_reference: "Lord Ashford"
+        after_reveal_reference: "${promptSpecimenTrimsEnabled() ? "(the character's true name)" : "Lord Ashford"}"
     clue_to_scene_mapping:
       - clue_id: "clue_early_1"
         act_number: 1
@@ -827,10 +827,21 @@ ${revealSceneExampleLines()}
 
 IMPORTANT - Geographic Specificity:
 Fill the "place" and "country" fields in meta.setting with specific location:
-- For country estates/manor houses: Choose a specific English village or county (e.g., "Little Middleton, Yorkshire")
-- For Riviera settings: Specify French Riviera (Nice, Cannes, Monaco) or Italian Riviera
-- For ocean liners: Specify route (e.g., "Southampton to New York route", "Atlantic Ocean")
-- For trains: Specify route (e.g., "London to Edinburgh route", "England")
+${(promptSpecimenTrimsEnabled()
+  ? [
+      // A_110 0.6b: the examples became places — "Middleton" is a place in 18 of 72 stored cases. The operation stays.
+      "- For country estates/manor houses: a specific English village and its county, named by you for this case",
+      "- For Riviera settings: the French or the Italian Riviera, with the town named",
+      "- For ocean liners: the route, from the port of departure to the port of arrival",
+      "- For trains: the route, from terminus to terminus",
+    ]
+  : [
+      '- For country estates/manor houses: Choose a specific English village or county (e.g., "Little Middleton, Yorkshire")',
+      "- For Riviera settings: Specify French Riviera (Nice, Cannes, Monaco) or Italian Riviera",
+      '- For ocean liners: Specify route (e.g., "Southampton to New York route", "Atlantic Ocean")',
+      '- For trains: Specify route (e.g., "London to Edinburgh route", "England")',
+    ]
+).join("\n")}
 - Always include country (usually "England", "France", "Italy", or route description)
 
 **Cast Requirements**:

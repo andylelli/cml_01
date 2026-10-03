@@ -8,6 +8,7 @@
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { promptSpecimenTrimsEnabled } from "@cml/cml";
 import { promptTrimsEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { SettingRefinement } from "./agent1-setting.js";
@@ -301,9 +302,19 @@ Mood: ${mood}
 IMPORTANT - Geographic Specificity:
 - Choose a specific place name (town, city, village, or coastal region)
 - Specify the country (usually England/UK for manor houses, country estates, villages)
-- For Riviera settings: French Riviera (Nice, Cannes, Monaco) or Italian Riviera
-- For ocean liners: Specify route (e.g., Southampton to New York, Liverpool to Boston)
-- For trains: Specify route or terminus (e.g., London to Scotland, Orient Express)
+${(promptSpecimenTrimsEnabled()
+    ? [
+        // A_110 0.6b: an example place is a place the model picks; the operation needs none.
+        "- For Riviera settings: the French or the Italian Riviera, with the town named",
+        "- For ocean liners: the route, from the port of departure to the port of arrival",
+        "- For trains: the route, from terminus to terminus",
+      ]
+    : [
+        "- For Riviera settings: French Riviera (Nice, Cannes, Monaco) or Italian Riviera",
+        "- For ocean liners: Specify route (e.g., Southampton to New York, Liverpool to Boston)",
+        "- For trains: Specify route or terminus (e.g., London to Scotland, Orient Express)",
+      ]
+  ).join("\n")}
 - Make the choice contextually appropriate to the era (${era}) and setting type
 
 Key locations mentioned in narrative:

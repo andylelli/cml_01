@@ -11,7 +11,7 @@
 import { coerceAccessPlausibility, coerceMotiveStrength, coerceRelationshipTension as normalizeRelationshipTension } from "./agent2-cast-boundary.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
-import { verifiedFixesEnabled } from "@cml/cml";
+import { promptSpecimenTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { checkCast } from "./agent2-cast-checker.js";
 // ORC-13: the one string hash (was a local copy; identical for every string, and the only call site
 // passes `inputs.runId || inputs.projectId || ""`, so the copy's missing undefined-coercion was unreachable).
@@ -300,7 +300,7 @@ And (2) MUST NAME THE THING. "A secret", "damaging information", "his dealings",
 hiding", "financial troubles" — these are categories, not secrets. A reader cannot be satisfied by a
 noun they never learn. Name the specific act, document, sum, or object:
 
-  FAILS   "Prevent Dr. Finch's disclosure of a damaging secret"
+  FAILS   "Prevent ${promptSpecimenTrimsEnabled() ? "another guest's" : "Dr. Finch's"} disclosure of a damaging secret"
   FAILS   "Blackmail threat from victim"
   FAILS   "Silence him to hide his dealings"
   PASSES  "Stands to inherit the estate once the victim's new will is destroyed; the victim had

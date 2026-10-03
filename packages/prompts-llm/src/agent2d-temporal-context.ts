@@ -9,6 +9,7 @@ import { MONTH_TO_SEASON } from "./shared/temporal-anchor.js";
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { promptSpecimenTrimsEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { SettingRefinement } from "./agent1-setting.js";
 import { buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -265,7 +266,7 @@ Quality bar:
 
 Micro-exemplars:
 - Weak currentAffairs.majorEvents: "political tensions in Europe"
-- Strong currentAffairs.majorEvents: "cabinet instability after budget cuts debated in Westminster; shipping insurance rates rise after Atlantic losses"
+- Strong currentAffairs.majorEvents: ${promptSpecimenTrimsEnabled() ? "two events of this case's own month and country, each a cause with a consequence somebody in the house could mention" : '"cabinet instability after budget cuts debated in Westminster; shipping insurance rates rise after Atlantic losses"'}
 - Weak typicalPrices: "bread is affordable"
 - Strong typicalPrices: "Bread loaf: four pence; Coal scuttle refill: one shilling sixpence; Taxi across town: two shillings"
 
