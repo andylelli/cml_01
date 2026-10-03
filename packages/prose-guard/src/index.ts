@@ -98,11 +98,14 @@ export type {
   VoiceDistance,
 } from "./voice-spec.js";
 
-// A_79 Phase D — the anti-copy gate (flag PROSE_ANTI_COPY_GATE, default OFF).
+// A_79 Phase D — the anti-copy gate (flag PROSE_ANTI_COPY_GATE, default OFF). v2's only caller is the
+// ship-check line (telemetry, never a throw); the v1 hard-fail call site was deleted in 43b44336.
 export {
   buildAntiCopyIndex,
+  buildAntiCopyIndexAsync,
   findCopiedSpans,
   loadAntiCopyIndex,
+  loadAntiCopyIndexAsync,
   resetAntiCopyIndex,
   detectCopiedProse,
   noCopiedProseValidator,

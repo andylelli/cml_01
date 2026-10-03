@@ -3150,3 +3150,19 @@ the culprit — an Agent 5 change, needing a paid harness.
 **§33 UPDATE 10 — A_109 step 7 (M6 verbalized tics) WITHDRAWN.** Its measure is already met by
 `AGENT2B_TIC_TEMPLATE_BAN` (on since 2026-09-13). Dialogue 6.69 → 7.22 across the ban (n=52 / 9, words ≥ 8000,
 within read noise); catchphrases still named in 4 of 9 after it. The complaint is repetition — F9's lever.
+
+**§33 UPDATE 11 — the anti-copy check is back on v2, as telemetry (`PROSE_ANTI_COPY_GATE`, already ON in config).**
+MEASURED at `57697b5d`: no code in `apps/worker/src` or `packages/prose-engine/src` called `detectCopiedProse`,
+`findCopiedSpans` or `noCopiedProseValidator` — v1's call site (a hard fail, last statement of `runAgent9`) was
+deleted with the v1 engine in `43b44336`, so v2 shipped with **no output-side copy check from 2026-09-30**, while
+`.env.local` carried the flag ON and WP-003/WP-004 cited it as the guarantee. Wired as `v2AntiCopyShipCheckLines`
+(`agent9-v2/ship-check.ts`): one SHIP-CHECK line per chapter with a hit plus one summary line whenever the flag is on
+(`Clean.` / `WORTH A LOOK BEFORE READING.` / `NOT RUN`), never a throw, never a retry driver (B1). Not a hard fail:
+that is a decision for live-run data. **The probe, re-run through the new path (`scripts/anticopy-v2-probe.mjs`):**
+0 of 264 manuscripts (10 v2-era, 254 archived) at n=11 over 165 works; 40- and 11-word lifts reported, a 10-word lift
+not. **Found on the way:** the pipeline runs INSIDE the API process, and the index takes 50.4 s to build, so a
+synchronous build would have frozen the API and the UI for that long at the end of every first run — the build is now
+one generator with a sync and an async driver (`loadAntiCopyIndexAsync`), longest measured event-loop stall **0.72 s**.
+The report cannot name the source work (the index stores fingerprints, not origins). `InstrumentVector.copiedSpans`
+stays 0 in `measureInstruments` and is now commented as NOT MEASURED there. Inferred, not measured: the live-run cost
+of the first build per process (~98 MB held, ~50 s of background CPU at the end of a run).

@@ -150,6 +150,8 @@ export const measureInstruments = (
   return {
     registerRate: machineRegisterRate(body, REGISTER_TELEMETRY_THRESHOLD).rate,
     repetitionPer10k: repetitionDensity(body).per10k,
+    // Not measured per draft — 0 here means "not measured", not "none copied". The anti-copy check runs
+    // once on the finished book (apps/worker agent9-v2/ship-check.ts, v2AntiCopyShipCheckLines).
     copiedSpans: 0,
     dialogueOpenShare: paragraphs.length > 0 ? paragraphs.filter(opensOnSpeech).length / paragraphs.length : 0,
     longSentenceShare: sentences.length > 0 ? long / sentences.length : 0,

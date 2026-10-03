@@ -374,6 +374,7 @@ export interface HardGateHit {
 export interface InstrumentVector {
   registerRate: number;
   repetitionPer10k: number;
+  /** Always 0 from `measureInstruments`: NOT MEASURED per draft. See the ship-check's anti-copy line. */
   copiedSpans: number;
   dialogueOpenShare: number;
   longSentenceShare: number;

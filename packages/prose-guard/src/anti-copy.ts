@@ -162,14 +162,16 @@ class FingerprintSet implements NgramSet {
  * regex pass over a string, which is cheap and does not grow the heap; the array of 10M short strings
  * is what costs. The build is memoised once per process, so the doubled work is paid once.
  */
-export function buildAntiCopyIndex(texts: Record<string, string>, n: number): AntiCopyIndex {
+function* buildSteps(texts: Record<string, string>, n: number): Generator<void, AntiCopyIndex, void> {
   const sources: string[] = [];
   let total = 0;
   for (const [name, text] of Object.entries(texts)) {
     const count = normaliseWords(text).length;
-    if (count < n) continue;
-    sources.push(name);
-    total += count - n + 1;
+    if (count >= n) {
+      sources.push(name);
+      total += count - n + 1;
+    }
+    yield;
   }
 
   const buf = new Float64Array(total);
@@ -177,6 +179,7 @@ export function buildAntiCopyIndex(texts: Record<string, string>, n: number): An
   for (const name of sources) {
     const words = normaliseWords(texts[name]!);
     for (let i = 0; i + n <= words.length && w < total; i += 1) buf[w++] = fingerprint(key(words, i, n));
+    yield;
   }
   buf.sort();
 
@@ -187,6 +190,36 @@ export function buildAntiCopyIndex(texts: Record<string, string>, n: number): An
   }
   const hashes = new FingerprintSet(buf.subarray(0, unique));
   return { n, hashes, sources, size: hashes.size };
+}
+
+/**
+ * ── ONE ALGORITHM, TWO DRIVERS ───────────────────────────────────────────────────────────────────
+ *
+ * The build is a generator that yields once per text. `buildAntiCopyIndex` drains it without pausing;
+ * `buildAntiCopyIndexAsync` hands the event loop back between texts. They cannot disagree, because
+ * there is only one copy of the arithmetic (WF-002: two copies of a set computation disagree).
+ *
+ * WHY THERE IS AN ASYNC DRIVER: MEASURED 2026-10-03, the 165-work index takes 46–54 s to build
+ * synchronously, and the pipeline runs INSIDE the API process (`generateMystery` is imported by
+ * `apps/api/src/server.ts`). A sync build at the end of a run froze the API, the SSE stream and the
+ * UI for most of a minute. Yielding between texts bounds the longest block to one text plus the final
+ * sort.
+ */
+export function buildAntiCopyIndex(texts: Record<string, string>, n: number): AntiCopyIndex {
+  const steps = buildSteps(texts, n);
+  for (let r = steps.next(); ; r = steps.next()) {
+    if (r.done) return r.value;
+  }
+}
+
+const yieldToLoop = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
+
+export async function buildAntiCopyIndexAsync(texts: Record<string, string>, n: number): Promise<AntiCopyIndex> {
+  const steps = buildSteps(texts, n);
+  for (let r = steps.next(); ; r = steps.next()) {
+    if (r.done) return r.value;
+    await yieldToLoop();
+  }
 }
 
 /**
@@ -280,8 +313,14 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
  * Flag `PROSE_ANTI_COPY_GATE`, **default OFF**, read at call time (ADR-0004).
  *
  * Off by convention, not because the gate is doubtful: it measured a ZERO false-positive rate over
- * 204 known negatives, so turning it on costs nothing observable today. It stays off because it has
- * never run inside a real generation, and because nothing yet puts source prose near a prompt.
+ * 264 known negatives at n=11 (2026-10-03, 10 v2-era and 254 archived manuscripts).
+ *
+ * **WHO CALLS IT, as of 2026-10-03.** The v1 call site — a hard fail, last statement of `runAgent9` —
+ * was deleted with the v1 engine (43b44336) and v2 had no output-side copy check at all.
+ * `v2AntiCopyShipCheckLines` (`apps/worker/src/jobs/agents/agent9-v2/ship-check.ts`) is now the only
+ * caller, and it is TELEMETRY: one SHIP-CHECK line on the finished book, never a throw and never a
+ * retry driver (CLAUDE.md B1). `detectCopiedProse` and `noCopiedProseValidator` have no caller.
+ * A hard fail on v2 is a separate decision, to be taken on live-run data.
  *
  * **A_79 §6: Phase E is gated on this shipping. It must be ON before any source prose reaches a
  * prompt** — that is the whole point of building the output side first.
@@ -294,20 +333,15 @@ const textsDir = (env: NodeJS.ProcessEnv = process.env): string =>
   path.resolve(HERE, "..", "..", "..", "library", "texts");
 
 let cache: AntiCopyIndex | undefined;
+let inflight: { n: number; promise: Promise<AntiCopyIndex> } | undefined;
+/** Bumped by `resetAntiCopyIndex`, so a build that was in flight when the memo was dropped does not repopulate it. */
+let generation = 0;
 
 /**
- * The index over `library/texts/`, built once per process.
- *
- * ~719k n-grams takes a second or so to build and a few tens of MB to hold, which is why it is
- * memoised and why the flag is checked BEFORE the build — a disabled gate must not pay for an index
- * it will never query.
- *
- * A missing or unreadable corpus yields an EMPTY index, not a throw. An anti-copy gate that takes a
- * paid run down because a text file is absent has converted a safety feature into an outage, and the
- * empty index is honest: it finds nothing because it knows nothing, and `sources` says so.
+ * Every `.txt` under the corpus directory, by name. Shared by the sync and async loaders so the two
+ * cannot read different corpora.
  */
-export function loadAntiCopyIndex(n: number = DEFAULT_N): AntiCopyIndex {
-  if (cache && cache.n === n) return cache;
+function readSourceTexts(): Record<string, string> {
   const dir = textsDir();
   const texts: Record<string, string> = {};
   /**
@@ -336,12 +370,53 @@ export function loadAntiCopyIndex(n: number = DEFAULT_N): AntiCopyIndex {
     // eslint-disable-next-line no-console
     console.warn(`[anti-copy] ${skipped.length} source text(s) unreadable and NOT indexed — lifts from them will pass: ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? " …" : ""}`);
   }
-  cache = buildAntiCopyIndex(texts, n);
+  return texts;
+}
+
+/**
+ * The index over `library/texts/`, built once per process.
+ *
+ * MEASURED 2026-10-03 at 165 works: 12.2M n-grams, **46–54 s to build** and ~98 MB to hold (a
+ * `Float64Array`), which is why it is memoised and why the flag is checked BEFORE the build — a
+ * disabled gate must not pay for an index it will never query. The earlier "a second or so" was true
+ * of twelve novels. Inside the API process use `loadAntiCopyIndexAsync`: this one blocks the loop.
+ *
+ * A missing or unreadable corpus yields an EMPTY index, not a throw. An anti-copy gate that takes a
+ * paid run down because a text file is absent has converted a safety feature into an outage, and the
+ * empty index is honest: it finds nothing because it knows nothing, and `sources` says so.
+ */
+export function loadAntiCopyIndex(n: number = DEFAULT_N): AntiCopyIndex {
+  if (cache && cache.n === n) return cache;
+  cache = buildAntiCopyIndex(readSourceTexts(), n);
   return cache;
 }
 
+/**
+ * The same index, built without freezing the event loop. Concurrent callers share ONE build — two
+ * runs finishing together must not each pay 50 s and 98 MB.
+ */
+export function loadAntiCopyIndexAsync(n: number = DEFAULT_N): Promise<AntiCopyIndex> {
+  if (cache && cache.n === n) return Promise.resolve(cache);
+  if (inflight && inflight.n === n) return inflight.promise;
+  const started = generation;
+  const promise: Promise<AntiCopyIndex> = buildAntiCopyIndexAsync(readSourceTexts(), n)
+    .then((index) => {
+      if (generation === started) cache = index;
+      return index;
+    })
+    .finally(() => {
+      if (inflight?.promise === promise) inflight = undefined;
+    });
+  inflight = { n, promise };
+  return promise;
+}
+
 /** Drop the memo. Only needed by tests that point the loader at a different corpus. */
-export const resetAntiCopyIndex = (): void => { cache = undefined; };
+export const resetAntiCopyIndex = (): void => {
+  cache = undefined;
+  inflight = undefined;
+  generation += 1;
+};
 
 /**
  * The ship-layer check. Returns [] when the flag is off, so the caller needs no branch of its own.

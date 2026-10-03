@@ -10,10 +10,17 @@
  * value A_79 §5 originally proposed) and 0% at n=10.
  */
 
-import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import {
   buildAntiCopyIndex,
+  buildAntiCopyIndexAsync,
+  loadAntiCopyIndex,
+  loadAntiCopyIndexAsync,
+  resetAntiCopyIndex,
   findCopiedSpans,
   detectCopiedProse,
   noCopiedProseValidator,
@@ -121,5 +128,95 @@ describe('the measured default', () => {
     // 45.9% while n=10 went from 0.0% to 0.9%. So a corpus change is a reason to re-baseline exactly
     // as a code change is — which is the part this test exists to make someone notice.
     expect(DEFAULT_N).toBe(11);
+  });
+});
+
+// ── the async build (2026-10-03) ─────────────────────────────────────────────────────────────────
+//
+// The pipeline runs inside the API process, and the 165-work index takes 46-54 s to build. A build
+// that does not hand the event loop back freezes the API, the SSE stream and the UI for that long.
+
+/** `count` distinct 40-word texts, so every one clears n and each is its own build step. */
+const manyTexts = (count: number): Record<string, string> =>
+  Object.fromEntries(
+    Array.from({ length: count }, (_, t) => [
+      `text_${t}`,
+      Array.from({ length: 40 }, (_, w) => `w${t}x${w}`).join(' '),
+    ]),
+  );
+
+describe('the async build', () => {
+  it('KNOWN-POSITIVE: it yields to the event loop while it builds', async () => {
+    let ticks = 0;
+    let running = true;
+    const tick = () => {
+      ticks += 1;
+      if (running) setImmediate(tick);
+    };
+    setImmediate(tick);
+    await buildAntiCopyIndexAsync(manyTexts(40), DEFAULT_N);
+    running = false;
+    // One yield per text per pass: a driver that never yielded would leave this at 0 or 1.
+    expect(ticks).toBeGreaterThanOrEqual(20);
+  });
+
+  it('builds exactly the index the sync build does — one algorithm, two drivers', async () => {
+    const texts = { a_test_novel: SOURCE, tiny: 'three short words', ...manyTexts(5) };
+    const sync = buildAntiCopyIndex(texts, DEFAULT_N);
+    const async_ = await buildAntiCopyIndexAsync(texts, DEFAULT_N);
+    expect(async_.size).toBe(sync.size);
+    expect(async_.sources).toEqual(sync.sources);
+    const lifted = normaliseWords(SOURCE).slice(3, 25).join(' ');
+    expect(findCopiedSpans(`He said ${lifted} and left.`, async_)).toEqual(
+      findCopiedSpans(`He said ${lifted} and left.`, sync),
+    );
+  });
+});
+
+describe('the async loader', () => {
+  const dirs: string[] = [];
+  const corpus = (texts: Record<string, string>): string => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'anticopy-'));
+    dirs.push(dir);
+    for (const [name, text] of Object.entries(texts)) fs.writeFileSync(path.join(dir, `${name}.txt`), text);
+    return dir;
+  };
+  const priorDir = process.env.PROSE_ANTI_COPY_TEXTS_DIR;
+
+  afterEach(() => {
+    if (priorDir === undefined) delete process.env.PROSE_ANTI_COPY_TEXTS_DIR;
+    else process.env.PROSE_ANTI_COPY_TEXTS_DIR = priorDir;
+    resetAntiCopyIndex();
+    for (const d of dirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
+  });
+
+  it('concurrent callers share ONE build, and the sync loader then reuses it', async () => {
+    process.env.PROSE_ANTI_COPY_TEXTS_DIR = corpus({ a_test_novel: SOURCE });
+    resetAntiCopyIndex();
+    const [a, b] = await Promise.all([loadAntiCopyIndexAsync(), loadAntiCopyIndexAsync()]);
+    expect(a).toBe(b);
+    expect(a.sources).toEqual(['a_test_novel']);
+    expect(loadAntiCopyIndex()).toBe(a);
+    expect(await loadAntiCopyIndexAsync()).toBe(a);
+  });
+
+  it('a build in flight when the memo is dropped does not repopulate it', async () => {
+    process.env.PROSE_ANTI_COPY_TEXTS_DIR = corpus({ a_test_novel: SOURCE });
+    resetAntiCopyIndex();
+    const first = loadAntiCopyIndexAsync();
+    resetAntiCopyIndex();
+    const stale = await first;
+    // The stale build resolved, but the cache was not written: the next call builds a fresh index.
+    const fresh = await loadAntiCopyIndexAsync();
+    expect(fresh).not.toBe(stale);
+    expect(fresh.size).toBe(stale.size);
+  });
+
+  it('a missing corpus directory yields an empty index, not a rejection', async () => {
+    process.env.PROSE_ANTI_COPY_TEXTS_DIR = path.join(os.tmpdir(), 'anticopy-does-not-exist-xyz');
+    resetAntiCopyIndex();
+    const ix = await loadAntiCopyIndexAsync();
+    expect(ix.size).toBe(0);
+    expect(ix.sources).toEqual([]);
   });
 });

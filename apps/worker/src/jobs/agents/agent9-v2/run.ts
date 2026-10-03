@@ -57,7 +57,7 @@ import { humourBand } from "@cml/prompts-llm";
 import type { ChatCapableClient } from "@cml/llm-client";
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { isFilterSoftenEnabled, softenViolentWording, SOFTENED_NOTE } from "./filter-soften.js";
-import { v2ShipCheckLines } from "./ship-check.js";
+import { v2AntiCopyShipCheckLines, v2ShipCheckLines } from "./ship-check.js";
 import { buildCaseModel, isCaseLogicEnabled, summariseReader, walkReader } from "@cml/cml";
 
 import type { OrchestratorContext } from "../shared.js";
@@ -786,6 +786,8 @@ export const runProseEngineV2 = async (ctx: OrchestratorContext): Promise<void> 
   for (const line of result.telemetry) ctx.warnings.push(line);
   // 17-hitting-90 P0.3 — the ship-check measures the finished text; the read rule reads it.
   for (const line of v2ShipCheckLines(result.chapters)) ctx.warnings.push(line);
+  // PROSE_ANTI_COPY_GATE — telemetry on the finished book; it replaces the v1 hard fail deleted in 43b44336.
+  for (const line of await v2AntiCopyShipCheckLines(result.chapters)) ctx.warnings.push(line);
 
   const castNames = asArray((ctx.cast?.cast as { characters?: unknown[] } | undefined)?.characters)
     .map((c) => String((c as { name?: unknown })?.name ?? "").trim())
