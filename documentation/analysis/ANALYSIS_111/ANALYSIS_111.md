@@ -30,9 +30,10 @@ Resumable: each row names its cost, its evidence and its commit.
 | P-3 | newcomers: one operation and their facts | £0 | BUILT; **not met** — four introductions in four consecutive paragraphs; P-3b next | `ac9c8229` |
 | P-4 | the date in the opening | £0 | BUILT; **met**: January and 1934 in chapter 1 | `ac9c8229` |
 | **P-5** | re-run arm B with P-1..P-4 | £0.90 | **RUN** — 6 of 11 predictions met; SHIP-CHECK still WORTH A LOOK (§3.5) | `f93bd216` (book) |
-| P-3b | introductions spread: at least two paragraphs between one and the next | £0 | TODO (§5) | — |
-| **V-1…V-20** | the v2 audit fix batch (§5) | £0 | TODO | — |
-| P-6 | second case, A′ against everything (A_110 arm-B flags + V batch) | ~£1.90 | WAITS on V batch | — |
+| P-3b | introductions spread: at least two paragraphs between one and the next | £0 | BUILT | `b21e002f` |
+| **V-1…V-20** | the v2 audit fix batch (§5), behind `PROSE_V2_AUDIT_FIXES` (registered `df28e607`) | £0 | **BUILT** — every targeted count 0 with the flag on (§5.1) | `3120c8ff` (A) · `7b9d1190` (B) · `b127268b` (C) · `ec6418d8` (D) |
+| **R-1** | the replay check had been red since 2026-10-03 (an unflagged fix, never re-baselined); bisected, and the re-baseline exposed a flags-off leak from A_110 step 1 — fixed; HEAD flags-off replays MATCH at the pre-A_110 tree (§5.2) | £0 | DONE | `8cb2ed56` |
+| P-6 | second case, A′ against everything (A_110 arm-B flags + V batch); record and predictions written first | ~£1.80 | **RUNNING** | `b8ff5815` (record) |
 | P-7 | the owner's external read of P-6's better arm, with the checked read | £0 money | WAITS on P-6; only if SHIP-CHECK Normal, no fallback chapter | — |
 | P-8 | puzzle side: one device per case, two-suspect clues (A_112) | £0 to design | TODO (§3.4) | — |
 | P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | WAITS on P-6 | — |
@@ -341,7 +342,34 @@ probe that found it (`documentation/workflow/WF-005-probes/`), over all stored c
 | V-20 | V2O-05/06 checkpoint and run log keyed by the full run id; V2O-08 prose cost reported; V2K-05 the commit in run-params; V2O-09/10/11 | the instrument | unconditional |
 
 Not in the batch (recorded, not built): V2C-08 (one spelling per time — needs the clock parser's vocabulary, the X38
-choke point), V2C-13, V2C-14.
+choke point), V2C-13, V2C-14, V2O-09 (latent; it changes the prose artifact's shape and every replay digest), the
+writer label in V2O-10 (cosmetic), and the second half of V2O-07 (the checkers judge the unsoftened clue).
+
+### 5.1 What the batch measured — MEASURED (each group's WF-005 probes, re-pointed at its own build, OFF → ON)
+
+| group | result |
+|---|---|
+| A — the editor's guards | register rollbacks on arm B's own edit lists 45 → 1; restated-time deletions reverted 40 of 42 → 0 (a vanished or new time still reverts 10 → 10); never-fall guard falls 3 of 83 → 0; tags counted though speech follows, in canon, 105 → 1; scaffold rollbacks on the word "contract" 2 → 0. Flags-off identical over 2,608 logged editor calls |
+| B — selection and the gate | figurative culprit matches 125 → 0; arm B with every accusation stripped now STOPS (it shipped on "wit had cut"); `book_short` 150/150 → 0; `reveal_unnamed` 25 → 0; the gate's clue stop on another case passes 34/34 → 10/34, on canon 31–33 → 1–3, on its own book 34/34 → 34/34. 17 of 50 picks change |
+| C — the contract | over 64 stored cases: wrong reveal window 30 → 0; backward crime window 31 → 0; decisive clue at/after the test 21 → 0; test innocent off the page 36 → 0; body line after the reveal 25 → 0; culprit job line 7 → 0; clearance off the page 41 → 0; accused cleared before accused 54 → 0; names dropped from pages 4 → 0; locked facts cut from THE CLOCK 18 → 0. No contract or trace rule newly violated; flags-off 0 of 512 rows moved |
+| D — the instrument | a redo restores the source run's locked facts; a redo's checkpoint and log are its own; prose cost reaches the report; the commit is in run-config; softening once per run at the first attempt's temperature |
+
+The groups also corrected the audit where their replays disagreed: V2K-07 is 3 of 83, not 5 of 89; V2C-02 is 31/58
+(two windows cross midnight); V2C-01 is 30/64 wrong windows, not ≥11; V2C-12 is 4/64 (one "referred to" entry); one
+of V2K-08's "known negatives" was the same case; V2K-10's "report-only findings explain needs_review" does not hold
+(11 of 12 still need review on genuine findings).
+
+### 5.2 The replay had been red for three days — and hid a leak of ours
+
+`npm run replay:check` failed 5 of 5 before any of today's work: MATCH at `a283b422`, NO MATCH from `85c24445`, the
+merge of a deliberate, unflagged fix that made `repeat_passage` fire (2026-10-03), never re-baselined. Re-baselining
+and replaying the new cassettes at `58f1746c` (the tree before the A_110 build) left exactly one difference: chapter
+10's editor prompt for case d0ee7b26 gained a `scaffold_token` on "for the first time in days". **The phrases of
+A_110's flag-gated lines had joined the echo vocabulary unconditionally**, so a flags-off book was checked for wording
+it was never sent. Fixed (`CONDITIONAL_TEMPLATE_PHRASES` count only when the contract printed them); after it all three
+re-baselined fixtures MATCH at `58f1746c` — **flags off, HEAD is byte-identical to the tree before A_110** on those
+cases. Two lessons: a red check nobody re-baselines stops being read, and "OFF is byte-identical" tests that build the
+contract never see the editor's input.
 
 **P-6 then tests everything at once** on the second case (spatial, `canary_1790962241799`): arm A′ = shipped config;
 arm C = shipped + arm B's four A_110 flags + `PROSE_V2_AUDIT_FIXES` + P-3b. Predictions are written in the run record
