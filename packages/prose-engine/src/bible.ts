@@ -34,7 +34,7 @@
 
 import type { Bible, BibleSectionKey, ContractCore, ContractInput } from "./types.js";
 import { humourMove } from "./humour-move.js";
-import { contractFixesEnabled, verifiedFixesEnabled } from "@cml/cml";
+import { auditFixesEnabled, contractFixesEnabled, verifiedFixesEnabled } from "@cml/cml";
 import { fragmentObservable } from "./clue-shape.js";
 
 /**
@@ -101,7 +101,10 @@ const field = (source: unknown, ...keys: string[]): string => {
 };
 
 /** Trim a section's body to its budget on a line boundary, so a truncated entry is never half-read. */
-const toBudget = (lines: string[], budget: number): string => {
+const toBudget = (lines: string[], budget: number): string => keptToBudget(lines, budget).join("\n");
+
+/** The lines `toBudget` keeps: a prefix, cut at the first line that would cross the budget. */
+const keptToBudget = (lines: string[], budget: number): string[] => {
   const kept: string[] = [];
   let tokens = 0;
   for (const line of lines) {
@@ -110,7 +113,7 @@ const toBudget = (lines: string[], budget: number): string => {
     kept.push(line);
     tokens += cost;
   }
-  return kept.join("\n");
+  return kept;
 };
 
 const pronounsFor = (gender: unknown): string => {
@@ -354,11 +357,27 @@ const worldSection = (input: ContractInput): string[] => {
   return lines;
 };
 
+const CLOCK_HEADER = "Every one of these is written the same way every time it appears:";
+
 const chronologySection = (
   core: ContractCore,
   lockedFacts: ReadonlyArray<Record<string, unknown>>,
 ): string[] => {
-  const lines: string[] = [];
+  const { rows, locked } = chronologyLines(core, lockedFacts);
+  const lines = [...rows, ...locked];
+  if (lines.length > 0) {
+    lines.unshift(CLOCK_HEADER);
+  }
+  return lines;
+};
+
+/** THE CLOCK's lines in two parts: the chronology's rows, then the locked facts no row already carries. */
+const chronologyLines = (
+  core: ContractCore,
+  lockedFacts: ReadonlyArray<Record<string, unknown>>,
+): { rows: string[]; locked: string[] } => {
+  const rows: string[] = [];
+  const locked: string[] = [];
   // A culprit's alibi is the one the solution breaks. MEASURED on run mystery-1790960614933: THE CLOCK listed
   // "Ottoline Fairweather's alibi" (the murderer) like an innocent's, and chapter 9 said "Miss Fairweather is cleared".
   // With CML_VERIFIED_FIXES on it reads as the culprit's cover; OFF unchanged.
@@ -370,19 +389,16 @@ const chronologySection = (
       ? label.replace(/\balibi\b/gi, "cover")
       : label;
   for (const row of core.chronology.rows) {
-    lines.push(`  ${row.value} — ${asClaimed(row.label)}`);
+    rows.push(`  ${row.value} — ${asClaimed(row.label)}`);
   }
   const values = new Set(core.chronology.rows.map((r) => r.value));
   for (const fact of lockedFacts) {
     const value = text(fact.value);
     const description = text(fact.description);
     if (!value || values.has(value)) continue;
-    lines.push(`  ${value} — ${asClaimed(description || String(fact.id ?? ""))}`);
+    locked.push(`  ${value} — ${asClaimed(description || String(fact.id ?? ""))}`);
   }
-  if (lines.length > 0) {
-    lines.unshift("Every one of these is written the same way every time it appears:");
-  }
-  return lines;
+  return { rows, locked };
 };
 
 const cluesSection = (core: ContractCore): string[] => {
@@ -488,12 +504,37 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
   ];
 
   const fixes = contractFixesEnabled();
+  const audit = auditFixesEnabled();
   const budgetOf = (key: BibleSectionKey): number =>
     fixes && key === "relationships" ? RELATIONSHIPS_BUDGET_FIXED : BIBLE_BUDGETS[key];
-  const totalBudget = fixes ? BIBLE_BUDGET - BIBLE_BUDGETS.relationships + RELATIONSHIPS_BUDGET_FIXED : BIBLE_BUDGET;
+  /**
+   * A_111 V-17 (WF-005 V2C-07) — the locked facts are never cut, and every cut is counted.
+   *
+   * MEASURED over the 64 stored cases: THE CLOCK's 600 tokens cut 45 locked facts in 18 — the X51 weapon and alibi
+   * facts, appended last, so they were the first to go — and THE EVIDENCE's 900 cut lines in 13, both silently. ON:
+   * the chronology's rows keep the 600 and the locked facts after them have a budget of their own (what they cost,
+   * added to the total so no whole section is dropped for them); each section's cut lines are counted in `dropped`.
+   */
+  const clock = audit ? chronologyLines(core, input.lockedFacts ?? []) : null;
+  const lockedTokens = clock ? clock.locked.reduce((sum, line) => sum + estimateTokens(line) + 1, 0) : 0;
+  const totalBudget = (fixes ? BIBLE_BUDGET - BIBLE_BUDGETS.relationships + RELATIONSHIPS_BUDGET_FIXED : BIBLE_BUDGET) + lockedTokens;
+  const dropped: Partial<Record<BibleSectionKey, number>> = {};
   let sections = built
     .map(({ key, lines }) => {
-      const body = toBudget(lines, budgetOf(key));
+      let body: string;
+      if (!audit) {
+        body = toBudget(lines, budgetOf(key));
+      } else if (key === "chronology" && clock) {
+        const head = clock.rows.length + clock.locked.length > 0 ? [CLOCK_HEADER] : [];
+        const kept = keptToBudget([...head, ...clock.rows], budgetOf(key));
+        body = [...kept, ...clock.locked].join("\n");
+        const cut = head.length + clock.rows.length - kept.length;
+        if (cut > 0) dropped[key] = cut;
+      } else {
+        const kept = keptToBudget(lines, budgetOf(key));
+        body = kept.join("\n");
+        if (lines.length > kept.length) dropped[key] = lines.length - kept.length;
+      }
       return { key, title: SECTION_TITLES[key], body, tokens: estimateTokens(body) };
     })
     .filter((s) => s.body.length > 0);
@@ -508,5 +549,5 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
   }
 
   const bodyText = sections.map((s) => `## ${s.title}\n${s.body}`).join("\n\n");
-  return { sections, text: bodyText, tokens: estimateTokens(bodyText), truncated };
+  return { sections, text: bodyText, tokens: estimateTokens(bodyText), truncated, ...(audit ? { dropped } : {}) };
 };

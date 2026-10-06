@@ -14,6 +14,7 @@
  * D1 and D2 are not here on purpose: the contract CONSTRUCTS their lines, so a contract-level check of them could only
  * restate the construction. They are measured on the manuscript (`probes/owner-needs-probe.mjs`).
  */
+import { auditFixesEnabled } from "@cml/cml";
 import type { BookContract, SceneContract } from "./types.js";
 
 export type Verdict = "holds" | "violated" | "unknown";
@@ -69,7 +70,10 @@ export const TRACE_RULES: ReadonlyArray<TraceRule> = [
     unknown: (c) => (c.fairPlay.decisiveClueIds.length === 0 ? "no decisive clues listed" : null),
     check: (c, trace) =>
       c.fairPlay.decisiveClueIds.flatMap((id) => {
-        const shown = (s: SceneContract) => s.mustSurface.some((m) => m.id === id);
+        // A_111 V-3 (PROSE_V2_AUDIT_FIXES): BEFORE the test means before it. `precedence` counts the test chapter itself,
+        // so a clue first staged there held — 19 of 64 stored contracts. ON: only a chapter before the test shows it.
+        const strict = auditFixesEnabled();
+        const shown = (s: SceneContract) => (!strict || s.chapter < testChapterOf(c)) && s.mustSurface.some((m) => m.id === id);
         const atTest = (s: SceneContract) => s.chapter === testChapterOf(c);
         return precedence(trace, shown, atTest).map((where) => `${id} (${where})`);
       }),

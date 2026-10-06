@@ -49,7 +49,18 @@ import {
   provesTheAct,
   splitMeansLinkTrace,
 } from "@cml/prompts-llm";
-import { a110UpstreamEnabled, contractFixesEnabled, deriveCaseChronology, identifyPeople, readInference, renderClockWords, scheduleEnabled } from "@cml/cml";
+import {
+  a110UpstreamEnabled,
+  auditFixesEnabled,
+  contractFixesEnabled,
+  deriveCaseChronology,
+  identifyPeople,
+  namesIn,
+  parseClockTime,
+  readInference,
+  renderClockWords,
+  scheduleEnabled,
+} from "@cml/cml";
 import { holdCulpritCluesLate, namesCulprit, rebalanceEvidence, withoutCulprit } from "./schedule.js";
 
 import { assignChapterRoles } from "./roles.js";
@@ -109,9 +120,27 @@ export const flattenScenes = (outline: ContractInput["outline"]): Record<string,
 export const buildChronologyTable = (
   caseBlock: unknown,
   lockedFacts: ReadonlyArray<Record<string, unknown>>,
-): ChronologyTable => {
+): ChronologyTable => deriveChronology(caseBlock, lockedFacts).table;
+
+/** An interval row of THE CLOCK with the dial ends and the source it was read from (A_111 V-1). */
+export interface ChronologyInterval {
+  value: string;
+  label: string;
+  /** Minutes on the 12-hour dial (0..719), as `deriveCaseChronology` places them. */
+  start: number;
+  end: number;
+  /** "case" — a window or alibi the case declares; "locked" — a device duration placed between two events. */
+  source: string;
+}
+
+/** The table, and its interval rows with their dial ends. One derivation, so the two cannot disagree. */
+const deriveChronology = (
+  caseBlock: unknown,
+  lockedFacts: ReadonlyArray<Record<string, unknown>>,
+): { table: ChronologyTable; intervals: ChronologyInterval[] } => {
   const rows: ChronologyRow[] = [];
   const unplaced: string[] = [];
+  const intervals: ChronologyInterval[] = [];
   try {
     const chrono = deriveCaseChronology(caseBlock, lockedFacts as never);
     const byId = new Map(chrono.events.map((e) => [e.id, e] as const));
@@ -129,13 +158,131 @@ export const buildChronologyTable = (
       const from = String(start.raw ?? renderClockWords(start.dial));
       const to = String(end.raw ?? renderClockWords(end.dial));
       const length = interval.lengthRaw ?? `${interval.minutes} minutes`;
-      rows.push({ kind: "interval", value: `${from} to ${to} (${length})`, label: String(interval.label ?? interval.id) });
+      const row: ChronologyRow = { kind: "interval", value: `${from} to ${to} (${length})`, label: String(interval.label ?? interval.id) };
+      rows.push(row);
+      intervals.push({ value: row.value, label: row.label, start: start.dial, end: end.dial, source: String(interval.source ?? "") });
     }
     for (const u of chrono.unplaced) unplaced.push(`${u.id} ("${u.raw}") — ${u.reason}`);
   } catch {
     // A chronology that cannot be derived is a book with no clock rows, not a failed run.
   }
-  return { rows, unplaced };
+  return { table: { rows, unplaced }, intervals };
+};
+
+/** Minutes forward from `from` to `to` on the 12-hour dial. */
+const dialForward = (from: number, to: number): number => (((to - from) % 720) + 720) % 720;
+
+/** The words that say an interval is the act itself or the chance at it — genre words, never case nouns. */
+const ACT_WINDOW_RE = /\b(?:murder\w*|kill\w*|death|died|the act|opportunit\w*|access|entry)\b/i;
+
+/**
+ * A_111 V-1 (WF-005 V2C-01) — "the chance to do it", chosen by what the window CONTAINS, not by a keyword.
+ *
+ * MEASURED over the 64 stored cases: OFF picks by a keyword regex and else the first interval — 26 of 64 fall back,
+ * one regex hit was "access" inside "inaccessible", and 30 of 64 state a window that misses the case's actual time of
+ * death (21) or is a living innocent's alibi (10) (WF-005 probe p17). ON:
+ *   - the window must contain the case's actual time of death (when the case states one the dial can read), and
+ *     name no living person but a culprit — an innocent's alibi is never the chance to do it;
+ *   - a case that states no readable time of death accepts only a window the case itself labels as the act;
+ *   - among those: a case window labelled as the act, then any other case window, then a device duration labelled
+ *     as the act (a device duration that is not about the act measures a trick, not an opening); narrowest first;
+ *   - none: no window, and the reveal says nothing about one. Never the first interval.
+ */
+export const chooseOpportunityWindow = (args: {
+  intervals: ReadonlyArray<ChronologyInterval>;
+  actualTimeOfDeath: string;
+  culprits: ReadonlyArray<string>;
+  victim: string;
+  castNames: ReadonlyArray<string>;
+}): { value: string; label: string } | undefined => {
+  const people = identifyPeople([...args.castNames]);
+  const namesAnInnocent = (label: string): boolean =>
+    namesIn(label, people).some((n) => !args.culprits.includes(n) && n !== args.victim);
+  const tod = parseClockTime(args.actualTimeOfDeath);
+  const rank = (i: ChronologyInterval): number | null => {
+    const act = ACT_WINDOW_RE.test(i.label);
+    if (i.source === "case") return act ? 0 : tod === null ? null : 1;
+    return act && tod !== null ? 2 : null;
+  };
+  const ranked = args.intervals
+    .map((i, index) => ({ i, index, rank: rank(i), width: dialForward(i.start, i.end) }))
+    .filter((x) => x.rank !== null && !namesAnInnocent(x.i.label))
+    .filter((x) => tod === null || dialForward(x.i.start, tod) <= x.width)
+    .sort((a, b) => a.rank! - b.rank! || a.width - b.width || a.index - b.index);
+  const best = ranked[0]?.i;
+  if (!best) return undefined;
+  // The same span as a locked fact spells it, when one does: the prose copies the value, and A_90's rule is the locked
+  // fact's spelling (a case window's ends are rendered from the dial, "twenty minutes past ten" beside the locked
+  // "twenty minutes past ten at night").
+  const locked = args.intervals.find((i) => i.source === "locked" && i.start === best.start && i.end === best.end && !namesAnInnocent(i.label));
+  return { value: (locked ?? best).value, label: best.label };
+};
+
+/**
+ * A_111 V-2 (WF-005 V2C-02) — the crime chapter's clock as two facts in clock order, each in THE CLOCK's spelling.
+ *
+ * MEASURED: "The clock: between {actual} and {apparent}" read backwards ("between 7:45 and 7:15") in 31 of the 58
+ * stored cases that state one — every case whose trick makes the death look EARLIER than it was (29 by the raw dial,
+ * and 2 across midnight that the raw dial reads forwards: "between 12:10 AM and 11:55 PM"). A window was never
+ * the fact: the case states two instants, the true one and the one it was made to seem. ON: both, earlier first on
+ * the dial (the shorter way round, so eleven fifty comes before twelve ten), each spelled as THE CLOCK's row is.
+ */
+export const deathClockOf = (
+  actual: string,
+  apparent: string,
+  rows: ReadonlyArray<ChronologyRow>,
+): NonNullable<SceneContract["deathClock"]> => {
+  const spelled = (value: string): string => {
+    const instants = rows.filter((r) => r.kind === "instant");
+    if (instants.some((r) => r.value === value)) return value;
+    const dial = parseClockTime(value);
+    return (dial === null ? undefined : instants.find((r) => parseClockTime(r.value) === dial)?.value) ?? value;
+  };
+  const a = parseClockTime(actual);
+  const p = parseClockTime(apparent);
+  const forward = a === null || p === null ? null : dialForward(p, a);
+  const order = forward === 0 ? "same" : forward !== null && forward < 360 ? "apparent-first" : "actual-first";
+  return { actual: spelled(actual), apparent: spelled(apparent), order };
+};
+
+/** Title and role words a name may carry in an outline and the cast list may not — generic English. */
+const NAME_TITLES = new Set(
+  "lady lord sir dame dr doctor mr mrs miss ms master madam inspector detective sergeant constable captain colonel major reverend rev father professor prof chief superintendent the of de van von".split(
+    " ",
+  ),
+);
+const nameTokens = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z\s'-]/g, " ")
+    .split(/[\s-]+/)
+    .map((t) => t.replace(/'s$/, ""))
+    .filter((t) => t.length > 1 && !NAME_TITLES.has(t));
+
+/**
+ * A_111 V-9 (WF-005 V2C-12) — an outline name resolved to a cast name on the cast's own name tokens.
+ *
+ * MEASURED: `present` kept only exact cast names, so a titled name ("Detective <cast name>") fell off every page — in 4
+ * of 64 cases (40 chapters), the detective in 3. WF-005 counted 5 (41): its fifth was "<cast name> (referred to)", who
+ * is talked about and is not on the page. ON: an outline name is the cast member whose name it carries once its titles are
+ * set aside — every remaining token is one of that member's own name tokens, and exactly one member fits. "Inspector
+ * Hargrave" is Eleanor Hargrave in a cast with one Hargrave; "Lady Beatrice's maid" is nobody (the maid is not hers);
+ * a surname two members share names neither. What resolves to nobody is reported, never guessed.
+ */
+export const resolveCastName = (raw: string, castNames: ReadonlyArray<string>): string | null => {
+  const name = String(raw ?? "").trim();
+  if (!name) return null;
+  if (castNames.includes(name)) return name;
+  const lower = name.toLowerCase();
+  const exact = castNames.filter((c) => c && lower === c.toLowerCase());
+  if (exact.length === 1) return exact[0]!;
+  const tokens = nameTokens(name);
+  if (tokens.length === 0) return null;
+  const fits = castNames.filter((c) => {
+    const own = new Set(nameTokens(c));
+    return own.size > 0 && tokens.every((t) => own.has(t));
+  });
+  return fits.length === 1 ? fits[0]! : null;
 };
 
 /**
@@ -200,6 +347,23 @@ const distributeClearances = (
   // in suspect_clearance_scenes, and the contract told the writer "{victim} is cleared here" in 24 of 25 v2 runs.
   notSuspects: ReadonlySet<string> = new Set(),
 ): Map<number, Elimination[]> => {
+  const { stated, targets } = clearancePlan(caseBlock, clearanceChapters, revealChapter, aftermathChapter, notSuspects);
+  const byChapter = new Map<number, Elimination[]>();
+  stated.forEach((entry, i) => {
+    const chapter = targets[i % targets.length]!;
+    byChapter.set(chapter, [...(byChapter.get(chapter) ?? []), entry]);
+  });
+  return byChapter;
+};
+
+/** The clearances the case states, and the chapters they are dealt across in turn. */
+const clearancePlan = (
+  caseBlock: Record<string, unknown>,
+  clearanceChapters: number[],
+  revealChapter: number,
+  aftermathChapter: number | null,
+  notSuspects: ReadonlySet<string>,
+): { stated: Elimination[]; targets: number[] } => {
   const pr = (caseBlock.prose_requirements ?? {}) as Record<string, unknown>;
   const stated = asArray(pr.suspect_clearance_scenes)
     .map((entry) => {
@@ -210,8 +374,7 @@ const distributeClearances = (
       };
     })
     .filter((e) => e.name && e.method && !notSuspects.has(e.name));
-  const byChapter = new Map<number, Elimination[]>();
-  if (stated.length === 0) return byChapter;
+  if (stated.length === 0) return { stated, targets: [] };
   const before = clearanceChapters.filter((c) => c < revealChapter);
   // A chapter BETWEEN the reveal and the aftermath is a CLOSURE chapter (see `roles.ts`): its
   // suspects are cleared by the arrest already, so what it owes is a human beat each, not an alibi.
@@ -220,18 +383,68 @@ const distributeClearances = (
     (c) => c > revealChapter && (aftermathChapter === null || c < aftermathChapter),
   );
   const targets = before.length > 0 ? before : closure;
-  if (targets.length === 0) {
-    // Neither: they belong to the chapter immediately before the reveal, which is where the outline
-    // would have put them had it carried an `alibis` beat.
-    const fallback = Math.max(1, revealChapter - 1);
-    byChapter.set(fallback, stated);
-    return byChapter;
-  }
-  stated.forEach((entry, i) => {
-    const chapter = targets[i % targets.length]!;
-    byChapter.set(chapter, [...(byChapter.get(chapter) ?? []), entry]);
+  // Neither: they belong to the chapter immediately before the reveal, which is where the outline
+  // would have put them had it carried an `alibis` beat.
+  return { stated, targets: targets.length > 0 ? targets : [Math.max(1, revealChapter - 1)] };
+};
+
+/**
+ * A_111 V-7 + V-8 (WF-005 V2C-10, V2C-11) — each clearance where the suspect is on the page, and the false
+ * solution's accused never cleared before the chapter that accuses them.
+ *
+ * MEASURED over the 64 stored cases: the round-robin put "X is cleared here" in a chapter whose page lacks X in 41
+ * (78 rows), and the accused was cleared before the accusing chapter in 54 — `false-lead.ts` step 2 fixes the second
+ * only behind `PROSE_V2_FALSE_LEAD`, with the points it schedules. ON:
+ *   - V-7: the round-robin chapter when the suspect is on its page (so nothing moves that was right); else the first
+ *     clearance chapter that has them on the page; else the round-robin chapter, with the suspect put on its page;
+ *   - V-8: `false-lead.ts` step 2's move and nothing else of that flag — a clearance of the accused in a chapter before
+ *     the false solution moves to the chapter that breaks it (`refuted_in_chapter` when that falls from the
+ *     false-solution chapter to before the reveal, else the false-solution chapter), with the accused on its page.
+ *     Pinned to step 2 by `a111-vbatch-c.test.ts` over every stored case.
+ */
+const placeClearancesOnPage = (
+  scenes: SceneContract[],
+  plan: { stated: Elimination[]; targets: number[] },
+  falseSolution: { accused: string; chapter: number | null; refutedIn: number; reveal: number },
+  isCastName: (name: string) => boolean,
+): string[] => {
+  const notes: string[] = [];
+  const sceneAt = (chapter: number): SceneContract | undefined => scenes.find((s) => s.chapter === chapter);
+  const putOnPage = (scene: SceneContract, name: string, why: string): void => {
+    if (scene.present.includes(name)) return;
+    if (!isCastName(name)) {
+      notes.push(`${name} is cleared in chapter ${scene.chapter} but is no cast name, so is not put on its page`);
+      return;
+    }
+    scene.present.push(name);
+    notes.push(`${name} put on the page in chapter ${scene.chapter}, ${why}`);
+  };
+  for (const scene of scenes) scene.eliminationsAllowed = [];
+  plan.stated.forEach((entry, i) => {
+    const turn = plan.targets[i % plan.targets.length]!;
+    const onPage = (chapter: number): boolean => sceneAt(chapter)?.present.includes(entry.name) ?? false;
+    const chapter = onPage(turn) ? turn : (plan.targets.find(onPage) ?? turn);
+    const scene = sceneAt(chapter);
+    if (!scene) return;
+    scene.eliminationsAllowed = [...scene.eliminationsAllowed, entry];
+    putOnPage(scene, entry.name, "the chapter that clears them");
   });
-  return byChapter;
+  const { accused, chapter: fsChapter, refutedIn, reveal } = falseSolution;
+  if (accused && fsChapter !== null) {
+    const brokenIn =
+      Number.isInteger(refutedIn) && refutedIn >= fsChapter && refutedIn < reveal && sceneAt(refutedIn) ? refutedIn : fsChapter;
+    const target = sceneAt(brokenIn);
+    for (const scene of scenes) {
+      if (!target || scene.chapter >= fsChapter) continue;
+      const found = scene.eliminationsAllowed.find((e) => e.name === accused);
+      if (!found) continue;
+      scene.eliminationsAllowed = scene.eliminationsAllowed.filter((e) => e !== found);
+      if (!target.eliminationsAllowed.some((e) => e.name === accused)) target.eliminationsAllowed = [...target.eliminationsAllowed, found];
+      notes.push(`${accused}'s clearance moved from chapter ${scene.chapter} to ${brokenIn} — after the accusation, not before it`);
+      putOnPage(target, accused, "the chapter that clears them");
+    }
+  }
+  return notes;
 };
 
 /**
@@ -300,13 +513,16 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     }
   })();
 
-  const chronology = buildChronologyTable(caseBlock, input.lockedFacts ?? []);
+  const derivedChronology = deriveChronology(caseBlock, input.lockedFacts ?? []);
+  const chronology = derivedChronology.table;
   const chronologyValues = chronology.rows.map((r) => r.value);
   const onTheTable = (value: string): boolean =>
     value.length > 0 && chronologyValues.some((v) => v.includes(value));
 
   const decisive = decisiveClueIds(caseBlock, clues);
   const fixes = contractFixesEnabled();
+  /** A_111 §5 (PROSE_V2_AUDIT_FIXES) — WF-005's contract-construction fixes, V-1…V-9 and V-17. OFF: untouched. */
+  const audit = auditFixesEnabled();
 
   /**
    * A_110 N9 + M9 (PROSE_V2_SCHEDULE) — see schedule.ts. ON: every required clue gets ONE owner (the outline's, else the
@@ -351,13 +567,9 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     if (moved > 0) notes.push(`schedule (N9 + M9): ${moved} clue(s) moved — culprit facts later, other evidence to lighter chapters`);
   }
   const deferred: Array<{ id: string; observable: string }> = [];
-  const clearanceByChapter = distributeClearances(
-    caseBlock,
-    roles.clearances,
-    roles.reveal,
-    roles.aftermath,
-    fixes ? new Set([victim, ...culprits].filter(Boolean)) : new Set(),
-  );
+  // A_111 V-7 needs D6 as well: placing a clearance on the page would otherwise put the victim on it as a suspect.
+  const notSuspects: ReadonlySet<string> = fixes || audit ? new Set([victim, ...culprits].filter(Boolean)) : new Set();
+  const clearanceByChapter = distributeClearances(caseBlock, roles.clearances, roles.reveal, roles.aftermath, notSuspects);
 
   /**
    * A_110 P5 — the culprit's pre-reveal mask. Agent 7 is told to write "the mysterious guest" for the culprit before the
@@ -409,8 +621,16 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     }
   })();
   const intervals = chronology.rows.filter((r) => r.kind === "interval");
-  const opportunityWindow =
-    intervals.find((r) => /murder|entry|the act|opportunit|window|access/i.test(r.label)) ?? intervals[0];
+  const castNamesForWindow = cast.map(nameOf).filter(Boolean);
+  const opportunityWindow = audit
+    ? chooseOpportunityWindow({
+        intervals: derivedChronology.intervals,
+        actualTimeOfDeath: String(mechanism?.actual_time_of_death ?? ""),
+        culprits,
+        victim,
+        castNames: castNamesForWindow,
+      })
+    : (intervals.find((r) => /murder|entry|the act|opportunit|window|access/i.test(r.label)) ?? intervals[0]);
 
   /**
    * 17-hitting-90 P2.1 — where the dramatised wound goes: the `motives` beat if the outline has one
@@ -427,6 +647,16 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
   const accused = String((caseBlock.false_solution as Record<string, unknown> | undefined)?.accused_suspect ?? "").trim();
   const band = humourBand(input.humourLevel);
   const castNames = cast.map(nameOf).filter(Boolean);
+  /** A_111 V-9: outline names no cast member answers to — reported once, never guessed. */
+  const unmatchedOutlineNames = new Set<string>();
+  /** A culprit by name; ON (A_111 V-6), also by the cast's own name tokens (a title and a surname one member carries). */
+  const namesACulprit = (value: string): boolean => {
+    const v = String(value ?? "").trim();
+    if (culprits.includes(v)) return true;
+    if (!audit) return false;
+    const resolved = resolveCastName(v, castNames);
+    return resolved !== null && culprits.includes(resolved);
+  };
 
   const surfaceOf = (id: string): ClueSurface => {
     const clue = clueById.get(id) as Record<string, unknown> | undefined;
@@ -551,9 +781,19 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       ...(victimAliveIn(scene, index) ? { victimAlive: true } : {}),
       present: [
         ...new Set(
-          asArray(scene.characters)
-            .map((c) => unmask(String(c ?? "").trim()))
-            .filter((n) => n && (castNames.length === 0 || castNames.includes(n))),
+          audit
+            ? asArray(scene.characters)
+                .map((c) => unmask(String(c ?? "").trim()))
+                .map((n) => {
+                  if (!n || castNames.length === 0) return n;
+                  const resolved = resolveCastName(n, castNames);
+                  if (resolved === null) unmatchedOutlineNames.add(n);
+                  return resolved ?? "";
+                })
+                .filter(Boolean)
+            : asArray(scene.characters)
+                .map((c) => unmask(String(c ?? "").trim()))
+                .filter((n) => n && (castNames.length === 0 || castNames.includes(n))),
         ),
       ],
       location: String((scene.setting as Record<string, unknown> | undefined)?.location ?? "").trim(),
@@ -635,10 +875,20 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       };
       const consequenceFor = unmask(String(scene.consequenceFor ?? "").trim());
       // A_110 D5/N4: run.ts renders "X is the first of them we see" in the same contract that says X is in custody.
-      if (consequenceFor && !(fixes && culprits.includes(consequenceFor))) aftermath.consequenceFor = consequenceFor;
+      if (consequenceFor && !((fixes || audit) && namesACulprit(consequenceFor))) aftermath.consequenceFor = consequenceFor;
       const repairTarget = String(scene.repairTarget ?? "").trim();
       if (repairTarget) aftermath.repairTarget = repairTarget;
       contract.aftermath = aftermath;
+    }
+    /**
+     * A_111 V-6 (WF-005 V2C-09) — the job line is rendered from the FILTERED object. D5 dropped a culprit from
+     * `aftermath.consequenceFor`, and the raw job field still printed "consequenceFor: <culprit>" beside "<culprit> is
+     * in custody" — 7 of the 7 stored outlines that carry the field. ON: the job carries what the filter kept.
+     */
+    if (audit && contract.job?.consequenceFor && namesACulprit(contract.job.consequenceFor)) {
+      const kept: BeatJobFields = { ...contract.job };
+      delete kept.consequenceFor;
+      contract.job = Object.keys(kept).some((k) => k !== "beat") ? kept : null;
     }
 
     // The crime chapter is the one place the case fixes a clock window, so it is the one place a
@@ -668,7 +918,8 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
        */
       if (apparent && actual) {
         if (onTheTable(apparent) && onTheTable(actual)) {
-          contract.timeWindow = { from: actual, to: apparent };
+          if (audit) contract.deathClock = deathClockOf(actual, apparent, chronology.rows);
+          else contract.timeWindow = { from: actual, to: apparent };
         } else if (chronology.rows.length > 0) {
           const bad = [apparent, actual].filter((v) => !onTheTable(v));
           notes.push(
@@ -681,6 +932,112 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
 
     return contract;
   });
+
+  if (audit) {
+    const isCast = (name: string): boolean => castNames.length === 0 || castNames.includes(name);
+    const resolve = (name: string): string => (castNames.length > 0 ? resolveCastName(name, castNames) : null) ?? name;
+    const sceneAt = (chapter: number): SceneContract | undefined => sceneContracts.find((s) => s.chapter === chapter);
+
+    // V-7 + V-8: every clearance on a page that has the suspect, and the accused cleared only once accused.
+    const plan = clearancePlan(caseBlock, roles.clearances, roles.reveal, roles.aftermath, notSuspects);
+    const fsBlock = (caseBlock.false_solution ?? {}) as Record<string, unknown>;
+    const accusedName = resolve(String(fsBlock.accused_suspect ?? fsBlock.accusedSuspect ?? "").replace(/\s+/g, " ").trim());
+    const placed = placeClearancesOnPage(
+      sceneContracts,
+      {
+        targets: plan.targets,
+        stated: plan.stated.map((e) => ({ ...e, name: resolve(e.name) })).filter((e) => !notSuspects.has(e.name)),
+      },
+      {
+        accused: accusedName && !culpritSet.has(accusedName) && accusedName !== victim ? accusedName : "",
+        chapter: roles.falseSolution !== null && roles.falseSolution < roles.reveal ? roles.falseSolution : null,
+        refutedIn: Number(fsBlock.refuted_in_chapter ?? fsBlock.refutedInChapter),
+        reveal: roles.reveal,
+      },
+      isCast,
+    );
+    notes.push(...placed.map((n) => `audit fixes: ${n}`));
+
+    /**
+     * V-4 (WF-005 V2C-04) — "the test is applied on the page to {innocent} first" named somebody absent from the test
+     * chapter's page in 36 of 64. ON: a cleared suspect on that page, else any other innocent suspect on it, else the
+     * first choice put on the page; the culprit the line names is put on it too.
+     */
+    const testChapter = roles.discriminatingTest ?? roles.reveal;
+    const testScene = sceneAt(testChapter);
+    if (testScene?.testSubjects) {
+      const cleared = clearedSuspects.map(resolve).filter((n) => !culpritSet.has(n) && n !== victim);
+      const onPage = (n: string): boolean => testScene.present.includes(n);
+      const innocent = cleared.find(onPage) ?? livingSuspects.find(onPage) ?? cleared[0] ?? livingSuspects[0] ?? testScene.testSubjects.innocent;
+      testScene.testSubjects = { innocent, culprit: culprits.join(", ") };
+      for (const name of [innocent, ...culprits]) {
+        if (onPage(name) || !isCast(name)) continue;
+        testScene.present.push(name);
+        notes.push(`audit fixes: ${name} put on the page in chapter ${testChapter}, the chapter whose test they take`);
+      }
+    }
+
+    /**
+     * V-3 (WF-005 V2C-03) — the evidence the test turns on is on the page BEFORE the test. MEASURED: direct evidence
+     * against the culprit was first staged IN the test chapter in 19 of 64 (after it in 2) while the precedence rule
+     * said `holds`. ON: a decisive clue first staged at or after the test, or never, is staged in the latest chapter
+     * before it; the chapters from the test on refer to it. Under N9 it keeps its meaning back like any clue there.
+     */
+    const ordered = [...sceneContracts].sort((a, b) => a.chapter - b.chapter);
+    const firstStaged = (): Map<string, number> => {
+      const first = new Map<string, number>();
+      for (const s of ordered) for (const m of s.mustSurface) if (!first.has(m.id)) first.set(m.id, s.chapter);
+      return first;
+    };
+    const latestBefore = ordered.filter((s) => s.chapter < testChapter).pop();
+    const staged = firstStaged();
+    for (const id of decisive) {
+      if (!clueById.has(id)) continue;
+      const first = staged.get(id);
+      if (first !== undefined && first < testChapter) continue;
+      if (!latestBefore) {
+        notes.push(`audit fixes: decisive clue ${id} has no chapter before the test (${testChapter}) to be staged in`);
+        continue;
+      }
+      for (const s of ordered) {
+        if (s.chapter < testChapter || !s.mustSurface.some((m) => m.id === id)) continue;
+        s.mustSurface = s.mustSurface.filter((m) => m.id !== id);
+        s.mayMention.push(refOf(id, latestBefore.chapter));
+      }
+      const surface = surfaceOf(id);
+      if (schedule && latestBefore.chapter < scheduleTest && implicatesCulprit(id)) {
+        deferred.push({ id, observable: surface.observable });
+        surface.observable = withoutCulprit(surface.observable, culprits);
+        surface.keyTerms = keyTermsOf(surface.observable);
+        surface.conclusionAt = scheduleTest;
+      }
+      latestBefore.mustSurface.push(surface);
+      for (const s of ordered) {
+        s.mustNotReveal = s.mustNotReveal.filter((w) => w.what !== id);
+        if (s.chapter < latestBefore.chapter) s.mustNotReveal.push({ what: id, until: latestBefore.chapter });
+      }
+      notes.push(
+        `audit fixes: decisive clue ${id} was first staged ${first === undefined ? "nowhere" : `in chapter ${first}`}, ` +
+          `not before the test (${testChapter}); staged in chapter ${latestBefore.chapter}`,
+      );
+    }
+    // "Already on the page" only where it is: the chapter that stages the clue is earlier than the one referring to it.
+    const stagedNow = firstStaged();
+    for (const s of ordered) {
+      if (s.role === "reveal" || s.role === "discriminating_test") {
+        for (const id of decisive) {
+          if (s.mustSurface.some((m) => m.id === id) || s.mayMention.some((r) => r.id === id) || !stagedNow.has(id)) continue;
+          s.mayMention.push(refOf(id, stagedNow.get(id)!));
+        }
+      }
+      s.mayMention = s.mayMention
+        .map((r) => (stagedNow.has(r.id) ? { ...r, firstChapter: stagedNow.get(r.id)! } : r))
+        .filter((r) => stagedNow.has(r.id) && r.firstChapter < s.chapter);
+    }
+    if (unmatchedOutlineNames.size > 0) {
+      notes.push(`audit fixes: outline names no cast member answers to, left off every page: ${[...unmatchedOutlineNames].sort().join(", ")}`);
+    }
+  }
 
   // A_110 N9: the test chapter is where the deferred meanings are first said aloud — a job there, not a ban earlier.
   if (schedule && deferred.length > 0) {

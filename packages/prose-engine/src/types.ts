@@ -159,6 +159,11 @@ export interface SceneContract {
    * the case itself fixes the chapter's clock (the crime).
    */
   timeWindow?: { from: string; to: string };
+  /**
+   * A_111 V-2 (PROSE_V2_AUDIT_FIXES) — on the crime chapter, in place of `timeWindow`: the true time of death and the
+   * time it was made to seem, in THE CLOCK's spelling, with which comes first on the dial.
+   */
+  deathClock?: { actual: string; apparent: string; order: "actual-first" | "apparent-first" | "same" };
   mustSurface: ClueSurface[];
   mayMention: ClueRef[];
   mustNotReveal: Withheld[];
@@ -254,6 +259,11 @@ export interface Bible {
   tokens: number;
   /** Sections dropped to stay inside the budget, last-first. */
   truncated: BibleSectionKey[];
+  /**
+   * A_111 V-17 (PROSE_V2_AUDIT_FIXES) — lines each section's budget cut, by section. Absent with the flag off, where
+   * the cut is silent.
+   */
+  dropped?: Partial<Record<BibleSectionKey, number>>;
 }
 
 export type BibleSectionKey =

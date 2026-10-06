@@ -1,7 +1,7 @@
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
-setEnv("OFF");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
+setEnv(process.env.ARM ?? "OFF");
 const rows = []; const crit = {}; const decisiveAtOrAfter = new Set(); let essentialAfter = new Set();
 for (const c of cases) {
   const k = pe.buildBookContract(c.input);

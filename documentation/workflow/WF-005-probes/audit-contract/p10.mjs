@@ -1,6 +1,6 @@
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
 setEnv(process.argv[2] ?? "OFF");
 const t = {}; const ex = {};
 const add = (k, d) => { t[k] = (t[k] ?? 0) + 1; (ex[k] ??= []).length < 4 && ex[k].push(d); };

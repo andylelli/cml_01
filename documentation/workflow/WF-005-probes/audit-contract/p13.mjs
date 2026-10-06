@@ -1,6 +1,6 @@
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
 setEnv(process.argv[2] ?? "OFF");
 const r = { decisiveAtTest: new Set(), decisiveAfterTest: new Set(), essentialAtOrAfterTest: new Set(), anyAfterReveal: new Set(), essentialAfterReveal: new Set(), traceHolds: 0, clearedOffPageNonVictim: new Set(), clearedRows: 0 };
 const ex = [];

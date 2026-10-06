@@ -1,10 +1,10 @@
 // Detail for the time-window and THE CLOCK findings.
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
-const cml = await import("file:///C:/CML/packages/cml/dist/index.js");
-const run = await import("file:///C:/CML/apps/worker/dist/jobs/agents/agent9-v2/run.js");
-setEnv("OFF");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
+const cml = await import(new URL("../../../../packages/cml/dist/index.js", import.meta.url).href);
+const run = await import(new URL("../../../../apps/worker/dist/jobs/agents/agent9-v2/run.js", import.meta.url).href);
+setEnv(process.env.ARM ?? "OFF");
 const sec = (t, name) => (t.split(/\n(?=## )/).find((s) => s.startsWith(`## ${name}`)) ?? "");
 const which = process.argv[2];
 const tally = { reversed: 0, digitWindow: 0, windowStated: 0, kinds: {}, lfDropped: 0, lfTotal: 0, casesLfDropped: new Set(), oppMissing: 0, oppStated: 0, x51Dropped: 0, x51Cases: new Set(), dropKinds: {} };

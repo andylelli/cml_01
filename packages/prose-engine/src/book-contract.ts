@@ -32,6 +32,13 @@ export const buildBookContract = (input: ContractInput): BookContract => {
     const { unknown } = whereAndWhen(input);
     if (unknown.length > 0) contract.notes.push(`THE WORLD could not read ${unknown.join(", ")}`);
   }
+  // A_111 V-17 (PROSE_V2_AUDIT_FIXES): a budget's cut is reported, never silent.
+  const dropped = Object.entries(bible.dropped ?? {}).filter(([, n]) => (n ?? 0) > 0);
+  if (dropped.length > 0) {
+    contract.notes.push(
+      `the bible cut ${dropped.reduce((sum, [, n]) => sum + (n ?? 0), 0)} line(s) to its section budgets: ${dropped.map(([k, n]) => `${k} ${n}`).join(", ")}`,
+    );
+  }
   // A_110 M1 / WP-006 K6: the contract's own invariants, reported every run, flag or no flag (telemetry, never a gate).
   const violated = checkContractRules(contract, bible.text);
   if (violated.length > 0) {

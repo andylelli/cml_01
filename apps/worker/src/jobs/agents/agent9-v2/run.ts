@@ -333,10 +333,19 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
       lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
     }
   }
+  /**
+   * A_111 V-5 (WF-005 V2C-05; PROSE_V2_AUDIT_FIXES) — "The body: X — found dead" printed in every chapter whose outline
+   * lists the victim, at and after the reveal in 25 of 64 stored contracts. ON: the body is found once — in the first
+   * chapter `contract-rules` calls the body chapter (victim listed, no wound scene, not alive) — and before the reveal.
+   */
+  const isBodyChapter = (s: { present: string[]; wound?: unknown; victimAlive?: boolean }): boolean =>
+    s.present.includes(victim) && !s.wound && !s.victimAlive;
+  const bodyChapter = [...contract.scenes].sort((a, b) => a.chapter - b.chapter).find(isBodyChapter)?.chapter;
+  const bodyLineHere = !auditFixesEnabled() || (chapter === bodyChapter && chapter < contract.roles.reveal);
   // A_110 P3 (CML_A110_UPSTREAM): the Gathering keeps the victim alive; only the contract sets `victimAlive`.
   if (victim && scene.present.includes(victim) && scene.victimAlive) {
     lines.push(`  ${victim} is alive in this chapter, on the page among the others; the chapter ends before the death.`);
-  } else if (victim && scene.present.includes(victim) && !scene.wound) {
+  } else if (victim && scene.present.includes(victim) && !scene.wound && bodyLineHere) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
   }
   /**
@@ -361,6 +370,18 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   // A_110 step 1 (PROSE_V2_OPENING): the place before anybody speaks, the people, the death — beside Where, first.
   for (const line of openingLines(scene.opening)) lines.push(`  ${line}`);
   if (scene.timeWindow) lines.push(`  The clock: between ${scene.timeWindow.from} and ${scene.timeWindow.to}.`);
+  // A_111 V-2 (PROSE_V2_AUDIT_FIXES): two facts in clock order, never a window that can read backwards.
+  if (scene.deathClock) {
+    const who = victim || "the victim";
+    const { actual, apparent, order } = scene.deathClock;
+    lines.push(
+      order === "same"
+        ? `  The clock: ${who} died at ${actual}.`
+        : order === "apparent-first"
+          ? `  The clock: the death was made to seem to fall at ${apparent}; ${who} truly died at ${actual}.`
+          : `  The clock: ${who} died at ${actual}; the death was made to seem to fall at ${apparent}.`,
+    );
+  }
   for (const surface of scene.mustSurface) {
     lines.push(`  ${TEMPLATE.readerCanUse}: ${surface.observable || surface.keyTerms.join(", ")}`);
     if (surface.unlockedBy) lines.push(`    ${surface.unlockedBy.name} reads it because they know ${surface.unlockedBy.skill}.`);

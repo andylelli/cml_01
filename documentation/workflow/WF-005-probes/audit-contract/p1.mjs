@@ -1,7 +1,7 @@
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
-const run = await import("file:///C:/CML/apps/worker/dist/jobs/agents/agent9-v2/run.js");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
+const run = await import(new URL("../../../../apps/worker/dist/jobs/agents/agent9-v2/run.js", import.meta.url).href);
 const arm = process.argv[2] ?? "OFF";
 setEnv(arm);
 let n = 0;

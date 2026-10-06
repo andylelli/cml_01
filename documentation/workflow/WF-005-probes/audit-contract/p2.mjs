@@ -1,7 +1,7 @@
 import { cases } from "./cases.mjs";
 import { setEnv } from "./env.mjs";
-const pe = await import("file:///C:/CML/packages/prose-engine/dist/index.js");
-const cml = await import("file:///C:/CML/packages/cml/dist/index.js");
+const pe = await import(new URL("../../../../packages/prose-engine/dist/index.js", import.meta.url).href);
+const cml = await import(new URL("../../../../packages/cml/dist/index.js", import.meta.url).href);
 const arm = process.argv[2] ?? "OFF";
 setEnv(arm);
 const hit = {}; const ex = {}; const cnt = {};

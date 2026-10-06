@@ -1,13 +1,16 @@
 // Load every stored case (latest artifact of each type per project) as a ContractInput.
 import fs from "node:fs";
 import path from "node:path";
-const store = JSON.parse(fs.readFileSync("C:/CML/data/store.json", "utf8"));
+// The checkout this probe lives in: its own data/store.json (a worktree needs a copy of main's).
+const ROOT = new URL("../../../../", import.meta.url);
+const store = JSON.parse(fs.readFileSync(new URL("data/store.json", ROOT), "utf8"));
 const arts = Array.isArray(store.artifacts) ? store.artifacts : Object.values(store.artifacts);
 const by = new Map();
 for (const a of arts) { if (!a?.projectId) continue; if (!by.has(a.projectId)) by.set(a.projectId, {}); by.get(a.projectId)[a.type] = a.payload; }
 const specs = (Array.isArray(store.specs) ? store.specs : Object.values(store.specs));
 const humourOf = (pid) => { const s = specs.filter((x) => x.projectId === pid).pop(); return s?.spec?.humourLevel; };
 // locked facts: the run's own registry file, matched to the project by its device fact ids; else the device's own facts.
+// Run registries are written by the main checkout's worker and are not tracked; read them from there.
 const lfDir = "C:/CML/apps/worker/logs";
 const lfFiles = fs.readdirSync(lfDir).filter((f) => /^locked-facts-.*\.json$/.test(f)).map((f) => { try { return JSON.parse(fs.readFileSync(path.join(lfDir, f), "utf8")); } catch { return null; } }).filter(Boolean);
 export const cases = [];

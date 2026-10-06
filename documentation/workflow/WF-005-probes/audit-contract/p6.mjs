@@ -1,7 +1,7 @@
 // Real prompts: "The clock: between A and B" lines (reversed?), and digit times inside THE CLOCK.
 import fs from "node:fs";
 import readline from "node:readline";
-const cml = await import("file:///C:/CML/packages/cml/dist/index.js");
+const cml = await import(new URL("../../../../packages/cml/dist/index.js", import.meta.url).href);
 const files = ["C:/CML/logs/llm-prompts-full.jsonl", "C:/CML/.claude/worktrees/a110-pair/logs/llm-prompts-full.jsonl"];
 const windows = new Map(); const digitRuns = new Set(); const runs = new Set(); const twoSpell = new Set();
 for (const file of files) {
