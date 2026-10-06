@@ -20,9 +20,10 @@
  * Everything else — every v1 release-gate reason, every validation major — is a WARNING line.
  */
 
+import { auditFixesEnabled } from "@cml/cml";
 import { indexChapters } from "./chapter-index.js";
-import { keyTermHits } from "./clue-terms.js";
-import { namesAsCulprit } from "./culprit.js";
+import { clueTermsOnPage, keyTermHits } from "./clue-terms.js";
+import { culpritContextOf, namesAsCulprit } from "./culprit.js";
 import type { ContractCore, Finding, ProseChapterLike } from "./types.js";
 
 export interface GateVerdict {
@@ -30,6 +31,8 @@ export interface GateVerdict {
   ship: boolean;
   stops: string[];
   warnings: string[];
+  /** A_111 V-11 (PROSE_V2_AUDIT_FIXES only): report-only finding classes, which are not warnings. */
+  reports?: string[];
 }
 
 const bodyOf = (chapter: ProseChapterLike | undefined): string =>
@@ -74,13 +77,15 @@ export const applyGate = (args: {
    */
   const culprits = args.core.fairPlay.culprits;
   if (culprits.length > 0) {
+    // A_111 V-10: the case's victim and cast travel with the predicate (ignored with PROSE_V2_AUDIT_FIXES off).
+    const people = culpritContextOf(args.core);
     const revealBody = bodyOf(byChapter.get(args.core.roles.reveal));
-    const namedInReveal = culprits.filter((c) => namesAsCulprit(revealBody, c));
+    const namedInReveal = culprits.filter((c) => namesAsCulprit(revealBody, c, people));
     const laterBody = order
       .filter((c) => c > args.core.roles.reveal)
       .map((c) => bodyOf(byChapter.get(c)))
       .join(" ");
-    const namedLater = culprits.filter((c) => namesAsCulprit(laterBody, c));
+    const namedLater = culprits.filter((c) => namesAsCulprit(laterBody, c, people));
     const namedAnywhere = new Set([...namedInReveal, ...namedLater]);
 
     if (namedAnywhere.size === 0) {
@@ -104,8 +109,27 @@ export const applyGate = (args: {
   for (const id of args.core.fairPlay.decisiveClueIds) {
     const surface = args.core.scenes.flatMap((s) => s.mustSurface).find((s) => s.id === id);
     if (!surface || surface.keyTerms.length < 3) continue;
-    const hits = keyTermHits(surface.keyTerms, beforeReveal, "substring");
-    if (hits === 0) {
+    /**
+     * A_111 V-15 (WF-005 V2K-08). Any ONE term as a substring — "door", "lock" — is on some page of every book, so this
+     * stop could never fire. With PROSE_V2_AUDIT_FIXES on, the clue is on a page when ONE chapter before the reveal
+     * passes the selector's own `clue_missing` test (`clueTermsOnPage`) — the same predicate on the same unit, so the
+     * selector and the gate cannot disagree about it. MEASURED over the 34 decisive clues (3+ key terms) of 29 distinct
+     * stored books, "passes" = stays silent:
+     *
+     *                                   own book   another case   canon (3 texts)
+     *   any one term, substring          34/34        34/34        31–33/34
+     *   word rule, all pre-reveal text   34/34        19/34         5–8/34
+     *   word rule, inside one chapter    34/34        10/34         1–3/34     <- this
+     *
+     * Read across ten thousand words, half of eight genre terms ("door", "lock", "traces", "handling") turn up in any
+     * mystery; inside one chapter they mostly do not.
+     */
+    const onPage = auditFixesEnabled()
+      ? order
+          .filter((c) => c < args.core.roles.reveal)
+          .some((c) => clueTermsOnPage(surface.keyTerms, bodyOf(byChapter.get(c)).toLowerCase()))
+      : keyTermHits(surface.keyTerms, beforeReveal, "substring") > 0;
+    if (!onPage) {
       stops.push(`the decisive clue ${id} is on no page before the reveal (${surface.keyTerms.slice(0, 4).join(", ")})`);
     }
   }
@@ -116,15 +140,30 @@ export const applyGate = (args: {
   }
 
   // Everything else the findings carry, grouped so the report is readable rather than long.
+  /**
+   * A_111 V-11 (WF-005 V2K-10). A `report` finding is never sent to an editor (`run.ts` filters it out of every round),
+   * so "unresolved" is not a state it can leave — and counting it as a warning made `validation_status` read
+   * needs_review on 12 of 12 v2 runs. With PROSE_V2_AUDIT_FIXES on it is listed under `reports`, not `warnings`; the
+   * run report's `findings:` line still counts it, since a report finding is never edited away.
+   */
+  const separateReports = auditFixesEnabled();
+  const reports: string[] = [];
   const byClass = new Map<string, number>();
-  for (const finding of args.findings) byClass.set(finding.class, (byClass.get(finding.class) ?? 0) + 1);
+  const reportByClass = new Map<string, number>();
+  for (const finding of args.findings) {
+    const into = separateReports && finding.severity === "report" ? reportByClass : byClass;
+    into.set(finding.class, (into.get(finding.class) ?? 0) + 1);
+  }
   for (const [cls, count] of [...byClass.entries()].sort((a, b) => b[1] - a[1])) {
     warnings.push(`${cls}: ${count} unresolved`);
+  }
+  for (const [cls, count] of [...reportByClass.entries()].sort((a, b) => b[1] - a[1])) {
+    reports.push(`${cls}: ${count} reported (report-only, never sent to an editor)`);
   }
 
   for (const chapter of order) {
     if (!byChapter.has(chapter)) warnings.push(`chapter ${chapter} is missing from the manuscript`);
   }
 
-  return { ship: stops.length === 0, stops, warnings };
+  return { ship: stops.length === 0, stops, warnings, ...(separateReports ? { reports } : {}) };
 };

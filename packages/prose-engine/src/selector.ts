@@ -71,10 +71,10 @@ import {
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
 import { chapterMentionsRequiredClue } from "@cml/prompts-llm";
-import { openingEnabled, selectorRanksEnabled } from "@cml/cml";
-import { keyTermHits } from "./clue-terms.js";
+import { auditFixesEnabled, openingEnabled, selectorRanksEnabled } from "@cml/cml";
+import { clueTermsOnPage, keyTermHits } from "./clue-terms.js";
 import { indexChapters } from "./chapter-index.js";
-import { namesAsCulprit } from "./culprit.js";
+import { culpritContextOf, namesAsCulprit } from "./culprit.js";
 
 import type {
   ContractCore,
@@ -133,6 +133,18 @@ const paragraphsOf = (chapters: ReadonlyArray<ProseChapterLike>): string[] =>
 
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?])\s+/).filter((s) => s.trim());
 
+/**
+ * A_111 V-16a (WF-005 V2K-06, PROSE_V2_AUDIT_FIXES). The split above breaks only after [.!?], so a sentence ending in a
+ * closing quote is glued to the next, and a paragraph break is no boundary either: MEASURED on the stored
+ * one-chapter-per-call checkpoints, 477 of 813 sentences it counted as over 30 words were glued that way. Split per
+ * paragraph, and after a closing quote, as `page-shape.ts` does.
+ */
+const sentencesPerParagraph = (text: string): string[] =>
+  text
+    .split(/\n\s*\n/)
+    .flatMap((paragraph) => paragraph.split(/(?<=[.!?]["”']?)\s+/))
+    .filter((s) => s.trim());
+
 /** Opens on speech. The canon opens three paragraphs in five this way; our books open one in eight. */
 const opensOnSpeech = (paragraph: string): boolean => /^["“‘']/.test(paragraph.trim());
 
@@ -150,7 +162,7 @@ export const measureInstruments = (
   const body = textOf(chapters);
   const paragraphs = paragraphsOf(chapters);
   const words = body.split(/\s+/).filter(Boolean).length || 1;
-  const sentences = sentencesOf(body);
+  const sentences = auditFixesEnabled() ? sentencesPerParagraph(body) : sentencesOf(body);
   const long = sentences.filter((s) => s.split(/\s+/).filter(Boolean).length > 30).length;
   const wit = witDensity(body);
   return {
@@ -204,14 +216,28 @@ const MARKER_RE = /\b(CASE|CML)\b/;
 const findScaffold = (body: string): string | null =>
   JARGON_RE.exec(body)?.[0] ?? MARKER_RE.exec(body)?.[0] ?? null;
 
+/**
+ * A_111 V-11 (WF-005 V2O-02): the chapters the book already holds when a segment is scored — what `run.ts` has written
+ * and chosen so far. With one chapter per call (`PROSE_V2_SEGMENT_CHAPTERS=1`, the shipped default) the BOOK-level
+ * kinds otherwise see one chapter: see `checkHardGates`.
+ */
+export interface BookSoFar {
+  chapters: ReadonlyArray<ProseChapterLike>;
+  /** The number each chapter of `chapters` carries, when the chapters do not carry it themselves. */
+  numbers?: ReadonlyArray<number>;
+}
+
 export const checkHardGates = (
   chapters: ReadonlyArray<ProseChapterLike>,
   core: ContractCore,
   expected: ReadonlyArray<number>,
   clueDistribution?: { clues?: unknown[] },
+  soFar?: BookSoFar,
 ): HardGateHit[] => {
   const hits: HardGateHit[] = [];
   const byChapter = indexChapters(chapters, expected);
+  const audited = auditFixesEnabled();
+  const people = culpritContextOf(core);
 
   for (const chapter of expected) {
     if (!byChapter.has(chapter)) hits.push({ kind: "chapter_missing", chapter, detail: "not in the draft" });
@@ -225,11 +251,19 @@ export const checkHardGates = (
     const body = (written.paragraphs ?? []).join("\n");
 
     for (const surface of scene.mustSurface) {
-      const present = clueDistribution
-        ? chapterMentionsRequiredClue(body, surface.id, clueDistribution as never, castNames)
-        : surface.keyTerms.length > 0 &&
-          keyTermHits(surface.keyTerms, body.toLowerCase(), "stemmed") >=
-            Math.max(2, Math.ceil(surface.keyTerms.length * 0.5));
+      /**
+       * A_111 V-15 (WF-005 V2K-11): `chapterMentionsRequiredClue` found this case's clues in 56–65% of canon chapters
+       * and 73% of another case's — its pool adds the clue's inference words and a generic family fallback ("letter,
+       * written, document"). The word rule on the clue's own key terms: 95% own, 17% another case, 1–2% canon
+       * (`clueTermsOnPage`, which the gate's decisive-clue stop now shares).
+       */
+      const present = audited
+        ? clueTermsOnPage(surface.keyTerms, body.toLowerCase())
+        : clueDistribution
+          ? chapterMentionsRequiredClue(body, surface.id, clueDistribution as never, castNames)
+          : surface.keyTerms.length > 0 &&
+            keyTermHits(surface.keyTerms, body.toLowerCase(), "stemmed") >=
+              Math.max(2, Math.ceil(surface.keyTerms.length * 0.5));
       if (!present) {
         hits.push({ kind: "clue_missing", chapter, detail: `${surface.id}: ${surface.keyTerms.slice(0, 4).join(", ")}` });
       }
@@ -238,7 +272,7 @@ export const checkHardGates = (
     for (const withheld of scene.mustNotReveal) {
       if (withheld.what === "culprit") {
         for (const culprit of core.fairPlay.culprits) {
-          if (namesAsCulprit(body, culprit)) {
+          if (namesAsCulprit(body, culprit, people)) {
             hits.push({ kind: "culprit_early", chapter, detail: `${culprit} named as the murderer, owed to chapter ${withheld.until}` });
           }
         }
@@ -299,18 +333,51 @@ export const checkHardGates = (
     (n, c) => n + (c.paragraphs ?? []).join(" ").split(/\s+/).filter(Boolean).length,
     0,
   );
-  if (byChapter.size === expected.length && bookWords < core.book.words.min) {
-    hits.push({ kind: "book_short", chapter: 0, detail: `${bookWords} words against a minimum of ${core.book.words.min}` });
+  /**
+   * A_111 V-11 (WF-005 V2O-02 / V2K-10). With one chapter per call this compared ONE chapter with the BOOK's minimum
+   * and fired on 150 of 150 stored drafts — a hit every draft carries ranks nothing and reads as a defect in every
+   * report. The floor is now the share of the book's minimum the checked chapters owe; checked over the whole book
+   * (the findings pass, `expected` = every chapter) that share is the whole minimum, as before.
+   */
+  const minimum = audited
+    ? Math.round((core.book.words.min * expected.length) / Math.max(1, core.book.chapters, expected.length))
+    : core.book.words.min;
+  if (byChapter.size === expected.length && bookWords < minimum) {
+    hits.push({
+      kind: "book_short",
+      chapter: 0,
+      detail:
+        minimum === core.book.words.min
+          ? `${bookWords} words against a minimum of ${core.book.words.min}`
+          : `${bookWords} words against ${minimum}, these ${expected.length} chapter(s)' share of the book's minimum of ${core.book.words.min}`,
+    });
   }
 
   const culprits = core.fairPlay.culprits;
   if (culprits.length > 0) {
+    /**
+     * A_111 V-11 (WF-005 V2O-02 / V2K-02). Scored one chapter at a time, "never named at or after the reveal" asked every
+     * chapter AFTER the reveal to name the culprit again: 25 of 27 stored post-reveal drafts carried the hit, and it
+     * decided the chapter-9 pick against the best composite where the drafts split. It is a BOOK property, so it is
+     * read over the chapters already chosen plus this draft — once the book has named the culprit, a later chapter
+     * owes nothing; while it has not, the draft that names them still wins.
+     */
+    const ownNumbers = [...byChapter.keys()];
+    const priorText =
+      audited && soFar
+        ? [...indexChapters(soFar.chapters, soFar.numbers ?? soFar.chapters.map((c, i) => Number(c.number ?? i + 1))).entries()]
+            .filter(([n]) => n >= core.roles.reveal && !ownNumbers.includes(n))
+            .sort((a, b) => a[0] - b[0])
+            .map(([, c]) => (c.paragraphs ?? []).join(" "))
+            .join(" ")
+        : "";
     const atOrAfterReveal = [...expected]
       .sort((a, b) => a - b)
       .filter((c) => c >= core.roles.reveal)
       .map((c) => (byChapter.get(c)?.paragraphs ?? []).join(" "))
       .join(" ");
-    if (atOrAfterReveal.trim() && !culprits.some((c) => namesAsCulprit(atOrAfterReveal, c))) {
+    const readOver = priorText ? `${priorText} ${atOrAfterReveal}` : atOrAfterReveal;
+    if (atOrAfterReveal.trim() && !culprits.some((c) => namesAsCulprit(readOver, c, people))) {
       hits.push({
         kind: "reveal_unnamed",
         chapter: core.roles.reveal,
@@ -342,7 +409,7 @@ export const scoreDraft = (
   draft: Draft,
   core: ContractCore,
   expected: ReadonlyArray<number>,
-  options: { witTargetPer10k?: number; clueDistribution?: { clues?: unknown[] } } = {},
+  options: { witTargetPer10k?: number; clueDistribution?: { clues?: unknown[] }; soFar?: BookSoFar } = {},
 ): DraftScore => {
   const witTarget = options.witTargetPer10k ?? 41;
   const vector = measureInstruments(draft.chapters, witTarget);
@@ -364,7 +431,7 @@ export const scoreDraft = (
     composite += contribution;
   }
   return {
-    hard: checkHardGates(draft.chapters, core, expected, options.clueDistribution),
+    hard: checkHardGates(draft.chapters, core, expected, options.clueDistribution, options.soFar),
     vector,
     composite: Number(composite.toFixed(4)),
     contributions,

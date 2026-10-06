@@ -9,7 +9,9 @@ export const packageName = "@cml/prose-engine";
 export * from "./chapter-index.js";
 export * from "./contract-phrases.js";
 export { instructionPhrases, instructionStemGrams, findInstructionEchoes, findCatchphrases } from "./instruction-echo.js";
-export { namesAsCulprit } from "./culprit.js";
+export { culpritContextOf, namesAsCulprit } from "./culprit.js";
+export type { CulpritContext } from "./culprit.js";
+export { clueTermsOnPage, keyTermHits } from "./clue-terms.js";
 export * from "./types.js";
 export { assignChapterRoles, beatOf } from "./roles.js";
 export type { RoleAssignment } from "./roles.js";
@@ -54,7 +56,7 @@ export {
   openingMeasures,
   contentWordsOf,
 } from "./selector.js";
-export type { OpeningChoice, ScoredDraft } from "./selector.js";
+export type { BookSoFar, OpeningChoice, ScoredDraft } from "./selector.js";
 export { dunningG2, rankHousePhrases } from "./keyness.js";
 export type { HousePhrase, KeynessReference } from "./keyness.js";
 export {

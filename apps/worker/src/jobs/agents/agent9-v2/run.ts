@@ -728,6 +728,8 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
       score: scoreDraft(draft, contract, segment.chapters, {
         witTargetPer10k: band.targetPer10k,
         clueDistribution: (ctx.clues ?? undefined) as { clues?: unknown[] } | undefined,
+        // A_111 V-11: the book so far, so the BOOK-level kinds read the book, not one chapter (PROSE_V2_AUDIT_FIXES).
+        soFar: { chapters: written, numbers: writtenNumbers },
       }),
     }));
     // A_110 L5: the selector (PROSE_V2_SELECTOR_RANKS) breaks a tie toward the draft the book has said least of.
