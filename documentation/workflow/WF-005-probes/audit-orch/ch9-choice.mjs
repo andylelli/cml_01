@@ -1,0 +1,27 @@
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+for (const k of ["CML_VERIFIED_FIXES","CML_PROMPT_TRIMS","PROSE_V2_SEGMENT_CHAPTERS","PROSE_V2_CONTRACT_FIXES","PROSE_V2_OPENING","PROSE_V2_SELECTOR_RANKS","PROSE_V2_TAIL_FINDING"]) process.env[k] = "1";
+const run = await import(pathToFileURL("C:/CML/apps/worker/dist/jobs/agents/agent9-v2/run.js").href);
+const pe = await import(pathToFileURL("C:/CML/packages/prose-engine/dist/index.js").href);
+const hyd = await import(pathToFileURL("C:/CML/apps/worker/dist/jobs/resume-hydration.js").href);
+const store = await import(pathToFileURL("C:/CML/apps/worker/dist/jobs/artifact-store.js").href);
+const pid = "proj_5eb8c115-ca42-4e66-997d-74fff1b327db";
+const st = store.loadArtifactStore("C:/CML");
+const { bundle } = hyd.loadResumeBundle(st, pid, "prose");
+const spec = store.specToInputs(store.resolveProjectSpec("C:/CML", pid).spec ?? {});
+const ctx = { inputs: spec, primaryAxis: spec.primaryAxis, warnings: [] };
+hyd.applyResumeBundle(ctx, bundle);
+const contract = pe.buildBookContract(run.buildContractInput(ctx));
+const rows = readFileSync(process.argv[2], "utf8").split("\n").filter(Boolean).map(l => JSON.parse(l))
+  .filter(r => r.runId === "resume-1791308574179" && r.operation === "chat_response" && /^Agent9v2-Writer-S8-D\d$/.test(r.agent));
+const arts = JSON.parse(readFileSync(process.argv[3], "utf8"));
+const art = arts.find(a => a.id.endsWith("_1565")).payload;
+const bookSoFar = art.chapters.slice(0, 8).map(c => c.paragraphs.join("\n\n")).join("\n\n");
+const drafts = rows.map(r => pe.parseWriterOutput(r.response, [9], 8, Number(r.agent.slice(-1)))).sort((a, b) => a.attempt - b.attempt);
+const opts = { witTargetPer10k: 41, clueDistribution: ctx.clues };
+const scored = drafts.map(d => ({ draft: d, score: pe.scoreDraft(d, contract, [9], opts) }));
+for (const s of scored) console.log(`d${s.draft.attempt} words ${s.draft.chapters[0]?.paragraphs.join(" ").split(/\s+/).length} hard [${s.score.hard.map(h => h.kind)}] composite ${s.score.composite}`);
+const asRun = pe.chooseDraft(scored, { bookSoFar });
+const fixed = scored.map(s => ({ draft: s.draft, score: { ...s.score, hard: s.score.hard.filter(h => !(h.kind === "reveal_unnamed" || h.kind === "book_short")) } }));
+const withoutPerSegmentBookChecks = pe.chooseDraft(fixed, { bookSoFar });
+console.log("chosen as run.ts scores it:", "d" + asRun.draft.attempt, "| chosen without the per-segment book checks:", "d" + withoutPerSegmentBookChecks.draft.attempt);
