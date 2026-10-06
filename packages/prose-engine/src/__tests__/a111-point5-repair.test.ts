@@ -76,7 +76,7 @@ describe("P-3 — newcomers: one operation, then the facts", () => {
         { name: "Tom Bell", occupation: "harbour master", pronoun: "he is", whyHere: "the storm closed the road" },
       ],
     });
-    expect(lines[0]).toMatch(/^2 people are on the page for the first time here\. .*at most one introduction to a paragraph/);
+    expect(lines[0]).toMatch(/^2 people are on the page for the first time here\. .*at least two paragraphs between one introduction and the next/);
     expect(lines).toContain("  Ada Vane: family lawyer; his niece");
     expect(lines).toContain("  Tom Bell: harbour master");
     expect(lines).toContain("    why here: the storm closed the road");

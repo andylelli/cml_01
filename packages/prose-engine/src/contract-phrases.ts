@@ -36,7 +36,7 @@ export const TEMPLATE = {
   firstTimeHere: "on the page for the first time here",
   clauseBesideName: "a clause beside the name says once",
   // A_111 P-3/P-4 — the opening's newer fixed wording.
-  oneIntroduction: "at most one introduction to a paragraph",
+  oneIntroduction: "at least two paragraphs between one introduction and the next",
   firstDoesOrSays: "the sentence where they first do or say something",
   saysWhenItIs: "One of those two paragraphs says when it is",
   lineAboutDeath: "says one line about",

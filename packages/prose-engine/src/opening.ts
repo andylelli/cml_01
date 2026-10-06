@@ -198,8 +198,10 @@ export const openingLines = (o: Opening | undefined): string[] => {
   if (intros.length > 0) {
     lines.push(
       `${intros.length === 1 ? "One person is" : `${intros.length} people are`} on the page for the first time here. ` +
-        `Introduce each in the sentence where they first do or say something, at most one introduction to a paragraph, ` +
-        `in your own words, from these facts:`,
+        // A_111 P-3b: the count was obeyed and the roll call survived as four consecutive one-person paragraphs
+        // (run resume-1791313282573) — so the count is of the SPACING, not of the unit to be split.
+        `Introduce each in the sentence where they first do or say something, in your own words, from these facts, ` +
+        `with at least two paragraphs between one introduction and the next:`,
     );
     for (const i of intros) {
       // A relation that already names the occupation ("the trusted family lawyer who…") is said instead of it, not after it.

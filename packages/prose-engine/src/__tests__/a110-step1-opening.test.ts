@@ -101,7 +101,7 @@ describe("A_110 step 1 — the lines and the guards", () => {
     });
     expect(lines[0]).toMatch(/^This chapter opens on the place before anybody speaks\. .*A grey stone building above the harbour\. The first line anybody speaks is in the third paragraph or later\.$/);
     // A_111 P-3: one operation for the newcomers, then the facts — no sentence to paste.
-    expect(lines[1]).toBe("One person is on the page for the first time here. Introduce each in the sentence where they first do or say something, at most one introduction to a paragraph, in your own words, from these facts:");
+    expect(lines[1]).toBe("One person is on the page for the first time here. Introduce each in the sentence where they first do or say something, in your own words, from these facts, with at least two paragraphs between one introduction and the next:");
     expect(lines[2]).toBe("  Ada Vane: family lawyer");
     expect(lines).toContain("The first time Hugh Vane is named, a clause says who he was: a retired shipowner, in his seventies.");
     expect(lines).toContain("Somebody sends for the police and a doctor, and they cannot come yet: the town is miles off");
