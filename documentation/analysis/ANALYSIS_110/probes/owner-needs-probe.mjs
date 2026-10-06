@@ -15,6 +15,7 @@
 // chapter that names the person and a word of death. Each is a lower bound on what a reader would credit.
 import fs from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
 const store = JSON.parse(fs.readFileSync(join(ROOT, "data/store.json"), "utf8"));
@@ -30,7 +31,7 @@ const IMPLICATES = /\b(only (he|she|they|[A-Z][a-z]+) (could|had|would)|had (the
 const AUTHORITY = /\b(sent for|send for|fetch(ed)?|telephon\w*|wired?|summon\w*|rang for)\b[^.!?]{0,80}\b(police|constable|inspector|sergeant|doctor|coroner)\b|\b(police|constable|inspector|sergeant|doctor|coroner)\b[^.!?]{0,60}\b(sent for|summoned|telephoned|on (his|her|their) way|arriv\w*)\b/i;
 const POLICE = /\b(inspector|constable|sergeant|superintendent|police|scotland yard|detective inspector|chief inspector)\b/i;
 
-const caseOf = (art) => {
+export const caseOf = (art) => {
   const cast = (art.cast?.cast ?? art.cast)?.characters ?? [];
   const C = art.cml?.CASE ?? art.cml ?? {};
   const role = (c) => `${c.role ?? ""} ${c.roleArchetype ?? c.role_archetype ?? ""}`.toLowerCase();
@@ -55,7 +56,7 @@ const tokensOfName = (name) => name.replace(/\b(Mr|Mrs|Miss|Dr|Sir|Lady|Lord|Jr|
 const mentions = (text, name) => tokensOfName(name).some((t) => new RegExp(`\\b${t}\\b`).test(text));
 
 /** The stored case whose cast this manuscript prints most, by full name or surname; null under three. */
-const matchCase = (text) => {
+export const matchCase = (text) => {
   let best = null;
   for (const [id, art] of byProject) {
     if (!art.cast || !art.cml) continue;
@@ -139,6 +140,8 @@ const storyFiles = (since) => {
   return out.sort();
 };
 
+// The CLI runs only when invoked directly; scripts/checked-read.mjs imports the measures above.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
 const arg = process.argv[2];
 if (!arg) { console.log("usage: owner-needs-probe.mjs <manuscript.md> | --all [YYYYMMDD]"); process.exit(1); }
 const files = arg === "--all" ? storyFiles(process.argv[3] ?? "20260925") : [arg];
@@ -163,4 +166,5 @@ if (rows.length > 1) {
   console.log(`  9  every trait label at most twice: ${share((r) => r.p9_maxTraitLabel !== null && r.p9_maxTraitLabel <= 2)}`);
   const med = (k) => { const a = rows.map((r) => r[k]).filter((v) => v != null).sort((x, y) => x - y); return a.length ? a[a.length >> 1] : "—"; };
   console.log(`  12 the culprit first implicated in a sentence (median chapter): ${med("p12_implicatedFirstChapter")} · first named with a verb of guilt: ${med("p12_guiltFirstChapter")}`);
+}
 }
