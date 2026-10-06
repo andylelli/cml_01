@@ -136,6 +136,7 @@ by a paid run yet.
 | 3.3b M8 keyness-ranked editor findings | 3 | `PROSE_V2_KEYNESS_FINDING` | **DONE** — 43,908-phrase reference; clock phrases excluded; 8 findings max a book | `cf255c64` |
 | 3.4 M10 the opening chosen by profile-noun coverage, then distance from past openings | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — two rank terms for chapter 1's segment; printed per draft | `2ba9e284` |
 | §39.2 the checked read: the reader answers §18's yes/no questions, compared with the probe | — | — | **BUILT** — scripts/checked-read.mjs; running it is a reader call the owner makes | `68fe54ec` |
+| paid pair, step 0 + M6 + step 1 + L6 on run bcc0d637 (A, A′, B; worktree at `f40b084b`) | — | the four | **DONE 2026-10-06, £1.86** — 7 met, 1 half, 3 not: the opening, introductions, victim, specimen leaks all land; the tail fell 56 (floor 65; 45 cuts reverted by `registerNotWorse`); repetition WORSE (compressed 0.332→0.310, openers 5.40→5.00, SHIP-CHECK WORTH A LOOK) — INFERRED from D5's exchange-line rewording ("pressed her hand against the" 32× in B's draft, 0 in A′). [PAIR-bcc0d637-2026-10-06.md](PAIR-bcc0d637-2026-10-06.md) | `c0f658b4` |
 | paid verification: steps 0.5, 1, 2, 3 on two cases (P.3) | — | — | **WAITS FOR THE OWNER'S YES** | |
 
 ## IMPLEMENTATION PLAN — generic to any story
