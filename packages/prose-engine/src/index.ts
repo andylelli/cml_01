@@ -51,8 +51,10 @@ export {
   CALIBRATION_RHO,
   RANK_WEIGHTS,
   overlapWithBook,
+  openingMeasures,
+  contentWordsOf,
 } from "./selector.js";
-export type { ScoredDraft } from "./selector.js";
+export type { OpeningChoice, ScoredDraft } from "./selector.js";
 export {
   collectCheckerFindings,
   anchorFindings,

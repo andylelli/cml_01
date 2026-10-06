@@ -18,7 +18,9 @@
  * nothing saved.
  */
 
-import { bookFirstEnabled, contractFixesEnabled, presencePenaltyOf, verifiedFixesEnabled } from "@cml/cml";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { bookFirstEnabled, contractFixesEnabled, presencePenaltyOf, selectorRanksEnabled, verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -28,6 +30,7 @@ import {
   buildEditorPrompt,
   buildTelemetryBlock,
   chooseDraft,
+  contentWordsOf,
   CONTRACT_TEMPLATE_PHRASES,
   openingLines,
   textureLines,
@@ -163,6 +166,26 @@ const chat = async (
 };
 
 const ctxRunId = (ctx: OrchestratorContext): string => String(ctx.runId ?? "");
+
+/**
+ * A_110 M10 (PROSE_V2_SELECTOR_RANKS) — what chapter 1's drafts are also ranked on: the case's own place words (its
+ * primary profile's `visualDescription` and summary) and the past openings in data/opening-corpus.json. Absent when the
+ * selector's ranks are off, the corpus is missing, or the case has no place profile — then nothing changes.
+ */
+const openingChoiceFor = (ctx: OrchestratorContext): { opening?: { nouns: string[]; pastOpenings: string[] } } => {
+  if (!selectorRanksEnabled()) return {};
+  const primary = (ctx.locationProfiles as { primary?: { visualDescription?: unknown; summary?: unknown } } | undefined)?.primary;
+  const nouns = [...contentWordsOf(`${String(primary?.visualDescription ?? "")} ${String(primary?.summary ?? "")}`)];
+  const corpusPath = join(String(ctx.workerAppRoot ?? process.cwd()), "..", "..", "data", "opening-corpus.json");
+  if (nouns.length === 0 || !existsSync(corpusPath)) return {};
+  try {
+    const corpus = JSON.parse(readFileSync(corpusPath, "utf8")) as { recentOpenings?: unknown[]; recentOpeningSituations?: unknown[] };
+    const pastOpenings = [...(corpus.recentOpenings ?? []), ...(corpus.recentOpeningSituations ?? [])].map(String).filter(Boolean);
+    return pastOpenings.length ? { opening: { nouns, pastOpenings } } : {};
+  } catch {
+    return {};
+  }
+};
 
 /** The book so far, verbatim. Never a summary — that is the whole of v2's second move. */
 const bookSoFar = (chapters: ProseChapterLike[], numbers: number[]): string => {
@@ -656,7 +679,11 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
       }),
     }));
     // A_110 L5: the selector (PROSE_V2_SELECTOR_RANKS) breaks a tie toward the draft the book has said least of.
-    const chosen = chooseDraft(scored, { bookSoFar: written.map((c) => (c.paragraphs ?? []).join("\n\n")).join("\n\n") });
+    const chosen = chooseDraft(scored, {
+      bookSoFar: written.map((c) => (c.paragraphs ?? []).join("\n\n")).join("\n\n"),
+      // A_110 M10: the segment holding chapter 1 is also ranked on its opening.
+      ...(segment.chapters.includes(1) ? openingChoiceFor(ctx) : {}),
+    });
     selections.push({ segment: segment.index, scored, chosen });
 
     if (!chosen) {

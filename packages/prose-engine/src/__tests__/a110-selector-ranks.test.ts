@@ -74,3 +74,37 @@ describe("A_110 M6 — the selector on its own scale", () => {
     expect(overlapWithBook([ch("one two three four five")], "")).toBe(0);
   });
 });
+
+// A_110 M10 — the opening, when drafted more than once: the case's own place words, then distance from past openings.
+import { openingMeasures } from "../selector.js";
+describe("A_110 M10 — choosing the opening", () => {
+  const nouns = ["harbour", "slate", "gulls", "chapel"];
+  const past = ["The scent of beeswax hung in the hush of the morning room as rain pressed against the windows."];
+  const even = { registerRate: 0, dialogueOpenShare: 0, longSentenceShare: 0, witPer10k: 0, emDashPer1k: 0, repetitionPer10k: 0 };
+
+  it("measures coverage of the place's words and the distance to the nearest past opening", () => {
+    const m = openingMeasures([ch("The harbour lay below the chapel, its slate roofs wet.", "Gulls wheeled.")], { nouns, pastOpenings: past })!;
+    expect(m.coverage).toBe(4);
+    expect(m.distance).toBeGreaterThan(0.9);
+    const copy = openingMeasures([ch(past[0]!)], { nouns, pastOpenings: past })!;
+    expect(copy.distance).toBe(0);
+    expect(openingMeasures([{ title: "t", number: 2, paragraphs: ["x"] }], { nouns, pastOpenings: past })).toBeNull();
+  });
+
+  it("ON: between drafts equal on every instrument, the one that uses the place and opens unlike past books wins", () => {
+    process.env.PROSE_V2_SELECTOR_RANKS = "1";
+    const generic = draft(1, even, past[0]!);
+    const placed = draft(2, even, "The harbour lay below the chapel, its slate roofs wet, and gulls wheeled over it.");
+    const chosen = chooseDraft([generic, placed], { opening: { nouns, pastOpenings: past } });
+    expect(chosen?.draft.attempt).toBe(2);
+    expect(chosen?.opening?.coverage).toBe(4);
+  });
+
+  it("without an opening choice (any segment but chapter 1's), nothing changes", () => {
+    process.env.PROSE_V2_SELECTOR_RANKS = "1";
+    const a = draft(1, even, "first draft words here");
+    const b = draft(2, even, "second draft words here");
+    const chosen = chooseDraft([a, b]);
+    expect(chosen?.opening).toBeUndefined();
+  });
+});

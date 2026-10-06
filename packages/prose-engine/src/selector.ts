@@ -378,6 +378,8 @@ export interface ScoredDraft {
   rank?: number;
   /** PROSE_V2_SELECTOR_RANKS: share of the draft's distinct 4-word sequences already in the book so far (L5). */
   overlap?: number;
+  /** A_110 M10: for a draft holding chapter 1, how many of the place's own words its opening uses, and how far it is from the nearest past opening. */
+  opening?: { coverage: number; distance: number };
 }
 
 /**
@@ -444,13 +446,47 @@ export const RANKING_KINDS: ReadonlySet<HardGateHit["kind"]> = new Set([
 export const rankingFailures = (score: DraftScore): number =>
   score.hard.filter((h) => RANKING_KINDS.has(h.kind)).length;
 
+/**
+ * A_110 M10 — what the opening is chosen on, when it is drafted more than once. MEASURED (A_110 §26): 25 of 25 v2 first
+ * chapters open on speech, and the opening's sameness across books is why `opening_hook` never reached 9 (X94). Two
+ * numbers, both from this case and the archive, no list: how many of the case's own place words the first two paragraphs
+ * use (the profile's `visualDescription` and summary), and the distance (1 − word overlap) to the NEAREST of the past
+ * openings in data/opening-corpus.json — the larger, the less this book opens like another.
+ */
+export interface OpeningChoice {
+  /** Content words of the case's own primary place, lower case. */
+  nouns: ReadonlyArray<string>;
+  /** Past books' opening paragraphs. */
+  pastOpenings: ReadonlyArray<string>;
+}
+
+const OPENING_STOP = new Set("with that this from were they their there which would could should about into over under upon your have been when what where while than then them only very more most some such each other after before through".split(" "));
+export const contentWordsOf = (text: string): Set<string> =>
+  new Set((text.toLowerCase().match(/[a-z]{4,}/g) ?? []).filter((w) => !OPENING_STOP.has(w)));
+
+export const openingMeasures = (chapters: ReadonlyArray<ProseChapterLike>, choice: OpeningChoice): { coverage: number; distance: number } | null => {
+  const first = chapters.find((c) => (c as { number?: number }).number === 1) ?? null;
+  if (!first) return null;
+  const opening = (first.paragraphs ?? []).slice(0, 2).join(" ");
+  const words = contentWordsOf(opening);
+  const coverage = [...new Set(choice.nouns)].filter((n) => words.has(n)).length;
+  let distance = 1;
+  for (const past of choice.pastOpenings) {
+    const other = contentWordsOf(past);
+    const union = new Set([...words, ...other]).size;
+    const shared = [...words].filter((w) => other.has(w)).length;
+    if (union > 0) distance = Math.min(distance, 1 - shared / union);
+  }
+  return { coverage, distance: Number(distance.toFixed(3)) };
+};
+
 export const chooseDraft = (
   scored: ReadonlyArray<ScoredDraft>,
-  options: { bookSoFar?: string } = {},
+  options: { bookSoFar?: string; opening?: OpeningChoice } = {},
 ): ScoredDraft | null => {
   const real = scored.filter((s) => s.draft.chapters.length > 0);
   if (real.length === 0) return null;
-  if (selectorRanksEnabled()) return chooseByRanks(real, options.bookSoFar ?? "");
+  if (selectorRanksEnabled()) return chooseByRanks(real, options.bookSoFar ?? "", options.opening);
   return [...real].sort((a, b) => {
     const ra = rankingFailures(a.score);
     const rb = rankingFailures(b.score);
@@ -465,7 +501,7 @@ export const chooseDraft = (
  * the lowest sum wins; an exact tie goes to the draft with the least overlap with the book so far (L5), then to the
  * old composite. Ranks need no scale, so three drafts are enough.
  */
-const chooseByRanks = (real: ReadonlyArray<ScoredDraft>, bookSoFar: string): ScoredDraft => {
+const chooseByRanks = (real: ReadonlyArray<ScoredDraft>, bookSoFar: string, opening?: OpeningChoice): ScoredDraft => {
   const fewest = Math.min(...real.map((s) => rankingFailures(s.score)));
   const pool = real.filter((s) => rankingFailures(s.score) === fewest);
   for (const s of real) {
@@ -480,6 +516,18 @@ const chooseByRanks = (real: ReadonlyArray<ScoredDraft>, bookSoFar: string): Sco
     for (const s of pool) {
       const better = pool.filter((o) => value(o) > value(s)).length;
       s.rank = (s.rank ?? 0) + weight * (better + 1);
+    }
+  }
+  // A_110 M10: two more rank terms for the segment that holds chapter 1 — coverage of the place's words, then distance
+  // from the nearest past opening (both: higher is better). Weight 1 each, like a written instrument.
+  if (opening) {
+    for (const s of real) s.opening = openingMeasures(s.draft.chapters, opening) ?? undefined;
+    for (const key of ["coverage", "distance"] as const) {
+      if (!pool.every((s) => s.opening)) break;
+      for (const s of pool) {
+        const better = pool.filter((o) => o.opening![key] > s.opening![key]).length;
+        s.rank = (s.rank ?? 0) + (better + 1);
+      }
     }
   }
   return [...pool].sort(
@@ -497,7 +545,8 @@ export const summariseSelection = (scored: ReadonlyArray<ScoredDraft>, chosen: S
       `hard ${rankingFailures(s.score)} ranking of ${s.score.hard.length}, register ${v.registerRate.toFixed(3)}, ` +
       `repetition ${v.repetitionPer10k.toFixed(1)}, speech-open ${(100 * v.dialogueOpenShare).toFixed(0)}%, ` +
       `tail ${(100 * v.longSentenceShare).toFixed(0)}%, wit ${v.witPer10k.toFixed(1)}/${v.witTarget}` +
-      (s.rank !== undefined || s.overlap !== undefined ? `, rank ${s.rank === undefined ? "-" : s.rank.toFixed(1)}, overlap ${((s.overlap ?? 0) * 100).toFixed(1)}%` : "")
+      (s.rank !== undefined || s.overlap !== undefined ? `, rank ${s.rank === undefined ? "-" : s.rank.toFixed(1)}, overlap ${((s.overlap ?? 0) * 100).toFixed(1)}%` : "") +
+      (s.opening ? `, opening: place words ${s.opening.coverage}, distance from nearest past opening ${s.opening.distance.toFixed(2)}` : "")
     );
   });
   return rows.join("\n");
