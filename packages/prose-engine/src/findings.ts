@@ -951,3 +951,11 @@ export const summariseFindings = (anchored: ReadonlyArray<Finding>, discarded: R
 /** The register rate of a book, for the run report beside the findings. */
 export const bookRegisterRate = (chapters: ReadonlyArray<ProseChapterLike>): number =>
   machineRegisterRate(chapters.map((c) => (c.paragraphs ?? []).join(" ")).join(" "), REGISTER_TELEMETRY_THRESHOLD).rate;
+
+/**
+ * A_111 V-12 (WF-005 V2K-01) — the register HIT count: narration sentences at or over the threshold. The rate above has a
+ * denominator, so an edit that shortens or removes a sentence raises it with no new register sentence (run bcc0d637 arm
+ * B: 44 of 45 register rollbacks kept the hit count). The count rises only when an edit writes a register sentence.
+ */
+export const bookRegisterHits = (chapters: ReadonlyArray<ProseChapterLike>): number =>
+  machineRegisterRate(chapters.map((c) => (c.paragraphs ?? []).join(" ")).join(" "), REGISTER_TELEMETRY_THRESHOLD).hits;

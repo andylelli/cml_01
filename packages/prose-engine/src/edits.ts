@@ -36,13 +36,26 @@
  *                         bare dialogue tag. Counting a RISE, not every such paragraph, leaves
  *                         legitimate indirect speech alone.
  *   lengthWithin          A_94 §6: a wording read as a diet took the book 17% shorter.
+ *
+ * ── A_111 V-12..V-16b (PROSE_V2_AUDIT_FIXES, WF-005 V2K-01/04/07/09) ─────────────────────────────
+ *
+ * ON, each guard measures the thing it names, and each is held on its own:
+ *   V-12  registerNotWorse counts register HITS, not the rate, so only an edit that WRITES a register
+ *         sentence falls (arm B: 44 of 45 rate rollbacks kept the hit count).
+ *   V-13  the value guards compare SETS: distinct clock dials, distinct locked values present, distinct
+ *         cast names present (less any cast name the edit mis-cases), so deleting a RESTATED time or
+ *         name lands and a vanished or new distinct value still reverts.
+ *   V-14  after an edit passes the summed validator, any never-fall guard lower than before reverts it
+ *         and is named, so a rise in one guard cannot pay for a fall in another.
+ *   V-16b noOrphanedTag does not count a tag with its speech after it (`Name asked, "…"`); noNewScaffold
+ *         counts identifier-like tokens only, not the English words "contract" and "validator".
  */
 
 import { mutateThenValidate } from "@cml/prose-guard";
 import type { Validator } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues, tailFindingEnabled } from "@cml/cml";
+import { auditFixesEnabled, contractFixesEnabled, extractClockValues, tailFindingEnabled } from "@cml/cml";
 
-import { bookRegisterRate } from "./findings.js";
+import { bookRegisterHits, bookRegisterRate } from "./findings.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
 import type { EditList, EditOutcome, Finding, GuardName, ProseChapterLike, SceneContract } from "./types.js";
 
@@ -53,12 +66,40 @@ const bodyOf = (chapter: ProseChapterLike): string => (chapter.paragraphs ?? [])
 const wordCount = (chapter: ProseChapterLike): number =>
   bodyOf(chapter).split(/\s+/).filter(Boolean).length;
 
-/** Clock dials in a chapter, sorted — the arithmetic, not the wording. */
-const dialsOf = (chapter: ProseChapterLike): string =>
-  extractClockValues(bodyOf(chapter))
-    .map((v) => v.dial)
-    .sort((a, b) => a - b)
-    .join(",");
+/**
+ * Clock dials in a chapter, sorted — the arithmetic, not the wording. A_111 V-13 (`distinct`): the SET of dials, so
+ * deleting a restated time keeps it and a time that vanishes or appears changes it. MEASURED over every logged v2
+ * editor edit: 42 removed an occurrence and kept every distinct time, and 40 of them were reverted by the list.
+ */
+const dialsOf = (chapter: ProseChapterLike, distinct = false): string => {
+  const dials = extractClockValues(bodyOf(chapter)).map((v) => v.dial);
+  return (distinct ? [...new Set(dials)] : dials).sort((a, b) => a - b).join(",");
+};
+
+/** A_111 V-13: how many of `values` occur in `body` at least once — present or not, however often. */
+const distinctPresent = (body: string, values: ReadonlyArray<string>): number =>
+  [...new Set(values)].filter((v) => v && body.includes(v)).length;
+
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * A_111 V-13: occurrences of a multi-word cast name in a case other than the cast list's — "Nora gaunt" for "Nora
+ * Gaunt" (A_89 C1, the defect `castNamesIntact` was written for). An occurrence count caught it because the exact name
+ * lost one; a set does not while the name stands elsewhere in the chapter, so the set guard subtracts this. One-word
+ * names are left out: "Rose" and "rose" are both English.
+ */
+const miscasedNames = (body: string, names: ReadonlyArray<string>): number => {
+  let miscased = 0;
+  for (const name of new Set(names)) {
+    if (!name || !/\s/.test(name.trim())) continue;
+    // Lookarounds, not \b: a name may end on a full stop ("… Jr.").
+    const pattern = `(?<![\\w])${escapeRegExp(name)}(?![\\w])`;
+    const any = (body.match(new RegExp(pattern, "gi")) ?? []).length;
+    const exact = (body.match(new RegExp(pattern, "g")) ?? []).length;
+    miscased += Math.max(0, any - exact);
+  }
+  return miscased;
+};
 
 const countOccurrences = (haystack: string, needle: string): number => {
   if (!needle) return 0;
@@ -102,11 +143,43 @@ const duplicatedSentences = (body: string): Map<string, number> => {
  */
 const ORPHANED_TAG_RE =
   /^(?:[A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*){0,3}|He|She|They|I|We)\s+(?:asked|said|replied|answered|murmured|whispered|called|cried|added|continued|remarked|demanded|snapped|muttered|observed|began|insisted|admitted|agreed|offered|pressed|ventured|countered|repeated)\s*[,.]/;
-export const orphanedTags = (body: string): number =>
-  body.split(/\n\n/).filter((p) => ORPHANED_TAG_RE.test(p.trim())).length;
+
+/**
+ * A_111 V-16b (WF-005 V2K-09): the tag's own speech follows it. A tag closed by a comma owns the rest of its sentence,
+ * so a quotation mark there (`Ada asked, "Did you…"`, `Ada said, quietly, ‘Come in.’`) or opening the next sentence
+ * (`Ada continued, her tone even. "Somebody…"`) is its speech; a tag closed by a full stop needs the speech next
+ * (`Ada said. "Come in."`). MEASURED: 105 of the 154 canon paragraphs the tag pattern counts are this standard
+ * construction, and 12 of 12 in the 2026-10-06 pair's books. A straight single quote counts only at a word's start,
+ * so "her brother's voice" is not speech.
+ */
+const OPENS_SPEECH_RE = /^["“‘']/;
+const speechFollowsTag = (paragraph: string, tag: string): boolean => {
+  const rest = paragraph.slice(tag.length);
+  if (tag.endsWith(".")) return OPENS_SPEECH_RE.test(rest.trimStart());
+  const stop = rest.search(/[.!?]/);
+  if (stop < 0) return /["“”‘]|(?:^|\s)'/.test(rest);
+  return /["“”‘]|(?:^|\s)'/.test(rest.slice(0, stop + 1)) || OPENS_SPEECH_RE.test(rest.slice(stop + 1).trimStart());
+};
+
+export const orphanedTags = (body: string): number => {
+  const audit = auditFixesEnabled();
+  return body.split(/\n\n/).filter((p) => {
+    const text = p.trim();
+    const tag = ORPHANED_TAG_RE.exec(text);
+    if (!tag) return false;
+    return !(audit && speechFollowsTag(text, tag[0]));
+  }).length;
+};
 
 const SCAFFOLD_RE =
   /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|prose_requirements|hidden_model|locked[_ ]fact|validator|contract)\b/i;
+
+/**
+ * A_111 V-16b (WF-005 V2K-09): the scaffold tokens that are identifiers — an underscore, or digits glued to a word. The
+ * pattern above also counts the English words "contract", "validator" and "locked fact"; MEASURED, both of its
+ * rollbacks over every logged v2 editor edit were the word "contract" in prose ("The room seemed to contract").
+ */
+const SCAFFOLD_IDENTIFIER_RE = /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|prose_requirements|hidden_model|locked_fact)\b/i;
 
 export interface GuardContext {
   scene?: SceneContract;
@@ -152,18 +225,30 @@ export const measureGuards = (
 ): Record<GuardName, number> => {
   const body = bodyOf(chapter);
   const lowered = body.toLowerCase();
+  // A_111 V-12/V-13/V-16b. OFF, every expression below is the one that shipped.
+  const audit = auditFixesEnabled();
   return {
-    lockedValuesIntact: context.lockedValues.reduce((n, v) => n + countOccurrences(body, v), 0),
-    clockValuesIntact: extractClockValues(body).length,
-    castNamesIntact: context.castNames.reduce((n, name) => n + countOccurrences(body, name), 0),
+    lockedValuesIntact: audit
+      ? distinctPresent(body, context.lockedValues)
+      : context.lockedValues.reduce((n, v) => n + countOccurrences(body, v), 0),
+    clockValuesIntact: audit
+      ? new Set(extractClockValues(body).map((v) => v.dial)).size
+      : extractClockValues(body).length,
+    castNamesIntact: audit
+      ? distinctPresent(body, context.castNames) - miscasedNames(body, context.castNames)
+      : context.castNames.reduce((n, name) => n + countOccurrences(body, name), 0),
     clueCoverageNotWorse: (context.scene?.mustSurface ?? []).reduce(
       (n, surface) => n + surface.keyTerms.filter((t) => lowered.includes(t)).length,
       0,
     ),
-    noNewScaffold: -(body.match(new RegExp(SCAFFOLD_RE.source, "gi")) ?? []).length,
+    noNewScaffold: -(body.match(new RegExp((audit ? SCAFFOLD_IDENTIFIER_RE : SCAFFOLD_RE).source, "gi")) ?? []).length,
     noMalformedSplice: -MALFORMED_PATTERNS.filter((re) => re.test(body)).length,
     noNewDuplicate: -[...duplicatedSentences(body).values()].reduce((n, c) => n + (c - 1), 0),
-    registerNotWorse: context.ignoreRegister ? 0 : -Math.round(bookRegisterRate([chapter]) * 1_000),
+    registerNotWorse: context.ignoreRegister
+      ? 0
+      : audit
+        ? -bookRegisterHits([chapter])
+        : -Math.round(bookRegisterRate([chapter]) * 1_000),
     // A_110 N5: constant 0 with the flag off, so OFF is byte-identical in every outcome.
     noOrphanedTag: contractFixesEnabled() ? -orphanedTags(body) : 0,
     lengthWithin: wordCount(chapter),
@@ -185,7 +270,8 @@ const NEVER_FALL: GuardName[] = [
 
 /**
  * The guards as one validator, for `mutateThenValidate` — the law's door (L2). Its score is the sum
- * of the measurements, so any fall reverts; `measureGuards` is what then says WHICH.
+ * of the measurements, so a fall that no other guard's rise offsets reverts; `measureGuards` is what
+ * then says WHICH. A_111 V-14: under PROSE_V2_AUDIT_FIXES `applyEditList` also holds each guard alone.
  */
 export const buildGuards = (context: GuardContext): { validator: Validator<ProseChapterLike>; names: GuardName[] } => {
   const validator: Validator<ProseChapterLike> = (chapter) => {
@@ -240,9 +326,13 @@ export const applyEditList = (
   // A_111 P-2 (PROSE_V2_TAIL_FINDING): the same guards, with registerNotWorse held at 0, for strict deletions.
   const deletionOptions: ApplyOptions = { ...options, ignoreRegister: true };
   const { validator: deletionValidator } = buildGuards(deletionOptions);
-  const exemptDeletions = tailFindingEnabled();
+  const audit = auditFixesEnabled();
+  // A_111 V-12: with the register guard on HITS, a deletion falls only if it leaves a register sentence behind (the
+  // abstract head whose concrete tail it cut) — the one case the guard is for. P-2's exemption answered the RATE's
+  // denominator, so under PROSE_V2_AUDIT_FIXES the guard is the hit count for every edit.
+  const exemptDeletions = tailFindingEnabled() && !audit;
   const originalWords = wordCount(chapter);
-  const originalDials = dialsOf(chapter);
+  const originalDials = dialsOf(chapter, audit);
   const tolerance = options.lengthTolerance ?? 0.15;
 
   let current = chapter;
@@ -290,9 +380,19 @@ export const applyEditList = (
       continue;
     }
 
-    // The two whole-chapter guards, which only make sense against the chapter as it started.
     const candidate = outcome.value;
-    if (dialsOf(candidate) !== originalDials) {
+    // A_111 V-14 (WF-005 V2K-07): the validator's score is a SUM, so a never-fall guard can fall while another rises —
+    // arm A′ applied an edit that lost 4 clue key terms because it cut 20 points of register. Each guard on its own.
+    if (audit) {
+      const fell = guardThatFell(before, measureGuards(candidate, guardOptions));
+      if (fell) {
+        rolledBack[fell] = (rolledBack[fell] ?? 0) + 1;
+        continue;
+      }
+    }
+
+    // The two whole-chapter guards, which only make sense against the chapter as it started.
+    if (dialsOf(candidate, audit) !== originalDials) {
       rolledBack.clockValuesIntact = (rolledBack.clockValuesIntact ?? 0) + 1;
       continue;
     }
