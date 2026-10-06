@@ -1,6 +1,6 @@
 # What the refactoring needs from the owner (2026-10-02)
 
-**Every buildable item is built.** The ledger figure is the README's first line. The 34 that remain cannot be closed by code
+**2026-10-06: none remain — 401 of 401 ledger items are closed** (decision 2 flipped on the graded archive, ANALYSIS_111 §2.2). The text below is the record as of 2026-10-02. **Every buildable item is built.** The ledger figure is the README's first line. The 34 that remained then could not be closed by code
 alone: 15 are owner questions (each now with a recommendation, §1), 5 wait on a flag flip or a paid read, and 14 are deferred with reasons.
 
 ## 1. Decisions — recommended 2026-10-02, BUILT the same day (`a2a0615c`)

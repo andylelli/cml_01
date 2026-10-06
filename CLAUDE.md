@@ -24,7 +24,7 @@ A multi-agent Golden Age mystery pipeline. Agent 1 setting → 2 cast → 2b pro
 Afterwards report run id, project id, cost, release-gate verdict, and **every** prediction — including
 the ones that failed.
 
-A run is ~£1.15 and ~40 min; its parameters are the only thing making it comparable to another run.
+A run is ~£0.95 and ~40 min (v2, measured 2026-10-02); its parameters are the only thing making it comparable to another run.
 `scripts/generated/run-params-<seed>.yaml` is the provenance of a run that happened and **must never
 be overwritten** — copy it aside before regenerating a seed.
 
@@ -35,7 +35,9 @@ be overwritten** — copy it aside before regenerating a seed.
 An external read is the only instrument that has ever moved this project, and carries ±3 marks.
 
 - **Prefer the matched pair.** `RESUME_REDO=prose` re-runs ONE stage against byte-identical upstream
-  (~£0.45). A fresh run settles nothing about a prose-side lever.
+  (~£0.9 for v2, measured 2026-10-06). A fresh run settles nothing about a prose-side lever.
+- **Score a redo against a redo, never against the original run.** A resumed prose stage carries no locked
+  facts and its own checkpoint (A_111 V2O-03, V2O-05): arm A′ is the control, arm A is not.
 - **Never read a book with a fallback chapter** — the log says `forced to deterministic fallback`.
   That measures the fallback, not the pipeline. Resume the chapter first.
 - **Never read a book whose SHIP-CHECK says WORTH A LOOK.** Run 31372 went to a reader at 29.8× the

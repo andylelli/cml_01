@@ -24,6 +24,8 @@ in its row), **done** when built and verified, **deferred** with a reason.
 
 ## STATUS
 
+**Superseded 2026-10-06 by `LEDGER.md`, which closes every row below (401 of 401). The table is kept as the record of 2026-10-02; read each item's final status in the ledger, not here.**
+
 | Item | CR | Status | Commit | Note |
 |---|---|---|---|---|
 | A5-10 | CR-28 | deferred |  | CR-28: every-run prompt change, non-prose savings; needs a probe |

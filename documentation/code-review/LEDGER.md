@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 187 | 138 | 72 | 397 |
-| open | 3 | 1 | 0 | 4 |
+| closed | 190 | 139 | 72 | 401 |
+| open | 0 | 0 | 0 | 0 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -23,12 +23,12 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-03 | 5 | 5 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 22 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
-| CR-07 | 43 | 42 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
+| CR-07 | 43 | 43 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 1 | A9W-12 |
 | CR-10 | 5 | 5 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 3 | A9G-15 A9G-Q03 ORC-10 |
-| CR-12 | 17 | 14 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
+| CR-12 | 17 | 17 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 12 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
 | CR-14 | 3 | 3 | A34-01 A34-D16 A34-Q01 |
 | CR-15 | 11 | 11 | A9G-04 A9G-D07 A9G-Q06 A9V-01 A9V-12 A9V-D01 A9V-D02 A9V-D06 A9V-Q01 A5-06 A5-D08 |
@@ -300,7 +300,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A6-04 | P1 | R1 | CR-16 | withdrawn | a2a0615c | One deterministic clue-floor sequence exists in 4 orderings; one discards its repairs silently | MOOT: the WP8A backstop re-audit (the ordering that disagreed 65/65) went with Agent 6's retry arm (A6-Q01); the remaining refresh sites are the pre-LLM and rescue orderings that agreed 65/65 |
 | A6-05 | P1 | R1 | CR-08 | done | 3d63527f | Dead error-message classification ladder since 2b76cbfa (~52 lines) | unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16) |
 | A6-06 | P2 | R0/R1 | CR-25 | withdrawn | a2a0615c | Blind read: pass predicate ×4, call ×5, content-filter guard ×3 (plus a duplicated 13-line comment) | MOOT: the blind-reader dedupe lived in the remediation loop deleted with the retry arm (A6-Q01) |
-| A6-07 | P2 | R2 | CR-12 | todo |  | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects | waits on decision 2's flip; the counter fired 3x on seed 82094, so it stays off |
+| A6-07 | P2 | R2 | CR-12 | done | f93bd216 | "Guess names the culprit": 3 matchers with opposite failure modes; blind reader told the detective and victim are suspects | one cast-aware matcher (resolveGuessToCastMember) at the three agent6-run.ts sites under CML_IDENTITY_ROLE_WINS; includes answered 202 of 3,942 generated questions wrongly over 34 casts; the blind reader's suspect list was already fixed by A6-D04 |
 | A6-08 | P2 | R1/R2 | CR-31 | done | 0ca80a5f | Fair-play rule vocabulary: 7 code bodies, case-sensitive has(), and the prompt asks for different rule names | typed CriticalFairPlayRule + one predicate, matching unchanged. Defects recorded: case-sensitive match; the full-mode prompt asks for different rule names |
 | A6-09 | P2 | R0/R1 | CR-16 | done | 9af9b5fd | Clue-synthesis helpers duplicated with Agent 5; the agent6→agent5 import edge should become a clue-contracts module | R0: Agent 5's checker library moved to jobs/clue-contracts/ (12131e7c) — no agent6 module imports agent5; R1: shared synthesis prelude, bridge token list once, backstop push once (9af9b5fd). Open, R2: the elimination vocabulary divergence (structural audit accepts 'rules out'/'clears', isEliminationLike does not) |
 | A6-10 | P2 | R1 | CR-13 | done | ecb12773 | CML prompt-header projection: 6 bodies across 4 files; FA-1/2/5 fixes landed only in Agent 6 | one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320 |
@@ -366,7 +366,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
 | A34-01 | P1 | R1 then R2 | CR-14 | done | ac0c76d4 | Two nested CML normalisers (561 + 386 LOC); 185 identical lines; 23/25 fields diverge | step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner) |
-| A34-02 | P1 | R2 | CR-12 | wip | 5aeaf992 | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | shadow counter: 3 disagreements over the seed-82094 pair, all agent2.victim — the model marked two members role:victim pre-normalisation; flipping would change who Agent 2 keeps. Flip NOT done |
+| A34-02 | P1 | R2 | CR-12 | done | f93bd216 | ≥8 role-predicate sites with ≥5 semantics; abort-class #10 substring survives | decision 2 flipped 2026-10-06 (CML_IDENTITY_ROLE_WINS=1 in .env.local): graded against Agent 2's crimeDynamics candidates, 85/85 disagreements over 1,836 rows go the unified way (ANALYSIS_111 probes/decision2-graded.mjs); tie rule for two role:victim members |
 | A34-03 | P1 | R2 | CR-17 | done | ecb12773 | Locked facts: canonical registry vs raw device facts; Agent 9 reads the raw ones | pure locked-fact helpers in @cml/cml; numberToWordsSmall vs spellMinuteCount differ on 0 and 100-999 (not unified) |
 | A34-04 | P1 | R1 (+R2 slice) | CR-24 | done | d292ff22 | runAgent3 (516 LOC, cc 83): 3 CML-acceptance sites, 3 different post-conditions | runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner) |
 | A34-05 | P2 | R2 | CR-30 | done | 4bd53121 | Patch engine never run in a pipeline; unregistered flag; dead result fields | patch engine retired (decision 12, CR-30): agent4-patch.ts, test, shadow script, CML_REPAIR_MODE |
@@ -388,7 +388,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D07 |  |  | CR-20 | done | 79e6d803 | Agent 4 parser has no truncation guard on a full-CML re-emission | Agent 4's parse ladder guarded (owner decision 3); a truncated full-CML re-emission is refused, a YAML reply reaches the (now lossless) YAML fallback |
 | A34-D08 |  |  | CR-29 | dup |  | Plausibility/scoring feedback pollutes the theme lock | = A34-09 |
 | A34-D09 |  |  | CR-18 | done | 0ca80a5f | Agent 6 installs a degraded or invalid revision (X60 reopened) | a degraded/invalid revision is refused in Agent 6's structural retry (an OFF-by-default arm) |
-| A34-D10 |  |  | CR-07 | wip | 5aeaf992 | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" | waits on decision 2's flip, which the counter argues against (3 disagreements, seed 82094) |
+| A34-D10 |  |  | CR-07 | done | f93bd216 | Relational "Friend of the victim" made ineligible/innocent, overriding the model's "Guilty" | resolved by decision 2's flip: the unified predicate reads the explicit role, so 'Friend of the victim' is no longer read as the victim (ANALYSIS_111 §2.2) |
 | A34-D11 |  |  | CR-07 | done | 55448eb5 | A3 prompt contradicts itself on evidence_clues; normaliser defaults contradict the anti-trope list | behind CML_VERIFIED_FIXES: the two contradicting rules now say Agent 5 back-fills evidence_clues (known positive: flag-on replay diverges here) |
 | A34-D12 |  |  | CR-29 | done | 55448eb5 | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) | behind CML_VERIFIED_FIXES: post-repair validation returned with the repaired CML |
 | A34-D13 |  |  | CR-32 | done | 69ed426b | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" | decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env |
@@ -405,7 +405,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 
 | Key | P | Risk | CR | Status | Commit | Item | Note |
 |---|---|---|---|---|---|---|---|
-| A1X-01 | P1 | R0 move · R2 unify | CR-12 | wip | 5aeaf992 | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | unify step in shadow; the counter fired 3x (agent2.victim, two role:victim members) — flip not done |
+| A1X-01 | P1 | R0 move · R2 unify | CR-12 | done | f93bd216 | Detective/victim/name identity has 5+ bodies; two isDetectiveArchetypes disagree; Agent 2 reopens abort class #10 | unify step live: decision 2 flipped 2026-10-06 on the graded archive (85/85 unified right); ANALYSIS_111 §2.2 |
 | A1X-02 | P1 | R1 | CR-21 | done | aeb90610 | One generic context-stage runner for 1/2/2b/2c/2d/2e; returns an outcome (R9 becomes trivial) | the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF |
 | A1X-03 | P1 | R1 (R2 for 2b/2c guard) | CR-20 | done | 5c6f6f9d | One JSON-artifact generator for 2b/2c/2d/2e; adopt guardedJsonrepairParse (2b/2c lack truncation guard) | generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0) |
 | A1X-04 | P1 | R1 (R2 gender/schema) | CR-12 | done | 4890dff0 | Cast boundary module: two normalisers, 3 suspect-pool top-ups, 5 archetype thresholds, 2 gender vocabularies | R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers |

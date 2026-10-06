@@ -206,7 +206,7 @@ A6-03	CR-29	done	55448eb5	outer half moot (decision 7) and dead branch deleted (
 A6-04	CR-16	withdrawn	a2a0615c	MOOT: the WP8A backstop re-audit (the ordering that disagreed 65/65) went with Agent 6's retry arm (A6-Q01); the remaining refresh sites are the pre-LLM and rescue orderings that agreed 65/65
 A6-05	CR-08	done	3d63527f	unreachable message-matched branches removed (-63 lines); typed Agent5ContractGateError deferred to A6-09 (CR-16)
 A6-06	CR-25	withdrawn	a2a0615c	MOOT: the blind-reader dedupe lived in the remediation loop deleted with the retry arm (A6-Q01)
-A6-07	CR-12	todo		waits on decision 2's flip; the counter fired 3x on seed 82094, so it stays off
+A6-07	CR-12	done	f93bd216	one cast-aware matcher (resolveGuessToCastMember) at the three agent6-run.ts sites under CML_IDENTITY_ROLE_WINS; includes answered 202 of 3,942 generated questions wrongly over 34 casts; the blind reader's suspect list was already fixed by A6-D04
 A6-08	CR-31	done	0ca80a5f	typed CriticalFairPlayRule + one predicate, matching unchanged. Defects recorded: case-sensitive match; the full-mode prompt asks for different rule names
 A6-09	CR-16	done	9af9b5fd	R0: Agent 5's checker library moved to jobs/clue-contracts/ (12131e7c) — no agent6 module imports agent5; R1: shared synthesis prelude, bridge token list once, backstop push once (9af9b5fd). Open, R2: the elimination vocabulary divergence (structural audit accepts 'rules out'/'clears', isEliminationLike does not)
 A6-10	CR-13	done	ecb12773	one CML prompt view (shared/cml-prompt-view.ts) for Agents 6/7/8; per-agent differences kept as policy; 0 diffs / 25,320
@@ -262,7 +262,7 @@ A7-Q03	CR-30	withdrawn		MOOT: A7-01 decomposed runAgent7 (c5423dfd); the beat-sc
 A7-Q04	CR-16	done	a2a0615c	DECIDED: act 2 — clue-pacing.ts now agrees with the other three sites (0 of 3,530 archived clues lack a placement)
 A7-Q05	CR-07	done		READ: matched pair seed 82094 (OFF mystery-1790960614933 £0.95 / ON mystery-1790962241800 £0.93): both complete, gate warning, same cost; Agent 7 names the victim only ON. Batch + trims enabled in .env.local (flags kept)
 A34-01	CR-14	done	ac0c76d4	step 1 (R1) done: both normalisers moved out of generateCML/reviseCml into cml/normalize.ts (1c215de9), characterised over 137 library cases + 8 damage kinds (9c8eeda6), identical sections shared (91 -> 21 identical lines) and the generate profile split into 8 named sections (ac0c76d4); snapshot unchanged throughout. Step 2 — converging the 23 divergent defaults — is A34-Q01 (owner)
-A34-02	CR-12	wip	5aeaf992	shadow counter: 3 disagreements over the seed-82094 pair, all agent2.victim — the model marked two members role:victim pre-normalisation; flipping would change who Agent 2 keeps. Flip NOT done
+A34-02	CR-12	done	f93bd216	decision 2 flipped 2026-10-06 (CML_IDENTITY_ROLE_WINS=1 in .env.local): graded against Agent 2's crimeDynamics candidates, 85/85 disagreements over 1,836 rows go the unified way (ANALYSIS_111 probes/decision2-graded.mjs); tie rule for two role:victim members
 A34-03	CR-17	done	ecb12773	pure locked-fact helpers in @cml/cml; numberToWordsSmall vs spellMinuteCount differ on 0 and 100-999 (not unified)
 A34-04	CR-24	done	d292ff22	runAgent3 -> 5 phases; CML acceptance helpers -> agent3/cml-acceptance.ts; Agent 8 -> agent8-run.ts. NOT done: harmonising acceptGeneratedCml across the retry paths (degrade/X60 on retries is R2 — owner)
 A34-05	CR-30	done	4bd53121	patch engine retired (decision 12, CR-30): agent4-patch.ts, test, shadow script, CML_REPAIR_MODE
@@ -284,7 +284,7 @@ A34-D06	CR-33	done	ba1b5496	notes leak fixed fe4372dd; the retry CMLs' notes now
 A34-D07	CR-20	done	79e6d803	Agent 4's parse ladder guarded (owner decision 3); a truncated full-CML re-emission is refused, a YAML reply reaches the (now lossless) YAML fallback
 A34-D08	CR-29	dup		= A34-09
 A34-D09	CR-18	done	0ca80a5f	a degraded/invalid revision is refused in Agent 6's structural retry (an OFF-by-default arm)
-A34-D10	CR-07	wip	5aeaf992	waits on decision 2's flip, which the counter argues against (3 disagreements, seed 82094)
+A34-D10	CR-07	done	f93bd216	resolved by decision 2's flip: the unified predicate reads the explicit role, so 'Friend of the victim' is no longer read as the victim (ANALYSIS_111 §2.2)
 A34-D11	CR-07	done	55448eb5	behind CML_VERIFIED_FIXES: the two contradicting rules now say Agent 5 back-fills evidence_clues (known positive: flag-on replay diverges here)
 A34-D12	CR-29	done	55448eb5	behind CML_VERIFIED_FIXES: post-repair validation returned with the repaired CML
 A34-D13	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
@@ -296,7 +296,7 @@ A34-Q02	CR-17	withdrawn	fd058f16	MOOT: v2 already reads only the registry
 A34-Q03	CR-30	done	4bd53121	DECIDED (decision 12, CR-30): retire. Offline heuristic replay fixed 0 of 2 errors on the corpus's one real failing CML (cross-node A_90 chronology); the LLM proposer never ran
 A34-Q04	CR-16	withdrawn	fd058f16	MOOT: repairCaseSoundness and the discriminator verifier were v1-only and are deleted (owner decision 1)
 A34-Q05	CR-32	done	69ed426b	decision 12, CR-32: a set AGENTn_MODEL outranks the explicit tier (client.ts); Agent 4 on the design tier; no model changes under today's env
-A1X-01	CR-12	wip	5aeaf992	unify step in shadow; the counter fired 3x (agent2.victim, two role:victim members) — flip not done
+A1X-01	CR-12	done	f93bd216	unify step live: decision 2 flipped 2026-10-06 on the graded archive (85/85 unified right); ANALYSIS_111 §2.2
 A1X-02	CR-21	done	aeb90610	the fork collapsed without byte change (replay both modes). Deferred: StageOutcome/applyStageOutcome for the R9 parallel branch — every runner would have to return an outcome instead of writing ctx, for ~15 lines of clone/copy-back under a flag that is OFF
 A1X-03	CR-20	done	5c6f6f9d	generateJsonArtifact shell for 2b/2c/2d/2e (-199); characterisation of 20 retry paths first, unchanged. Found on the way: withValidationRetry summed running costs (07898bd0)
 A1X-04	CR-12	done	4890dff0	R1 done: normaliseCastOutput characterised (109 archived casts + 8 damage kinds) and split into 5 phases; motive/access/tension coercers once (agent2-cast-boundary.ts), used by designCast and the worker. OWNER (R2): the gender vocabulary (binary vs non-binary accepted), the five suspect-pool top-ups, the relationship readers

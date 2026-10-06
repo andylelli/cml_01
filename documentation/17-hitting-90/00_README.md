@@ -1,7 +1,7 @@
 # 17 — HITTING 90
 
 **Started 2026-09-25.** The goal: an external read of 90 or more. The best this project has ever had
-is 87; the last three reads were 86, 85 and 84.
+is 88 (pair 3, below; corrected 2026-10-06 — this line said 87); the last three reads before it were 86, 85 and 84.
 
 This folder holds the plan and its status. Evidence behind every claim is labelled **MEASURED**,
 **INFERRED** or **ASSUMED**, and cited to an analysis document; rules live in `CLAUDE.md`.
