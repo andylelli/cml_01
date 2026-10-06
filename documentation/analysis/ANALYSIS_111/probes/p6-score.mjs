@@ -5,7 +5,7 @@
  *
  *   node documentation/analysis/ANALYSIS_111/probes/p6-score.mjs <label>=<book.md>[,<run.log>[,<projectId>]] ...
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const here = (p) => pathToFileURL(`${process.cwd()}/${p}`).href;
@@ -40,13 +40,21 @@ for (const arm of arms) {
   const discIdx = Math.max(0, (Number(m?.p5_discoveryChapter) || 1) - 1);
   const disc = chapters[discIdx] ?? "";
   const stems = String(vic?.occupation ?? "").toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 5).map((w) => w.slice(0, 5));
-  const victimWho = stems.some((st) => disc.toLowerCase().includes(st)) || /(?:aged|elderly|in (?:his|her) (?:forties|fifties|sixties|seventies|eighties)|(?:forty|fifty|sixty|seventy|eighty)[- ]w+ years? old)/i.test(disc);
+  const victimWho = stems.some((st) => disc.toLowerCase().includes(st)) || /\b(?:aged|elderly|in (?:his|her) (?:forties|fifties|sixties|seventies|eighties)|(?:forty|fifty|sixty|seventy|eighty)[- ]\w+ years? old)\b/i.test(disc);
   const shape = pg.measurePageShape(raw);
   let logInfo = {};
   if (arm.log && existsSync(arm.log)) {
-    const L = readFileSync(arm.log, "utf8");
+    let L = readFileSync(arm.log, "utf8");
+    // The [R5] restore lines go to the run's own log (apps/worker/logs/run_<date>_<runId>.json), not to stdout.
+    const runId = (L.match(/runId\s*:\s*(\S+)/) ?? [])[1];
+    if (runId) {
+      const dir = "apps/worker/logs";
+      const file = readdirSync(dir).find((f) => f.startsWith("run_") && f.endsWith(`_${runId}.json`));
+      if (file) L += `\n${readFileSync(`${dir}/${file}`, "utf8")}`;
+    }
+    const ship = (L.match(/SHIP-CHECK: repetition[^\n"]*/) ?? [""])[0];
     logInfo = {
-      ship: (L.match(/SHIP-CHECK: repetition[^\n"]*/) ?? [""])[0].replace(/ — WORTH A LOOK.*| — Normal.*/, (s) => (s.includes("WORTH") ? " WORTH A LOOK" : " Normal")).slice(0, 120),
+      ship: `${(ship.match(/([\d.]+) per 10k/) ?? [, "?"])[1]} per 10k, ${/WORTH A LOOK/.test(ship) ? "WORTH A LOOK" : /Normal/.test(ship) ? "Normal" : "?"}`,
       fallback: /forced to deterministic fallback/.test(L),
       restoredLF: (L.match(/restored (\d+) locked fact/) ?? [, "0"])[1],
       rederived: (L.match(/re-derived (\d+) discriminating/) ?? [, "0"])[1],

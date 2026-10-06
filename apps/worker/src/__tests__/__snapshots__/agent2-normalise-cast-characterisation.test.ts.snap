@@ -21,12 +21,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: crimeDynamics 
       "[agent2-victim][repair] removed the victim Lady Beatrice Winthrope from possibleCulprits (a victim cannot also be a suspect).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "315f711786bc6c7e",
-    "warnings": [
-      "[agent2-victim][repair] removed the victim Dr. Beatrice Langley from possibleCulprits (a victim cannot also be a suspect).",
-    ],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "b01d68464878f04b",
     "warnings": [
@@ -40,17 +34,22 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: crimeDynamics 
       "[agent2-victim][repair] removed the victim Lady Beatrice Langley from possibleCulprits (a victim cannot also be a suspect).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "9134fe3adc68c3c8",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-      "[agent2-victim][repair] removed the victim Lady Beatrice Winthrope from possibleCulprits (a victim cannot also be a suspect).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "951adf0ec61f8525",
     "warnings": [
       "[agent2-victim][repair] removed the victim Reginald Gresham from possibleCulprits (a victim cannot also be a suspect).",
+    ],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "5fca3d658ad38cb8",
+    "warnings": [
+      "[agent2-victim][repair] removed the victim Reginald Hargrave from possibleCulprits (a victim cannot also be a suspect).",
+    ],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "afd9dc5bb8cc29fc",
+    "warnings": [
+      "[agent2-victim][repair] removed the victim Lady Beatrice Ellsworth from possibleCulprits (a victim cannot also be a suspect).",
     ],
   },
 }
@@ -72,10 +71,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: genders missin
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "739039fff84eeda3",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "630ad2418300ed27",
     "warnings": [],
@@ -86,14 +81,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: genders missin
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "d0b5ac76bbf5d023",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "8ae0b767f09e394a",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "c66eb20c25f31df8",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "dc660fda94cb2a66",
     "warnings": [],
   },
 }
@@ -115,10 +112,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: no diversity, 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "3ef0f1f88d712d9b",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "31fc583f253a2f1d",
     "warnings": [],
@@ -129,14 +122,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: no diversity, 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "506e91a9caff331a",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "560f8d8cc1f6de91",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "2da067b155f28e39",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "3121509e09ecede4",
     "warnings": [],
   },
 }
@@ -158,10 +153,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: off-vocabulary
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "ebb4aec6bdafefba",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "ed5969422c604a62",
     "warnings": [],
@@ -172,14 +163,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: off-vocabulary
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "0ed580a6df723d25",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "6fa562948adf0841",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "a965c35dad79cc7c",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "06263722f8304d56",
     "warnings": [],
   },
 }
@@ -205,12 +198,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: relationships 
       "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Inspector Helen Marwood, Clara Simmons, James Fletcher) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "a927b405e4e9f3cd",
-    "warnings": [
-      "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Inspector Gerald Harcourt, Sir Edmund Fairfax, Evelyn Marsh) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "683b25db10464519",
     "warnings": [
@@ -223,16 +210,22 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: relationships 
       "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Inspector Gerald Havers, Agnes Crowley, Thomas Radcliffe) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "8dc05ea6f69136c7",
-    "warnings": [
-      "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Inspector Helen Marwood, Clara Simmons, James Fletcher) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "dac9692062a3fbd1",
     "warnings": [
       "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Eleanor Gresham, Charles Fenwick, Isabel Morton) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
+    ],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "e9efaf804143d650",
+    "warnings": [
+      "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Eleanor Hargrave, Edward Hargrave, Harold Simmons) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
+    ],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "7e00f6dc17e2b870",
+    "warnings": [
+      "[Agent 2 relationship top-up] 3 character(s) had zero relationship coverage (Inspector Harold Wren, Eleanor Fairchild, Thomas Granger) — added fallback pairs; 3 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
 }
@@ -254,10 +247,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: relationships 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "8690f591b1f5c7b2",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "0f16d7e40bd9f5ed",
     "warnings": [],
@@ -268,14 +257,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: relationships 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "5f8eb1b20d999178",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "9212e3921d000b9d",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "2cc7516be8bd8d00",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "78aa959add81d181",
     "warnings": [],
   },
 }
@@ -297,10 +288,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: snake_case cri
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "0b37ba11e74403fd",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "9670407023be004e",
     "warnings": [],
@@ -311,14 +298,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: snake_case cri
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "fe8ba492ea1a83b8",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "911f5277b4f031ee",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "fd6b3ad764950139",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "ec04bd8a3eb8b4d0",
     "warnings": [],
   },
 }
@@ -340,10 +329,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: tension vocabu
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "bcf853faf5db456d",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "7fd6df6f29c8b156",
     "warnings": [],
@@ -354,14 +339,16 @@ exports[`normaliseCastOutput characterisation (A1X-04) > damaged: tension vocabu
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "982eef76aad83f3a",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "e52cab797c44e6f5",
+    "warnings": [],
+  },
+  "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
+    "cast": "b4c6205e0881875c",
+    "warnings": [],
+  },
+  "artifact_ba81507a-0801-4095-b2f2-013208248c97": {
+    "cast": "8bc09988abc9396f",
     "warnings": [],
   },
 }
@@ -383,10 +370,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_38715428-01ba-4868-ab50-204682a8e1a9": {
-    "cast": "3310b6b6299411ea",
-    "warnings": [],
-  },
   "artifact_3bc58dba-0b1a-4e9c-b1a2-448973518ccd": {
     "cast": "630ad2418300ed27",
     "warnings": [],
@@ -397,33 +380,11 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
       "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
     ],
   },
-  "artifact_52aa64f0-d9d1-42a3-940e-e7d35311f18c": {
-    "cast": "39d33d0ec244f1b3",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Helen Marwood) — added fallback pairs; 15 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
   "artifact_753a6448-ab60-4bc1-9899-cec1bc1f5e48": {
     "cast": "1690a04333fc265c",
     "warnings": [],
   },
-  "artifact_850f1292-e90f-42c0-b12f-a3b38135a9bf": {
-    "cast": "630ad2418300ed27",
-    "warnings": [],
-  },
-  "artifact_86e0dd12-408b-4378-8ea5-9c94943e2bb3": {
-    "cast": "f33ac2dcaeb2ced6",
-    "warnings": [],
-  },
   "artifact_8aa63efa-744c-4312-b660-3177020eaa67": {
-    "cast": "c66eb20c25f31df8",
-    "warnings": [],
-  },
-  "artifact_a1cdafe7-fffa-42e8-a7e8-3c9e8f01834b": {
-    "cast": "1690a04333fc265c",
-    "warnings": [],
-  },
-  "artifact_a24bd6aa-99ed-4535-95a4-6e3d71cb2734": {
     "cast": "c66eb20c25f31df8",
     "warnings": [],
   },
@@ -435,25 +396,7 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "0b8120fd1188905c",
     "warnings": [],
   },
-  "artifact_cc09895c-0878-45a1-8577-cb24371f7fa1": {
-    "cast": "0b8120fd1188905c",
-    "warnings": [],
-  },
-  "artifact_d7edc03e-820a-4206-be8f-6f9752d528ea": {
-    "cast": "6635166ac13415b5",
-    "warnings": [
-      "[Agent 2 relationship top-up] 1 character(s) had zero relationship coverage (Inspector Gerald Havers) — added fallback pairs; 10 existing pair(s) preserved unchanged (diagnosis-batch #3).",
-    ],
-  },
-  "artifact_e0fee5da-e54f-471f-9367-aa4c8a303fa4": {
-    "cast": "334f7bcc81f5c46e",
-    "warnings": [],
-  },
   "artifact_e5d2bec8-d393-4064-8960-f50c3f5bcee3": {
-    "cast": "691860caf961b6b4",
-    "warnings": [],
-  },
-  "artifact_f4d341d9-a00d-4c5b-aa37-38a28d542fad": {
     "cast": "691860caf961b6b4",
     "warnings": [],
   },
@@ -675,15 +618,7 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "f4d12c14041cb13a",
     "warnings": [],
   },
-  "canary_1789156244431_cast_811": {
-    "cast": "f4d12c14041cb13a",
-    "warnings": [],
-  },
   "canary_1789232316543_cast_825": {
-    "cast": "3d093e761ceec3b6",
-    "warnings": [],
-  },
-  "canary_1789232316543_cast_839": {
     "cast": "3d093e761ceec3b6",
     "warnings": [],
   },
@@ -691,31 +626,11 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "001d80cc67b518be",
     "warnings": [],
   },
-  "canary_1789238068837_cast_866": {
-    "cast": "001d80cc67b518be",
-    "warnings": [],
-  },
   "canary_1789241614485_cast_880": {
     "cast": "61cbe5062fdab069",
     "warnings": [],
   },
-  "canary_1789241614485_cast_893": {
-    "cast": "61cbe5062fdab069",
-    "warnings": [],
-  },
   "canary_1789316569708_cast_907": {
-    "cast": "ed3a06a1c52c7afa",
-    "warnings": [],
-  },
-  "canary_1789316569708_cast_918": {
-    "cast": "ed3a06a1c52c7afa",
-    "warnings": [],
-  },
-  "canary_1789316569708_cast_931": {
-    "cast": "ed3a06a1c52c7afa",
-    "warnings": [],
-  },
-  "canary_1789316569708_cast_945": {
     "cast": "ed3a06a1c52c7afa",
     "warnings": [],
   },
@@ -727,19 +642,11 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "1e80d550f78e8c2c",
     "warnings": [],
   },
-  "canary_1789577884303_cast_973": {
-    "cast": "1e80d550f78e8c2c",
-    "warnings": [],
-  },
   "canary_1789583740167_cast_987": {
     "cast": "1cff5172dd2d3495",
     "warnings": [],
   },
   "canary_1790236126586_cast_1111": {
-    "cast": "befbd64d7b4d016d",
-    "warnings": [],
-  },
-  "canary_1790236126586_cast_1125": {
     "cast": "befbd64d7b4d016d",
     "warnings": [],
   },
@@ -751,71 +658,7 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
     "cast": "6a4f7b0563fa6f89",
     "warnings": [],
   },
-  "canary_1790251239837_cast_1158": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1172": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1186": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1200": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1214": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1228": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1242": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1256": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1270": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
-  "canary_1790251239837_cast_1284": {
-    "cast": "6a4f7b0563fa6f89",
-    "warnings": [],
-  },
   "canary_1790272530595_cast_1298": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1312": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1326": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1339": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1353": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1367": {
-    "cast": "b3c8c2fe22a2b681",
-    "warnings": [],
-  },
-  "canary_1790272530595_cast_1381": {
     "cast": "b3c8c2fe22a2b681",
     "warnings": [],
   },
@@ -833,30 +676,6 @@ exports[`normaliseCastOutput characterisation (A1X-04) > every archived Agent 2 
   },
   "canary_1790962241799_cast_1487": {
     "cast": "83450fe4d3184272",
-    "warnings": [],
-  },
-  "canary_1790962241799_cast_1581": {
-    "cast": "83450fe4d3184272",
-    "warnings": [],
-  },
-  "proj_5eb8c115-ca42-4e66-997d-74fff1b327db_cast_1539": {
-    "cast": "1690a04333fc265c",
-    "warnings": [],
-  },
-  "proj_5eb8c115-ca42-4e66-997d-74fff1b327db_cast_1553": {
-    "cast": "1690a04333fc265c",
-    "warnings": [],
-  },
-  "proj_5eb8c115-ca42-4e66-997d-74fff1b327db_cast_1567": {
-    "cast": "1690a04333fc265c",
-    "warnings": [],
-  },
-  "proj_cdad5315-bd36-499f-81f9-1f327f4d444a_cast_1427": {
-    "cast": "3310b6b6299411ea",
-    "warnings": [],
-  },
-  "proj_d0ee7b26-7e02-43f2-98a6-2c4993d9d59e_cast_1441": {
-    "cast": "691860caf961b6b4",
     "warnings": [],
   },
 }

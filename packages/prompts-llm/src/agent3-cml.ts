@@ -96,6 +96,23 @@ const PRIMARY_AXIS_MEANING: Readonly<Record<string, string>> = {
  * assumed. Probe: `checkLockedFactTimeAlignment` findings drop to zero, and the case's two anchors
  * start appearing in the manuscript at all.
  */
+/**
+ * A_111 P-8 (AGENT3_ONE_MECHANISM, default OFF; read at call time, ADR-0004) — one mechanism per case, and the axis keeps
+ * the clock out of the reasoning. MEASURED: Agent 3 is shown all five devices twice and told "select one primary device
+ * (or a coherent hybrid of two)"; 13 of 72 stored CMLs carry two or more devices, and 3 of the 4 recently read cases do
+ * (P ≈ 0.02 at the archive's rate), whose readers said "too many mechanisms compete". On non-temporal axes 29–52% of
+ * inference steps reason from a clock time (temporal: 88%). ON: Agent 3 sees only the primary device, once, and builds on
+ * it; on a non-temporal axis at most ONE inference step may reason from a clock time — a count of a simple thing, the
+ * shape this model keeps (A_102 §7).
+ */
+export const isOneMechanismEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_ONE_MECHANISM ?? "").trim());
+
+const TIME_STEP_LIMIT_NOTE = (axis: string): string =>
+  axis && axis !== "temporal"
+    ? `\n- On this ${axis} axis, AT MOST ONE inference step may reason from a clock time; every other step reasons from what the axis is about.`
+    : "";
+
 export const isDeviceTimeBindingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3_DEVICE_TIME_BINDING ?? ""));
 
@@ -378,7 +395,10 @@ Aim for fresh logic while staying fair-play and coherent with the era/location c
         backgroundContext.theme ? `Theme pressure: ${backgroundContext.theme}` : "",
       ].filter(Boolean).join("\n")
     : "(No dedicated background context artifact provided. Use setting/cast constraints.)";
-  const hardLogicDevices = Array.isArray(inputs.hardLogicDevices) ? inputs.hardLogicDevices : [];
+  const allHardLogicDevices = Array.isArray(inputs.hardLogicDevices) ? inputs.hardLogicDevices : [];
+  // A_111 P-8: ON, only the primary device (devices[0], the one the locked-fact registry is built from).
+  const oneMechanism = isOneMechanismEnabled();
+  const hardLogicDevices = oneMechanism ? allHardLogicDevices.slice(0, 1) : allHardLogicDevices;
   const hardLogicDeviceText = hardLogicDevices.length > 0
     ? hardLogicDevices
         .map((device, index) => {
@@ -408,7 +428,7 @@ Escalation behavior:
 ${hardLogicDeviceText}
 
 Grounding rule:
-- Select one primary device (or a coherent hybrid of two) from this list as the mechanism backbone.
+${oneMechanism ? "- Build the whole mechanism on this ONE device. The case has one trick; every clue, the false assumption and the test serve it." : "- Select one primary device (or a coherent hybrid of two) from this list as the mechanism backbone."}
 - Preserve its contradiction structure in false_assumption + constraint_space + inference_path + discriminating_test.
 - Keep clues observable and fair-play deducible from the selected device logic.`;
 
@@ -857,15 +877,15 @@ ${inputs.culpritExclusionNames && inputs.culpritExclusionNames.length > 0 ? `- F
 - False Assumption Type: Must be ${inputs.primaryAxis} (matching axis)
 - THE AXIS IS THE MYSTERY, not a label on it. The false assumption, the mechanism and the
   discriminating test must all turn on the axis above. If the case would still work with the axis
-  changed to something else, it is not built on this axis and must be rebuilt.
+  changed to something else, it is not built on this axis and must be rebuilt.${isOneMechanismEnabled() ? TIME_STEP_LIMIT_NOTE(String(inputs.primaryAxis ?? "")) : ""}
 - Complexity Level: ${inputs.complexityLevel}
 - Mechanism Families: ${inputs.mechanismFamilies.join(", ")}
 - Hard-Logic Focus Tags: ${hardLogicModes.length > 0 ? hardLogicModes.join(", ") : "standard varied mix"}
 - Escalation Difficulty: ${difficultyMode}
 
-**Hard-Logic Device Grounding Candidates**:
+${oneMechanism ? "" : `**Hard-Logic Device Grounding Candidates**:
 ${hardLogicDeviceText}
-
+`}
 **Requirements**:
 1. Generate complete CML 2.0 YAML document
 2. Start with "CML_VERSION: 2.0"

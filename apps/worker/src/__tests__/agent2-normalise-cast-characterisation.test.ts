@@ -18,6 +18,9 @@ const casts: Array<{ id: string; cast: Record<string, any> }> = existsSync(STORE
       .filter((a) => a?.type === "cast" && a.payload?.cast?.characters)
       .map((a) => ({ id: String(a.id), cast: a.payload.cast }))
       .sort((x, y) => x.id.localeCompare(y.id))
+      // A_111: one row per DISTINCT cast. Every prose redo copies the project's artifacts into the store, so without this
+      // each paid run added rows of a cast already characterised and broke the snapshot (2026-10-06: three times).
+      .filter((row, i, all) => all.findIndex((other) => JSON.stringify(other.cast) === JSON.stringify(row.cast)) === i)
   : [];
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const digest = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex").slice(0, 16);

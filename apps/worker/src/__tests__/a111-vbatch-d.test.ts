@@ -88,7 +88,7 @@ describe("R-2 — a redo re-derives the evidence ids Agent 5 held only in memory
     const { restoreDerivedCaseState } = await import("../jobs/resume-hydration.js");
     const store = JSON.parse(readFileSync(STORE, "utf8"));
     const rows = Object.values<{ projectId: string; type: string; payload: unknown }>(store.artifacts).filter((a) => a.projectId === "canary_1790962241799");
-    const cml = structuredClone(rows.filter((a) => a.type === "cml").at(-1)?.payload) as { CASE: { discriminating_test: { evidence_clues: string[] } } } | undefined;
+    const cml = structuredClone(rows.find((a) => a.type === "cml")?.payload) as { CASE: { discriminating_test: { evidence_clues: string[] } } } | undefined;
     const clues = rows.filter((a) => a.type === "clues").at(-1)?.payload;
     if (!cml || !clues) return; // the case was pruned from this store
     expect(cml.CASE.discriminating_test.evidence_clues).toEqual([]); // the known positive: the defect as stored
