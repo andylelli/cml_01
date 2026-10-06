@@ -108,6 +108,22 @@ const PRIMARY_AXIS_MEANING: Readonly<Record<string, string>> = {
 export const isOneMechanismEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3_ONE_MECHANISM ?? "").trim());
 
+/**
+ * A_111 (AGENT3_ALIBI_COVERS, default OFF; read at call time) — an innocent's alibi must contain the time the victim
+ * actually died, or it clears nobody. MEASURED over 72 stored CMLs: 107 of 215 innocent suspects' alibis (50%) do not
+ * contain hidden_model.mechanism.actual_time_of_death (63 end before it), and in 21 of 72 cases NO innocent's alibi does
+ * — the P-6 arm C book cleared all three suspects with alibis that ended 45 minutes before the murder. The prose rule
+ * below ("It MUST OVERLAP the window…") is already in the prompt and is obeyed half the time; ON adds the operation, in
+ * order, as a shape (A_102 §7: a slot gets filled, a sentence beside it gets dropped).
+ */
+export const isAlibiCoversEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_ALIBI_COVERS ?? "").trim());
+
+const ALIBI_COVERS_OPERATION =
+  "\n  ORDER OF WORK: write hidden_model.mechanism.actual_time_of_death FIRST. Then each suspect who is not a culprit gets\n" +
+  "  an alibi_window in this shape: \"<a time BEFORE the actual time of death> to <a time AFTER it> in <one named place>\".\n" +
+  "  Check each one: the actual time of death lies between its two times.";
+
 const TIME_STEP_LIMIT_NOTE = (axis: string): string =>
   axis && axis !== "temporal"
     ? `\n- On this ${axis} axis, AT MOST ONE inference step may reason from a clock time; every other step reasons from what the axis is about.`
@@ -643,7 +659,7 @@ GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play myster
   Staging a time that lands inside the culprit's own unaccounted gap incriminates them and is backwards; a reader will notice immediately. Say plainly, in the mechanism description, WHY the culprit chose to move the apparent time in that direction. If the concealment does not fake a time, leave both fields empty.
 - THE HONEST TIMEPIECE: when the concealment fakes a time, the case MUST contain one independent time source the tampering did not reach — a wristwatch on the body, a stopped mechanism, a witnessed event, a log kept elsewhere. It is what lets the detective prove which reading is false, and the reader must be able to see it doing that work. Without it the deduction rests on assertion. If two timepieces disagree, the story must establish WHICH is reliable and WHY, never leave both merely contradictory.
 - SETTING NAMES: refer to each location by the SAME name every time it appears, using the names established in the location profiles. Do not invent decorative variants for the same room ("the lounge" must not also appear as "the glass-domed ballroom" or "the marble lobby chandelier room"); a reader tracking who was where cannot follow a place that changes name.
-- alibi_window (per suspect, in cast): the span each suspect can account for. It MUST OVERLAP the window in which the victim actually died — an alibi covering a period when nobody claims the murder happened proves nothing and makes the clearances meaningless. State it as a concrete clock span ("8:00 to 8:30 in the billiard room"), never a vague part of day ("evening"). Where the concealment makes the APPARENT time of death differ from the REAL one, the alibis that matter are those covering the REAL window; a suspect whose alibi covers only the apparent time has no alibi at all, which is exactly the trap the detective should notice.
+- alibi_window (per suspect, in cast): the span each suspect can account for. It MUST OVERLAP the window in which the victim actually died — an alibi covering a period when nobody claims the murder happened proves nothing and makes the clearances meaningless. State it as a concrete clock span ("8:00 to 8:30 in the billiard room"), never a vague part of day ("evening"). Where the concealment makes the APPARENT time of death differ from the REAL one, the alibis that matter are those covering the REAL window; a suspect whose alibi covers only the apparent time has no alibi at all, which is exactly the trap the detective should notice.${isAlibiCoversEnabled() ? ALIBI_COVERS_OPERATION : ""}
 - The reader must be able to reach the true solution from clues shown before the reveal; the detective must not rely on a confession or secret knowledge.
 
 Before finalizing, run a silent checklist:

@@ -7,7 +7,7 @@
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
 import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
-import { a110UpstreamEnabled, readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
+import { a110UpstreamEnabled, alibiSpanFromWindow, alibiSpanToWindow, parseClockTime, readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { isVictimArchetype } from "@cml/cml";
@@ -185,7 +185,39 @@ export function normalizeCmlForGeneration(raw: Record<string, unknown>, inputs: 
 
   gapFillSuspectClearances(caseBlock, culpability, normalizedCast);
 
+  reportInnocentAlibiCoverage(caseBlock, culpability, normalizationNotes);
+
   return cml;
+}
+
+/**
+ * A_111 (AGENT3_ALIBI_COVERS) — report, never repair, how many innocent suspects' alibis miss the actual time of death.
+ * MEASURED over 72 stored CMLs: 107 of 215 do (ANALYSIS_111/probes/alibi-coverage.mjs). A count in every run's notes is
+ * the counter the prompt operation must move. Off: nothing is added, so the notes are byte-identical.
+ */
+function reportInnocentAlibiCoverage(caseBlock: Record<string, unknown>, culpability: Record<string, unknown>, notes: string[]): void {
+  if (!/^(1|true|yes|on)$/i.test(String(process.env.AGENT3_ALIBI_COVERS ?? "").trim())) return;
+  const mechanism = ((caseBlock.hidden_model as Record<string, unknown> | undefined)?.mechanism ?? {}) as Record<string, unknown>;
+  const parsed = parseClockTime(String(mechanism.actual_time_of_death ?? "")) as unknown;
+  const death = typeof parsed === "number" ? parsed : (parsed as { dial?: number } | null)?.dial;
+  if (typeof death !== "number") return;
+  const culprits = new Set(ensureArray(culpability.culprits).map((n: unknown) => String(n).trim()));
+  let innocents = 0;
+  const missing: string[] = [];
+  for (const member of ensureArray(caseBlock.cast) as Array<Record<string, unknown>>) {
+    const name = String(member?.name ?? "").trim();
+    const role = String(member?.role_archetype ?? member?.role ?? "").toLowerCase();
+    if (!name || culprits.has(name) || /victim|detective|investigator|inspector/.test(role)) continue;
+    const span = alibiSpanFromWindow(String(member.alibi_window ?? ""));
+    if (!span) continue;
+    innocents += 1;
+    const [start, end] = alibiSpanToWindow(span);
+    const inside = start <= end ? death >= start && death <= end : death >= start || death <= end;
+    if (!inside) missing.push(name);
+  }
+  if (innocents > 0) {
+    notes.push(`[A_111 alibi-coverage] ${innocents - missing.length} of ${innocents} innocent alibis contain the actual time of death${missing.length ? ` — missing: ${missing.join(", ")}` : ""}`);
+  }
 }
 
 function normalizeMeta(caseBlock: Record<string, unknown>, inputs: CMLPromptInputs) {
