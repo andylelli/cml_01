@@ -3243,3 +3243,14 @@ Telemetry: Declare-template order rules (a decisive clue not shown by the test i
 case-logic report, a case-noun guard in pretest, `reader:`/`date:` in the read ledger. **N9's counter is NOT met**: the
 reader model still settles before the chapter ahead of the test in 59 of 64, because about six culprit facts must surface
 before the test — the next lever is upstream (two-suspect clues, Agent 5). Paid verification waits for the owner.
+
+**§33 UPDATE 17 — the first paid pair, and one plan from here (2026-10-06).** The three-arm pair on run bcc0d637
+(`ANALYSIS_110/PAIR-bcc0d637-2026-10-06.md`, £1.86) delivered the owner's points 1–4 on the page with four A_110 flags
+on, and made point 5 worse: "pressed her hand against the" ×32 against 0, SHIP-CHECK WORTH A LOOK (61.2 per 10k), so
+arm B is not readable. `PROSE_V2_BOOK_FIRST` was not in arm B. **ANALYSIS_111 is the plan from here** for the code-review
+close-out, the path to 90 and WP-005. Its arithmetic: the four reads since 2026-09-30 average a category sum of 74.25
+against the target 86; plot, clues and ending hold 5.5 of the 11.75-point gap, prose, dialogue and pacing 3.5, and the
+three categories A_110 serves 1.75 — so the next lever after the point-5 repair is the puzzle (A_111 §3.3–§3.4: the
+inference path names a clock time in 23 of 34 non-temporal cases against 6 of 6 temporal; Agent 3b writes 5 devices
+for 79 of 79 cases). The replay fixtures pin the OFF branch of `CML_VERIFIED_FIXES` and `CML_PROMPT_TRIMS`, which ship
+ON (A_111 §2.3).

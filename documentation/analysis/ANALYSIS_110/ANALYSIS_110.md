@@ -21,7 +21,8 @@ file and take a manuscript path, so they can be re-run after each fix.
 ## STATUS
 
 **Every item in the IMPLEMENTATION PLAN is built behind a default-OFF flag (BUILD LEDGER; P.6 records what the build
-found).** Paid verification waits for the owner. **The IMPLEMENTATION PLAN, below the ledger, governs.** Every item in it is a rule over any case's
+found).** Paid verification began 2026-10-06 with one case: the three-arm pair on bcc0d637 (`PAIR-bcc0d637-2026-10-06.md`)
+delivered points 1–4 and made point 5 worse. **The plan from here is ANALYSIS_111.** **The IMPLEMENTATION PLAN, below the ledger, governs.** Every item in it is a rule over any case's
 artifacts, verified over all 64 stored projects and on two cases of different axes (P.1). **Part II (§12–§19, same day) tested every proposal** against the code run from `dist` on
 this run's artifacts, the 25 v2 drafts in the prompt log, 64 stored outlines, 233 saved manuscripts and
 149 canon openings. Of the 26: **8 stand, 14 are changed, 2 are withdrawn or recommended against, 1 is merged
@@ -53,7 +54,7 @@ book's own run. Nine change the plan and four corroborate it:
 |---|---|
 | **N8** (new; amends L6) | the brief's touch rule (`brief.ts:229`) asks for gesture in every paragraph; *hands* sits at z = +10.1 in this book (v2 books 6.0, pre-v2 4.4). Ask it of one paragraph per chapter; step 3, its own pair (§38.1) |
 | **N9** (new) | six of the culprit's ten pointing clues land in ch 6, and p = 1.00 from ch 6 against a test in ch 8; no single clue is necessary. Hold their conclusions to the test; step 0 (§38.2) |
-| **N11** (new) | by ch 10 the craft block and the chapter's contract sit at 19–25% of the prompt. Put the book so far before them; it rides in step 1's B arm, scored on S5–S9 only (§38.3) |
+| **N11** (new) | by ch 10 the craft block and the chapter's contract sit at 19–25% of the prompt. Put the book so far before them; it rides in step 1's B arm, scored on S5–S9 only (§38.3). **It did not**: the 2026-10-06 arm B ran without `PROSE_V2_BOOK_FIRST` (A_111 §3.4) |
 | **N10** (new) | no read records its model; this book is the first anchor, re-read before step 1's B arm is read (§38.4) |
 | N12 (new) | presence penalty, never sent today: a step-3 pair of its own, on K10 (§40) |
 | matched pair | a B-against-A read difference under about 8 marks credits no lever (σ ≤ 2.72 per read); §18's counts are the test (§39.1) |
@@ -93,8 +94,8 @@ book's own run. Nine change the plan and four corroborate it:
 ## BUILD LEDGER — started 2026-10-03, branch `feat/a110-build`
 
 Resumable: each row names its flag and the commit that built it. "this commit" is replaced by the hash in the next.
-Every lever is default OFF; with its flag unset every prompt is byte-identical (tested). Nothing here has been read
-by a paid run yet.
+Every lever is default OFF; with its flag unset every prompt is byte-identical (tested). Steps 0, 0.5, 1 and the tail finding
+were run by one paid pair on 2026-10-06 (`PAIR-bcc0d637-2026-10-06.md`); nothing else here has been, and no arm has been read.
 
 | item | step | flag | status | commit |
 |---|---|---|---|---|
