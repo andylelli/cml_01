@@ -31,6 +31,8 @@ import { join } from "node:path";
 
 import type { OrchestratorContext } from "./agents/index.js";
 import { latestArtifact, loadArtifactStore, type StoreArtifact } from "./artifact-store.js";
+import { DISCRIMINATING_EVIDENCE_MIN, ensureDiscriminatingEvidenceFloor } from "./clue-contracts/evidence-floor.js";
+import { getCanonicalEvidenceClueIds } from "./clue-contracts/inference-checks.js";
 
 /** Artifact names as written by `onArtifact` — the persisted checkpoint keys. */
 export type ResumeArtifactName =
@@ -157,6 +159,28 @@ export function restoreSourceLockedFacts(ctx: OrchestratorContext, sourceRunId: 
     ctx.warnings.push(`[R5] restored ${registry.length} locked fact(s) from the source run's registry (${id}).`);
   } catch (err) {
     ctx.warnings.push(`[R5] could not read the source run's locked-fact registry ${file}: ${String(err)} — this run writes without one.`);
+  }
+}
+
+/**
+ * A_111 R-2 — a resumed run re-derives the discriminating test's evidence ids that Agent 5 held only in memory.
+ *
+ * Since CML_VERIFIED_FIXES (A34-D11, ON from 2026-10-02) Agent 3 leaves `discriminating_test.evidence_clues` empty and
+ * Agent 5 fills it in `ctx.cml` (`ensureDiscriminatingEvidenceFloor`) AFTER the CML artifact was persisted. A prose redo
+ * restores the stored, empty list and the pre-prose gate refuses ("Discriminating test has no evidence clues") — MEASURED
+ * on canary_1790962241799 (seed 82094), so no case generated since 2026-10-02 could be redone at all. The floor is a
+ * deterministic function of the CML and the clues, so applying it to the restored pair rebuilds what the run held.
+ */
+export function restoreDerivedCaseState(ctx: OrchestratorContext): void {
+  if (!ctx.cml || !ctx.clues) return;
+  try {
+    if (getCanonicalEvidenceClueIds(ctx.cml).length >= DISCRIMINATING_EVIDENCE_MIN) return;
+    const added = ensureDiscriminatingEvidenceFloor(ctx.cml, ctx.clues);
+    if (added.length > 0) {
+      ctx.warnings.push(`[R5] re-derived ${added.length} discriminating-test evidence id(s) Agent 5 held only in memory: ${added.join(", ")}.`);
+    }
+  } catch (err) {
+    ctx.warnings.push(`[R5] could not re-derive the discriminating test's evidence ids: ${String(err)}`);
   }
 }
 

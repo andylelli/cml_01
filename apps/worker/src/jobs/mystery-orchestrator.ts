@@ -61,6 +61,7 @@ import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js"
 import {
   applyResumeBundle,
   restoreSourceLockedFacts,
+  restoreDerivedCaseState,
   computeBuildFingerprint,
   ResumeSkipTracker,
   writeRunFingerprint,
@@ -433,6 +434,7 @@ export async function generateMystery(
         warnings.push(`[R5] Ignored unrecognised artifact key(s): ${applied.unknown.join(", ")}.`);
       }
       restoreSourceLockedFacts(ctx as OrchestratorContext, inputs.resumeFromRunId, WORKER_APP_ROOT);
+      restoreDerivedCaseState(ctx as OrchestratorContext);
     }
 
     /**
@@ -499,6 +501,9 @@ export async function generateMystery(
     runClueSpecShadow({ cml: ctx.cml, clues: ctx.clues, warnings }); // shadow: log derived-vs-shipped coverage
     await stage("fairPlayAudit", (c) => runAgent6(c));      // Fair-Play Auditor + clue refinement loop
     await persistArtifact("fair_play_report", ctx.fairPlayAudit);
+    // A_111 R-2: Agents 5 and 6 change ctx.cml (the discriminating test's evidence ids, among others) after it was
+    // persisted above, so the stored CML was not the CML the rest of the run read — and a redo restored the stale one.
+    await persistArtifact("cml", ctx.cml);
 
     // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
     applyFairPlayBindingGate(ctx);

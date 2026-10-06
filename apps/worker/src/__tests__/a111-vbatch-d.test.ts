@@ -3,7 +3,7 @@
  * records state the engine lost.
  */
 import { afterEach, describe, expect, it } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -77,5 +77,24 @@ describe("V-20 — the run records what it ran and keeps what it wrote", () => {
     const role = resolveRole("writer", azure);
     expect(role.provider).toBe("azure");
     expect(role.model).toBe("gpt-4.1");
+  });
+});
+
+describe("R-2 — a redo re-derives the evidence ids Agent 5 held only in memory", () => {
+  // The case that could not be redone: seed 82094's ON half, whose stored CML lists no evidence for the test.
+  const STORE = "../../data/store.json";
+  it.skipIf(!existsSync(STORE))("the stored, empty list is filled to the floor from the restored CML and clues", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { restoreDerivedCaseState } = await import("../jobs/resume-hydration.js");
+    const store = JSON.parse(readFileSync(STORE, "utf8"));
+    const rows = Object.values<{ projectId: string; type: string; payload: unknown }>(store.artifacts).filter((a) => a.projectId === "canary_1790962241799");
+    const cml = structuredClone(rows.filter((a) => a.type === "cml").at(-1)?.payload) as { CASE: { discriminating_test: { evidence_clues: string[] } } } | undefined;
+    const clues = rows.filter((a) => a.type === "clues").at(-1)?.payload;
+    if (!cml || !clues) return; // the case was pruned from this store
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual([]); // the known positive: the defect as stored
+    const ctx = { warnings: [] as string[], cml, clues } as unknown as OrchestratorContext;
+    restoreDerivedCaseState(ctx);
+    expect(cml.CASE.discriminating_test.evidence_clues.length).toBeGreaterThanOrEqual(2);
+    expect(ctx.warnings.join(" ")).toMatch(/re-derived \d+ discriminating-test evidence id/);
   });
 });
