@@ -31,7 +31,7 @@ import {
   buildTelemetryBlock,
   chooseDraft,
   contentWordsOf,
-  CONTRACT_TEMPLATE_PHRASES,
+  sentTemplatePhrases,
   openingLines,
   textureLines,
   readerInputOf,
@@ -789,7 +789,13 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   const checkerFindings = collectCheckerFindings(written, contract, expected, {
     clueDistribution: (ctx.clues ?? undefined) as { clues?: unknown[] } | undefined,
     // Our own instructions, so the checker can catch them coming back as prose.
-    instructionLines: [...contract.brief.asks.map((a) => a.line), ...CONTRACT_TEMPLATE_PHRASES],
+    instructionLines: [
+      ...contract.brief.asks.map((a) => a.line),
+      // A_111: a gated line's phrases count only if this book's contract sent them (contract-phrases.ts).
+      ...sentTemplatePhrases(
+        [contract.bible.text, contract.brief.text, ...contract.scenes.map((s) => renderSceneContract(contract, s.chapter))].join("\n"),
+      ),
+    ],
     caseText: contract.bible.text,
     alibiWindows: caseAlibiWindows(ctx),
     ...keynessOptionFor(ctx),

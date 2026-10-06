@@ -99,3 +99,15 @@ describe("P-4 — the opening says when", () => {
     expect(dateOf(noDate).year).toBe("1930s");
   });
 });
+
+describe("A_111 — a gated line's phrases are echoes only if the contract sent them", () => {
+  it("an unconditional phrase always counts; a gated one only when printed", async () => {
+    const { sentTemplatePhrases, TEMPLATE, CONDITIONAL_TEMPLATE_PHRASES } = await import("../contract-phrases.js");
+    const none = sentTemplatePhrases("");
+    expect(none).toContain(TEMPLATE.proofWalk);
+    for (const p of CONDITIONAL_TEMPLATE_PHRASES) expect(none).not.toContain(p);
+    const sent = sentTemplatePhrases(`x ${TEMPLATE.firstTimeHere} y`);
+    expect(sent).toContain(TEMPLATE.firstTimeHere);
+    expect(sent).not.toContain(TEMPLATE.opensOnPlace);
+  });
+});

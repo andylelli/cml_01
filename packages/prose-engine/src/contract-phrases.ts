@@ -54,3 +54,28 @@ export const TEMPLATE = {
 
 /** Every template phrase, for the echo checker. */
 export const CONTRACT_TEMPLATE_PHRASES: ReadonlyArray<string> = Object.values(TEMPLATE);
+
+/**
+ * A_111 — the phrases of FLAG-GATED lines (A_110 step 0/1, A_111 P-3/P-4). An echo is only an echo if the writer was
+ * sent the wording, so these count only when this book's contract printed them. Listed unconditionally they leaked into
+ * every flags-off book's findings: MEASURED on replay fixture full-d0ee7b26, a `scaffold_token` on "for the first time
+ * in days" (from "on the page for the first time here", never sent with PROSE_V2_OPENING off) changed chapter 10's
+ * editor prompt — the one flags-off difference between the pre-A_110 tree (58f1746c) and HEAD.
+ */
+export const CONDITIONAL_TEMPLATE_PHRASES: ReadonlySet<string> = new Set([
+  TEMPLATE.happensHere,
+  TEMPLATE.alreadyOnPage,
+  TEMPLATE.opensOnPlace,
+  TEMPLATE.firstTimeHere,
+  TEMPLATE.clauseBesideName,
+  TEMPLATE.oneIntroduction,
+  TEMPLATE.firstDoesOrSays,
+  TEMPLATE.saysWhenItIs,
+  TEMPLATE.lineAboutDeath,
+  TEMPLATE.sendsForPolice,
+  TEMPLATE.absenceOnce,
+]);
+
+/** The template phrases this book's contract actually sent: every unconditional phrase, and a gated one only if printed. */
+export const sentTemplatePhrases = (sentText: string): string[] =>
+  CONTRACT_TEMPLATE_PHRASES.filter((p) => !CONDITIONAL_TEMPLATE_PHRASES.has(p) || sentText.includes(p));
