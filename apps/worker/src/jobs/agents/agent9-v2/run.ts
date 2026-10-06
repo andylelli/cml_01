@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { bookFirstEnabled, contractFixesEnabled, presencePenaltyOf, selectorRanksEnabled, verifiedFixesEnabled } from "@cml/cml";
+import { bookFirstEnabled, contractFixesEnabled, keynessFindingEnabled, presencePenaltyOf, selectorRanksEnabled, verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -166,6 +166,26 @@ const chat = async (
 };
 
 const ctxRunId = (ctx: OrchestratorContext): string => String(ctx.runId ?? "");
+
+/**
+ * A_110 M8 (PROSE_V2_KEYNESS_FINDING) — the house-phrase reference (data/keyness-reference.json, built by
+ * scripts/build-keyness-reference.mjs) handed to the findings pass. Absent when the flag is off or the file is missing,
+ * and then nothing changes.
+ */
+const keynessOptionFor = (ctx: OrchestratorContext): { keyness?: { canonFourGrams: number; phrases: Record<string, number> } } => {
+  if (!keynessFindingEnabled()) return {};
+  const path = join(String(ctx.workerAppRoot ?? process.cwd()), "..", "..", "data", "keyness-reference.json");
+  if (!existsSync(path)) {
+    ctx.warnings.push("[Agent 9 v2] PROSE_V2_KEYNESS_FINDING is on but data/keyness-reference.json is missing — run scripts/build-keyness-reference.mjs");
+    return {};
+  }
+  try {
+    const ref = JSON.parse(readFileSync(path, "utf8")) as { canonFourGrams?: number; phrases?: Record<string, number> };
+    return ref.canonFourGrams && ref.phrases ? { keyness: { canonFourGrams: ref.canonFourGrams, phrases: ref.phrases } } : {};
+  } catch {
+    return {};
+  }
+};
 
 /**
  * A_110 M10 (PROSE_V2_SELECTOR_RANKS) — what chapter 1's drafts are also ranked on: the case's own place words (its
@@ -717,6 +737,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     instructionLines: [...contract.brief.asks.map((a) => a.line), ...CONTRACT_TEMPLATE_PHRASES],
     caseText: contract.bible.text,
     alibiWindows: caseAlibiWindows(ctx),
+    ...keynessOptionFor(ctx),
   });
   let criticFindings: Finding[] = [];
   let criticMalformed = 0;

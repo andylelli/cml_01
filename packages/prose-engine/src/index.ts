@@ -55,6 +55,8 @@ export {
   contentWordsOf,
 } from "./selector.js";
 export type { OpeningChoice, ScoredDraft } from "./selector.js";
+export { dunningG2, rankHousePhrases } from "./keyness.js";
+export type { HousePhrase, KeynessReference } from "./keyness.js";
 export {
   collectCheckerFindings,
   anchorFindings,

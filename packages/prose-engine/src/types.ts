@@ -474,6 +474,8 @@ export const FINDING_CLASSES = [
   "introduction_missing",
   // A_110 L6 — ", her gaze fixed": the body-part tail past three in a chapter
   "body_tail",
+  // A_110 M8 — a four-word phrase this book repeats far beyond the canon's rate (keyness, G²)
+  "house_phrase",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

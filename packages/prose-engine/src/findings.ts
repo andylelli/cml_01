@@ -36,7 +36,7 @@ import {
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues, openingEnabled, tailFindingEnabled } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues, keynessFindingEnabled, openingEnabled, tailFindingEnabled } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
@@ -45,6 +45,7 @@ import { findRecaps } from "./recaps.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import { keyTermHits } from "./clue-terms.js";
+import { rankHousePhrases, type KeynessReference } from "./keyness.js";
 import type {
   ContractCore,
   Finding,
@@ -99,6 +100,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   chapter_reference: "defect",
   introduction_missing: "craft",
   body_tail: "craft",
+  house_phrase: "craft",
   register_sentence: "craft",
   abstract_subject: "craft",
   operation_narrated: "craft",
@@ -341,6 +343,8 @@ export interface CheckerOptions {
   caseText?: string;
   /** A_109 M5 — the case's alibi windows (dial pairs), so a restated alibi is a `recap`. */
   alibiWindows?: ReadonlyArray<readonly [number, number]>;
+  /** A_110 M8: the house-phrase reference (data/keyness-reference.json), read only with PROSE_V2_KEYNESS_FINDING. */
+  keyness?: KeynessReference;
 }
 
 /**
@@ -636,6 +640,43 @@ export const collectCheckerFindings = (
       for (const sentence of tails.slice(3, 15)) {
         out.push(finding("body_tail", chapter, sentence, "cut the clause after the comma that names a part of the body (\", her gaze fixed…\"); end the sentence before it"));
       }
+    }
+  }
+
+  // A_110 M8 (PROSE_V2_KEYNESS_FINDING): the book's own house phrases, ranked against the canon (keyness.ts). The first
+  // use of each stays; up to two later uses go to the editor to be said another way; at most eight a book.
+  if (keynessFindingEnabled() && options.keyness) {
+    const ordered = [...byChapter.entries()].sort((a, b) => a[0] - b[0]);
+    const book = ordered.map(([, w]) => bodyOf(w)).join("\n\n");
+    let budget = 8;
+    const flagged = new Set<string>();
+    // A locked clock value is the case's, and must stay verbatim (A_90 §11.2): a phrase sharing two consecutive words
+    // with any clock value the book states is not the writer's habit and is never sent — the rule N7 follows.
+    const clockPairs = new Set<string>();
+    for (const value of extractClockValues(book)) {
+      const w = repetitionWords(value.raw);
+      for (let i = 0; i + 2 <= w.length; i++) clockPairs.add(`${w[i]} ${w[i + 1]}`);
+    }
+    const touchesClock = (phrase: string): boolean => {
+      const w = phrase.split(" ");
+      return w.slice(0, -1).some((x, i) => clockPairs.has(`${x} ${w[i + 1]}`));
+    };
+    for (const p of rankHousePhrases(book, options.keyness, { exclude: touchesClock })) {
+      const uses = ordered.flatMap(([chapter, w]) =>
+        sentencesOf(bodyOf(w))
+          .filter((s) => (s.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) ?? []).join(" ").includes(p.phrase))
+          .map((sentence) => ({ chapter, sentence })),
+      );
+      // One longer habit shows up as several overlapping four-word windows; a sentence is flagged once, so the budget
+      // buys different habits rather than the same one twice.
+      const fresh = uses.slice(1).filter((u) => !flagged.has(u.sentence)).slice(0, 2);
+      for (const use of fresh) {
+        if (budget-- <= 0) break;
+        flagged.add(use.sentence);
+        out.push(finding("house_phrase", use.chapter, use.sentence, `"${p.phrase}" — ${p.inBook} times in this book, ${p.inCanon} in the canon's 12M words; keep the meaning and say it another way here (its first use stays)`));
+      }
+      for (const u of uses) flagged.add(u.sentence);
+      if (budget <= 0) break;
     }
   }
 
