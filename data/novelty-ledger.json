@@ -2129,6 +2129,34 @@
       "discrimDesign": "The discriminating test compares ledger, shipment, and entri against the claimed timeline.",
       "premise": "At the Cliffhaven Hotel, a foggy coastal retreat shadowed by smuggling tensions, Reginald Gresham is found stabbed to death. Witnesses insist they saw Reginald speaking with his son near the cliffside at the time of death, but Eleanor Gresham uncovers a deceptive identity switch, ledger contradictions, and a masquerade that hides the true killer among the guests and staff.",
       "mechanismFamily": "impersonation"
+    },
+    {
+      "id": "resume-1791319669027",
+      "title": "The Rotating Wall at Halloway Manor",
+      "era": "1950s",
+      "location": "Halloway Manor",
+      "crimeSubtype": "stabbing with a letter opener",
+      "deathMethod": "stabbed with a letter opener, to the heart",
+      "axis": "spatial",
+      "falseAssumption": "The victim’s room was completely sealed with no possible entry or exit during the murder, as indicated by the locked door and barred windows.",
+      "discrimMethod": "trap",
+      "discrimDesign": "Recreate the victim’s room locking and carpet layout, then physically rotate the wall panel through its full ninety-degree motion to demonstrate that the hidden servant corridor aligns exactly at the pivot point. Measure the carpet wear length and verify it matches the panel’s pivot path. Simultaneously, reset the victim’s clock to quarter past nine, then observe that the actual time of death must have occurred later, invalidating suspects’ alibis relying on the false clock time.",
+      "premise": "Cecil Thorne, the estate trustee, is found stabbed in his locked room at Halloway Manor during a cold winter evening while a circus troupe winters on the estate grounds. The room is locked from inside with no apparent entry or exit possible. The initial assumption is that the murder must have happened inside the locked room without outside interference. Suspicion falls on several members of the manor and circus community who had motives and opportunity, but all claim alibis that seem to place them outside the victim's room during the murder time. The mystery revolves around the seeming impossibility of the murderer's presence inside the locked room and their subsequent disappearance.",
+      "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "resume-1791320735663",
+      "title": "The Rotating Wall at Halloway Manor",
+      "era": "1950s",
+      "location": "Halloway Manor",
+      "crimeSubtype": "stabbing with a letter opener",
+      "deathMethod": "stabbed with a letter opener, to the heart",
+      "axis": "spatial",
+      "falseAssumption": "The victim’s room was completely sealed with no possible entry or exit during the murder, as indicated by the locked door and barred windows.",
+      "discrimMethod": "trap",
+      "discrimDesign": "Recreate the victim’s room locking and carpet layout, then physically rotate the wall panel through its full ninety-degree motion to demonstrate that the hidden servant corridor aligns exactly at the pivot point. Measure the carpet wear length and verify it matches the panel’s pivot path. Simultaneously, reset the victim’s clock to quarter past nine, then observe that the actual time of death must have occurred later, invalidating suspects’ alibis relying on the false clock time.",
+      "premise": "Cecil Thorne, the estate trustee, is found stabbed in his locked room at Halloway Manor during a cold winter evening while a circus troupe winters on the estate grounds. The room is locked from inside with no apparent entry or exit possible. The initial assumption is that the murder must have happened inside the locked room without outside interference. Suspicion falls on several members of the manor and circus community who had motives and opportunity, but all claim alibis that seem to place them outside the victim's room during the murder time. The mystery revolves around the seeming impossibility of the murderer's presence inside the locked room and their subsequent disappearance.",
+      "mechanismFamily": "locked_room_timing"
     }
   ]
 }
