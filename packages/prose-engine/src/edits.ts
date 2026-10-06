@@ -40,7 +40,7 @@
 
 import { mutateThenValidate } from "@cml/prose-guard";
 import type { Validator } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues } from "@cml/cml";
+import { contractFixesEnabled, extractClockValues, tailFindingEnabled } from "@cml/cml";
 
 import { bookRegisterRate } from "./findings.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
@@ -114,7 +114,27 @@ export interface GuardContext {
   castNames: ReadonlyArray<string>;
   /** How far a chapter may move from its original length before an edit is refused. */
   lengthTolerance?: number;
+  /** A_111 P-2: measure `registerNotWorse` as 0, for an edit that only deletes (see `isStrictDeletion`). */
+  ignoreRegister?: boolean;
 }
+
+/**
+ * A_111 P-2 — `replace` is `find` with one contiguous span removed: the edit adds no word of its own.
+ *
+ * `registerNotWorse` exists so an editor cannot REPHRASE a sentence into the machine register. A deletion writes
+ * nothing, yet it can raise the chapter's rate by shortening it around the same flagged sentences: run bcc0d637 arm B
+ * sent 113 `body_tail` deletions ("cut the clause after the comma …") and `registerNotWorse` reverted 45 of the 53
+ * that rolled back (ANALYSIS_110/PAIR-bcc0d637-2026-10-06.md). The instrument's slope against the reads has been zero
+ * since 2026-09-01 (WP-006 §3.2). Every other guard still measures a deletion.
+ */
+export const isStrictDeletion = (find: string, replace: string): boolean => {
+  if (replace.length >= find.length) return false;
+  let prefix = 0;
+  while (prefix < replace.length && find[prefix] === replace[prefix]) prefix += 1;
+  let suffix = 0;
+  while (suffix < replace.length - prefix && find[find.length - 1 - suffix] === replace[replace.length - 1 - suffix]) suffix += 1;
+  return prefix + suffix >= replace.length;
+};
 
 /**
  * Each guard as a NUMBER, higher being better.
@@ -143,7 +163,7 @@ export const measureGuards = (
     noNewScaffold: -(body.match(new RegExp(SCAFFOLD_RE.source, "gi")) ?? []).length,
     noMalformedSplice: -MALFORMED_PATTERNS.filter((re) => re.test(body)).length,
     noNewDuplicate: -[...duplicatedSentences(body).values()].reduce((n, c) => n + (c - 1), 0),
-    registerNotWorse: -Math.round(bookRegisterRate([chapter]) * 1_000),
+    registerNotWorse: context.ignoreRegister ? 0 : -Math.round(bookRegisterRate([chapter]) * 1_000),
     // A_110 N5: constant 0 with the flag off, so OFF is byte-identical in every outcome.
     noOrphanedTag: contractFixesEnabled() ? -orphanedTags(body) : 0,
     lengthWithin: wordCount(chapter),
@@ -217,6 +237,10 @@ export const applyEditList = (
   options: ApplyOptions,
 ): { chapter: ProseChapterLike; outcome: EditOutcome } => {
   const { validator } = buildGuards(options);
+  // A_111 P-2 (PROSE_V2_TAIL_FINDING): the same guards, with registerNotWorse held at 0, for strict deletions.
+  const deletionOptions: ApplyOptions = { ...options, ignoreRegister: true };
+  const { validator: deletionValidator } = buildGuards(deletionOptions);
+  const exemptDeletions = tailFindingEnabled();
   const originalWords = wordCount(chapter);
   const originalDials = dialsOf(chapter);
   const tolerance = options.lengthTolerance ?? 0.15;
@@ -256,10 +280,12 @@ export const applyEditList = (
       paragraphs: (input.paragraphs ?? []).map((p) => (p.includes(find) ? p.replace(find, replace) : p)),
     });
 
-    const before = measureGuards(current, options);
-    const outcome = mutateThenValidate(current, mutate, validator);
+    const exempt = exemptDeletions && isStrictDeletion(find, replace);
+    const guardOptions = exempt ? deletionOptions : options;
+    const before = measureGuards(current, guardOptions);
+    const outcome = mutateThenValidate(current, mutate, exempt ? deletionValidator : validator);
     if (!outcome.applied || outcome.reverted) {
-      const guard = guardThatFell(before, measureGuards(mutate(current), options)) ?? "registerNotWorse";
+      const guard = guardThatFell(before, measureGuards(mutate(current), guardOptions)) ?? "registerNotWorse";
       rolledBack[guard] = (rolledBack[guard] ?? 0) + 1;
       continue;
     }

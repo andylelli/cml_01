@@ -33,8 +33,12 @@ export const TEMPLATE = {
   // A_110 D5: the custody line, without its examples ("empty chair" x11 on run bcc0d637, 321x the canon).
   // A_110 step 1 — the opening's fixed wording, so the echo checker catches it coming back as prose.
   opensOnPlace: "This chapter opens on the place before anybody speaks",
-  firstTimeHere: "is on the page for the first time here",
+  firstTimeHere: "on the page for the first time here",
   clauseBesideName: "a clause beside the name says once",
+  // A_111 P-3/P-4 — the opening's newer fixed wording.
+  oneIntroduction: "at most one introduction to a paragraph",
+  firstDoesOrSays: "the sentence where they first do or say something",
+  saysWhenItIs: "One of those two paragraphs says when it is",
   lineAboutDeath: "says one line about",
   sendsForPolice: "Somebody sends for the police and a doctor",
   absenceOnce: "Once in this chapter somebody comes upon something of theirs and leaves it where it is",

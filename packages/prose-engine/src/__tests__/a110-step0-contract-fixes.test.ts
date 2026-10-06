@@ -128,6 +128,14 @@ describe("A_110 D5 — no example lists in the lines that leaked", () => {
       expect(on).not.toContain(l);
     }
   });
+
+  // A_111 P-1: with the list gone the act collapsed onto one gesture (arm B: "pressed her hand against the" x32,
+  // arm A′ 0). The reworded list keeps four kinds of act and none of the leaked phrasings.
+  it("ON the exchange line still names four kinds of act, in new words", () => {
+    const on = projects.map((p) => build(p.input, true).brief.text).join("\n");
+    expect(on).toContain("a movement, something picked up or set down, a glance elsewhere, a question back");
+    expect(on).not.toMatch(/next question|object handled/);
+  });
 });
 
 describe("A_110 L8 and §30.1 — findings", () => {

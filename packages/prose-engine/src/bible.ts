@@ -281,21 +281,30 @@ const castSection = (
  * to every call ("The lobby feels claustrophobic yet charged…") — the register readers quote back — so ON this is
  * ONE line, and a place it cannot read is reported as unknown rather than silently dropped (WP-006 K4).
  */
+/** The case's month, year and season, as the temporal context and setting give them; "" where absent. */
+export const dateOf = (input: ContractInput): { month: string; year: string; season: string } => {
+  const setting = (input.setting as Record<string, unknown> | undefined) ?? {};
+  const inner = (setting.setting && typeof setting.setting === "object" ? setting.setting : setting) as Record<string, unknown>;
+  const temporal = (input.temporal as Record<string, unknown> | undefined) ?? {};
+  const date = (temporal.specificDate && typeof temporal.specificDate === "object" ? temporal.specificDate : {}) as Record<string, unknown>;
+  const seasonal = (temporal.seasonal && typeof temporal.seasonal === "object" ? temporal.seasonal : {}) as Record<string, unknown>;
+  return {
+    month: text(date.month),
+    year: text(date.year) || text((inner.era as Record<string, unknown> | undefined)?.decade),
+    season: text(seasonal.season).toLowerCase(),
+  };
+};
+
 export const whereAndWhen = (input: ContractInput): { line: string; unknown: string[] } => {
   const setting = (input.setting as Record<string, unknown> | undefined) ?? {};
   const inner = (setting.setting && typeof setting.setting === "object" ? setting.setting : setting) as Record<string, unknown>;
   const location = (inner.location && typeof inner.location === "object" ? inner.location : {}) as Record<string, unknown>;
   const locations = (input.locations as Record<string, unknown> | undefined) ?? {};
   const primary = (locations.primary && typeof locations.primary === "object" ? locations.primary : {}) as Record<string, unknown>;
-  const temporal = (input.temporal as Record<string, unknown> | undefined) ?? {};
-  const date = (temporal.specificDate && typeof temporal.specificDate === "object" ? temporal.specificDate : {}) as Record<string, unknown>;
-  const seasonal = (temporal.seasonal && typeof temporal.seasonal === "object" ? temporal.seasonal : {}) as Record<string, unknown>;
   const name = text(primary.name);
   const kind = text(location.type).toLowerCase();
   const place = [text(primary.place), text(primary.country)].filter(Boolean).join(", ");
-  const month = text(date.month);
-  const year = text(date.year) || text((inner.era as Record<string, unknown> | undefined)?.decade);
-  const season = text(seasonal.season).toLowerCase();
+  const { month, year, season } = dateOf(input);
   const unknown: string[] = [];
   if (!name && !kind) unknown.push("the place");
   if (!place) unknown.push("its town and country");

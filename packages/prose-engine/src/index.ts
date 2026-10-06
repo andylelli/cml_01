@@ -69,7 +69,7 @@ export {
   MIN_QUOTE_WORDS,
 } from "./findings.js";
 export type { CheckerOptions, CriticParseResult } from "./findings.js";
-export { measureGuards, guardThatFell, applyEditList, buildGuards, buildEditorPrompt, parseEditList, summariseEdits } from "./edits.js";
+export { measureGuards, guardThatFell, applyEditList, buildGuards, buildEditorPrompt, parseEditList, summariseEdits, isStrictDeletion } from "./edits.js";
 export type { ApplyOptions, GuardContext } from "./edits.js";
 export { applyGate } from "./gate.js";
 export type { GateVerdict } from "./gate.js";

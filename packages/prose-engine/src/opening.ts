@@ -13,6 +13,7 @@
  */
 import { a110UpstreamEnabled, openingEnabled } from "@cml/cml";
 import type { ContractCore, ContractInput, Opening, SceneContract } from "./types.js";
+import { dateOf } from "./bible.js";
 
 const text = (value: unknown): string => String(value ?? "").replace(/\s+/g, " ").trim();
 const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
@@ -72,7 +73,12 @@ export const assignOpening = (input: ContractInput, core: ContractCore): Map<num
   // W2 — the place before anybody speaks, in the first chapter.
   const first = core.scenes[0]!;
   const looks = text(primary.visualDescription);
-  if (looks) get(first.chapter).establishing = { looks, weather: text(rec(locations.atmosphere).weather) || undefined };
+  // A_111 P-4: and when. Run bcc0d637 arm B put the place on the page and not the date (Mevagissey 2, January 0,
+  // 1934 0): the where-and-when line is in the bible, and the opening asked for the place only. A decade ("1930s") is
+  // not a date, so only a four-digit year is asked for.
+  const { month, year } = dateOf(input);
+  const when = /^\d{4}$/.test(year) ? [month, year].filter(Boolean).join(" ") : "";
+  if (looks) get(first.chapter).establishing = { looks, weather: text(rec(locations.atmosphere).weather) || undefined, ...(when ? { when } : {}) };
 
   // W3 — each profiled room described on its first visit (the chapter whose location shares a distinctive word).
   const keyLocations = asArray(locations.keyLocations).map(rec);
@@ -174,22 +180,36 @@ export const openingLines = (o: Opening | undefined): string[] => {
     lines.push(
       `This chapter opens on the place before anybody speaks. Its first two paragraphs are narration of what is there and how it looks` +
         `${o.establishing.weather ? `, in this weather (${o.establishing.weather})` : ""}: ${o.establishing.looks} ` +
+        `${o.establishing.when ? `One of those two paragraphs says when it is: ${o.establishing.when}. ` : ""}` +
         `The first line anybody speaks is in the third paragraph or later.`,
     );
   }
   if (o.firstVisit) {
     lines.push(`The first time the book is in ${o.firstVisit.location}, two sentences show what it looks like before anything is done there: ${o.firstVisit.looks}`);
   }
-  for (const i of o.introductions ?? []) {
-    // A relation that already names the occupation ("the trusted family lawyer who…") is said instead of it, not after it.
-    const last = i.occupation.split(/\s+/).pop() ?? "";
-    const what = i.relation && last && i.relation.toLowerCase().includes(last)
-      ? i.relation
-      : `${withArticle(i.occupation)}${i.relation ? `, and ${i.relation}` : ""}`;
-    lines.push(`${i.name} is on the page for the first time here: a clause beside the name says once that ${i.pronoun} ${what}.`);
-    // A_110 P2: what a stranger sees, and why they are under this roof — said once, here, never in the bible.
-    if (i.appearance) lines.push(`  What anybody first notices about ${i.name}: ${i.appearance}`);
-    if (i.whyHere) lines.push(`  Why ${i.name} is here: ${i.whyHere}`);
+  /**
+   * A_111 P-3 — one operation for the chapter's newcomers, then the FACTS, never a sentence to paste. Run bcc0d637 arm B,
+   * given one "X is on the page for the first time here: a clause beside the name says once that …" line per person,
+   * opened five paragraphs running on "Name, appositive, verb", one of them the contract's appositive nearly word for
+   * word. A count of a simple thing is the shape this model keeps (A_102 §7): one introduction to a paragraph, each in
+   * the sentence where that person first does or says something.
+   */
+  const intros = o.introductions ?? [];
+  if (intros.length > 0) {
+    lines.push(
+      `${intros.length === 1 ? "One person is" : `${intros.length} people are`} on the page for the first time here. ` +
+        `Introduce each in the sentence where they first do or say something, at most one introduction to a paragraph, ` +
+        `in your own words, from these facts:`,
+    );
+    for (const i of intros) {
+      // A relation that already names the occupation ("the trusted family lawyer who…") is said instead of it, not after it.
+      const last = i.occupation.split(/\s+/).pop() ?? "";
+      const what = i.relation && last && i.relation.toLowerCase().includes(last) ? i.relation : [i.occupation, i.relation].filter(Boolean).join("; ");
+      lines.push(`  ${i.name}: ${what}`);
+      // A_110 P2: what a stranger sees, and why they are under this roof — said once, here, never in the bible.
+      if (i.appearance) lines.push(`    what anybody first notices: ${i.appearance}`);
+      if (i.whyHere) lines.push(`    why here: ${i.whyHere}`);
+    }
   }
   if (o.death) {
     if (o.death.who) lines.push(`The first time ${o.death.victim} is named, a clause says who ${o.death.pronoun} ${o.death.pronoun === "they" ? "were" : "was"}: ${o.death.who}.`);

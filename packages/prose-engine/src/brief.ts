@@ -196,8 +196,10 @@ export const buildBrief = (input: BriefInput): Brief => {
       "shapes",
       contractFixesEnabled()
         // A_110 D5 (specimen audit, §30.5): "next question" reached 5 of 10 v2 cases (9x the canon) and "object
-        // handled" 2. The operation stays; the examples go.
-        ? "The sentence after either reply belongs to somebody else, and is something they do. The shortness stays inside the quotation marks."
+        // handled" 2, so those two are reworded. A_111 P-1: the LIST stays — run bcc0d637 arm B, given the line
+        // with no examples, wrote "pressed her hand against the" 32 times (arm A′: 0). The examples were what
+        // spread the act over several kinds (ANALYSIS_110/PAIR-bcc0d637-2026-10-06.md).
+        ? "The sentence after either reply is what somebody else does: a movement, something picked up or set down, a glance elsewhere, a question back. The shortness stays inside the quotation marks."
         : "The sentence after either reply is what somebody ELSE does: a movement, an object handled, a look away, the next question. The shortness stays inside the quotation marks.",
     );
   }

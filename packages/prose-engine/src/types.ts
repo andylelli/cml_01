@@ -544,7 +544,7 @@ export interface EditOutcome {
 /** §07 — one chapter's share of the place, period, inner life and relationships (`depth.ts`). */
 /** A_110 step 1 (PROSE_V2_OPENING) — what a chapter owes the opening: the place, the people, the death. */
 export interface Opening {
-  establishing?: { looks: string; weather?: string };
+  establishing?: { looks: string; weather?: string; when?: string };
   firstVisit?: { location: string; looks: string };
   /** A_110 P2 (CML_A110_UPSTREAM): `appearance` and `whyHere` from Agent 2b, in the first-appearance line only. */
   introductions?: Array<{ name: string; occupation: string; relation?: string; pronoun: string; appearance?: string; whyHere?: string }>;
