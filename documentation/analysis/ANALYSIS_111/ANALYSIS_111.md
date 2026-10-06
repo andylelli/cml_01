@@ -39,8 +39,8 @@ Resumable: each row names its cost, its evidence and its commit.
 | P-8 | puzzle side: one device per case and at most one clock step on a non-temporal axis, behind `AGENT3_ONE_MECHANISM` (§3.4); two-suspect clues designed, not built | £0.78 harness (90 calls) | BUILT; **no measured effect** — hybrids 0–2 of 16 in both arms, the clock-step limit ignored (§3.7). Stays OFF | `b550cad7` |
 | **P-8b** | an innocent's alibi must contain the actual time of death (50% of 215 stored innocent alibis miss it; P-6's self-read's first defect), behind `AGENT3_ALIBI_COVERS`, with an `[A_111 alibi-coverage]` count in every run | (same harness) | BUILT; **79% → 90% of innocent alibis cover the death, pooled over 169 harness alibis (z ≈ 2.0)**; a culprit-exception sentence made it WORSE (71%) and was removed (§3.7). Stays OFF until a full-run pair | `d7b755ae` · this commit |
 | **R-3** | the Agent 3 harness sent a prompt no run sends: `lockedFactRegistry: []`, so no THE CLOCK and no locked facts — its 85% coverage baseline against the pipeline's 45% (October) was the harness. `--sourceRun`, else the primary device's facts | £0 | DONE | this commit |
-| P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | WAITS on P-6 | — |
-| P-10 | step-2 upstream full-run pairs (`CML_A110_UPSTREAM`, now with CR-i) | ~£2.30 a case | WAITS on P-7 | — |
+| P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | **DEFERRED**: its target, repetition, is already Normal with the V batch on (arm C 1.8 per 10k); it waits for a read that names repetition | — |
+| **P-10** | **the next paid step**: a fresh full-run pair on a behavioural-axis seed (the axis with the fewest reads) — A′ shipped against C = shipped + `CML_A110_UPSTREAM` (incl. CR-i) + `AGENT3_ALIBI_COVERS` + the prose flags of P-6's arm C; predictions: innocent-alibi coverage in the CML, SHIP-CHECK Normal, the self-read's three puzzle defects absent | ~£1.90 | NEXT — the case, not the prose, is what P-6 left | — |
 | M-0 | = CR-d | £0 | DONE | `c36add04` |
 | M-1 | amend WP-005 with the five corrections in §4.3 | £0 | TODO (Part 3) | — |
 | M-2…M-5 | K1–K7 | — | WAITS (§4.4) | — |
