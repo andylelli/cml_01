@@ -79,7 +79,8 @@
     "corpus:check": "node scripts/corpus-clearance-check.mjs && node scripts/corpus-manifest.mjs --check && node scripts/corpus-cells.mjs --check && node scripts/corpus-parts.mjs --check",
     "corpus:cells": "node scripts/corpus-cells.mjs",
     "corpus:parts": "node scripts/corpus-parts.mjs",
-    "corpus:part-types": "node scripts/corpus-part-types.mjs"
+    "corpus:part-types": "node scripts/corpus-part-types.mjs",
+    "pin:v2": "node scripts/v2-prompt-pin.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
