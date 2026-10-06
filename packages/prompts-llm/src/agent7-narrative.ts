@@ -25,7 +25,7 @@ export type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
 import { resolveIdentity } from "@cml/cml";
 import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
 import type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
-import { isVictimArchetype } from "@cml/cml";
+import { a110UpstreamEnabled, isVictimArchetype } from "@cml/cml";
 import { isVictimMember, verifiedFixesEnabled } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // R4 — structured-output schema for this agent. Safe to import: the schema reads the beat list
@@ -93,6 +93,8 @@ export interface NarrativeFormattingInputs {
   qualityGuardrails?: string[];
   runId?: string;
   projectId?: string;
+  /** A_110 W4 (CML_A110_UPSTREAM): the case's profiled places, offered as the sets to prefer. */
+  locationProfiles?: unknown;
   /** Pillar 1: canonical locked facts — must be honoured verbatim in all scene summaries */
   lockedFacts?: Array<{ id: string; value: string; description: string }>;
   /** Pillar 4: require pivotElement, factEstablished, permittedBehavioursByAct, and
@@ -272,6 +274,7 @@ Your output is a JSON scene outline that prose generators can use to write the f
     inputs.enableOutlineCompleteness
       ? { enabled: true, redHerringIds: clues.redHerrings.map((rh) => rh.id) }
       : undefined,
+    inputs.locationProfiles,
   );
 
   return { system, developer: developer + lockedFactsSection + completenessSection, user };
@@ -697,6 +700,36 @@ const targetSpecificationsBlock = (targetLength: string, narrativeStyle: string)
 - **Style**: ${narrativeStyle} (${styleGuidance})`;
 };
 
+
+/**
+ * A_110 P3 (CML_A110_UPSTREAM) — the Gathering keeps the victim alive. MEASURED: the "body comes first" rule below beat
+ * the Gathering beat in 64 of 64 stored outlines (A_110 §13.1). ON, scene 1 is the Gathering and marks the victim alive,
+ * scene 2 is the discovery; the contract trusts the mark only before the crime beat (contract.ts). OFF: the old text.
+ */
+const SCENE_ONE_BODY_FIRST = "- **CRITICAL — Scene 1 (discovery) internal order**: The scene summary and prose must follow this sequence: (1) ONE sentence of arrival/atmosphere, (2) physical discovery of the body — no later than the second paragraph of the resulting chapter, (3) investigator reaction, (4) suspects named, (5) first contradictory observation. Do NOT open Scene 1 with extended clock examination, atmospheric landscape, or suspect introductions before the body is found. The body comes first.";
+const SCENE_ONE_AND_TWO_GATHERING =
+  "- **Scene 1 is the Gathering, Scene 2 the Crime**: Scene 1 (beat \"gathering\") opens on the place, then the people arriving and meeting, the victim among them and alive; set \"victimAlive\": true on it; it ends before the death. Scene 2 (beat \"crime\") is the discovery: the body no later than its second paragraph, then the investigator's reaction, the suspects named, the first contradictory observation.";
+const actIOpeningLine = (): string =>
+  a110UpstreamEnabled()
+    ? "- **Gather the people**: the place, the household and the victim alive among them (Scene 1)\n- **Introduce the crime**: the discovery of the victim, and the shock of it (Scene 2)"
+    : "- **Introduce the crime**: Discovery of victim, initial shock";
+const sceneOneRule = (): string => (a110UpstreamEnabled() ? SCENE_ONE_AND_TWO_GATHERING : SCENE_ONE_BODY_FIRST);
+
+/**
+ * A_110 W4 (CML_A110_UPSTREAM) — Agent 7's prompt named no location, and 42% of 647 archived scenes were set where no
+ * profile exists. ON: the case's own profiled places, offered as the sets to prefer — not a closed list, because a clue
+ * found on a cliff must not be staged in a lobby (A_110 §15).
+ */
+const profiledPlacesBlock = (locationProfiles: unknown): string => {
+  if (!a110UpstreamEnabled()) return "";
+  const lp = (locationProfiles ?? {}) as { primary?: { name?: unknown }; keyLocations?: Array<{ name?: unknown }> };
+  const names = [lp.primary?.name, ...(lp.keyLocations ?? []).map((k) => k?.name)].map((n) => String(n ?? "").trim()).filter(Boolean);
+  if (names.length === 0) return "";
+  // Carries its own leading newline, so OFF ("") leaves the prompt byte-identical.
+  return `
+## The Places This Case Has Described\nSet a scene in one of these where the scene allows; a scene whose evidence is found elsewhere is set where it is found:\n${names.map((n) => `- ${n}`).join("\n")}\n`;
+};
+
 const sceneConstructionBlock = (
   totalSceneCount: number,
   actIScenes: number,
@@ -708,13 +741,13 @@ const sceneConstructionBlock = (
 **CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **${totalSceneCount} scenes** total: **${actIScenes} in Act I**, **${actIIScenes} in Act II**, **${actIIIScenes} in Act III**. No more, no fewer. Count your scenes before submitting.
 
 ### Act I: Setup (exactly ${actIScenes} scenes)
-- **Introduce the crime**: Discovery of victim, initial shock
+${actIOpeningLine()}
 - **Establish setting**: Era atmosphere, location details
 - **Meet the cast**: Detective, suspects, witnesses
 - **Plant early clues**: Subtle hints, initial observations
 - **Support false assumption**: Lead reader toward wrong conclusion
 - **End with**: Detective commits to investigation, stakes established
-- **CRITICAL — Scene 1 (discovery) internal order**: The scene summary and prose must follow this sequence: (1) ONE sentence of arrival/atmosphere, (2) physical discovery of the body — no later than the second paragraph of the resulting chapter, (3) investigator reaction, (4) suspects named, (5) first contradictory observation. Do NOT open Scene 1 with extended clock examination, atmospheric landscape, or suspect introductions before the body is found. The body comes first.
+${sceneOneRule()}
 - **MECHANISM SPOILER BAN (Scene 1 and 2)**: Scenes 1 and 2 must NOT explain why any device was tampered with, by how much it was altered, or name the person responsible. Show only that two evidence sources disagree. Write the scene 1 summary and purpose text accordingly — if it reads "the clock was wound back by X minutes", rewrite it to "two clocks show contradictory times". The full mechanism belongs in Act II.
 
 ${detectiveEntryRule}
@@ -895,6 +928,7 @@ function buildUserRequest(
   qualityGuardrails: string[],
   detectiveType?: DetectiveType,
   completenessOpts?: { enabled: boolean; redHerringIds: string[] },
+  locationProfiles?: unknown,
 ): string {
   const config = getGenerationParams().agent7_narrative.params;
   const { crimeVictim, exampleLocation } = resolveVictimExample(caseData);
@@ -922,7 +956,7 @@ Create a scene-by-scene outline for this mystery story.
 ${targetSpecificationsBlock(targetLength, narrativeStyle)}
 ${proseRequirementsBlock}
 
-${sceneConstructionBlock(totalSceneCount, actIScenes, actIIScenes, actIIIScenes, detectiveEntryRuleFor(detectiveType))}
+${sceneConstructionBlock(totalSceneCount, actIScenes, actIIScenes, actIIIScenes, detectiveEntryRuleFor(detectiveType))}${profiledPlacesBlock(locationProfiles)}
 
 ${SCENE_REQUIREMENTS_AND_FAIR_PLAY_SEQUENCING}
 

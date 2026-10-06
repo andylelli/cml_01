@@ -18,6 +18,7 @@
  */
 
 import type { CastDesign, CharacterProfile } from "./agent2-cast-types.js";
+import { a110UpstreamEnabled } from "@cml/cml";
 
 const MOTIVE_STRENGTHS = new Set(["weak", "moderate", "strong", "compelling"]);
 const ACCESS_PLAUSIBILITIES = new Set(["impossible", "unlikely", "possible", "easy"]);
@@ -517,6 +518,13 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
   };
 
   // Errors first, then warns; de-duplicate identical feedback strings.
+  // --- A_110 P4 (CML_A110_UPSTREAM): names a reader can tell apart ---
+  // MEASURED: a shared first name in 1 of 79 casts; the detective sharing the victim's surname in 2. Rare, so the check
+  // rarely fires, which is what a check should do. A shared surname is fine when the cast says how they are related.
+  if (a110UpstreamEnabled()) {
+    issues.push(...checkNamesApart(characters, cast));
+  }
+
   const ordered = [...issues].sort((a, b) => {
     if (a.severity === b.severity) return 0;
     return a.severity === "error" ? -1 : 1;
@@ -532,6 +540,59 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
     metrics,
     feedback,
   };
+}
+
+const TITLES = /^(Mr|Mrs|Miss|Ms|Dr|Sir|Lady|Lord|Dame|Inspector|Sergeant|Constable|Captain|Colonel|Major|Reverend|Father|Professor)\.?$/i;
+/** The English kin terms: a relationship that says one of them declares the kinship. */
+const KIN = /\b(brother|sister|sibling|father|mother|son|daughter|wife|husband|widow|widower|married|cousin|uncle|aunt|niece|nephew|grand\w*|step\w*|half-\w+|in-law|twin|heir|kin\w*)\b/i;
+
+export function checkNamesApart(characters: CharacterProfile[], cast: CastDesign): CastCheckIssue[] {
+  const issues: CastCheckIssue[] = [];
+  const parts = characters
+    .map((c) => String(c?.name ?? "").trim())
+    .filter(Boolean)
+    .map((name) => ({ name, words: name.split(/\s+/).filter((w) => !TITLES.test(w)) }))
+    .filter((p) => p.words.length > 0);
+  const byFirst = new Map<string, string[]>();
+  const bySurname = new Map<string, string[]>();
+  for (const p of parts) {
+    const first = p.words[0]!.toLowerCase();
+    byFirst.set(first, [...(byFirst.get(first) ?? []), p.name]);
+    if (p.words.length >= 2) {
+      const last = p.words[p.words.length - 1]!.toLowerCase().replace(/^(jr|sr|ii|iii)\.?$/, "");
+      if (last) bySurname.set(last, [...(bySurname.get(last) ?? []), p.name]);
+    }
+  }
+  for (const [, names] of byFirst) {
+    if (names.length < 2) continue;
+    issues.push({
+      code: "shared_first_name",
+      severity: "error",
+      character: names[1],
+      message: `${names.join(" and ")} share a first name.`,
+      feedback: `Give ${names[1]} a first name nobody else in the cast has; ${names[0]} keeps theirs.`,
+    });
+  }
+  const pairs = ((cast.relationships as unknown as { pairs?: Array<Record<string, unknown>> })?.pairs ?? []);
+  const kinDeclared = (a: string, b: string): boolean =>
+    pairs.some((p) => {
+      const x = String(p?.character1 ?? ""), y = String(p?.character2 ?? "");
+      return ((x === a && y === b) || (x === b && y === a)) && KIN.test(String(p?.relationship ?? "") + " " + String(p?.sharedHistory ?? ""));
+    });
+  for (const [surname, names] of bySurname) {
+    if (names.length < 2) continue;
+    for (let i = 1; i < names.length; i++) {
+      if (kinDeclared(names[0]!, names[i]!)) continue;
+      issues.push({
+        code: "shared_surname_no_kinship",
+        severity: "error",
+        character: names[i],
+        message: `${names[0]} and ${names[i]} share the surname "${surname}" and the cast does not say how they are related.`,
+        feedback: `Either state in relationships how ${names[0]} and ${names[i]} are related, or give ${names[i]} a different surname.`,
+      });
+    }
+  }
+  return issues;
 }
 
 /** One-line human summary for shadow-mode logging. */

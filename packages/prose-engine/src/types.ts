@@ -544,7 +544,8 @@ export interface EditOutcome {
 export interface Opening {
   establishing?: { looks: string; weather?: string };
   firstVisit?: { location: string; looks: string };
-  introductions?: Array<{ name: string; occupation: string; relation?: string; pronoun: string }>;
+  /** A_110 P2 (CML_A110_UPSTREAM): `appearance` and `whyHere` from Agent 2b, in the first-appearance line only. */
+  introductions?: Array<{ name: string; occupation: string; relation?: string; pronoun: string; appearance?: string; whyHere?: string }>;
   death?: { victim: string; pronoun: string; who: string; witnesses: string[]; authority?: string };
 }
 

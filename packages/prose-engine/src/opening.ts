@@ -11,7 +11,7 @@
  * Every line here is a count of a simple thing or a slot filled from an artifact the pipeline already wrote, which is
  * the form this writer keeps (A_102 §7, A_110 §14). Nothing goes to the bible.
  */
-import { openingEnabled } from "@cml/cml";
+import { a110UpstreamEnabled, openingEnabled } from "@cml/cml";
 import type { ContractCore, ContractInput, Opening, SceneContract } from "./types.js";
 
 const text = (value: unknown): string => String(value ?? "").replace(/\s+/g, " ").trim();
@@ -64,6 +64,7 @@ export const assignOpening = (input: ContractInput, core: ContractCore): Map<num
   const culprits = core.fairPlay.culprits;
   const cast = asArray(input.cast?.characters).map(rec);
   const pairs = asArray(rec(input.cast?.relationships).pairs ?? input.cast?.relationships);
+  const profiles = asArray(input.profiles?.profiles).map(rec);
   const locations = rec(input.locations);
   const primary = rec(locations.primary);
   const setting = rec(rec(input.setting).setting ?? input.setting);
@@ -101,11 +102,14 @@ export const assignOpening = (input: ContractInput, core: ContractCore): Map<num
       const occupation = occupationOf(member);
       if (!occupation) continue;
       const g = text(member.gender).toLowerCase();
+      const profile = a110UpstreamEnabled() ? profiles.find((p) => text(p.name) === name) : undefined;
       (get(scene.chapter).introductions ??= []).push({
         name,
         occupation,
         relation: relationTo(name, victim, pairs, culprits) || undefined,
         pronoun: g === "female" ? "she is" : g === "male" ? "he is" : "they are",
+        ...(text(profile?.appearance) ? { appearance: text(profile?.appearance) } : {}),
+        ...(text(profile?.whyHere) ? { whyHere: text(profile?.whyHere) } : {}),
       });
     }
   }
@@ -183,6 +187,9 @@ export const openingLines = (o: Opening | undefined): string[] => {
       ? i.relation
       : `${withArticle(i.occupation)}${i.relation ? `, and ${i.relation}` : ""}`;
     lines.push(`${i.name} is on the page for the first time here: a clause beside the name says once that ${i.pronoun} ${what}.`);
+    // A_110 P2: what a stranger sees, and why they are under this roof — said once, here, never in the bible.
+    if (i.appearance) lines.push(`  What anybody first notices about ${i.name}: ${i.appearance}`);
+    if (i.whyHere) lines.push(`  Why ${i.name} is here: ${i.whyHere}`);
   }
   if (o.death) {
     if (o.death.who) lines.push(`The first time ${o.death.victim} is named, a clause says who ${o.death.pronoun} ${o.death.pronoun === "they" ? "were" : "was"}: ${o.death.who}.`);

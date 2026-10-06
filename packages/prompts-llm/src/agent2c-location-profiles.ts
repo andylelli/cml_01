@@ -8,7 +8,7 @@
 import { generateJsonArtifact } from "./shared/json-artifact-generator.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { promptSpecimenTrimsEnabled } from "@cml/cml";
+import { a110UpstreamEnabled, promptSpecimenTrimsEnabled } from "@cml/cml";
 import { promptTrimsEnabled } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { SettingRefinement } from "./agent1-setting.js";
@@ -86,7 +86,20 @@ export interface LocationProfilesInputs {
   targetWordCount?: number;
   runId?: string;
   projectId?: string;
+  /** A_110 W4 (CML_A110_UPSTREAM): what each clue looks like on the page; read only with the flag on. */
+  clueObservables?: string[];
 }
+
+/**
+ * A_110 W4 — Agent 2c runs after the clues (on the frozen CML), and was asked for four places with no word about where
+ * the evidence is: run bcc0d637 made the lobby the crime scene while the body lay on the cliffside, and 42% of 647
+ * archived scenes were set where no profile exists. ON: the places the evidence is found at become key locations.
+ */
+const evidencePlacesBlock = (observables: ReadonlyArray<string> | undefined): string => {
+  if (!a110UpstreamEnabled() || !observables?.length) return "";
+  const items = observables.map((o) => String(o ?? "").trim()).filter(Boolean).slice(0, 12);
+  return items.length ? `Evidence in this case is found at the places these describe; each such place is one of your key locations:\n${items.map((o) => `- ${o.length > 160 ? o.slice(0, 157) + "..." : o}`).join("\n")}` : "";
+};
 
 /**
  * Exported so the prompt is testable. A1X-15 (owner decision 12, CR-30): the `narrative` input is gone — Agent 2c
@@ -318,7 +331,7 @@ ${(promptSpecimenTrimsEnabled()
 - Make the choice contextually appropriate to the era (${era}) and setting type
 
 Key locations mentioned in narrative:
-
+${evidencePlacesBlock(inputs.clueObservables)}
 
 Setting constraints:
 - Physical constraints: ${(inputs.settingRefinement.location.physicalConstraints || []).join(', ')}

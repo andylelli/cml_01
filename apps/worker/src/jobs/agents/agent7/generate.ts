@@ -69,6 +69,8 @@ export function narrativeInputs(ctx: OrchestratorContext, run: Agent7Run, guardr
     qualityGuardrails: [...guardrails, ...run.pacingGuardrails],
     runId: ctx.runId,
     projectId: ctx.projectId || "",
+    // A_110 W4: read by the prompt only under CML_A110_UPSTREAM.
+    locationProfiles: ctx.locationProfiles,
     ...run.lockedFactsSpread,
     ...run.completenessSpread,
   };

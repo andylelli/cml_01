@@ -40,3 +40,26 @@ describe("the writer's prompt order", () => {
     expect(assembleWriterPrompt(first)).toBe(off);
   });
 });
+
+// A_110 P3 — a chapter the contract marks `victimAlive` shows the victim alive, not the body.
+import { renderSceneContract } from "../jobs/agents/agent9-v2/run.js";
+describe("P3 in the writer's contract", () => {
+  const base = {
+    roles: { reveal: 3, discriminatingTest: 2, aftermath: null, falseSolution: null, clearances: [] },
+    fairPlay: { culprits: ["Ada Vane"], victim: "Hugo Pell", mechanismSummary: "", decisiveClueIds: [], revealChapter: 3 },
+    bible: { text: "" }, brief: { text: "" }, notes: [],
+  };
+  const scene = (extra: Record<string, unknown>) => ({
+    chapter: 1, beat: "gathering", role: "investigation", title: "One", present: ["Hugo Pell", "Ada Vane"], location: "the hall",
+    mustSurface: [], mayMention: [], mustNotReveal: [], eliminationsAllowed: [], job: null, beats: {}, words: { min: 900, max: 1100, preferred: 1000 }, ...extra,
+  });
+  it("victimAlive: the alive line, never the body line", () => {
+    const text = renderSceneContract({ ...base, scenes: [scene({ victimAlive: true })] } as never, 1);
+    expect(text).toContain("Hugo Pell is alive in this chapter");
+    expect(text).not.toContain("The body:");
+  });
+  it("unmarked: the body line, as before", () => {
+    const text = renderSceneContract({ ...base, scenes: [scene({})] } as never, 1);
+    expect(text).toContain("The body: Hugo Pell");
+  });
+});

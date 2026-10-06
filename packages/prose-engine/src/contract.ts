@@ -49,7 +49,7 @@ import {
   provesTheAct,
   splitMeansLinkTrace,
 } from "@cml/prompts-llm";
-import { contractFixesEnabled, deriveCaseChronology, identifyPeople, readInference, renderClockWords, scheduleEnabled } from "@cml/cml";
+import { a110UpstreamEnabled, contractFixesEnabled, deriveCaseChronology, identifyPeople, readInference, renderClockWords, scheduleEnabled } from "@cml/cml";
 import { holdCulpritCluesLate, namesCulprit, rebalanceEvidence, withoutCulprit } from "./schedule.js";
 
 import { assignChapterRoles } from "./roles.js";
@@ -452,6 +452,22 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     return { id, keyTerms: keyTermsOf(String(text)), firstChapter };
   };
 
+  /**
+   * A_110 P3 (CML_A110_UPSTREAM) — the Gathering keeps the victim alive. The beat label alone cannot say so: 61 of 64
+   * stored outlines read "gathering > crime" and their gathering scene IS the discovery (agent7-narrative.ts:717, "the
+   * body comes first"). So the victim is alive in a scene only when the outline MARKS it (Agent 7, under the same flag,
+   * writes `victimAlive: true` for the Gathering) AND the scene comes before the crime beat. An old outline carries no
+   * mark, so nothing is inferred from it.
+   */
+  const upstream = a110UpstreamEnabled();
+  const crimeIndex = scenes.findIndex((s) => String((s as { beat?: unknown }).beat ?? "").trim().toLowerCase() === "crime");
+  const victimAliveIn = (scene: unknown, index: number): boolean =>
+    upstream &&
+    // Agent 7 sometimes nests scene fields under `setting` (memory: agent7-scene-fields-nested-under-setting).
+    ((scene as { victimAlive?: unknown }).victimAlive === true ||
+      ((scene as { setting?: { victimAlive?: unknown } }).setting?.victimAlive ?? false) === true) &&
+    (crimeIndex < 0 || index < crimeIndex);
+
   const sceneContracts: SceneContract[] = scenes.map((scene, index) => {
     const chapter = Number(scene.sceneNumber) || index + 1;
     const role = assignment.byChapter.get(chapter) ?? "investigation";
@@ -532,6 +548,7 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       beat,
       role,
       title: String(scene.title ?? "").trim(),
+      ...(victimAliveIn(scene, index) ? { victimAlive: true } : {}),
       present: [
         ...new Set(
           asArray(scene.characters)

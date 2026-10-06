@@ -11,8 +11,8 @@
 import { coerceAccessPlausibility, coerceMotiveStrength, coerceRelationshipTension as normalizeRelationshipTension } from "./agent2-cast-boundary.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
-import { promptSpecimenTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
-import { checkCast } from "./agent2-cast-checker.js";
+import { a110UpstreamEnabled, promptSpecimenTrimsEnabled, verifiedFixesEnabled } from "@cml/cml";
+import { checkCast, checkNamesApart } from "./agent2-cast-checker.js";
 // ORC-13: the one string hash (was a local copy; identical for every string, and the only call site
 // passes `inputs.runId || inputs.projectId || ""`, so the copy's missing undefined-coercion was unreachable).
 import { simpleHash } from "./shared/temporal-anchor.js";
@@ -833,6 +833,24 @@ function finalNormalisationStep(cast: CastDesign, _at: CastAttempt): CastStepRes
   }));
 }
 
+/**
+ * A_110 P4 (CML_A110_UPSTREAM) — names a reader can tell apart: no two people share a first name, and two who share a
+ * surname have their kinship stated. MEASURED: 1 of 79 archived casts shares a first name, 2 have the detective sharing
+ * the victim's surname. With attempts left, the checker's own repair line goes into the next prompt; on the last
+ * attempt the cast is accepted with a warning, since a confusable name is not worth a lost run.
+ */
+function namesApartStep(cast: CastDesign, at: CastAttempt): CastStepResult {
+  if (!a110UpstreamEnabled()) return;
+  const issues = checkNamesApart(cast.characters ?? [], cast);
+  if (issues.length === 0) return;
+  if (at.attempt < at.maxAttempts) {
+    for (const issue of issues) if (!at.dynamicGuardrails.includes(issue.feedback)) at.dynamicGuardrails.push(issue.feedback);
+    console.warn(`Attempt ${at.attempt}: ${issues.map((i) => i.message).join(" ")} Retrying with the repair named.`);
+    return "retry";
+  }
+  console.warn(`Attempt ${at.attempt}: final attempt — ${issues.map((i) => i.message).join(" ")} Accepting the cast.`);
+}
+
 const CAST_STEPS: ReadonlyArray<(cast: CastDesign, at: CastAttempt) => CastStepResult> = [
   countStep,
   coerceEnumsStep,
@@ -841,6 +859,7 @@ const CAST_STEPS: ReadonlyArray<(cast: CastDesign, at: CastAttempt) => CastStepR
   culpritCountStep,
   archetypeDiversityStep,
   finalNormalisationStep,
+  namesApartStep,
 ];
 
 export async function designCast(

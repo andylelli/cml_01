@@ -152,6 +152,8 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     targetWordCount: 1000,
     runId: ctx.runId,
     projectId: ctx.projectId || "",
+    // A_110 W4: read by the prompt only under CML_A110_UPSTREAM.
+    clueObservables: (ctx.clues?.clues ?? []).map((c) => String((c as { observable?: unknown }).observable ?? "")).filter(Boolean),
   });
 
   // A1X-Q02: generate here; the phase is scored below, on the profiles that ship (atoms compiled, fallbacks

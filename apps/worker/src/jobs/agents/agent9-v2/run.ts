@@ -258,7 +258,10 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
       lines.push(`  ${culprits.join(" and ")} ${culprits.length > 1 ? "are" : "is"} in custody since chapter ${contract.roles.reveal}, gone from the house; the others feel the absence — an empty chair, a task nobody now does.`);
     }
   }
-  if (victim && scene.present.includes(victim) && !scene.wound) {
+  // A_110 P3 (CML_A110_UPSTREAM): the Gathering keeps the victim alive; only the contract sets `victimAlive`.
+  if (victim && scene.present.includes(victim) && scene.victimAlive) {
+    lines.push(`  ${victim} is alive in this chapter, on the page among the others; the chapter ends before the death.`);
+  } else if (victim && scene.present.includes(victim) && !scene.wound) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
   }
   /**
