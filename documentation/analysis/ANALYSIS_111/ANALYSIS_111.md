@@ -39,8 +39,8 @@ Resumable: each row names its cost and what decides it. "this commit" is replace
 | M-3 | K2 humour, K3 depth | £0 | M-2 | WAITS | — |
 | M-4 | K4 apportioner, K5 report and the `dimensions` spec field | £0 | M-3 | DEFERRED: no read has scored a band | — |
 | M-5 | K6/K7, the first new modules | £0.45–£1.15 each | a read that names character or atmosphere as the shortfall | DEFERRED | — |
-| D-1 | PLAN-TO-90 has no entry for the 2026-10-06 pair: UPDATE 17 | £0 | — | DONE | this commit |
-| D-2 | A_110's STATUS still says "nothing here has been read by a paid run" | £0 | — | DONE | this commit |
+| D-1 | PLAN-TO-90 has no entry for the 2026-10-06 pair: UPDATE 17 | £0 | — | DONE | 3c609410 |
+| D-2 | A_110's STATUS still says "nothing here has been read by a paid run" | £0 | — | DONE | 3c609410 |
 | D-3 | CLAUDE.md prices a prose redo at ~£0.45; a v2 arm is ~£0.9 (MEASURED twice: £0.91, £0.95) | £0 | owner: CLAUDE.md is theirs | PROPOSED | — |
 | D-4 | `17-hitting-90/00_README.md` line 4 says the best read is 87; it is 88 | £0 | — | TODO | — |
 
