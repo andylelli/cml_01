@@ -36,7 +36,7 @@ Resumable: each row names its cost, its evidence and its commit.
 | **R-2** | **no case generated since 2026-10-02 could be prose-redone**: the CML was persisted before Agent 5 filled the test's evidence ids, so a redo hit the pre-prose gate (P-6's first attempt, £0). A resume re-derives the floor; the CML is persisted again after Agents 5 and 6 | £0 | DONE | `adbbbb5a` |
 | P-6 | second case, A′ against everything (A_110 arm-B flags + V batch); record and predictions written first | ~£1.80 | **RUNNING** (code `adbbbb5a`) | `b8ff5815` (record) |
 | P-7 | the owner's external read of P-6's better arm, with the checked read | £0 money | WAITS on P-6; only if SHIP-CHECK Normal, no fallback chapter | — |
-| P-8 | puzzle side: one device per case, two-suspect clues (A_112) | £0 to design | TODO (§3.4) | — |
+| P-8 | puzzle side: one device per case and at most one clock step on a non-temporal axis, behind `AGENT3_ONE_MECHANISM` (§3.4); two-suspect clues designed, not built | £0 build; ~£0.6 harness check | BUILT (commit after the P-6 arms: no rebuild while a paid run reads dist) | — |
 | P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | WAITS on P-6 | — |
 | P-10 | step-2 upstream full-run pairs (`CML_A110_UPSTREAM`, now with CR-i) | ~£2.30 a case | WAITS on P-7 | — |
 | M-0 | = CR-d | £0 | DONE | `c36add04` |
@@ -223,10 +223,12 @@ measurable on all 64 stored contracts before any run.
 
 ### 3.4 P-8 — the puzzle upstream (the next analysis, A_112)
 
-1. **One device.** Behind `CML_A110_UPSTREAM`: Agent 3 is told to build on ONE device, and the 5 candidates are shown
-   once, not twice. Counter: devices reaching the CML (`probes/device-uptake.mjs`) — two-or-more falls from 13 of 72.
-2. **The axis decides what the inference path may lean on** — the comparison A_83 found no check makes. Probe first:
-   classify each inference step in the 34 non-temporal cases as time-dependent or not, against the complaint books.
+1. **One device** — BUILT behind its own flag, `AGENT3_ONE_MECHANISM`: Agent 3 sees only the primary device (the one the
+   locked-fact registry is built from), once, and is told the case has one trick. Counter: devices reaching the CML
+   (`probes/device-uptake.mjs`) — two-or-more falls from 13 of 72.
+2. **The axis keeps the clock out of the reasoning** — BUILT under the same flag as a count: on a non-temporal axis, at
+   most ONE inference step may reason from a clock time. MEASURED first (`probes/time-steps.mjs`, known positive:
+   temporal cases 88% of steps): identity 40% of steps (21/52), authority 52% (28/54), spatial 29% (10/35).
 3. **Two-suspect clues** (N9's upstream lever): Agent 5 writes clues that fit two suspects, so the reader model stops
    settling early. Counter: A_110 P.6's 59 of 64.
 

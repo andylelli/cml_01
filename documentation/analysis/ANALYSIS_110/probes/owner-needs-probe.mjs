@@ -31,6 +31,9 @@ const IMPLICATES = /\b(only (he|she|they|[A-Z][a-z]+) (could|had|would)|had (the
 const AUTHORITY = /\b(sent for|send for|fetch(ed)?|telephon\w*|wired?|summon\w*|rang for)\b[^.!?]{0,80}\b(police|constable|inspector|sergeant|doctor|coroner)\b|\b(police|constable|inspector|sergeant|doctor|coroner)\b[^.!?]{0,60}\b(sent for|summoned|telephoned|on (his|her|their) way|arriv\w*)\b/i;
 const POLICE = /\b(inspector|constable|sergeant|superintendent|police|scotland yard|detective inspector|chief inspector)\b/i;
 
+/** A stored case by project id (A_111: two projects of one seed share a cast, so matching by names can pick the wrong one). */
+export const caseArtifactsOf = (projectId) => byProject.get(projectId) ?? null;
+
 export const caseOf = (art) => {
   const cast = (art.cast?.cast ?? art.cast)?.characters ?? [];
   const C = art.cml?.CASE ?? art.cml ?? {};
