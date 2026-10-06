@@ -1,0 +1,575 @@
+{
+  "harness": {
+    "projectId": "canary_1790962241799",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a circus wintering in a market town. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "spatial",
+    "maxAttempts": 1,
+    "runId": "a111-p8-82094-off",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/canary_1790962241799-off.json",
+    "latencyMs": 49409,
+    "cost": 0.010819523999999999
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a circus wintering in a market town. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: standard, spatial, mathematical, psychological, physical_law, social_logic",
+    "primaryAxis": "spatial",
+    "castNames": [
+      "Adela Halloway",
+      "Cecil Thorne",
+      "Harriet Bellamy",
+      "Ivor Yardley",
+      "Marguerite Selwyn",
+      "Ottoline Fairweather"
+    ],
+    "mechanismFamilies": [
+      "access path illusion",
+      "geometry-based movement",
+      "physical concealment",
+      "physical-constraint proof",
+      "optical illusion",
+      "spatial routing",
+      "quantitative contradiction",
+      "cognitive_bias",
+      "hidden exit",
+      "cognitive-bias exploitation",
+      "optics/mirrors",
+      "social logic",
+      "social_logic",
+      "authority-channel manipulation"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"Stiletto dagger: handling mark found in servant corridor — Harriet Bellamy\"  [used by inference step 4]  [also on the weapon, naming nobody: \"Stiletto dagger: glove smudge found in drawing room — Ottoline Fairweather\"]",
+    "linkingTraces": [
+      "Stiletto dagger: handling mark found in servant corridor — Harriet Bellamy"
+    ],
+    "weaponTracesNamingNobody": [
+      "Stiletto dagger: glove smudge found in drawing room — Ottoline Fairweather"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 4
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"Stiletto dagger: handling mark found in servant corridor — Harriet Bellamy\" [used by inference step 4] [also on the weapon, naming nobody: \"Stiletto dagger: glove smudge found in drawing room — Ottoline Fairweather\"]"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Rotating Wall of Ravenswood Manor",
+        "author": "Anonymous",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1950s",
+          "realism_constraints": [
+            "No mobile phones",
+            "Serology advanced, microscopy improved",
+            "Post-war austerity and social conformity",
+            "Professional detective work standardized"
+          ]
+        },
+        "setting": {
+          "location": "Ravenswood Manor",
+          "place": "Little Middleton, Yorkshire",
+          "country": "England",
+          "institution": "Country house estate (Manor house)"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "sealed room spatial illusion"
+        }
+      },
+      "death_method": "stabbed with a dagger, to the heart",
+      "cast": [
+        {
+          "name": "Adela Halloway",
+          "age_range": "40-50",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Friend of Marguerite Selwyn",
+            "Respected by manor staff"
+          ],
+          "public_persona": "Astute and composed investigator",
+          "private_secret": "Once involved with a suspect's family",
+          "motive_seed": "Determined to prove truth in a complex case",
+          "motive_strength": "moderate",
+          "alibi_window": "8:45 to 9:30 in the library",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Invited to manor",
+            "Allowed access to all rooms"
+          ],
+          "behavioral_tells": [
+            "Calm questioning",
+            "Subtle probing of suspects"
+          ],
+          "stakes": "Reputation as a detective",
+          "evidence_sensitivity": [
+            "Not applicable"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Cecil Thorne",
+          "age_range": "50-60",
+          "role_archetype": "victim",
+          "relationships": [
+            "Former circus manager",
+            "Tense relation with Marguerite Selwyn",
+            "Respected by manor owners"
+          ],
+          "public_persona": "Gruff, commanding presence",
+          "private_secret": "Had financial difficulties",
+          "motive_seed": "None (victim)",
+          "motive_strength": "none",
+          "alibi_window": "N/A (victim)",
+          "access_plausibility": "N/A",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "N/A",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Harriet Bellamy",
+          "age_range": "30-40",
+          "role_archetype": "Manor housekeeper",
+          "relationships": [
+            "Longtime servant at Ravenswood",
+            "Loyal to manor owners"
+          ],
+          "public_persona": "Dutiful and discreet",
+          "private_secret": "Hides knowledge of secret passages",
+          "motive_seed": "Resentment over recent reprimand",
+          "motive_strength": "moderate",
+          "alibi_window": "8:30 to 9:15 in the kitchen",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to servant corridors",
+            "Keys to most rooms"
+          ],
+          "behavioral_tells": [
+            "Nervous when questioned",
+            "Avoids eye contact"
+          ],
+          "stakes": "Job security",
+          "evidence_sensitivity": [
+            "Key ring",
+            "Servant logbook"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "female"
+        },
+        {
+          "name": "Ivor Yardley",
+          "age_range": "35-45",
+          "role_archetype": "Circus strongman",
+          "relationships": [
+            "Member of the wintering circus troupe",
+            "Disliked Cecil Thorne over control disputes"
+          ],
+          "public_persona": "Boisterous and confident",
+          "private_secret": "Had a violent argument with victim days before",
+          "motive_seed": "Silence victim to protect troupe interests",
+          "motive_strength": "high",
+          "alibi_window": "8:50 to 9:20 at stables rehearsal room",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Access via servant corridors",
+            "Knowledge of manor layout"
+          ],
+          "behavioral_tells": [
+            "Evasive answers",
+            "Signs of agitation"
+          ],
+          "stakes": "Circus reputation",
+          "evidence_sensitivity": [
+            "Rehearsal schedule",
+            "Footprint matching"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Marguerite Selwyn",
+          "age_range": "45-55",
+          "role_archetype": "Manor owner’s cousin",
+          "relationships": [
+            "Close friend of Adela Halloway",
+            "Dislikes Cecil Thorne’s influence"
+          ],
+          "public_persona": "Elegant and composed",
+          "private_secret": "Financially strained by manor upkeep",
+          "motive_seed": "Remove victim who threatened estate’s stability",
+          "motive_strength": "high",
+          "alibi_window": "8:40 to 9:25 in the drawing room",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to victim’s room",
+            "Keys to main house"
+          ],
+          "behavioral_tells": [
+            "Controlled demeanor",
+            "Cold politeness"
+          ],
+          "stakes": "Estate inheritance",
+          "evidence_sensitivity": [
+            "Key ring",
+            "Correspondence with victim"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ottoline Fairweather",
+          "age_range": "25-35",
+          "role_archetype": "Circus trapeze artist",
+          "relationships": [
+            "Member of winter circus troupe",
+            "Secretly engaged to Ivor Yardley"
+          ],
+          "public_persona": "Graceful and charming",
+          "private_secret": "Hid knowledge of a secret passage",
+          "motive_seed": "Protect Ivor from suspicion",
+          "motive_strength": "moderate",
+          "alibi_window": "8:45 to 9:30 in rehearsal space",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Knowledge of stable areas",
+            "Access to servant corridors"
+          ],
+          "behavioral_tells": [
+            "Defensive when questioned",
+            "Hints at knowledge she won’t share"
+          ],
+          "stakes": "Relationship safety",
+          "evidence_sensitivity": [
+            "Rehearsal logs",
+            "Secret passage map fragment"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Harriet Bellamy"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "At Ravenswood Manor, during a cold winter hosting a circus troupe, Cecil Thorne is found stabbed in his locked room with no apparent entry or exit. The room's door and windows were locked from inside. Suspicion falls on several with motives, but the key lies in disproving the assumption that no one could have come or gone from the victim’s room. A concealed rotating wall panel cleverly disguised by carpeting and moulding created a hidden access route. The solution exposes how Harriet Bellamy, the housekeeper, exploited this to commit the murder and return, all while maintaining an unbreakable alibi."
+        },
+        "accepted_facts": [
+          "Victim Cecil Thorne was stabbed to death in his locked room between quarter to nine and half past nine.",
+          "The victim’s door and windows were locked and barred from inside at the time of discovery.",
+          "A thick carpet covered the stone floor in the victim’s room, showing unusual wear near one wall.",
+          "Decorative moulding on one wall section of the victim’s room is slightly misaligned.",
+          "The servant corridor runs adjacent to the victim’s room behind the suspect wall.",
+          "Keys to the victim’s room were held by Marguerite Selwyn and Harriet Bellamy.",
+          "Harriet Bellamy had opportunity and motive, having been reprimanded recently.",
+          "Footprints on the servant corridor floor near the victim’s room correspond to Bellamy’s shoes.",
+          "The dagger used was kept in the manor’s armory, accessible to certain staff including Bellamy and Marguerite."
+        ],
+        "inferred_conclusions": [
+          "The victim’s room contains a concealed rotating wall panel pivoting on a hidden axis beneath the carpet.",
+          "The rotating panel aligned a doorway between the victim’s room and servant corridor allowing secret entry and exit.",
+          "The victim was killed by someone entering through this panel, who then rotated it back to disguise the exit.",
+          "Harriet Bellamy is the only suspect with both means and knowledge to operate the panel and the opportunity during the murder window.",
+          "The false assumption that the room was sealed is disproven by physical evidence of the rotating panel."
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "A large stone wall panel in the victim’s room rotates on a concealed pivot under the thick carpet. When rotated, it reveals a doorway to the adjacent servant corridor, providing secret access. This panel is expertly concealed by matching moulding and carpet patterns, fooling observers into believing the wall is solid and unbroken. The carpet’s unusual wear, subtle misalignment in moulding, and faint metal pivot pin beneath carpet edges are physical clues. The killer used this rotating panel to enter, murder the victim, and exit, restoring the panel's original position to maintain the illusion of a sealed room.",
+          "delivery_path": [
+            {
+              "step": "The killer opens the rotating panel from the servant corridor side."
+            },
+            {
+              "step": "The panel swings inward into the victim’s room, allowing access."
+            },
+            {
+              "step": "The killer commits the murder with a dagger taken from the armory."
+            },
+            {
+              "step": "The panel is rotated back to its original position before the door and windows are locked from inside."
+            }
+          ],
+          "actual_time_of_death": "between quarter to nine and half past nine",
+          "apparent_time_of_death": "around nine o'clock"
+        },
+        "outcome": {
+          "result": "The rotating wall panel concealed the killer’s entry and exit, creating a false impression of a sealed room. Harriet Bellamy exploited her knowledge of the manor’s servant corridors and panel mechanism to murder Cecil Thorne and maintain her alibi."
+        }
+      },
+      "false_assumption": {
+        "statement": "The victim’s room was completely sealed with no possible entry or exit during the murder.",
+        "type": "spatial",
+        "why_it_seems_reasonable": "The door and all windows were locked and barred from inside, and no footprints or marks suggested forced entry.",
+        "what_it_hides": "A concealed rotating wall panel allowed secret access to the victim’s room through the servant corridor, unnoticed by investigators."
+      },
+      "false_solution": {
+        "accused_suspect": "Ivor Yardley",
+        "supporting_points": [
+          "Ivor had a recent violent argument with Cecil Thorne and motive to silence him.",
+          "His alibi overlapped the murder window but was based on rehearsal alone, which was not fully verified."
+        ],
+        "the_one_flaw": "No physical or footprint evidence places Ivor inside the manor at the critical time, and footprints found correspond to Bellamy’s shoes, not his.",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A glove smudge found on the murder dagger matches Ottoline Fairweather’s glove material.",
+          "points_at_suspect": "Ottoline Fairweather",
+          "innocent_explanation": "Ottoline had handled the dagger earlier during a rehearsal prop inspection unrelated to the murder.",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "Marguerite Selwyn was seen arguing angrily with Cecil Thorne hours before the murder.",
+          "points_at_suspect": "Marguerite Selwyn",
+          "innocent_explanation": "The argument concerned estate finances and did not escalate to violence; she was elsewhere during the murder window.",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Adela Halloway",
+          "Harriet Bellamy",
+          "Ivor Yardley",
+          "Marguerite Selwyn",
+          "Ottoline Fairweather"
+        ],
+        "rationale": "All suspects were present at Ravenswood Manor during the murder, with no outsiders having access to the locked victim’s room or knowledge of the concealed panel."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Victim last seen alive at quarter to nine",
+            "Body discovered at half past nine",
+            "Alibis verified between 8:40 and 9:30"
+          ],
+          "windows": [
+            "8:45 to 9:25 — the murder",
+            "8:30 to 9:15 — Harriet Bellamy in kitchen",
+            "8:45 to 9:30 — Adela Halloway in library",
+            "8:50 to 9:20 — Ivor Yardley in stables rehearsal",
+            "8:40 to 9:25 — Marguerite Selwyn in drawing room",
+            "8:45 to 9:30 — Ottoline Fairweather in rehearsal space"
+          ],
+          "contradictions": [
+            "Victim's room locked and sealed contradicts presence of killer inside",
+            "Footprints in servant corridor contradict claim of no entry",
+            "Wear on carpet contradicts assumption of unbroken wall"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Harriet Bellamy",
+            "Marguerite Selwyn",
+            "Ivor Yardley",
+            "Ottoline Fairweather",
+            "Adela Halloway"
+          ],
+          "objects": [
+            "Stiletto dagger — kept by Marguerite Selwyn, in the manor armory, because of her role managing estate security",
+            "Victim’s room keys — held by Marguerite Selwyn and Harriet Bellamy"
+          ],
+          "permissions": [
+            "Manor armory — reachable by Harriet Bellamy and Marguerite Selwyn; not by Ivor Yardley or Ottoline Fairweather",
+            "Victim’s room — reachable by Harriet Bellamy, Marguerite Selwyn, and Adela Halloway; not by Ivor Yardley or Ottoline Fairweather"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Physical pivot points allow only a single rotation axis for the wall panel",
+            "Carpet wear can indicate repeated movement and pressure",
+            "Dust patterns disrupted by movement of heavy panels"
+          ],
+          "traces": [
+            "Stiletto dagger: glove smudge found in drawing room — Ottoline Fairweather",
+            "Stiletto dagger: handling mark found in servant corridor — Harriet Bellamy",
+            "Dust disturbed on wall base near carpet edge — victim’s room",
+            "Wear marks on thick carpet near wall pivot — victim’s room",
+            "Faint metal hinge pin visible beneath carpet edge — victim’s room"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Servants’ meal-time roll call",
+            "Estate key registry",
+            "Circus troupe rehearsal logs"
+          ],
+          "authority_sources": [
+            "Estate manager’s permission for key handling",
+            "Housekeeper’s access rights",
+            "Manor armory usage restrictions"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "Wear marks and disturbed dust found on the thick carpet near the base of one wall in the victim’s room",
+            "correction": "These marks indicate repeated movement of a heavy object at this location, suggesting a concealed pivot or panel",
+            "effect": "Narrows hidden access possibility to a rotating wall panel in the victim’s room",
+            "required_evidence": [
+              "Wear marks on thick carpet near wall pivot — victim’s room",
+              "Dust disturbed on wall base near carpet edge — victim’s room"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "A faint metal hinge or pivot pin is visible beneath the carpet edge of the victim’s room, inconsistent with normal wall construction",
+            "correction": "This metal pin is part of a concealed rotating mechanism allowing wall panel movement",
+            "effect": "Eliminates suspects lacking knowledge or access to this panel mechanism",
+            "required_evidence": [
+              "Faint metal hinge pin visible beneath carpet edge — victim’s room",
+              "Estate manager’s permission for key handling"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Footprints matching Harriet Bellamy’s shoes are found in the servant corridor adjacent to the victim’s room, near a concealed doorway",
+            "correction": "Harriet Bellamy accessed the servant corridor adjacent to victim’s room, indicating potential use of the rotating panel for entry/exit",
+            "effect": "Narrows suspect pool to those with access to servant corridors and knowledge of the panel",
+            "required_evidence": [
+              "Footprints in servant corridor near victim’s room matching Harriet Bellamy’s shoes",
+              "Victim’s room keys — held by Marguerite Selwyn and Harriet Bellamy"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Handling marks of the stiletto dagger found on the servant corridor floor near the victim’s room are consistent with Harriet Bellamy’s glove prints",
+            "correction": "Harriet Bellamy is linked to the murder weapon’s handling and presence near the victim’s room at the time of murder",
+            "effect": "Narrows the pool to Harriet Bellamy and Marguerite Selwyn as only suspects with access to the weapon and room",
+            "required_evidence": [
+              "Stiletto dagger: handling mark found in servant corridor — Harriet Bellamy",
+              "Stiletto dagger — kept by Marguerite Selwyn, in the manor armory, because of her role managing estate security"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "trap",
+        "design": "A controlled test rotates the suspected wall panel while observers watch the carpet wear, dust displacement, and pivot pin movement, confirming the panel’s existence and operation. The test places Harriet Bellamy inside the victim’s room during a timed interval matching the murder window, disproving her alibi and proving her access.",
+        "knowledge_revealed": "Proof of the rotating wall panel mechanism and Harriet Bellamy’s use of it to enter and exit the victim’s room, breaking her alibi.",
+        "pass_condition": "Harriet Bellamy fails to explain her presence during the test interval and cannot deny handling the panel, confirming guilt.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: Carpet wear and dust patterns (early clues) reveal the rotating panel’s physical presence. Step 2: The visible hinge pin (mid clue) confirms a mechanical pivot. Step 3: Footprint evidence (early) ties Harriet Bellamy to the servant corridor adjacent to the victim’s room. Step 4: Handling marks on the dagger (mid) link Harriet directly to the murder weapon near the scene. The discriminating test uses only these known clues to confirm the panel’s operation and break Harriet’s alibi."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 3,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 3,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 2,
+          "late_clues_min": 1
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the discriminating test confirming the rotating wall panel",
+            "Observe Harriet Bellamy’s inability to refute presence inside victim’s room",
+            "Draw conclusion about Harriet Bellamy’s guilt"
+          ],
+          "test_type": "trap"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Ivor Yardley",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Rehearsal attendance logs and no footprints in corridor",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Marguerite Selwyn",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Presence in drawing room verified, no handling marks on weapon",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Ottoline Fairweather",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Rehearsal logs and glove smudge explanation",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Cecil Thorne",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A (victim)",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with the rotating wall panel evidence and broken alibi"
+        },
+        "identity_rules": [],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "wear_marks_carpet",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Direct observation of carpet wear and dust patterns"
+          },
+          {
+            "clue_id": "metal_hinge_pin",
+            "act_number": 2,
+            "scene_number": 1,
+            "delivery_method": "Inspection beneath carpet edge"
+          },
+          {
+            "clue_id": "footprints_servant_corridor",
+            "act_number": 2,
+            "scene_number": 2,
+            "delivery_method": "Footprint analysis near victim’s room"
+          },
+          {
+            "clue_id": "dagger_handling_mark",
+            "act_number": 2,
+            "scene_number": 3,
+            "delivery_method": "Analysis of dagger glove smudges and handling marks"
+          }
+        ]
+      }
+    }
+  }
+}

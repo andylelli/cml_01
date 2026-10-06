@@ -1,0 +1,595 @@
+{
+  "harness": {
+    "projectId": "canary_1790272530595",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a fencing academy with a rivalry between its two masters. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "spatial",
+    "maxAttempts": 1,
+    "runId": "a111-p8r-23403-on-4",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps/canary_1790272530595-on4.json",
+    "latencyMs": 45623,
+    "cost": 0.010228919999999999
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a fencing academy with a rivalry between its two masters. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: spatial, transit, seaside topology",
+    "primaryAxis": "spatial",
+    "castNames": [
+      "Katherine Quayle",
+      "Hector Gaunt",
+      "Neville Lachlan",
+      "Bertram Vance",
+      "Desmond Kestrel",
+      "Montague Norbury"
+    ],
+    "mechanismFamilies": [
+      "access path illusion",
+      "geometry-based movement",
+      "seaside topology",
+      "physical law",
+      "physical-constraint proof",
+      "quantitative contradiction",
+      "social_logic",
+      "authority-channel manipulation",
+      "physical_law"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"Fencing foil: fresh disturbance in victim's room — Hector Gaunt\"  [used by inference step 3]  [also on the weapon, naming nobody: \"Fencing foil: glove smudge found in equipment room — Desmond Kestrel\"]",
+    "linkingTraces": [
+      "Fencing foil: fresh disturbance in victim's room — Hector Gaunt"
+    ],
+    "weaponTracesNamingNobody": [
+      "Fencing foil: glove smudge found in equipment room — Desmond Kestrel"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 3
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"Fencing foil: fresh disturbance in victim's room — Hector Gaunt\" [used by inference step 3] [also on the weapon, naming nobody: \"Fencing foil: glove smudge found in equipment room — Desmond Kestrel\"]",
+    "[A_111 alibi-coverage] 3 of 3 innocent alibis contain the actual time of death",
+    "[A_90 alibi-plan] before retry: Hector Gaunt (apparent_not_covered+actual_covered) \"eight o'clock to eight forty in the billiard room\" -> \"eight thirty-five to nine ten in the billiard room\" -> valid, no retry spent"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Illusory Coastal Corridor",
+        "author": "Golden Age Specialist",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1920s",
+          "realism_constraints": [
+            "No modern forensic technology",
+            "Limited telecommunications",
+            "Rigid class distinctions",
+            "Basic toxicology and fingerprinting"
+          ]
+        },
+        "setting": {
+          "location": "Coastal Hotel Fencing Academy",
+          "place": "Whitby, Yorkshire",
+          "country": "England",
+          "institution": "seaside hotel"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "stabbed in a sealed room"
+        }
+      },
+      "death_method": "stabbed with a fencing foil, to the heart",
+      "cast": [
+        {
+          "name": "Katherine Quayle",
+          "age_range": "30-40",
+          "role_archetype": "victim",
+          "relationships": [
+            "Rival of Hector Gaunt",
+            "Admired by Montague Norbury",
+            "Known to Neville Lachlan"
+          ],
+          "public_persona": "Respected fencing master and instructor",
+          "private_secret": "Had discovered a secret about the tidal cave access",
+          "motive_seed": "Intended to expose Hector Gaunt's underhanded tactics",
+          "motive_strength": "strong",
+          "alibi_window": "N/A",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Fencing hall",
+            "Victim's room"
+          ],
+          "behavioral_tells": [
+            "Determined",
+            "Secretive"
+          ],
+          "stakes": "Reputation and control of the fencing academy",
+          "evidence_sensitivity": [
+            "Foil possession",
+            "Tidal cave knowledge"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Hector Gaunt",
+          "age_range": "45-55",
+          "role_archetype": "Rival Master",
+          "relationships": [
+            "Rival to Katherine Quayle",
+            "Mentor to Desmond Kestrel"
+          ],
+          "public_persona": "Aristocratic fencing master with a strict demeanor",
+          "private_secret": "Used the tidal cave to gain secret access",
+          "motive_seed": "Feared exposure of his cheating and sabotage",
+          "motive_strength": "strong",
+          "alibi_window": "eight thirty-five to nine ten in the billiard room",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Victim's room",
+            "Tidal cave entry"
+          ],
+          "behavioral_tells": [
+            "Impatient",
+            "Controlling"
+          ],
+          "stakes": "Maintaining control of the academy and reputation",
+          "evidence_sensitivity": [
+            "Saltwater traces",
+            "Climbing marks"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "male",
+          "alibi_span": {
+            "startHour": 8,
+            "startMinute": 35,
+            "endHour": 9,
+            "endMinute": 10,
+            "location": "the billiard room"
+          }
+        },
+        {
+          "name": "Neville Lachlan",
+          "age_range": "35-45",
+          "role_archetype": "Innocent Instructor",
+          "relationships": [
+            "Friend of Montague Norbury",
+            "Neutral with Hector and Katherine"
+          ],
+          "public_persona": "Calm and reliable fencing instructor",
+          "private_secret": "Had no motive, dislikes drama",
+          "motive_seed": "None",
+          "motive_strength": "weak",
+          "alibi_window": "eight o'clock to nine o'clock in the guest lounge",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Guest lounge",
+            "Fencing hall"
+          ],
+          "behavioral_tells": [
+            "Reserved",
+            "Observant"
+          ],
+          "stakes": "Personal safety and reputation",
+          "evidence_sensitivity": [
+            "No unusual traces"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Bertram Vance",
+          "age_range": "50-60",
+          "role_archetype": "Hotel Manager",
+          "relationships": [
+            "Employs Montague Norbury",
+            "Knows Hector Gaunt"
+          ],
+          "public_persona": "Dignified hotel manager",
+          "private_secret": "Aware of the tidal cave but never used it",
+          "motive_seed": "None",
+          "motive_strength": "weak",
+          "alibi_window": "eight fifteen to nine o'clock in the hotel office",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Hotel office",
+            "Reception"
+          ],
+          "behavioral_tells": [
+            "Formal",
+            "Secretive about hotel details"
+          ],
+          "stakes": "Hotel reputation",
+          "evidence_sensitivity": [
+            "Keys inventory"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Desmond Kestrel",
+          "age_range": "28-38",
+          "role_archetype": "Junior Instructor",
+          "relationships": [
+            "Protégé of Hector Gaunt",
+            "Respected by Neville Lachlan"
+          ],
+          "public_persona": "Eager and ambitious fencing instructor",
+          "private_secret": "Jealous of Katherine's skill",
+          "motive_seed": "Sought to impress Hector Gaunt",
+          "motive_strength": "moderate",
+          "alibi_window": "eight ten to eight fifty in the fencing hall",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Fencing hall",
+            "Victim's room"
+          ],
+          "behavioral_tells": [
+            "Nervous",
+            "Competitive"
+          ],
+          "stakes": "Career advancement",
+          "evidence_sensitivity": [
+            "Foil fingerprints"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Montague Norbury",
+          "age_range": "40-50",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Observer of all suspects",
+            "Respected by hotel staff"
+          ],
+          "public_persona": "Discerning amateur detective",
+          "private_secret": "Has knowledge of coastal geography",
+          "motive_seed": "N/A",
+          "motive_strength": "N/A",
+          "alibi_window": "eight o'clock to nine o'clock in the library",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Library",
+            "Throughout hotel"
+          ],
+          "behavioral_tells": [
+            "Analytical",
+            "Patient"
+          ],
+          "stakes": "Solving the case",
+          "evidence_sensitivity": [
+            "Tidal charts",
+            "Hotel layout plans"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Hector Gaunt"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "Katherine Quayle, a respected fencing master, is found stabbed in her locked room at a coastal hotel hosting a fencing academy. The door and windows appear securely closed from the inside, and the tide is assumed high, leading to the false belief that no one could have entered or exited without detection. Suspicion falls on Hector Gaunt, her rival, who maintains an alibi in the billiard room. The case unravels by revealing a concealed tidal cave beneath the hotel that grants secret access, exploited by Hector to commit the murder and mislead investigators."
+        },
+        "accepted_facts": [
+          "Katherine Quayle was found stabbed with a fencing foil in her room",
+          "The victim's door and windows were locked from the inside",
+          "A tide chart in the lobby shows an unusually low tide on the murder evening",
+          "Saltwater corrosion marks found on the lower window latch of the victim's room",
+          "Scratches and seaweed found on cliffside rocks beneath the victim's window",
+          "Hector Gaunt claims to have been in the billiard room during the murder",
+          "The fencing foil was kept by Neville Lachlan in the equipment room",
+          "A glove smudge on the foil matches Desmond Kestrel",
+          "Fresh disturbances of the foil's storage noted by Montague Norbury"
+        ],
+        "inferred_conclusions": [
+          "The victim was killed during the low tide period allowing access via the tidal cave",
+          "The door and windows were locked after the murder to create a sealed-room illusion",
+          "Hector Gaunt used the tidal cave to enter and exit the victim's room",
+          "The glove smudge on the foil was a red herring implicating Desmond Kestrel",
+          "Neville Lachlan and others had no opportunity to commit the murder at the time"
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "The hotel is built on coastal cliffs with a narrow tidal cave accessible only during unusually low tide. On the murder evening, the tide was at a rare low stage, exposing the cave entrance beneath the victim's room. Hector Gaunt exploited this natural corridor, climbing the cliff and entering through a loosely secured lower window, which he locked from inside after the murder to simulate a sealed room. The tide chart pinned in the hotel lobby was not properly considered by investigators initially, and the saltwater corrosion marks on the window latch plus seaweed and scratch marks on the rocks confirm this ingress route.",
+          "delivery_path": [
+            {
+              "step": "Hector Gaunt monitored the tide chart and planned the murder at the low tide window"
+            },
+            {
+              "step": "He climbed the cliffside tidal cave entrance beneath the victim's room"
+            },
+            {
+              "step": "Entered through the lower window which was poorly secured and showed saltwater corrosion"
+            },
+            {
+              "step": "Committed the murder using a fencing foil taken from the equipment room"
+            },
+            {
+              "step": "Locked the door and windows from inside to fake a sealed-room scenario"
+            },
+            {
+              "step": "Exited the same tidal cave route before the tide rose"
+            }
+          ],
+          "actual_time_of_death": "eight twenty",
+          "apparent_time_of_death": "eight fifty"
+        },
+        "outcome": {
+          "result": "Hector Gaunt is proven guilty by the physical evidence of the tidal cave access route and the timing contradiction between the apparent and actual time of death, which invalidates his alibi."
+        }
+      },
+      "false_assumption": {
+        "statement": "The victim's room was completely sealed with no possible ingress or egress during the murder timeframe.",
+        "type": "spatial",
+        "why_it_seems_reasonable": "The door and windows were locked from the inside and the tide was assumed high, making the tidal cave inaccessible.",
+        "what_it_hides": "A hidden natural access route via the tidal cave at unusually low tide that the murderer exploited."
+      },
+      "false_solution": {
+        "accused_suspect": "Desmond Kestrel",
+        "supporting_points": [
+          "The fencing foil had a glove smudge matching Desmond Kestrel found in the equipment room",
+          "Desmond was nervous and competitive, giving him motive to remove a rival"
+        ],
+        "the_one_flaw": "Desmond’s alibi in the fencing hall during the actual time of death invalidates his opportunity to commit the murder",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A glove smudge on the fencing foil found in the equipment room matches Desmond Kestrel",
+          "points_at_suspect": "Desmond Kestrel",
+          "innocent_explanation": "Desmond regularly used the foil in training and left glove marks innocently",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "Saltwater corrosion on the lower window latch suggests recent exposure to sea spray",
+          "points_at_suspect": "Bertram Vance as responsible for hotel maintenance",
+          "innocent_explanation": "Bertram neglected maintenance due to overwork, not involvement in murder",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Hector Gaunt",
+          "Neville Lachlan",
+          "Bertram Vance",
+          "Desmond Kestrel",
+          "Montague Norbury"
+        ],
+        "rationale": "The hotel’s isolation during the fog and lockdown measures prevent outsiders from entering; all suspects were present on site with known whereabouts."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Eight o'clock",
+            "Eight twenty",
+            "Eight fifty",
+            "Nine o'clock"
+          ],
+          "windows": [
+            "Eight fifteen to eight fifty — the murder",
+            "Eight o'clock to eight forty in the billiard room — Hector Gaunt alibi",
+            "Eight o'clock to nine o'clock in the guest lounge — Neville Lachlan alibi",
+            "Eight fifteen to nine o'clock in the hotel office — Bertram Vance alibi",
+            "Eight ten to eight fifty in the fencing hall — Desmond Kestrel alibi",
+            "Eight o'clock to nine o'clock in the library — Montague Norbury alibi"
+          ],
+          "contradictions": [
+            "Hector Gaunt’s alibi window does not cover actual time of death",
+            "Apparent time of death contradicts physical tidal conditions"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Hector Gaunt",
+            "Neville Lachlan",
+            "Bertram Vance",
+            "Desmond Kestrel",
+            "Montague Norbury"
+          ],
+          "objects": [
+            "Fencing foil — kept by Neville Lachlan, in the equipment room, because he manages fencing gear"
+          ],
+          "permissions": [
+            "Equipment room — reachable by Hector Gaunt and Neville Lachlan; not by Bertram Vance",
+            "Victim's room — reachable by Hector Gaunt via tidal cave, and by others only through main door"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Tidal cave access only possible during low tide",
+            "Saltwater corrosion indicates prolonged exposure to sea spray",
+            "Locked doors and windows prevent ingress except through tidal cave"
+          ],
+          "traces": [
+            "Fencing foil: glove smudge found in equipment room — Desmond Kestrel",
+            "Fencing foil: fresh disturbance in victim's room — Hector Gaunt"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Hotel staff reports",
+            "Fencing academy schedules"
+          ],
+          "authority_sources": [
+            "Hotel manager Bertram Vance",
+            "Fencing masters Hector Gaunt and Katherine Quayle"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "Saltwater corrosion marks found on the lower window latch of the victim's room",
+            "correction": "The lower window was exposed to sea spray recently, indicating it was accessible from outside via the tidal cave",
+            "effect": "Narrows access routes to include the tidal cave hidden below the hotel",
+            "required_evidence": [
+              "Saltwater corrosion marks found on the lower window latch of the victim's room",
+              "Tidal cave access only possible during low tide"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "A tide chart pinned in the hotel lobby shows an unusually low tide at eight twenty on the murder evening",
+            "correction": "The tidal cave entrance was accessible at the actual time of death, contradicting the assumption it was inaccessible",
+            "effect": "Narrows timing window for murder to coincide with low tide access",
+            "required_evidence": [
+              "Tide chart pinned in the hotel lobby showing low tide at eight twenty",
+              "Saltwater corrosion marks found on the lower window latch of the victim's room"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Fencing foil: fresh disturbance found in the victim's room and glove smudge found in the equipment room belonging to Desmond Kestrel",
+            "correction": "The glove smudge on the foil is innocent regular use by Desmond, but the fresh disturbance in the victim's room indicates recent handling by the murderer, consistent with Hector Gaunt's access",
+            "effect": "Eliminates Desmond Kestrel as culprit, implicates Hector Gaunt",
+            "required_evidence": [
+              "Fencing foil: glove smudge found in equipment room — Desmond Kestrel",
+              "Fencing foil: fresh disturbance in victim's room — Hector Gaunt",
+              "Equipment room reachable by Hector Gaunt and Neville Lachlan; not by Bertram Vance"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Hector Gaunt’s alibi states he was in the billiard room from eight o'clock to eight forty",
+            "correction": "The actual time of death was eight twenty, within the alibi window, but physical evidence of tidal cave access invalidates the alibi because he could not be in two places simultaneously",
+            "effect": "Narrows suspect pool to Hector Gaunt and eliminates others",
+            "required_evidence": [
+              "Hector Gaunt alibi: eight o'clock to eight forty in billiard room",
+              "Tidal cave accessible at eight twenty",
+              "Saltwater corrosion marks on window latch"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "trap",
+        "design": "A controlled demonstration is staged at low tide to replicate the tidal cave access beneath the victim's room, showing that the window latch can be reached and manipulated from outside the hotel. The test exposes the physical possibility of ingress and egress through the tidal cave at the time of the murder, corroborating the saltwater corrosion and scratch evidence. This directly contradicts Hector Gaunt's alibi and the initial sealed-room assumption.",
+        "knowledge_revealed": "Proves the tidal cave was accessible to Hector Gaunt at the time of the murder and that the locked-room scenario was staged.",
+        "pass_condition": "Hector Gaunt fails to explain his presence outside the billiard room during the test and cannot deny physical access through the tidal cave.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: The saltwater corrosion marks and tidal cave access law (early) reveal the possibility of ingress via the tidal cave. Step 2: The tide chart (early) confirms the low tide timing enables this access. Step 3: The fencing foil's glove smudge (mid) distinguishes innocent use from the murderer's handling. Step 4: Hector Gaunt’s alibi contradiction (mid) narrows guilt. The discriminating test replicates the tidal cave access, confirming the physical mechanism and disproving the sealed-room assumption."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 3,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 4,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 2,
+          "late_clues_min": 0
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the discriminating test",
+            "Observe the tidal cave access and window latch manipulation",
+            "Draw conclusion about Hector Gaunt's guilt"
+          ],
+          "test_type": "trap"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Neville Lachlan",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi confirmed in guest lounge",
+            "supporting_clues": [
+              "Neville Lachlan alibi: eight o'clock to nine o'clock in guest lounge"
+            ]
+          },
+          {
+            "suspect_name": "Bertram Vance",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi confirmed in hotel office",
+            "supporting_clues": [
+              "Bertram Vance alibi: eight fifteen to nine o'clock in hotel office"
+            ]
+          },
+          {
+            "suspect_name": "Desmond Kestrel",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi confirmed in fencing hall and glove smudge explained",
+            "supporting_clues": [
+              "Desmond Kestrel alibi: eight ten to eight fifty in fencing hall",
+              "Fencing foil glove smudge found innocent"
+            ]
+          },
+          {
+            "suspect_name": "Katherine Quayle",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with tidal cave access evidence and alibi contradiction"
+        },
+        "identity_rules": [],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "clue_early_1",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Direct observation of saltwater corrosion on window latch"
+          },
+          {
+            "clue_id": "clue_early_2",
+            "act_number": 1,
+            "scene_number": 2,
+            "delivery_method": "Observation of tide chart in hotel lobby"
+          },
+          {
+            "clue_id": "clue_mid_1",
+            "act_number": 2,
+            "scene_number": 4,
+            "delivery_method": "Examination of fencing foil glove smudge and disturbances"
+          },
+          {
+            "clue_id": "clue_mid_2",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Hector Gaunt's alibi testimony and contradictory timing"
+          }
+        ]
+      }
+    }
+  }
+}

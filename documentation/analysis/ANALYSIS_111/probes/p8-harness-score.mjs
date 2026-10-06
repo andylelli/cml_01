@@ -4,13 +4,13 @@
  * flags must move: devices reaching the CML (device-uptake's rule), inference steps that reason from a clock
  * (time-steps' rule), and innocent alibis that contain the actual time of death (alibi-coverage's rule).
  *
- *   node documentation/analysis/ANALYSIS_111/probes/p8-harness-score.mjs
+ *   node documentation/analysis/ANALYSIS_111/probes/p8-harness-score.mjs [dir]   (reps: harness-p8/reps — aggregated per arm)
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const cml = await import(pathToFileURL(`${process.cwd()}/packages/cml/dist/index.js`).href);
-const DIR = "documentation/analysis/ANALYSIS_111/harness-p8";
+const DIR = process.argv[2] ?? "documentation/analysis/ANALYSIS_111/harness-p8";
 const store = JSON.parse(readFileSync("data/store.json", "utf8"));
 const devicesOf = new Map();
 for (const a of Object.values(store.artifacts)) if (a.type === "hard_logic_devices") devicesOf.set(a.projectId, a.payload?.devices ?? []);
@@ -30,7 +30,7 @@ const dialOf = (raw) => { const v = cml.parseClockTime(String(raw ?? "")); retur
 const rows = [];
 for (const f of readdirSync(DIR).filter((f) => f.endsWith(".json")).sort()) {
   const r = JSON.parse(readFileSync(`${DIR}/${f}`, "utf8"));
-  const project = f.replace(/-(off|on)\.json$/, ""), arm = f.match(/-(off|on)\.json$/)[1];
+  const project = f.replace(/-((?:off|on)\d*)\.json$/, ""), arm = f.match(/-((?:off|on)\d*)\.json$/)[1];
   const C = r.cml?.CASE ?? r.cml;
   if (!C) { rows.push({ project, arm, error: "no CML" }); continue; }
   const text = JSON.stringify([C.hidden_model, C.inference_path, C.discriminating_test, C.false_assumption, C.death_method]).toLowerCase();
@@ -52,3 +52,22 @@ for (const f of readdirSync(DIR).filter((f) => f.endsWith(".json")).sort()) {
   rows.push({ project, arm, axis: r.request?.primaryAxis, devices, clockSteps: `${clockSteps}/${steps.length}`, alibis: death == null ? "no death time" : `${cover}/${inn}`, cost: Number(r.harness?.cost ?? 0).toFixed(3), proves: r.classification?.provesTheAct ?? r.classification?.class ?? "" });
 }
 for (const r of rows) console.log(`${r.project.padEnd(22)} ${r.arm.padEnd(4)} ${String(r.axis ?? "").padEnd(10)} devices ${r.devices ?? "-"} · clock steps ${r.clockSteps ?? "-"} · innocent alibis containing the death ${r.alibis ?? r.error} · $${r.cost ?? "-"}`);
+
+// Aggregate per arm when the directory holds repeats (<project>-<arm><rep>.json).
+const byArm = new Map();
+for (const r of rows) {
+  if (r.error) continue;
+  const arm = r.arm.replace(/\d+$/, "");
+  const a = byArm.get(arm) ?? { n: 0, hybrid: 0, clockOk: 0, nonTemporal: 0, cover: 0, inn: 0, allCovered: 0, cost: 0 };
+  a.n++;
+  if (r.devices >= 2) a.hybrid++;
+  if (r.axis !== "temporal") { a.nonTemporal++; if (Number(String(r.clockSteps).split("/")[0]) <= 1) a.clockOk++; }
+  const [c, i] = String(r.alibis).split("/").map(Number);
+  if (Number.isFinite(c) && Number.isFinite(i)) { a.cover += c; a.inn += i; if (c === i) a.allCovered++; }
+  a.cost += Number(r.cost);
+  byArm.set(arm, a);
+}
+if ([...byArm.values()].some((a) => a.n > 4)) {
+  console.log("\nper arm:");
+  for (const [arm, a] of byArm) console.log(`  ${arm.padEnd(4)} calls ${a.n} · hybrid CMLs ${a.hybrid}/${a.n} · non-temporal with ≤1 clock step ${a.clockOk}/${a.nonTemporal} · innocent alibis containing the death ${a.cover}/${a.inn} (${Math.round((100 * a.cover) / Math.max(1, a.inn))}%) · every innocent covered ${a.allCovered}/${a.n} · $${a.cost.toFixed(3)}`);
+}

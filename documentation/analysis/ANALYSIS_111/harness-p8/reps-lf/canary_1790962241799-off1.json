@@ -1,0 +1,577 @@
+{
+  "harness": {
+    "projectId": "canary_1790962241799",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a circus wintering in a market town. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "spatial",
+    "maxAttempts": 1,
+    "runId": "a111-p8lf-82094-off-1",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps-lf/canary_1790962241799-off1.json",
+    "sourceRun": "mystery-1790962241800",
+    "latencyMs": 46680,
+    "cost": 0.01072346
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on a room that appears sealed but is not, so the killer is placed outside a space they were inside. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a circus wintering in a market town. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: standard, spatial, mathematical, psychological, physical_law, social_logic",
+    "primaryAxis": "spatial",
+    "castNames": [
+      "Adela Halloway",
+      "Cecil Thorne",
+      "Harriet Bellamy",
+      "Ivor Yardley",
+      "Marguerite Selwyn",
+      "Ottoline Fairweather"
+    ],
+    "mechanismFamilies": [
+      "access path illusion",
+      "geometry-based movement",
+      "physical concealment",
+      "physical-constraint proof",
+      "optical illusion",
+      "spatial routing",
+      "quantitative contradiction",
+      "cognitive_bias",
+      "hidden exit",
+      "cognitive-bias exploitation",
+      "optics/mirrors",
+      "social logic",
+      "social_logic",
+      "authority-channel manipulation"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"letter opener: handling marks found in servant corridor — Marguerite Selwyn\"  [used by inference step 1]  [also on the weapon, naming nobody: \"letter opener: glove smudge found in Cecil Thorne's room — Harriet Bellamy\"]",
+    "linkingTraces": [
+      "letter opener: handling marks found in servant corridor — Marguerite Selwyn"
+    ],
+    "weaponTracesNamingNobody": [
+      "letter opener: glove smudge found in Cecil Thorne's room — Harriet Bellamy"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 1
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"letter opener: handling marks found in servant corridor — Marguerite Selwyn\" [used by inference step 1] [also on the weapon, naming nobody: \"letter opener: glove smudge found in Cecil Thorne's room — Harriet Bellamy\"]",
+    "[A_90 alibi-plan] before retry: Marguerite Selwyn (apparent_not_covered+actual_covered) \"eight ten to eight forty in her caravan\" -> \"half past eight to nine oh five in her caravan\" -> valid, no retry spent"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Rotating Wall Mystery at Halloway Manor",
+        "author": "Anonymous",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1950s",
+          "realism_constraints": [
+            "No modern technology beyond 1950s",
+            "Period-appropriate forensic methods",
+            "Social hierarchy influences behavior",
+            "Cold, damp winter typical of rural England"
+          ]
+        },
+        "setting": {
+          "location": "Halloway Manor",
+          "place": "Little Middleton, Yorkshire",
+          "country": "England",
+          "institution": "Country house estate (Manor house)"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "locked-room spatial illusion"
+        }
+      },
+      "death_method": "stabbed with letter opener, to the heart",
+      "cast": [
+        {
+          "name": "Adela Halloway",
+          "age_range": "40-50",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Cecil Thorne (friend of family)",
+            "Harriet Bellamy (housekeeper)"
+          ],
+          "public_persona": "Sharp-minded amateur detective with a keen eye for detail",
+          "private_secret": "Harbors resentment over family financial decline",
+          "motive_seed": "None (detective, no motive)",
+          "motive_strength": "none",
+          "alibi_window": "eight o'clock to eight thirty in the entrance hall",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "manor entrance hall",
+            "servant corridors"
+          ],
+          "behavioral_tells": [
+            "observes quietly, notes details others miss"
+          ],
+          "stakes": "Reputation as detective and family standing",
+          "evidence_sensitivity": [
+            "mechanical details",
+            "social interactions"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Cecil Thorne",
+          "age_range": "50-60",
+          "role_archetype": "victim",
+          "relationships": [
+            "Adela Halloway (family friend)",
+            "Marguerite Selwyn (circus performer)"
+          ],
+          "public_persona": "Estate manager, respected but secretive",
+          "private_secret": "Discovered a damaging secret about Marguerite Selwyn",
+          "motive_seed": "Discovered illegal accounts three weeks ago",
+          "motive_strength": "strong",
+          "alibi_window": "none (victim)",
+          "access_plausibility": "n/a",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "His life",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Harriet Bellamy",
+          "age_range": "50-60",
+          "role_archetype": "Housekeeper",
+          "relationships": [
+            "Adela Halloway (employer)",
+            "Ottoline Fairweather (servant)"
+          ],
+          "public_persona": "Loyal and efficient housekeeper",
+          "private_secret": "Resents circus performers for disrupting manor order",
+          "motive_seed": "Disliked victim's leniency toward circus",
+          "motive_strength": "moderate",
+          "alibi_window": "eight o'clock to eight twenty in the kitchen",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "kitchen",
+            "servant corridors"
+          ],
+          "behavioral_tells": [
+            "defensive when questioned about servant stairs"
+          ],
+          "stakes": "Household order and her job",
+          "evidence_sensitivity": [
+            "footprints",
+            "timing of meal roll call"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ivor Yardley",
+          "age_range": "30-40",
+          "role_archetype": "Circus strongman",
+          "relationships": [
+            "Marguerite Selwyn (partner)"
+          ],
+          "public_persona": "Strong and imposing circus performer",
+          "private_secret": "Jealous of victim's control over circus finances",
+          "motive_seed": "Victim threatened to evict circus from manor grounds",
+          "motive_strength": "moderate",
+          "alibi_window": "eight fifteen to eight forty in rehearsal space",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "stables/rehearsal spaces",
+            "servant corridors"
+          ],
+          "behavioral_tells": [
+            "evasive about exact whereabouts"
+          ],
+          "stakes": "Circus livelihood",
+          "evidence_sensitivity": [
+            "rehearsal schedule",
+            "servant corridor access"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Marguerite Selwyn",
+          "age_range": "25-35",
+          "role_archetype": "Circus performer",
+          "relationships": [
+            "Ivor Yardley (partner)",
+            "Cecil Thorne (victim)"
+          ],
+          "public_persona": "Graceful and mysterious trapeze artist",
+          "private_secret": "Hid illegal gambling debts victim uncovered",
+          "motive_seed": "Victim demanded repayment within days",
+          "motive_strength": "strong",
+          "alibi_window": "half past eight to nine oh five in her caravan",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "caravan",
+            "servant corridors"
+          ],
+          "behavioral_tells": [
+            "nervous when questioned about debts"
+          ],
+          "stakes": "Avoidance of financial ruin and scandal",
+          "evidence_sensitivity": [
+            "caravan access",
+            "servant staircase"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "female",
+          "alibi_span": {
+            "startHour": 8,
+            "startMinute": 30,
+            "endHour": 9,
+            "endMinute": 5,
+            "location": "her caravan"
+          }
+        },
+        {
+          "name": "Ottoline Fairweather",
+          "age_range": "45-55",
+          "role_archetype": "Servant",
+          "relationships": [
+            "Harriet Bellamy (superior)"
+          ],
+          "public_persona": "Quiet and dutiful servant",
+          "private_secret": "Harbors resentment for circus performers' freedoms",
+          "motive_seed": "Jealous of circus privileges and victim’s favoritism",
+          "motive_strength": "moderate",
+          "alibi_window": "eight o'clock to eight twenty in servant quarters",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "servant quarters",
+            "servant corridors"
+          ],
+          "behavioral_tells": [
+            "avoids discussing victim's death"
+          ],
+          "stakes": "Her standing in servant hierarchy",
+          "evidence_sensitivity": [
+            "footprints",
+            "timing of stairwell noises"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Marguerite Selwyn"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "At Halloway Manor, Cecil Thorne is found stabbed inside his locked room, which shows no sign of forced entry or exit. The room appears sealed, baffling all. The wintering circus performers and manor staff all have partial alibis. The apparent impossibility of access hides the true route: a rotating wall panel conceals a servant corridor entrance. The mystery unravels through subtle clues revealing this spatial deception."
+        },
+        "accepted_facts": [
+          "Cecil Thorne was found stabbed with a letter opener in his locked room.",
+          "The door and windows of the room were locked from inside.",
+          "The thick carpet near one wall shows unusual wear marks approximately fourteen inches long.",
+          "A faint metal hinge pin is visible beneath the carpet edge.",
+          "The decorative moulding on one wall section is slightly misaligned.",
+          "Dust accumulation at the base of the wall is disrupted near the carpet edge.",
+          "Marguerite Selwyn was not in her caravan during the murder window.",
+          "Harriet Bellamy was in the kitchen during the murder window.",
+          "Ottoline Fairweather was in servant quarters during the murder window.",
+          "Ivor Yardley rehearsed in the stables but was unaccounted for from eight twenty to eight thirty."
+        ],
+        "inferred_conclusions": [
+          "A rotating wall panel allowed entry and exit from the victim's room, exploiting the sealed appearance.",
+          "Marguerite Selwyn’s alibi is broken by evidence of presence near the servant corridor.",
+          "The letter opener was taken from the desk by Marguerite Selwyn, disturbing its storage.",
+          "The spatial illusion was maintained by the panel’s rotation, which only the culprit could operate."
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "The mechanism relies on panel, pivot, and letter to expose the false timing.",
+          "delivery_path": [
+            {
+              "step": "Victim stabbed with letter opener inside locked room."
+            },
+            {
+              "step": "Culprit rotated wall panel to enter and exit via servant corridor."
+            },
+            {
+              "step": "Culprit returned panel to original position, restoring locked appearance."
+            },
+            {
+              "step": "Apparent time of death staged by resetting victim’s clock to fake time."
+            }
+          ],
+          "actual_time_of_death": "a quarter past eight",
+          "apparent_time_of_death": "a quarter to nine"
+        },
+        "outcome": {
+          "result": "The culprit, Marguerite Selwyn, exploited the rotating wall panel and falsified the time on the victim’s clock to create a false alibi, allowing her to commit the murder unnoticed."
+        }
+      },
+      "false_assumption": {
+        "statement": "The victim’s locked room was sealed with no possible entry or exit.",
+        "type": "spatial",
+        "why_it_seems_reasonable": "All doors and windows were found locked from inside, and no footprints or signs of forced entry were present.",
+        "what_it_hides": "A concealed rotating wall panel provided a hidden entrance to a servant corridor, allowing the killer to enter and leave the room unseen."
+      },
+      "false_solution": {
+        "accused_suspect": "Ivor Yardley",
+        "supporting_points": [
+          "Ivor Yardley’s opportunity window overlaps the murder time with incomplete alibi.",
+          "His temper and threats toward the victim over eviction provide motive."
+        ],
+        "the_one_flaw": "No physical evidence places Ivor inside the victim’s room, and the letter opener’s disturbance traces do not match his access.",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A glove smudge was found on the letter opener in the victim’s room.",
+          "points_at_suspect": "Harriet Bellamy",
+          "innocent_explanation": "The smudge resulted from Harriet handling the letter opener earlier while tidying the desk.",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "A suspicious footprint was discovered on the servant stair landing.",
+          "points_at_suspect": "Ottoline Fairweather",
+          "innocent_explanation": "The footprint was from Ottoline fetching cleaning supplies shortly before the murder.",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Adela Halloway",
+          "Harriet Bellamy",
+          "Ivor Yardley",
+          "Marguerite Selwyn",
+          "Ottoline Fairweather"
+        ],
+        "rationale": "All suspects were present on the estate with access to the victim’s room or the servant corridors during the murder window; no outsider could have entered unnoticed."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "eight o'clock — servants' meal-time roll call",
+            "a quarter past eight — actual time of death",
+            "a quarter to nine — apparent time of death on victim's clock",
+            "eight twenty — Ivor Yardley rehearsal ends",
+            "eight thirty — latest possible time for murder"
+          ],
+          "windows": [
+            "a quarter past eight to eight thirty — the murder"
+          ],
+          "contradictions": [
+            "Marguerite Selwyn claims to be in her caravan from eight ten to eight forty but evidence places her near the servant corridor at actual time of death",
+            "Victim's clock shows a quarter to nine, but the stopped wristwatch indicates a quarter past eight"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Marguerite Selwyn",
+            "Harriet Bellamy",
+            "Ottoline Fairweather",
+            "Ivor Yardley"
+          ],
+          "objects": [
+            "letter opener, in Cecil Thorne's desk drawer"
+          ],
+          "permissions": [
+            "Desk drawer — reachable by Marguerite Selwyn and Harriet Bellamy; not by Ivor Yardley",
+            "Servant corridor — accessible by Marguerite Selwyn, Harriet Bellamy, Ottoline Fairweather; not by Ivor Yardley"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "A rotating wall panel pivots ninety degrees to open and close the secret door",
+            "Fourteen inches of carpet wear reveal the pivot axis",
+            "Dust distribution disrupted near pivot panel base",
+            "Victim’s wristwatch stopped at quarter past eight"
+          ],
+          "traces": [
+            "letter opener: glove smudge found in Cecil Thorne's room — Harriet Bellamy",
+            "letter opener: handling marks found in servant corridor — Marguerite Selwyn"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Servants' meal-time roll call",
+            "Circus rehearsal schedules"
+          ],
+          "authority_sources": [
+            "Estate rules restricting corridor access",
+            "Servant supervision by housekeeper Harriet Bellamy"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "letter opener: handling marks found in servant corridor — Marguerite Selwyn",
+            "correction": "Since the letter opener was found handled in the servant corridor, Marguerite must have carried it through there, showing access to the victim’s room via servant corridor",
+            "effect": "Narrows the pool to Marguerite Selwyn and Harriet Bellamy, who have access to the desk and servant corridor",
+            "required_evidence": [
+              "Desk drawer — reachable by Marguerite Selwyn and Harriet Bellamy; not by Ivor Yardley",
+              "letter opener: handling marks found in servant corridor — Marguerite Selwyn"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Unusual wear marks on the thick carpet near the panel’s base, approximately fourteen inches long",
+            "correction": "The carpet wear indicates repeated movement around a pivot point, consistent with a rotating wall panel opening a hidden door",
+            "effect": "Narrows access route to the rotating wall panel mechanism, eliminating suspects unaware of this feature",
+            "required_evidence": [
+              "Unusual wear marks on the thick carpet near the panel’s base",
+              "Dust accumulation pattern inconsistent near panel base"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Victim’s wristwatch stopped at quarter past eight, earlier than the apparent time of death on the clock (quarter to nine)",
+            "correction": "The actual time of death is quarter past eight, not quarter to nine; the victim’s clock was reset after death to mislead",
+            "effect": "Narrows the murder to suspects with opportunity before a quarter to nine, breaking Marguerite’s alibi",
+            "required_evidence": [
+              "a quarter past eight — actual time of death",
+              "a quarter to nine — apparent time of death on victim's clock",
+              "Victim’s wristwatch stopped at quarter past eight"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Marguerite Selwyn’s alibi places her in her caravan from eight ten to eight forty, but evidence from carpet wear and letter opener handling places her near the servant corridor at actual time of death",
+            "correction": "Marguerite’s alibi is false; she used the rotating wall panel to access the victim’s room during the murder window",
+            "effect": "Eliminates Marguerite Selwyn’s alibi and confirms her presence at the scene",
+            "required_evidence": [
+              "Marguerite Selwyn’s alibi window: eight ten to eight forty in her caravan",
+              "letter opener: handling marks found in servant corridor — Marguerite Selwyn",
+              "Unusual wear marks on the thick carpet near the panel’s base"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "trap",
+        "design": "Recreate the victim’s locked room with the thick carpet and wall panel installed. Using witnesses and all suspects present, attempt to rotate the panel and move through the servant corridor entry at the actual time of death window. Measure carpet wear and dust patterns before and after. Compare the victim’s stopped wristwatch time with the victim’s clock on the wall to demonstrate the clock’s resetting. Confirm Marguerite Selwyn’s unique capability to operate the panel and access both the victim’s room and the servant corridor during the murder window.",
+        "knowledge_revealed": "The test proves the rotating wall panel’s existence and function, the false time on the victim’s clock, and Marguerite Selwyn’s broken alibi and access, conclusively identifying her as the culprit.",
+        "pass_condition": "Marguerite Selwyn is the only one who can operate the panel and access the room unnoticed; the victim’s wristwatch time contradicts the staged clock time.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: The letter opener handling marks and desk access establish Marguerite's presence near the victim's room early. Step 2: Carpet wear and dust pattern clues reveal the rotating wall panel mechanism, accessible only to those with servant corridor knowledge. Step 3: The stopped wristwatch shows the actual time of death, disproving the victim’s clock and breaking alibis. Step 4: Marguerite’s false alibi is exposed by combining carpet wear and object handling evidence, all available before the discriminating test."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 3,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 3,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 2,
+          "late_clues_min": 1
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the rotating wall panel demonstration",
+            "Observe dust and carpet wear before and after panel rotation",
+            "Compare victim’s wristwatch and clock times",
+            "Confirm Marguerite Selwyn’s unique ability to operate the panel",
+            "Draw conclusion about Marguerite’s guilt"
+          ],
+          "test_type": "trap"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Harriet Bellamy",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Accounted for in kitchen during murder window",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Ivor Yardley",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Rehearsal schedule and witnesses place him away",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Ottoline Fairweather",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Accounted for in servant quarters during murder",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Cecil Thorne",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: none (victim)",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with evidence of rotating wall panel and broken alibi"
+        },
+        "identity_rules": [],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "clue_early_1",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Observation of carpet wear and dust disruption near panel base"
+          },
+          {
+            "clue_id": "clue_early_2",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Visual inspection of faint metal hinge pin beneath carpet"
+          },
+          {
+            "clue_id": "clue_mid_1",
+            "act_number": 2,
+            "scene_number": 2,
+            "delivery_method": "Witness accounts of Marguerite Selwyn’s absence from caravan"
+          },
+          {
+            "clue_id": "clue_mid_2",
+            "act_number": 2,
+            "scene_number": 3,
+            "delivery_method": "Handling marks on letter opener found in servant corridor"
+          },
+          {
+            "clue_id": "clue_late_1",
+            "act_number": 3,
+            "scene_number": 4,
+            "delivery_method": "Comparison of victim’s wristwatch stopped at quarter past eight and clock time showing quarter to nine"
+          }
+        ]
+      }
+    }
+  }
+}

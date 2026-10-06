@@ -3267,3 +3267,12 @@ removed the gesture habit (32 → 0) and put the date on the page, but stayed WO
 clock guard would not let the editor delete (V-13 fixes the guard). **The readable recent reads put 55% of the gap to 90
 in plot, clues and ending**, so the puzzle now leads: P-6 (second case, everything on) is running; P-8 (one mechanism
 per case; at most one clock step on a non-temporal axis — 29–52% today) is built behind `AGENT3_ONE_MECHANISM`.
+
+**§33 UPDATE 19 — P-6 and P-8 (2026-10-06).** P-6 (seed 82094, £1.75): with A_110's arm-B flags and the V batch on, the
+book is READABLE for the first time (SHIP-CHECK Normal) and the owner's opening lands on a second case (place before
+speech, "September 1953", the victim's job, the police sent for; tail −40%) — but a self-read predicts 72–76 on the
+CASE: innocent alibis that end before the murder, the solution given in chapter 2, a reveal in report language. The
+owner's read is held. Upstream: innocent alibis miss the time of death in 50% of stored cases (45% in October); P-8b
+(`AGENT3_ALIBI_COVERS`) lifts harness coverage 79% → 90%; P-8 (`AGENT3_ONE_MECHANISM`) shows no effect. The harness
+itself had been sending a prompt without the locked facts (fixed). Next paid step: a full-run pair with the upstream
+levers (P-10), then the read.

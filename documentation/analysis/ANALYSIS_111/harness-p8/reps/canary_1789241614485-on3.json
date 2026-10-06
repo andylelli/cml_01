@@ -1,0 +1,564 @@
+{
+  "harness": {
+    "projectId": "canary_1789241614485",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on a person believed absent who was present under another name. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a folly built by an eccentric. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "identity",
+    "maxAttempts": 1,
+    "runId": "a111-p8r-94118-on-3",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps/canary_1789241614485-on3.json",
+    "latencyMs": 42541,
+    "cost": 0.010195423999999998
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on a person believed absent who was present under another name. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a folly built by an eccentric. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: transit_topology, behavioral_concealment, restricted_access, institutional_procedure, interior_topology",
+    "primaryAxis": "identity",
+    "castNames": [
+      "Katherine Bellamy",
+      "Dr. Cecil Ashgrove",
+      "Lavinia Yardley",
+      "Ferdinand Carrick",
+      "Iris Selwyn",
+      "Neville Fairweather"
+    ],
+    "mechanismFamilies": [
+      "role substitution proof",
+      "witness misidentification constraint",
+      "social_logic",
+      "cognitive-bias exploitation",
+      "identity falsification",
+      "quantitative contradiction",
+      "physical_law",
+      "physical-constraint proof",
+      "cognitive_bias",
+      "identity",
+      "authority-channel manipulation"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"Stiletto dagger: handling disturbance found in crew quarters — Ferdinand Carrick\"  [used by inference step 3]  [also on the weapon, naming nobody: \"Stiletto dagger: glove mark found in Lavinia Yardley’s cabin — Lavinia Yardley\"]",
+    "linkingTraces": [
+      "Stiletto dagger: handling disturbance found in crew quarters — Ferdinand Carrick"
+    ],
+    "weaponTracesNamingNobody": [
+      "Stiletto dagger: glove mark found in Lavinia Yardley’s cabin — Lavinia Yardley"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 3
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"Stiletto dagger: handling disturbance found in crew quarters — Ferdinand Carrick\" [used by inference step 3] [also on the weapon, naming nobody: \"Stiletto dagger: glove mark found in Lavinia Yardley’s cabin — Lavinia Yardley\"]",
+    "[A_111 alibi-coverage] 3 of 3 innocent alibis contain the actual time of death"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Steward’s Facade",
+        "author": "GPT-4 Detective",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1950s",
+          "realism_constraints": [
+            "No modern technology beyond early transistor radios",
+            "Forensics limited to serology and microscopy",
+            "Strict social hierarchies and class segregation aboard ocean liners",
+            "No mobile phones or digital clocks; mechanical clocks only"
+          ]
+        },
+        "setting": {
+          "location": "North Atlantic Ocean",
+          "place": "Southampton to New York route",
+          "country": "International Waters",
+          "institution": "ocean liner"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "impersonation concealment"
+        }
+      },
+      "death_method": "stabbed with a stiletto dagger, to the heart",
+      "cast": [
+        {
+          "name": "Katherine Bellamy",
+          "age_range": "30-40",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Acquaintance of Lavinia Yardley"
+          ],
+          "public_persona": "Sharp-witted amateur detective traveling first class",
+          "private_secret": "Knows subtle social cues and ship layout intimately",
+          "motive_seed": "N/A",
+          "motive_strength": "none",
+          "alibi_window": "7:30 to 9:30 in the first-class lounge",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "First-class decks",
+            "Crew common areas"
+          ],
+          "behavioral_tells": [
+            "Observes details others miss"
+          ],
+          "stakes": "Reputation as detective",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Dr. Cecil Ashgrove",
+          "age_range": "50-60",
+          "role_archetype": "Ship’s doctor",
+          "relationships": [
+            "Professional acquaintance of Lavinia Yardley"
+          ],
+          "public_persona": "Calm, methodical physician",
+          "private_secret": "Resents passengers who flaunt class privilege",
+          "motive_seed": "Discovered secret correspondence between victim and Lavinia Yardley",
+          "motive_strength": "moderate",
+          "alibi_window": "7:45 to 9:15 in the infirmary",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Crew quarters",
+            "Medical areas",
+            "Passenger decks"
+          ],
+          "behavioral_tells": [
+            "Subtle impatience with upper-class passengers"
+          ],
+          "stakes": "Professional reputation",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Lavinia Yardley",
+          "age_range": "40-50",
+          "role_archetype": "Wealthy passenger",
+          "relationships": [
+            "Acquaintance of Katherine Bellamy",
+            "Known to Neville Fairweather"
+          ],
+          "public_persona": "Elegant and reserved first-class passenger",
+          "private_secret": "Had secret meeting with victim days before voyage",
+          "motive_seed": "Victim threatened to expose her past scandal",
+          "motive_strength": "strong",
+          "alibi_window": "7:00 to 9:00 in her cabin",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "First-class decks",
+            "Private cabins"
+          ],
+          "behavioral_tells": [
+            "Tense under questioning"
+          ],
+          "stakes": "Social standing",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ferdinand Carrick",
+          "age_range": "35-45",
+          "role_archetype": "Crew member - Deck steward",
+          "relationships": [
+            "Works closely with Iris Selwyn",
+            "Seen near victim"
+          ],
+          "public_persona": "Efficient, friendly steward",
+          "private_secret": "Has a gambling debt and needs money urgently",
+          "motive_seed": "Victim refused to lend money",
+          "motive_strength": "moderate",
+          "alibi_window": "7:15 to 8:45 in crew quarters",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Crew quarters",
+            "Passenger decks (restricted)"
+          ],
+          "behavioral_tells": [
+            "Nervousness noted by passengers"
+          ],
+          "stakes": "Financial survival",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "male"
+        },
+        {
+          "name": "Iris Selwyn",
+          "age_range": "28-38",
+          "role_archetype": "Crew member - Stewardess",
+          "relationships": [
+            "Works with Ferdinand Carrick"
+          ],
+          "public_persona": "Polite and discreet stewardess",
+          "private_secret": "Unhappy with ship hierarchy, secretly aids Ferdinand",
+          "motive_seed": "Witnessed suspicious behavior from Ferdinand",
+          "motive_strength": "low",
+          "alibi_window": "7:30 to 9:00 in crew dining area",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Crew quarters",
+            "Passenger decks"
+          ],
+          "behavioral_tells": [
+            "Avoids direct answers"
+          ],
+          "stakes": "Job security",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Neville Fairweather",
+          "age_range": "55-65",
+          "role_archetype": "victim",
+          "relationships": [
+            "Known to Lavinia Yardley and Dr. Ashgrove"
+          ],
+          "public_persona": "Retired businessman, traveling first class",
+          "private_secret": "Had incriminating documents about Lavinia Yardley",
+          "motive_seed": "Intended to reveal Lavinia’s scandal after voyage",
+          "motive_strength": "N/A",
+          "alibi_window": "N/A",
+          "access_plausibility": "N/A",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "Life",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Ferdinand Carrick"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "A distinguished first-class passenger, Neville Fairweather, is found stabbed aboard a transatlantic ocean liner. Witnesses insist they saw Neville alive and well on the first-class promenade deck at the time of the murder, but subtle clues reveal a clever impersonation by a crew member in the steward’s uniform. The real Neville was killed elsewhere, and the false identity sighting misled the investigation until Katherine Bellamy uncovers the truth behind the disguise."
+        },
+        "accepted_facts": [
+          "Neville Fairweather’s body was found in his cabin stabbed with a stiletto dagger to the heart.",
+          "Multiple witnesses claim to have seen Neville on the first-class promenade deck around quarter to nine in the evening.",
+          "A torn piece of steward’s uniform fabric was found snagged on Neville’s cabin doorframe.",
+          "The ship’s crew schedule shows Ferdinand Carrick was in the crew quarters at the time witnesses saw Neville on the promenade deck.",
+          "A first-class passenger noted the steward Ferdinand Carrick appeared unusually nervous that evening."
+        ],
+        "inferred_conclusions": [
+          "The man seen on the promenade deck was not Neville Fairweather but Ferdinand Carrick impersonating him in a steward’s uniform.",
+          "The real Neville was stabbed in his cabin earlier than the apparent time witnesses claimed to see him alive.",
+          "Ferdinand Carrick had the means, motive, and opportunity to commit the murder and stage the impersonation."
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "Ferdinand Carrick exploited social expectations and cognitive bias by impersonating Neville Fairweather in a steward’s uniform on the restricted first-class promenade deck. Witnesses, expecting to see Neville in his customary attire, were deceived by the identical uniform and mannerisms. This role substitution concealed the true time and place of death. The ship’s crew schedule and a torn uniform fabric piece provide physical proof of the impersonation.",
+          "delivery_path": [
+            {
+              "step": "Ferdinand wore a steward’s uniform identical to the ship’s deck steward uniform."
+            },
+            {
+              "step": "He mimicked Neville’s mannerisms and gait to deceive first-class passengers."
+            },
+            {
+              "step": "Witness testimony placed 'Neville' on the promenade deck at quarter to nine."
+            },
+            {
+              "step": "A torn piece of steward’s uniform fabric found on Neville’s cabin doorframe shows the impersonation was near the victim’s cabin."
+            },
+            {
+              "step": "Crew schedule shows Ferdinand was not on the promenade deck at the claimed time but in the crew quarters earlier."
+            }
+          ],
+          "actual_time_of_death": "8:50",
+          "apparent_time_of_death": "8:45"
+        },
+        "outcome": {
+          "result": "Ferdinand Carrick is identified as the murderer after disproving the false identity assumption and demonstrating the impersonation concealment."
+        }
+      },
+      "false_assumption": {
+        "statement": "Witnesses correctly identified Neville Fairweather alive on the first-class promenade deck at quarter to nine.",
+        "type": "identity",
+        "why_it_seems_reasonable": "Passengers were accustomed to seeing Neville in the first-class areas and trusted their recollections, reinforced by his distinctive dress and manner.",
+        "what_it_hides": "That the man seen was Ferdinand Carrick, a crew member impersonating Neville in a steward’s uniform to mislead investigators and cover the real time and place of death."
+      },
+      "false_solution": {
+        "accused_suspect": "Dr. Cecil Ashgrove",
+        "supporting_points": [
+          "Dr. Ashgrove had motive due to resentment and discovered secret correspondence between Lavinia and the victim.",
+          "He was near the infirmary with limited alibi and could have accessed the victim’s cabin.",
+          "His professional knowledge could explain the victim’s time of death."
+        ],
+        "the_one_flaw": "The ship’s crew schedule and witness timeline prove Dr. Ashgrove was in the infirmary during the actual time of death and could not have accessed the victim’s cabin.",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A glove mark found on the stiletto dagger matched Lavinia Yardley’s glove size.",
+          "points_at_suspect": "Lavinia Yardley",
+          "innocent_explanation": "Lavinia’s glove was borrowed by a steward for cleaning the dagger display and inadvertently left a mark.",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "Iris Selwyn was seen arguing with Ferdinand Carrick shortly before the murder.",
+          "points_at_suspect": "Iris Selwyn",
+          "innocent_explanation": "The argument concerned a personal dispute unrelated to the murder, resolved privately.",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Katherine Bellamy",
+          "Dr. Cecil Ashgrove",
+          "Lavinia Yardley",
+          "Ferdinand Carrick",
+          "Iris Selwyn"
+        ],
+        "rationale": "The victim was found inside his cabin on the ship, and all suspects were aboard the liner with no outsiders able to access the victim during the time window."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Quarter to nine in the evening (witnessed promenade sighting)",
+            "Between quarter to eight and quarter to ten (ship’s daily schedule and crew logs)"
+          ],
+          "windows": [
+            "8:40 to 9:00 — the murder",
+            "7:45 to 9:15 in infirmary — Dr. Ashgrove’s alibi",
+            "7:00 to 9:00 in cabin — Lavinia Yardley’s alibi",
+            "7:15 to 8:45 in crew quarters — Ferdinand Carrick’s alibi",
+            "7:30 to 9:00 in crew dining area — Iris Selwyn’s alibi",
+            "7:30 to 9:30 in first-class lounge — Katherine Bellamy’s alibi"
+          ],
+          "contradictions": [
+            "Witnesses’ sighting of Neville on promenade at 8:45 contradicts Ferdinand’s documented presence in crew quarters",
+            "Alibi overlap excludes several suspects from murder window"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Ferdinand Carrick",
+            "Lavinia Yardley",
+            "Dr. Cecil Ashgrove",
+            "Iris Selwyn",
+            "Katherine Bellamy"
+          ],
+          "objects": [
+            "Stiletto dagger — kept by Lavinia Yardley, in her private cabin, because it was a personal souvenir",
+            "Steward’s uniform — worn by Ferdinand Carrick, kept in crew quarters, because it is his official attire"
+          ],
+          "permissions": [
+            "Lavinia Yardley’s cabin — reachable by Lavinia Yardley and Dr. Cecil Ashgrove; not by Ferdinand Carrick",
+            "Crew quarters — reachable by Ferdinand Carrick and Iris Selwyn; not by Lavinia Yardley"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Mechanical watches and clocks can be manually reset or stopped",
+            "Uniform fabric tears leave identifiable microscopic fibers",
+            "First-class promenade deck access restricted to first-class passengers and authorized crew only"
+          ],
+          "traces": [
+            "Stiletto dagger: glove mark found in Lavinia Yardley’s cabin — Lavinia Yardley",
+            "Stiletto dagger: handling disturbance found in crew quarters — Ferdinand Carrick",
+            "Torn steward’s uniform fabric snagged on Neville Fairweather’s cabin doorframe — physical evidence of impersonation"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Witnesses trust passenger identities based on dress and mannerisms",
+            "Crew hierarchy restricts access and observation",
+            "Passengers defer to crew authority and expect proper uniforms"
+          ],
+          "authority_sources": [
+            "Crew schedules maintained by ship officers",
+            "Access permissions enforced by ship security",
+            "Uniforms issued and controlled by ship management"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "A torn piece of steward’s uniform fabric was found snagged on Neville Fairweather’s cabin doorframe",
+            "correction": "Someone wearing a steward’s uniform was near the victim’s cabin at or near time of death, contradicting the assumption that the victim was alive on the promenade deck",
+            "effect": "Narrows suspects to those with access to steward’s uniform and to the victim’s cabin area",
+            "required_evidence": [
+              "Torn steward’s uniform fabric snagged on Neville Fairweather’s cabin doorframe",
+              "Access permissions: Lavinia Yardley’s cabin reachable by Lavinia Yardley and Dr. Cecil Ashgrove; not by Ferdinand Carrick",
+              "Steward’s uniform kept by Ferdinand Carrick in crew quarters"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "The ship’s crew schedule shows Ferdinand Carrick was in crew quarters between quarter past seven and quarter to nine, overlapping the time witnesses saw 'Neville' on the promenade deck",
+            "correction": "Ferdinand Carrick could not have been on the promenade deck at the time witnesses claim to have seen Neville; thus the person seen was impersonating Neville",
+            "effect": "Eliminates suspects without access to both steward’s uniform and promenade deck, focuses suspicion on Ferdinand Carrick",
+            "required_evidence": [
+              "Crew schedule placing Ferdinand Carrick in crew quarters between 7:15 and 8:45",
+              "Witness statements placing Neville on promenade deck at quarter to nine"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "The stiletto dagger shows a glove mark found in Lavinia Yardley’s cabin, but handling disturbance is found in crew quarters",
+            "correction": "Although the weapon bears an innocent glove mark from Lavinia, the disturbance in crew quarters indicates it was moved by someone else—Ferdinand Carrick—implicating him in the murder",
+            "effect": "Narrows pool to suspects with crew quarters access and motive; implicates Ferdinand Carrick",
+            "required_evidence": [
+              "Stiletto dagger: glove mark found in Lavinia Yardley’s cabin",
+              "Stiletto dagger: handling disturbance found in crew quarters"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "A first-class passenger noted steward Ferdinand Carrick appeared unusually nervous on the evening of the murder",
+            "correction": "Ferdinand’s nervousness supports suspicion raised by physical and schedule evidence, indicating behavioral concealment consistent with guilt",
+            "effect": "Reinforces Ferdinand Carrick as primary suspect",
+            "required_evidence": [
+              "Witness statement of Ferdinand Carrick’s nervousness",
+              "Crew schedule and fabric tear evidence"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "constraint_proof",
+        "design": "A controlled inspection comparing the torn steward’s uniform fabric found on the victim’s cabin doorframe with the official uniforms issued to Ferdinand Carrick and other crew members, alongside verification of the crew schedule logs, conclusively proves that only Ferdinand’s uniform matches the torn fabric and that he was absent from the promenade deck at the time witnesses claimed to see Neville alive.",
+        "knowledge_revealed": "The revealed facts are assumption, promenade, and piece.",
+        "pass_condition": "The torn fabric matches Ferdinand Carrick’s uniform only, and crew schedule logs confirm he was in the crew quarters, not the promenade deck, at the critical time.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: The torn steward’s uniform fabric (early) and access permissions (early) expose the possibility of impersonation. Step 2: The crew schedule (mid) and witness statements reveal the contradiction in presence. Step 3: The glove mark and handling disturbance on the dagger (mid) link Ferdinand to the murder weapon. Step 4: Witness testimony of Ferdinand’s nervousness (mid) strengthens the suspicion. The discriminating test uses only these previously revealed facts to prove guilt."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 3,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 4,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 2,
+          "late_clues_min": 0
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the uniform fabric comparison and crew schedule verification",
+            "Observe Ferdinand Carrick’s reaction",
+            "Draw conclusion about impersonation and guilt"
+          ],
+          "test_type": "constraint_proof"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Dr. Cecil Ashgrove",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Medical logs and infirmary staff confirm presence during murder window",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Lavinia Yardley",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi in cabin supported by personal maid’s testimony",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Iris Selwyn",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Crew dining area presence confirmed by other crew members",
+            "supporting_clues": []
+          },
+          {
+            "suspect_name": "Neville Fairweather",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with torn uniform fabric evidence and crew schedule contradictions"
+        },
+        "identity_rules": [
+          {
+            "character_name": "Ferdinand Carrick",
+            "revealed_in_act": 3,
+            "before_reveal_reference": "the steward impersonating Neville",
+            "after_reveal_reference": "Ferdinand Carrick"
+          }
+        ],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "clue_early_1",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Direct observation of torn steward’s uniform fabric on cabin doorframe"
+          },
+          {
+            "clue_id": "clue_mid_1",
+            "act_number": 2,
+            "scene_number": 4,
+            "delivery_method": "Crew schedule logs placing Ferdinand in crew quarters"
+          },
+          {
+            "clue_id": "clue_mid_2",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Witness testimony of Neville sighting on promenade deck"
+          },
+          {
+            "clue_id": "clue_mid_3",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Glove mark on stiletto dagger found in Lavinia’s cabin"
+          },
+          {
+            "clue_id": "clue_mid_4",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Handling disturbance of dagger found in crew quarters"
+          },
+          {
+            "clue_id": "clue_mid_5",
+            "act_number": 2,
+            "scene_number": 7,
+            "delivery_method": "Witness observation of Ferdinand’s nervousness"
+          }
+        ]
+      }
+    }
+  }
+}

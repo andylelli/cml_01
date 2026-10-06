@@ -36,8 +36,9 @@ Resumable: each row names its cost, its evidence and its commit.
 | **R-2** | **no case generated since 2026-10-02 could be prose-redone**: the CML was persisted before Agent 5 filled the test's evidence ids, so a redo hit the pre-prose gate (P-6's first attempt, £0). A resume re-derives the floor; the CML is persisted again after Agents 5 and 6 | £0 | DONE | `adbbbb5a` |
 | P-6 | second case, A′ against everything (A_110 arm-B flags + V batch); record and predictions written first | £1.75 | **RUN** — arm C readable (SHIP-CHECK Normal), 8 of 11 met; a self-read predicts 72–76 and names the CASE (`PAIR-82094-P6.md`) | `b8ff5815` (record) · `3c0969f2` (result) |
 | P-7 | the owner's external read of P-6's better arm, with the checked read | £0 money | **HELD**: arm C passes the read gate but the self-read predicts 72–76 on case defects the upstream levers address; a read now would score the case, not today's work | — |
-| P-8 | puzzle side: one device per case and at most one clock step on a non-temporal axis, behind `AGENT3_ONE_MECHANISM` (§3.4); two-suspect clues designed, not built | £0 build; ~£0.6 harness check | BUILT; harness check RUNNING | `b550cad7` |
-| **P-8b** | an innocent's alibi must contain the actual time of death (50% of 215 stored innocent alibis miss it; P-6's self-read's first defect), behind `AGENT3_ALIBI_COVERS`, with an `[A_111 alibi-coverage]` count in every run | £0 | BUILT; in the same harness check | `d7b755ae` |
+| P-8 | puzzle side: one device per case and at most one clock step on a non-temporal axis, behind `AGENT3_ONE_MECHANISM` (§3.4); two-suspect clues designed, not built | £0.78 harness (90 calls) | BUILT; **no measured effect** — hybrids 0–2 of 16 in both arms, the clock-step limit ignored (§3.7). Stays OFF | `b550cad7` |
+| **P-8b** | an innocent's alibi must contain the actual time of death (50% of 215 stored innocent alibis miss it; P-6's self-read's first defect), behind `AGENT3_ALIBI_COVERS`, with an `[A_111 alibi-coverage]` count in every run | (same harness) | BUILT; **79% → 90% of innocent alibis cover the death, pooled over 169 harness alibis (z ≈ 2.0)**; a culprit-exception sentence made it WORSE (71%) and was removed (§3.7). Stays OFF until a full-run pair | `d7b755ae` · this commit |
+| **R-3** | the Agent 3 harness sent a prompt no run sends: `lockedFactRegistry: []`, so no THE CLOCK and no locked facts — its 85% coverage baseline against the pipeline's 45% (October) was the harness. `--sourceRun`, else the primary device's facts | £0 | DONE | this commit |
 | P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | WAITS on P-6 | — |
 | P-10 | step-2 upstream full-run pairs (`CML_A110_UPSTREAM`, now with CR-i) | ~£2.30 a case | WAITS on P-7 | — |
 | M-0 | = CR-d | £0 | DONE | `c36add04` |
@@ -234,6 +235,26 @@ measurable on all 64 stored contracts before any run.
    settling early. Counter: A_110 P.6's 59 of 64.
 
 All three are upstream, so their test is a full-run pair (~£2.3 a case), bundled with CR-g's checklist read.
+
+### 3.7 P-8 on the Agent 3 harness — MEASURED (90 calls, $0.98; `probes/p8-harness-score.mjs`, data in `harness-p8/`)
+
+Four stored cases (identity 94118, authority 95041, spatial 23403, spatial 82094), each call one real Agent 3 generation.
+
+| condition | arm | calls | hybrid CMLs | non-temporal with ≤ 1 clock step | innocent alibis containing the death | every innocent covered |
+|---|---|---|---|---|---|---|
+| harness as it was (no locked facts) | off | 16 | 2 | 9 | 44/52 (85%) | 9 |
+| | on, with a culprit-exception sentence | 16 | 1 | 10 | 35/49 (**71%**) | 10 |
+| | on, first wording | 16 | 2 | 9 | 46/50 (92%) | 12 |
+| harness with the locked facts (R-3) | off | 11 | 0 | 7 | 24/34 (71%) | 6 |
+| | on, first wording | 12 | 0 | 5 | 29/33 (88%) | 9 |
+
+**Read:** `AGENT3_ALIBI_COVERS` (first wording) moves its counter, 79% → 90% pooled (z ≈ 2.0, modest); a sentence that
+named the culprit as the exception confused who the rule was for and cost 14 points — the shape keeps, the qualifier
+beside it does not (A_102 §7 again). `AGENT3_ONE_MECHANISM` moves nothing measurable: these four cases rarely
+hybridise in either arm, and the one-clock-step count is ignored (the spatial 23403 case reasons from the clock in 3–5
+of 4–5 steps whatever it is told). **INFERRED:** the harness still does not reproduce the pipeline's 45% (October's real
+cases) — the real 82094 run's single Agent 3 call gave 0 of 3, the harness 3 of 3 three times with that run's own
+registry — so the size of the real effect needs a full-run pair (P-10).
 
 ### 3.5 P-5 — the re-run of arm B, scored (run `resume-1791313282573`, £0.90, 47 calls)
 

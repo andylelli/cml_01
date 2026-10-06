@@ -1,0 +1,660 @@
+{
+  "harness": {
+    "projectId": "canary_1789583740167",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on an official record accepted without question, and wrong. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: an archaeological dig and what it turned up. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "authority",
+    "maxAttempts": 1,
+    "runId": "a111-p8r-95041-on-3",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps/canary_1789583740167-on3.json",
+    "latencyMs": 48681,
+    "cost": 0.010735784
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on an official record accepted without question, and wrong. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: an archaeological dig and what it turned up. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: hard_logic, document_analysis, social_manipulation, psychological, social_logic, mechanical, trap, mathematics, physical_evidence, forensic_chemistry, social_deception",
+    "primaryAxis": "authority",
+    "castNames": [
+      "Frances Orme",
+      "Beatrice Dunmore",
+      "Ottoline Thorne",
+      "Ambrose Rutherford",
+      "Desmond Halloway",
+      "Josephine Whitlock",
+      "Ivor Ormesby"
+    ],
+    "mechanismFamilies": [
+      "authority-channel manipulation",
+      "status-based witness distortion",
+      "authority_channel_manipulation",
+      "document_forgery",
+      "archival_logic",
+      "status_based_witness_distortion",
+      "memory_conformity",
+      "cognitive-bias exploitation",
+      "mechanical_trap",
+      "thermal_expansion",
+      "physical_law",
+      "physical-constraint proof",
+      "mathematical_principle",
+      "instrument_tampering",
+      "quantitative contradiction",
+      "social_logic"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock\"  [used by inference step 4]  [also on the weapon, naming nobody: \"Letter opener: glove smudge found in dig site office — Ottoline Thorne\"]",
+    "linkingTraces": [
+      "Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock"
+    ],
+    "weaponTracesNamingNobody": [
+      "Letter opener: glove smudge found in dig site office — Ottoline Thorne"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 4
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock\" [used by inference step 4] [also on the weapon, naming nobody: \"Letter opener: glove smudge found in dig site office — Ottoline Thorne\"]",
+    "[A_111 alibi-coverage] 1 of 1 innocent alibis contain the actual time of death",
+    "[A_90 alibi-plan] before retry: Josephine Whitlock (apparent_not_covered+actual_covered) \"Nine o'clock to half past ten in the archive room\" -> \"seven forty to a quarter past eight in the archive room\" -> valid, no retry spent"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Forged Record of Coldharbour Dig",
+        "author": "Anonymous",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1930s",
+          "realism_constraints": [
+            "Radio and telephone common but limited",
+            "Basic forensic chemistry and fingerprinting",
+            "No television or modern electronics",
+            "Great Depression social tensions",
+            "Professional police detectives emerging"
+          ]
+        },
+        "setting": {
+          "location": "Coldharbour",
+          "place": "Coldharbour, Devon",
+          "country": "England",
+          "institution": "rural village"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "official record forgery"
+        }
+      },
+      "death_method": "stabbed with a letter opener, to the chest",
+      "cast": [
+        {
+          "name": "Frances Orme",
+          "age_range": "30-40",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Friend of Beatrice Dunmore",
+            "Professional rival of Ambrose Rutherford"
+          ],
+          "public_persona": "Sharp, respected village schoolteacher and amateur sleuth",
+          "private_secret": "Harbors distrust of official dig authorities",
+          "motive_seed": "N/A - detective",
+          "motive_strength": "none",
+          "alibi_window": "Eight o'clock to ten o'clock in the village school",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Village school",
+            "Village green"
+          ],
+          "behavioral_tells": [
+            "Persistent questioning",
+            "Careful note-taking"
+          ],
+          "stakes": "Reputation as detective, safety of village truth",
+          "evidence_sensitivity": [
+            "Archival documents",
+            "Witness statements"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Beatrice Dunmore",
+          "age_range": "50-60",
+          "role_archetype": "victim",
+          "relationships": [
+            "Rival of Ambrose Rutherford",
+            "Mentor to Frances Orme"
+          ],
+          "public_persona": "Respected archaeologist and dig overseer",
+          "private_secret": "Discovered troubling evidence threatening local landowners",
+          "motive_seed": "Her discovery could overturn the dig’s official narrative",
+          "motive_strength": "strong",
+          "alibi_window": "N/A - deceased",
+          "access_plausibility": "N/A",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "Her reputation and truth of archaeological record",
+          "evidence_sensitivity": [
+            "Official dig report",
+            "Excavation log"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Ottoline Thorne",
+          "age_range": "40-50",
+          "role_archetype": "Dig Assistant",
+          "relationships": [
+            "Loyal to Ambrose Rutherford",
+            "Jealous of Beatrice Dunmore"
+          ],
+          "public_persona": "Diligent but reserved archaeological assistant",
+          "private_secret": "Resents Beatrice’s authority and influence",
+          "motive_seed": "Feared losing position if Beatrice exposed truth",
+          "motive_strength": "moderate",
+          "alibi_window": "Eight-thirty to nine-thirty in the dig's tool shed",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Tool shed",
+            "Dig site"
+          ],
+          "behavioral_tells": [
+            "Avoids direct eye contact",
+            "Fidgety hands"
+          ],
+          "stakes": "Job security and social standing",
+          "evidence_sensitivity": [
+            "Dig tools",
+            "Official records"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ambrose Rutherford",
+          "age_range": "50-60",
+          "role_archetype": "Landowner and Dig Sponsor",
+          "relationships": [
+            "Dislikes Beatrice Dunmore",
+            "Friend of Desmond Halloway"
+          ],
+          "public_persona": "Wealthy local landowner funding the dig",
+          "private_secret": "Motivated to suppress damaging discoveries",
+          "motive_seed": "Beatrice’s report threatened landowner interests",
+          "motive_strength": "strong",
+          "alibi_window": "Nine o'clock to half past nine at the village pub",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Village pub",
+            "Dig site office"
+          ],
+          "behavioral_tells": [
+            "Abrupt speech",
+            "Impatient gestures"
+          ],
+          "stakes": "Retain control of land and influence",
+          "evidence_sensitivity": [
+            "Official dig report",
+            "Pub logbook"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Desmond Halloway",
+          "age_range": "45-55",
+          "role_archetype": "Village Elder",
+          "relationships": [
+            "Supports Ambrose Rutherford",
+            "Acquaintance of Josephine Whitlock"
+          ],
+          "public_persona": "Respected elder and informal authority in village matters",
+          "private_secret": "Known to enforce social order by intimidating dissenters",
+          "motive_seed": "Wanted to maintain village harmony by silencing troublemakers",
+          "motive_strength": "moderate",
+          "alibi_window": "Eight o'clock to nine-thirty at his cottage",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Village green",
+            "His cottage"
+          ],
+          "behavioral_tells": [
+            "Stern demeanor",
+            "Avoids revealing opinions"
+          ],
+          "stakes": "Preserve social order and his status",
+          "evidence_sensitivity": [
+            "Village council minutes",
+            "Witness statements"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Josephine Whitlock",
+          "age_range": "35-45",
+          "role_archetype": "Archivist",
+          "relationships": [
+            "Works under Ambrose Rutherford",
+            "Friend of Frances Orme"
+          ],
+          "public_persona": "Careful and diligent keeper of village and dig records",
+          "private_secret": "Complicit in tampering with official documents for Ambrose",
+          "motive_seed": "Pressure to protect Ambrose’s interests and career",
+          "motive_strength": "moderate",
+          "alibi_window": "seven forty to a quarter past eight in the archive room",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Archive room",
+            "Village hall"
+          ],
+          "behavioral_tells": [
+            "Nervous glances",
+            "Hesitant speech when questioned"
+          ],
+          "stakes": "Job security and social favor",
+          "evidence_sensitivity": [
+            "Official dig report",
+            "Archival stamps"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "female",
+          "alibi_span": {
+            "startHour": 7,
+            "startMinute": 40,
+            "endHour": 8,
+            "endMinute": 15,
+            "location": "the archive room"
+          }
+        },
+        {
+          "name": "Ivor Ormesby",
+          "age_range": "55-65",
+          "role_archetype": "Village Clockmaker",
+          "relationships": [
+            "Old friend of Frances Orme",
+            "Respected craftsman"
+          ],
+          "public_persona": "Skilled clockmaker and repairman",
+          "private_secret": "Unaware of involvement but was coerced to adjust village clock",
+          "motive_seed": "N/A - no motive, only manipulated",
+          "motive_strength": "none",
+          "alibi_window": "Eight o'clock to nine-thirty in his workshop",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Clock tower",
+            "Workshop"
+          ],
+          "behavioral_tells": [
+            "Distracted",
+            "Avoids discussing the village clock"
+          ],
+          "stakes": "Protect reputation, avoid scandal",
+          "evidence_sensitivity": [
+            "Village clock",
+            "Workshop tools"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Josephine Whitlock"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "Beatrice Dunmore, the lead archaeologist at Coldharbour Dig, is found stabbed with her own letter opener. The official excavation report, accepted as true because of its authoritative origin, claims Beatrice discovered nothing significant. Frances Orme, the village schoolteacher, suspects a cover-up. The investigation reveals that the official report was forged, exploiting the villagers' blind trust in authority. The village clock was tampered with to mislead alibi timing. The discovery of archival irregularities and conflicting witness testimonies exposes the deception. The culprit is revealed to be Josephine Whitlock, the archivist, who manipulated the official record and the village clock to conceal the truth and protect powerful interests."
+        },
+        "accepted_facts": [
+          "Beatrice Dunmore was stabbed to death with a letter opener from the dig site office.",
+          "The official excavation report states Beatrice found no evidence contradicting the landowners' claims.",
+          "The village clock was reset shortly before the murder to mislead time witnesses.",
+          "Josephine Whitlock had access to the archival room and official records.",
+          "The letter opener was kept in the dig site office.",
+          "The village is socially dominated by Ambrose Rutherford and Desmond Halloway.",
+          "Frances Orme discovered inconsistencies in archival stamps and paper watermarks."
+        ],
+        "inferred_conclusions": [
+          "The official excavation report was forged to conceal Beatrice’s discovery.",
+          "Josephine Whitlock manipulated archival documents and tampered with the village clock.",
+          "The false timeline created by the clock tampering gave Josephine an alibi during the murder.",
+          "The smudge on the letter opener belongs to Ottoline Thorne, but she is innocent.",
+          "Only Josephine had the means, motive, and opportunity to commit the murder and cover-up."
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "Josephine Whitlock forged the official excavation report by chemically aging ink and manipulating archival stamps to backdate the document, exploiting the villagers' unquestioning acceptance of authority. She also coerced the village clockmaker, Ivor Ormesby, to reset the village clock to create a false timeline that supported her alibi. The genuine time of death is contradicted by the true date of paper manufacture shown by the watermark and the archival filing stamps' order. The villagers accepted the forged report because it bore authoritative archival marks and appeared aged, hiding the truth of Beatrice’s discovery and murder.",
+          "delivery_path": [
+            {
+              "step": "Josephine forged the excavation report using chemical ink aging."
+            },
+            {
+              "step": "She backdated the archival stamps to support the false date."
+            },
+            {
+              "step": "She bribed or coerced Ivor Ormesby to reset the village clock one hour earlier."
+            },
+            {
+              "step": "This tampering misled witness alibis based on the clock time."
+            },
+            {
+              "step": "The forged report was presented as official and accepted without question."
+            }
+          ],
+          "actual_time_of_death": "nine o'clock",
+          "apparent_time_of_death": "eight o'clock"
+        },
+        "outcome": {
+          "result": "The false official record and clock tampering concealed the real time of death and Beatrice's discovery until Frances Orme uncovered the forgery and exposed Josephine Whitlock as the murderer."
+        }
+      },
+      "false_assumption": {
+        "statement": "The official excavation report is authentic and trustworthy because it was issued by the village archival authority.",
+        "type": "authority",
+        "why_it_seems_reasonable": "The report bears official archival stamps and shows aged ink consistent with its claimed date, leading the villagers and investigators to accept it without question.",
+        "what_it_hides": "The report is a carefully forged document that conceals Beatrice Dunmore’s discovery and the true circumstances of her murder."
+      },
+      "false_solution": {
+        "accused_suspect": "Ambrose Rutherford",
+        "supporting_points": [
+          "Ambrose had motive to suppress Beatrice’s findings to protect landowner interests.",
+          "His presence near the dig site at the time of murder was noted by witnesses."
+        ],
+        "the_one_flaw": "Ambrose’s alibi is confirmed by multiple independent witnesses and the village pub’s logbook, which places him there during the actual time of death.",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A smudge on the letter opener matches Ottoline Thorne’s glove.",
+          "points_at_suspect": "Ottoline Thorne",
+          "innocent_explanation": "Ottoline handled the letter opener earlier while preparing dig tools and had no motive or opportunity to kill Beatrice.",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "Ambrose Rutherford’s abrupt behavior and tensions with Beatrice suggest hostility.",
+          "points_at_suspect": "Ambrose Rutherford",
+          "innocent_explanation": "Ambrose’s hostility was due to professional rivalry, but witnesses confirm his presence at the pub during the murder.",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Frances Orme",
+          "Ottoline Thorne",
+          "Ambrose Rutherford",
+          "Desmond Halloway",
+          "Josephine Whitlock",
+          "Ivor Ormesby"
+        ],
+        "rationale": "All suspects had access to the dig site or official records and were present in the village at the time, while no outsiders could enter the isolated village unnoticed."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Village clock shows eight o'clock when Beatrice was last seen alive",
+            "Village pub logbook records Ambrose Rutherford present from nine o'clock",
+            "Archival stamps dated after the murder date",
+            "Watermark on report paper dates manufacture six months after claimed report date"
+          ],
+          "windows": [
+            "Eight-fifteen to eight-forty-five in dig site office — murder",
+            "Eight o'clock to ten o'clock in village school — Frances Orme",
+            "Eight-thirty to nine-thirty in tool shed — Ottoline Thorne",
+            "Nine o'clock to half past nine at village pub — Ambrose Rutherford",
+            "Nine o'clock to half past ten in archive room — Josephine Whitlock"
+          ],
+          "contradictions": [
+            "Clock time conflicts with archival paper and stamps",
+            "Alibis based on false clock time do not cover real time of death"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Frances Orme",
+            "Beatrice Dunmore",
+            "Ottoline Thorne",
+            "Ambrose Rutherford",
+            "Desmond Halloway",
+            "Josephine Whitlock",
+            "Ivor Ormesby"
+          ],
+          "objects": [
+            "Letter opener — kept by Beatrice Dunmore, in dig site office, because it is her personal writing tool",
+            "Official excavation report — kept in archive room, accessible by Josephine Whitlock and Frances Orme",
+            "Village clock — maintained by Ivor Ormesby, located in clock tower"
+          ],
+          "permissions": [
+            "Dig site office — reachable by Beatrice Dunmore, Ottoline Thorne, Ambrose Rutherford; not by Frances Orme",
+            "Archive room — reachable by Josephine Whitlock, Frances Orme; not by Ottoline Thorne",
+            "Clock tower — reachable by Ivor Ormesby and Josephine Whitlock; not by Ambrose Rutherford"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Ink aging follows chemical oxidation patterns consistent over months",
+            "Archival stamps must be applied in chronological order",
+            "Village clock is resettable and can be tampered with mechanically"
+          ],
+          "traces": [
+            "Letter opener: glove smudge found in dig site office — Ottoline Thorne",
+            "Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Village elders' word trusted by villagers",
+            "Official archival stamps accepted as proof of authenticity",
+            "Landowners’ statements carry authority in village"
+          ],
+          "authority_sources": [
+            "Village archival authority",
+            "Landowner Ambrose Rutherford",
+            "Village elder Desmond Halloway"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "Letter opener: glove smudge found in dig site office — Ottoline Thorne",
+            "correction": "Ottoline handled the letter opener earlier but was not present at time of murder, eliminating her as culprit",
+            "effect": "Eliminates Ottoline Thorne",
+            "required_evidence": [
+              "Letter opener: glove smudge found in dig site office — Ottoline Thorne",
+              "Ottoline Thorne's alibi window: Eight-thirty to nine-thirty in tool shed"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Archival stamps on official excavation report are dated inconsistently and out of filing order",
+            "correction": "The report was forged after the murder date, contradicting the claimed date",
+            "effect": "Narrows forgery to someone with archival access, implicating Josephine Whitlock",
+            "required_evidence": [
+              "Official excavation report bears archival stamps dated after murder",
+              "Josephine Whitlock's alibi window: Nine o'clock to half past ten in archive room"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Watermark on report paper dates manufacture six months after claimed report date",
+            "correction": "The paper could not have been used at the claimed time; confirms report forgery",
+            "effect": "Strengthens case against report's authenticity and Josephine's involvement",
+            "required_evidence": [
+              "Watermark on report paper dates manufacture six months after claimed report date",
+              "Josephine Whitlock's access to archival documents and paper"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock",
+            "correction": "Josephine personally handled the murder weapon after the murder, implicating her in concealing evidence",
+            "effect": "Narrows suspects to those with access to dig site office and official records, including Josephine Whitlock",
+            "required_evidence": [
+              "Letter opener: fresh fingerprints and carrying marks found on handle — Josephine Whitlock",
+              "Dig site office reachable by Josephine Whitlock and Ambrose Rutherford; not by Frances Orme"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Village clock was reset by Ivor Ormesby to one hour earlier than actual time",
+            "correction": "Alibis based on village clock time are unreliable; Josephine's alibi covers only the apparent time, not real time of death",
+            "effect": "Eliminates suspects with reliable alibis and exposes Josephine's false alibi",
+            "required_evidence": [
+              "Village clock reset evidence from Ivor Ormesby's workshop",
+              "Josephine Whitlock's alibi window: Nine o'clock to half past ten in archive room",
+              "Actual time of death at nine o'clock, apparent at eight o'clock"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "trap",
+        "design": "Compare the archival stamps order and paper watermark date with the chemical ink aging analysis on the official excavation report to prove the document was forged after the murder date, combined with confirming the village clock reset by Ivor Ormesby invalidates Josephine Whitlock's alibi based on the false clock time.",
+        "knowledge_revealed": "The archival record is a forgery designed to conceal the real murder time, and the village clock tampering was used to create a false alibi for Josephine Whitlock.",
+        "pass_condition": "Proof that the official excavation report could not have existed at the claimed time and that the village clock was deliberately reset to mislead alibi timing.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: The glove smudge on the letter opener and Ottoline's alibi clear her early (early clue). Step 2 and 3: Archival stamp dates and paper watermark inconsistencies (mid clues) expose the forged report and implicate Josephine. Step 4: Fingerprints on the letter opener handle place Josephine handling the weapon post-murder (mid clue). Step 5: The village clock reset evidence (early clue) reveals the false alibi timeline, eliminating other suspects and confirming Josephine's guilt before the discriminating test."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 4,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 4,
+          "essential_clues_before_test": true,
+          "early_clues_min": 1,
+          "mid_clues_min": 3,
+          "late_clues_min": 0
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the archival document chemical analysis",
+            "Reveal the village clock tampering",
+            "Show how Josephine's alibi fails",
+            "Draw conclusion about Josephine's guilt"
+          ],
+          "test_type": "trap"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Ottoline Thorne",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi confirmation by dig tool shed witness and glove smudge explained",
+            "supporting_clues": [
+              "Letter opener: glove smudge found in dig site office — Ottoline Thorne",
+              "Ottoline Thorne's alibi window: Eight-thirty to nine-thirty in tool shed"
+            ]
+          },
+          {
+            "suspect_name": "Ambrose Rutherford",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Pub logbook and multiple witness testimony confirm alibi",
+            "supporting_clues": [
+              "Village pub logbook records Ambrose Rutherford present from nine o'clock",
+              "Ambrose Rutherford's alibi window: Nine o'clock to half past nine at village pub"
+            ]
+          },
+          {
+            "suspect_name": "Desmond Halloway",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi confirmed by neighbors at cottage",
+            "supporting_clues": [
+              "Desmond Halloway's alibi window: Eight o'clock to nine-thirty at his cottage"
+            ]
+          },
+          {
+            "suspect_name": "Ivor Ormesby",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Workshop attendance confirmed; coerced clock tampering revealed",
+            "supporting_clues": [
+              "Village clock reset evidence from Ivor Ormesby's workshop",
+              "Ivor Ormesby's alibi window: Eight o'clock to nine-thirty in his workshop"
+            ]
+          },
+          {
+            "suspect_name": "Beatrice Dunmore",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A - deceased",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with forged document evidence and clock tampering proof"
+        },
+        "identity_rules": [],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "clue_early_1",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Direct observation of glove smudge on letter opener"
+          },
+          {
+            "clue_id": "clue_mid_1",
+            "act_number": 2,
+            "scene_number": 2,
+            "delivery_method": "Inspection of archival stamps on official report"
+          },
+          {
+            "clue_id": "clue_mid_2",
+            "act_number": 2,
+            "scene_number": 3,
+            "delivery_method": "Examination of paper watermark in archival room"
+          },
+          {
+            "clue_id": "clue_mid_3",
+            "act_number": 2,
+            "scene_number": 4,
+            "delivery_method": "Fingerprint analysis on letter opener handle"
+          },
+          {
+            "clue_id": "clue_early_2",
+            "act_number": 1,
+            "scene_number": 4,
+            "delivery_method": "Discovery of village clock reset evidence in clockmaker's workshop"
+          }
+        ]
+      }
+    }
+  }
+}

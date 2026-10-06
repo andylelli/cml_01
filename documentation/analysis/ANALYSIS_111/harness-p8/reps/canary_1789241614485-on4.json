@@ -1,0 +1,602 @@
+{
+  "harness": {
+    "projectId": "canary_1789241614485",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on a person believed absent who was present under another name. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a folly built by an eccentric. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "identity",
+    "maxAttempts": 1,
+    "runId": "a111-p8r-94118-on-4",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps/canary_1789241614485-on4.json",
+    "latencyMs": 42910,
+    "cost": 0.010650463999999998
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on a person believed absent who was present under another name. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a folly built by an eccentric. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: transit_topology, behavioral_concealment, restricted_access, institutional_procedure, interior_topology",
+    "primaryAxis": "identity",
+    "castNames": [
+      "Katherine Bellamy",
+      "Dr. Cecil Ashgrove",
+      "Lavinia Yardley",
+      "Ferdinand Carrick",
+      "Iris Selwyn",
+      "Neville Fairweather"
+    ],
+    "mechanismFamilies": [
+      "role substitution proof",
+      "witness misidentification constraint",
+      "social_logic",
+      "cognitive-bias exploitation",
+      "identity falsification",
+      "quantitative contradiction",
+      "physical_law",
+      "physical-constraint proof",
+      "cognitive_bias",
+      "identity",
+      "authority-channel manipulation"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"Dagger: handling mark found in crew quarters corridor — Iris Selwyn\"  [used by inference step 1]  [also on the weapon, naming nobody: \"Dagger: glove mark found in first-class lounge — Lavinia Yardley\"]",
+    "linkingTraces": [
+      "Dagger: handling mark found in crew quarters corridor — Iris Selwyn"
+    ],
+    "weaponTracesNamingNobody": [
+      "Dagger: glove mark found in first-class lounge — Lavinia Yardley"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 1
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"Dagger: handling mark found in crew quarters corridor — Iris Selwyn\" [used by inference step 1] [also on the weapon, naming nobody: \"Dagger: glove mark found in first-class lounge — Lavinia Yardley\"]",
+    "[A_111 alibi-coverage] 1 of 3 innocent alibis contain the actual time of death — missing: Lavinia Yardley, Ferdinand Carrick",
+    "[A_90 alibi-plan] before retry: Iris Selwyn (actual_covered) \"8:15 to 9:00 in crew quarters corridor\" -> \"half past eight to nine oh five in crew quarters corridor\" -> valid, no retry spent"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Steward's Masquerade: A Transatlantic Folly",
+        "author": "Anonymous Golden Age Specialist",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1950s",
+          "realism_constraints": [
+            "No modern mobile technology",
+            "Forensics limited to serology and microscopy",
+            "Shipboard authority strictly enforced",
+            "Witness testimony subject to cognitive biases"
+          ]
+        },
+        "setting": {
+          "location": "Atlantic Ocean",
+          "place": "Southampton to New York route",
+          "country": "International Waters",
+          "institution": "ocean liner"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "identity substitution and impersonation"
+        }
+      },
+      "death_method": "stabbed with a dagger, to the heart",
+      "cast": [
+        {
+          "name": "Katherine Bellamy",
+          "age_range": "30-40",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Professional acquaintance of Dr. Ashgrove",
+            "Observant passenger"
+          ],
+          "public_persona": "Elegant and composed passenger",
+          "private_secret": "Deep knowledge of ship's crew and social structure",
+          "motive_seed": "Driven to uncover truth and restore order",
+          "motive_strength": "moderate",
+          "alibi_window": "8:30 to 9:15 on first-class promenade deck",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Frequent movement between decks",
+            "Access to public areas"
+          ],
+          "behavioral_tells": [
+            "Notices inconsistencies in social interactions",
+            "Questions authority without disrespect"
+          ],
+          "stakes": "Personal reputation as investigator",
+          "evidence_sensitivity": [
+            "Uniform fabric fragment",
+            "Crew schedule logs"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Dr. Cecil Ashgrove",
+          "age_range": "45-55",
+          "role_archetype": "Medical doctor, confidant",
+          "relationships": [
+            "Respected ship's doctor",
+            "Friend of Katherine Bellamy"
+          ],
+          "public_persona": "Calm and professional",
+          "private_secret": "Possesses knowledge of crew movements",
+          "motive_seed": "Protecting reputation of crew member",
+          "motive_strength": "moderate",
+          "alibi_window": "8:15 to 9:30 in ship's medical bay",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to all passenger decks",
+            "Knowledge of timings and schedules"
+          ],
+          "behavioral_tells": [
+            "Avoids direct answers about steward's whereabouts",
+            "Keeps detailed logs"
+          ],
+          "stakes": "Professional standing",
+          "evidence_sensitivity": [
+            "Medical bay logbook",
+            "Crew movement records"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        },
+        {
+          "name": "Lavinia Yardley",
+          "age_range": "28-38",
+          "role_archetype": "First-class passenger",
+          "relationships": [
+            "Acquaintance of Ferdinand Carrick",
+            "Observer of shipboard events"
+          ],
+          "public_persona": "Socialite, fashionable and talkative",
+          "private_secret": "Senses tension in crew",
+          "motive_seed": "Protect social standing from scandal",
+          "motive_strength": "low",
+          "alibi_window": "8:40 to 9:20 in first-class lounge",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "First-class deck access",
+            "Social gatherings"
+          ],
+          "behavioral_tells": [
+            "Gossips about crew nervousness",
+            "Observes unusual steward behavior"
+          ],
+          "stakes": "Social reputation",
+          "evidence_sensitivity": [
+            "Lounge guest statements",
+            "Crew uniform fragment sighting"
+          ],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Ferdinand Carrick",
+          "age_range": "40-50",
+          "role_archetype": "Second-class passenger",
+          "relationships": [
+            "Has business with crew members",
+            "Known to Neville Fairweather"
+          ],
+          "public_persona": "Reserved and observant",
+          "private_secret": "Aware of crew schedules and access routes",
+          "motive_seed": "Jealousy over a past business deal with victim",
+          "motive_strength": "moderate",
+          "alibi_window": "8:25 to 9:10 in second-class smoking room",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Access to crew quarters via service stairs",
+            "Social meetings with crew"
+          ],
+          "behavioral_tells": [
+            "Avoids discussing victim directly",
+            "Shows nervousness when uniform discussed"
+          ],
+          "stakes": "Business reputation",
+          "evidence_sensitivity": [
+            "Crew access logs",
+            "Smoking room witness statements"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Iris Selwyn",
+          "age_range": "35-45",
+          "role_archetype": "Crew member, deck steward",
+          "relationships": [
+            "Works closely with Neville Fairweather",
+            "Known to Dr. Ashgrove"
+          ],
+          "public_persona": "Dutiful and discreet stewardess",
+          "private_secret": "Capable of impersonating male crew due to dress similarities",
+          "motive_seed": "Concealing a secret about victim's identity",
+          "motive_strength": "strong",
+          "alibi_window": "half past eight to nine oh five in crew quarters corridor",
+          "access_plausibility": "very high",
+          "opportunity_channels": [
+            "Access to first-class decks disguised",
+            "Knowledge of crew uniform details"
+          ],
+          "behavioral_tells": [
+            "Nervousness when questioned about victim",
+            "Unusual familiarity with victim’s attire"
+          ],
+          "stakes": "Job security and secret protection",
+          "evidence_sensitivity": [
+            "Uniform fabric fragment",
+            "Crew log discrepancies"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "female",
+          "alibi_span": {
+            "startHour": 8,
+            "startMinute": 30,
+            "endHour": 9,
+            "endMinute": 5,
+            "location": "crew quarters corridor"
+          }
+        },
+        {
+          "name": "Neville Fairweather",
+          "age_range": "50-60",
+          "role_archetype": "victim",
+          "relationships": [
+            "Known to Ferdinand Carrick",
+            "Interacted with crew and passengers"
+          ],
+          "public_persona": "Distinguished first-class passenger",
+          "private_secret": "Had recently uncovered a shipboard scandal",
+          "motive_seed": "Victim, no motive",
+          "motive_strength": "n/a",
+          "alibi_window": "N/A",
+          "access_plausibility": "high",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "Life",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "male"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Iris Selwyn"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "On a chilly North Atlantic autumn voyage, Neville Fairweather is found stabbed in his cabin. Passengers and crew insist he was seen alive on the first-class promenade deck at the time of death. However, a subtle impersonation by a crew member exploiting the rigid class segregation and witness assumptions conceals the truth. Detective Katherine Bellamy unravels a web of identity deception, revealing that the victim was impersonated by the steward Iris Selwyn, who murdered him to hide a secret. The investigation exposes social and physical constraints on the ship that made the masquerade possible, leading to a decisive test proving Iris's guilt before the final confrontation."
+        },
+        "accepted_facts": [
+          "Neville Fairweather was found dead in his cabin stabbed with a dagger to the heart.",
+          "Multiple witnesses claimed to have seen Neville on the first-class promenade deck between quarter past eight and quarter to nine.",
+          "A torn fragment of a steward’s uniform fabric was found snagged on Neville's cabin doorframe.",
+          "Crew schedules show Iris Selwyn was on duty in the crew quarters corridor during the apparent time Neville was seen alive.",
+          "The ship’s access logs restrict first-class deck access to authorized passengers and crew.",
+          "Iris Selwyn is the only crew member able to wear a steward’s uniform and move unnoticed in first-class areas due to her knowledge and physical resemblance when in uniform."
+        ],
+        "inferred_conclusions": [
+          "The person witnessed on the promenade deck was not Neville Fairweather but Iris Selwyn impersonating him in a steward's uniform.",
+          "The actual time of death was earlier, around quarter past eight, before the impersonation began.",
+          "Iris Selwyn used a role substitution to create an alibi for the real murder time.",
+          "The torn uniform fragment proves Iris's involvement and the physical impossibility of Neville being on the promenade deck alive.",
+          "The murder weapon was kept in the ship's security office, reachable by Iris and Ferdinand Carrick.",
+          "The physical traces on the dagger and the uniform fragment link Iris Selwyn uniquely to the murder act."
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "Iris Selwyn, a deck stewardess, impersonated Neville Fairweather by wearing a steward’s uniform identical to the victim’s usual attire and mimicking his mannerisms on the first-class promenade deck. The witnesses, influenced by cognitive bias and social expectations, misidentified Iris as Neville. The actual murder occurred earlier in Neville’s cabin when Iris stabbed him with a dagger taken from the ship’s secured armory. The tampering with crew schedules and use of the uniform fragment concealed Iris’s presence in first-class areas. The impersonation was possible because the ship’s strict class segregation and institutional procedures limited who could be in certain areas, and Iris exploited the authority channels and social logic to create a believable false identity.",
+          "delivery_path": [
+            {
+              "step": "Iris takes a dagger from the ship's armory, which she has access to as part of the crew."
+            },
+            {
+              "step": "Iris murders Neville Fairweather in his cabin around quarter past eight."
+            },
+            {
+              "step": "She dons a steward’s uniform similar to Neville’s regular attire and moves to the first-class promenade deck."
+            },
+            {
+              "step": "Passengers and crew see the impersonator and mistake her for Neville due to clothing and mannerisms."
+            },
+            {
+              "step": "A torn fragment of the uniform is caught on Neville’s cabin doorframe during the murder, unnoticed until found later."
+            },
+            {
+              "step": "Crew schedules are falsified or ambiguous to cover Iris’s movements."
+            }
+          ],
+          "actual_time_of_death": "a quarter past eight",
+          "apparent_time_of_death": "a quarter to nine"
+        },
+        "outcome": {
+          "result": "The true identity of the person seen alive after the murder is revealed to be Iris Selwyn impersonating Neville Fairweather. The physical and social constraints on the ship, combined with cognitive bias, allowed the deception to conceal the murder until the discriminating test exposes the falsification."
+        }
+      },
+      "false_assumption": {
+        "statement": "Neville Fairweather was seen alive on the first-class promenade deck between quarter past eight and quarter to nine.",
+        "type": "identity",
+        "why_it_seems_reasonable": "Multiple passengers and crew report seeing Neville in his usual attire behaving characteristically on the promenade deck during that time, consistent with his known habits and social standing.",
+        "what_it_hides": "The person seen was actually Iris Selwyn impersonating Neville, exploiting social and cognitive biases to create a false alibi and misdirect the investigation."
+      },
+      "false_solution": {
+        "accused_suspect": "Ferdinand Carrick",
+        "supporting_points": [
+          "Ferdinand had access to the dagger in the ship’s armory and motive due to jealousy over past business with Neville.",
+          "Witnesses recall seeing Ferdinand near the victim's cabin around the time of the murder."
+        ],
+        "the_one_flaw": "Ferdinand's alibi is supported by crew access logs and witness statements that place him in the second-class smoking room during the murder window, making it impossible for him to have committed the stabbing.",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "A glove mark found on the dagger in the victim's cabin matches Lavinia Yardley’s gloves.",
+          "points_at_suspect": "Lavinia Yardley",
+          "innocent_explanation": "Lavinia had handled the dagger innocently during a social game earlier in the voyage, before the murder.",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "A torn piece of cloth matching Ferdinand Carrick's jacket found near the victim's cabin door.",
+          "points_at_suspect": "Ferdinand Carrick",
+          "innocent_explanation": "Ferdinand brushed against the doorframe accidentally while delivering a message earlier that evening.",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Katherine Bellamy",
+          "Dr. Cecil Ashgrove",
+          "Lavinia Yardley",
+          "Ferdinand Carrick",
+          "Iris Selwyn"
+        ],
+        "rationale": "All suspects were aboard the ship during the voyage with no possibility of outside interference. Access records and social interactions confirm no outsiders could commit the murder."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Quarter past eight",
+            "Quarter to nine"
+          ],
+          "windows": [
+            "Quarter past eight to quarter to nine — the murder",
+            "Eight fifteen to nine thirty in medical bay — Dr. Cecil Ashgrove",
+            "Eight thirty to nine fifteen in first-class promenade deck — Katherine Bellamy",
+            "Eight forty to nine twenty in first-class lounge — Lavinia Yardley",
+            "Eight twenty five to nine ten in second-class smoking room — Ferdinand Carrick",
+            "Eight fifteen to nine in crew quarters corridor — Iris Selwyn"
+          ],
+          "contradictions": [
+            "Witnesses claim Neville was alive on promenade deck quarter to nine but victim’s time of death is quarter past eight",
+            "Crew schedules place Iris Selwyn away from first-class promenade deck but torn uniform fabric proves presence there"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Katherine Bellamy",
+            "Dr. Cecil Ashgrove",
+            "Lavinia Yardley",
+            "Ferdinand Carrick",
+            "Iris Selwyn"
+          ],
+          "objects": [
+            "Dagger — kept by ship’s security officer, in the ship’s armory, because it is part of the ship's emergency equipment"
+          ],
+          "permissions": [
+            "Ship’s armory — reachable by Iris Selwyn and Ferdinand Carrick; not by Katherine Bellamy, Lavinia Yardley, Dr. Cecil Ashgrove"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Uniform fabric cannot be torn without physical contact with doorframe",
+            "Dagger leaves distinct glove marks and handling traces",
+            "Ship layout restricts physical presence to certain decks by authorization"
+          ],
+          "traces": [
+            "Dagger: glove mark found in first-class lounge — Lavinia Yardley",
+            "Dagger: handling mark found in crew quarters corridor — Iris Selwyn"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Crew duty rosters",
+            "Passenger witness statements",
+            "Official shipboard access logs"
+          ],
+          "authority_sources": [
+            "Ship officers’ access permissions",
+            "Crew uniform regulations",
+            "Class-based deck restrictions"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "Dagger: handling mark found in crew quarters corridor — Iris Selwyn",
+            "correction": "Iris Selwyn had physical contact with the murder weapon outside the victim’s cabin, placing her in proximity to the crime scene.",
+            "effect": "Narrows the pool to Iris Selwyn and Ferdinand Carrick as only suspects with armory access and dagger handling.",
+            "required_evidence": [
+              "Dagger: handling mark found in crew quarters corridor — Iris Selwyn",
+              "Ship’s armory — reachable by Iris Selwyn and Ferdinand Carrick; not by Katherine Bellamy, Lavinia Yardley, Dr. Cecil Ashgrove"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Torn fragment of steward’s uniform fabric found snagged on Neville Fairweather’s cabin doorframe",
+            "correction": "Someone wearing a steward’s uniform was present at the victim's cabin during the murder, contradicting witness claims of Neville’s presence elsewhere.",
+            "effect": "Eliminates all suspects except Iris Selwyn who can wear a steward’s uniform and access first-class areas.",
+            "required_evidence": [
+              "Torn fragment of steward’s uniform fabric found snagged on Neville Fairweather’s cabin doorframe",
+              "Iris Selwyn’s knowledge of crew uniform details and access permissions"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Crew schedules place Iris Selwyn in crew quarters corridor at the time witnesses claim Neville was on the promenade deck",
+            "correction": "Iris Selwyn's official duty location conflicts with the presence of ‘Neville’ on the promenade deck, indicating impersonation.",
+            "effect": "Narrows identity confusion to Iris Selwyn impersonating Neville Fairweather.",
+            "required_evidence": [
+              "Crew schedules showing Iris Selwyn’s location",
+              "Witness statements of Neville on promenade deck"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Iris Selwyn is the only crew member with knowledge and physical resemblance sufficient to impersonate Neville while wearing a steward’s uniform",
+            "correction": "Only Iris could have created the false identity to mislead witnesses and cover the murder.",
+            "effect": "Identifies Iris Selwyn as sole capable suspect for identity deception and murder.",
+            "required_evidence": [
+              "Iris Selwyn’s uniform knowledge and physical capability",
+              "Social constraints restricting first-class deck access"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "trap",
+        "design": "A controlled observation is arranged on the promenade deck where witnesses previously identified Neville. Iris Selwyn is asked to wear the steward’s uniform and mimic Neville’s mannerisms. Witnesses’ recognition is tested against physical uniform details and mannerisms, revealing discrepancies. Concurrently, crew schedules and access logs are verified under scrutiny to confirm Iris’s impossible presence in multiple places. This exposes the impersonation mechanism by demonstrating the false identity sustained by social and institutional constraints.",
+        "knowledge_revealed": "The test conclusively proves Iris Selwyn’s impersonation of Neville Fairweather and her presence on the promenade deck at the apparent time of death, confirming the identity deception and murder.",
+        "pass_condition": "Witnesses fail to recognize Iris as Neville without the uniform, and physical evidence of uniform fragments and crew access logs confirm Iris’s double presence, proving guilt.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1: The dagger’s handling mark and armory access logs (early) link Iris to the murder weapon. Step 2: The torn uniform fragment on the victim’s doorframe (early) contradicts witness sightings, revealing identity substitution. Step 3: Crew schedules (mid) show Iris’s official location conflicts with witness statements, proving impersonation. Step 4: Iris’s unique ability to impersonate based on uniform knowledge and physical resemblance (mid) confirm her capability. The discriminating test (early act 3) uses these visible clues to expose the deception, ensuring the reader can solve the case without hidden information."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 3,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 4,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 2,
+          "late_clues_min": 0
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the discriminating test with Iris Selwyn on the promenade deck",
+            "Observe and record witness reactions to the uniform and impersonation",
+            "Confirm physical uniform details and access logs contradict identity claims",
+            "Draw conclusion about Iris Selwyn’s guilt"
+          ],
+          "test_type": "trap"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Dr. Cecil Ashgrove",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Medical bay log and witness statements confirm location",
+            "supporting_clues": [
+              "Medical bay logbook",
+              "Crew movement records"
+            ]
+          },
+          {
+            "suspect_name": "Lavinia Yardley",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Social presence in first-class lounge confirmed by multiple guests",
+            "supporting_clues": [
+              "Lounge guest statements",
+              "Glove mark explanation"
+            ]
+          },
+          {
+            "suspect_name": "Ferdinand Carrick",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Smoking room witnesses and access logs confirm alibi",
+            "supporting_clues": [
+              "Crew access logs",
+              "Smoking room witness statements",
+              "Jacket cloth torn explanation"
+            ]
+          },
+          {
+            "suspect_name": "Neville Fairweather",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with uniform fragment, crew schedules, and impersonation test results"
+        },
+        "identity_rules": [
+          {
+            "character_name": "Neville Fairweather",
+            "revealed_in_act": 3,
+            "before_reveal_reference": "the victim",
+            "after_reveal_reference": "Neville Fairweather"
+          }
+        ],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "clue_early_1",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Direct observation of dagger handling mark on crew quarters corridor"
+          },
+          {
+            "clue_id": "clue_early_2",
+            "act_number": 1,
+            "scene_number": 4,
+            "delivery_method": "Observation of torn steward’s uniform fragment on cabin doorframe"
+          },
+          {
+            "clue_id": "clue_mid_1",
+            "act_number": 2,
+            "scene_number": 2,
+            "delivery_method": "Crew schedules placing Iris Selwyn in crew quarters corridor"
+          },
+          {
+            "clue_id": "clue_mid_2",
+            "act_number": 2,
+            "scene_number": 3,
+            "delivery_method": "Witness statements of Neville on promenade deck"
+          },
+          {
+            "clue_id": "clue_mid_3",
+            "act_number": 2,
+            "scene_number": 4,
+            "delivery_method": "Iris Selwyn’s uniform knowledge and impersonation capability"
+          }
+        ]
+      }
+    }
+  }
+}

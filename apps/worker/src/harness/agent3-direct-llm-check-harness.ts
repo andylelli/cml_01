@@ -33,6 +33,7 @@
  */
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFileSync as readFileSyncNode } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -54,6 +55,23 @@ type CliArgs = {
   maxAttempts: number;
   runId: string;
   outputPath?: string;
+  /** A_111 — the run whose locked-fact registry (logs/locked-facts-<id>.json) the prompt should carry. */
+  sourceRun?: string;
+};
+
+/** A_111 — the source run's locked facts, else the primary device's (the facts Agent 3b's registry starts from). */
+const harnessLockedFacts = (sourceRun: string | undefined, hardLogicDevices: { devices?: Array<{ lockedFacts?: unknown[] }> }): unknown[] => {
+  if (sourceRun) {
+    const file = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "logs", `locked-facts-${sourceRun}.json`);
+    try {
+      const registry = (JSON.parse(readFileSyncNode(file, "utf8")) as { registry?: unknown[] }).registry;
+      if (Array.isArray(registry) && registry.length > 0) return registry;
+    } catch {
+      // fall through to the device's facts
+    }
+  }
+  const facts = hardLogicDevices.devices?.[0]?.lockedFacts;
+  return Array.isArray(facts) ? facts.filter((f) => typeof (f as { id?: unknown })?.id === "string" && typeof (f as { value?: unknown })?.value === "string") : [];
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -81,6 +99,7 @@ const printUsage = (): void => {
       "  --maxAttempts <number>    Default: 1 — a harness run should not hide a first-attempt failure",
       "  --runId <id>              Default: harness-agent3-<timestamp>",
       "  --out <path>              Where to write the CML and the report",
+      "  --sourceRun <runId>       Carry that run's locked-fact registry (logs/locked-facts-<id>.json); default: the primary device's facts",
       "  --help",
     ].join("\n"),
   );
@@ -113,6 +132,7 @@ const parseArgs = (argv: string[]): CliArgs => {
     maxAttempts: Number.isFinite(maxAttempts) && maxAttempts > 0 ? maxAttempts : 1,
     runId: get("--runId") ?? `harness-agent3-${Date.now()}`,
     outputPath: get("--out"),
+    sourceRun: get("--sourceRun"),
   };
 };
 
@@ -220,7 +240,10 @@ const main = async (): Promise<void> => {
     backgroundContext,
     hardLogicDevices,
     hardLogicDirectives: mergeHardLogicDirectives(initialDirectives, hardLogicDevices.devices ?? []),
-    lockedFactRegistry: [],
+    // A_111: the registry the real Agent 3 prompt carries (THE CLOCK, the locked facts). It was [] here, so the harness
+    // measured a prompt no run sends: innocent alibis covered the time of death in 85% of harness calls against 45% of
+    // October's real cases. The source run's file when given, else the primary device's own facts.
+    lockedFactRegistry: harnessLockedFacts(args.sourceRun, hardLogicDevices),
     primaryAxis,
     inputs: { theme: theme || undefined, tone: args.tone },
     runId: args.runId,

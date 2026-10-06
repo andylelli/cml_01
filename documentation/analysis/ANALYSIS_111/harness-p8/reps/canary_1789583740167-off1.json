@@ -1,0 +1,644 @@
+{
+  "harness": {
+    "projectId": "canary_1789583740167",
+    "storePath": "C:\\CML\\data\\store.json",
+    "theme": "Golden Age murder mystery built on an official record accepted without question, and wrong. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: an archaeological dig and what it turned up. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.",
+    "primaryAxis": "authority",
+    "maxAttempts": 1,
+    "runId": "a111-p8r-95041-off-1",
+    "outputPath": "documentation/analysis/ANALYSIS_111/harness-p8/reps/canary_1789583740167-off1.json",
+    "latencyMs": 53710,
+    "cost": 0.011138368
+  },
+  "request": {
+    "theme": "Golden Age murder mystery built on an official record accepted without question, and wrong. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: an archaeological dig and what it turned up. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above. | hard-logic modes: hard_logic, document_analysis, social_manipulation, psychological, social_logic, mechanical, trap, mathematics, physical_evidence, forensic_chemistry, social_deception",
+    "primaryAxis": "authority",
+    "castNames": [
+      "Frances Orme",
+      "Beatrice Dunmore",
+      "Ottoline Thorne",
+      "Ambrose Rutherford",
+      "Desmond Halloway",
+      "Josephine Whitlock",
+      "Ivor Ormesby"
+    ],
+    "mechanismFamilies": [
+      "authority-channel manipulation",
+      "status-based witness distortion",
+      "authority_channel_manipulation",
+      "document_forgery",
+      "archival_logic",
+      "status_based_witness_distortion",
+      "memory_conformity",
+      "cognitive-bias exploitation",
+      "mechanical_trap",
+      "thermal_expansion",
+      "physical_law",
+      "physical-constraint proof",
+      "mathematical_principle",
+      "instrument_tampering",
+      "quantitative contradiction",
+      "social_logic"
+    ]
+  },
+  "classification": {
+    "verdict": "PROVES THE ACT",
+    "detail": "\"letter opener: smudge found in dig site office — Ambrose Rutherford\"  [used by inference step 2]  [also on the weapon, naming nobody: \"letter opener: glove mark found in archive room desk — Ottoline Thorne\"]",
+    "linkingTraces": [
+      "letter opener: smudge found in dig site office — Ambrose Rutherford"
+    ],
+    "weaponTracesNamingNobody": [
+      "letter opener: glove mark found in archive room desk — Ottoline Thorne"
+    ],
+    "culpritTracesWithoutWeapon": [],
+    "usedInInferencePath": true,
+    "usedByStep": 2
+  },
+  "normalizationNotes": [
+    "[A_102 means-link] PROVES THE ACT: \"letter opener: smudge found in dig site office — Ambrose Rutherford\" [used by inference step 2] [also on the weapon, naming nobody: \"letter opener: glove mark found in archive room desk — Ottoline Thorne\"]"
+  ],
+  "cml": {
+    "CML_VERSION": 2,
+    "CASE": {
+      "meta": {
+        "title": "The Forged Chronicle of Little Middleton",
+        "author": "CML Expert",
+        "license": "CC-BY-4.0",
+        "era": {
+          "decade": "1930s",
+          "realism_constraints": [
+            "Basic forensic chemistry and ink analysis available",
+            "Archival filing protocols strictly followed",
+            "Social deference to authority figures shapes testimonies",
+            "Limited forensic ballistics and document dating technology"
+          ]
+        },
+        "setting": {
+          "location": "Little Middleton",
+          "place": "Little Middleton, Yorkshire",
+          "country": "England",
+          "institution": "rural village"
+        },
+        "crime_class": {
+          "category": "murder",
+          "subtype": "archaeological dig site intrigue"
+        }
+      },
+      "death_method": "stabbed with a letter opener, to the neck",
+      "cast": [
+        {
+          "name": "Frances Orme",
+          "age_range": "30-40",
+          "role_archetype": "Detective",
+          "relationships": [
+            "Colleague of Ambrose Rutherford",
+            "Acquaintance of Josephine Whitlock",
+            "Respected by villagers"
+          ],
+          "public_persona": "Sharp-minded and analytical archaeologist",
+          "private_secret": "Skeptical of village authority and archival records",
+          "motive_seed": "Suspects foul play behind forged documents obstructing truth",
+          "motive_strength": "strong",
+          "alibi_window": "eight o'clock to nine o'clock in the village library",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to archival documents",
+            "Presence in village library during key times"
+          ],
+          "behavioral_tells": [
+            "Persistent questioning of official records",
+            "Subtle challenges to authority figures"
+          ],
+          "stakes": "Professional reputation and uncovering truth",
+          "evidence_sensitivity": [
+            "Archival documents",
+            "Witness testimonies",
+            "Ink and paper analyses"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Beatrice Dunmore",
+          "age_range": "50-60",
+          "role_archetype": "victim",
+          "relationships": [
+            "Close to Ambrose Rutherford",
+            "Respected elder of the village",
+            "Had tensions with Josephine Whitlock"
+          ],
+          "public_persona": "Village elder and overseer of the archaeological dig",
+          "private_secret": "Discovered a secret in the excavation report",
+          "motive_seed": "None (victim)",
+          "motive_strength": "none",
+          "alibi_window": "N/A",
+          "access_plausibility": "N/A",
+          "opportunity_channels": [],
+          "behavioral_tells": [],
+          "stakes": "N/A",
+          "evidence_sensitivity": [],
+          "culprit_eligibility": "ineligible",
+          "culpability": "innocent",
+          "gender": "female"
+        },
+        {
+          "name": "Ottoline Thorne",
+          "age_range": "40-50",
+          "role_archetype": "Archivist",
+          "relationships": [
+            "Works under Ambrose Rutherford",
+            "Respects Frances Orme",
+            "Distrustful of Josephine Whitlock"
+          ],
+          "public_persona": "Meticulous village archivist",
+          "private_secret": "Aware of anomalies in the excavation report",
+          "motive_seed": "Fear of losing position if report's forgery exposed",
+          "motive_strength": "moderate",
+          "alibi_window": "eight thirty to nine thirty in the archive room",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to archival documents",
+            "Keys to archive room"
+          ],
+          "behavioral_tells": [
+            "Nervous when discussing the report",
+            "Avoids direct questions about document dates"
+          ],
+          "stakes": "Job security and reputation",
+          "evidence_sensitivity": [
+            "Archival stamps",
+            "Ink and paper aging"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ambrose Rutherford",
+          "age_range": "50-60",
+          "role_archetype": "Dig Supervisor",
+          "relationships": [
+            "Employer of Ottoline Thorne",
+            "Respected by village elders",
+            "Rival of Desmond Halloway"
+          ],
+          "public_persona": "Authoritative supervisor of archaeological dig",
+          "private_secret": "Forged the excavation report to protect his interests",
+          "motive_seed": "Concealment of damaging findings that threaten funding",
+          "motive_strength": "strong",
+          "alibi_window": "nine o'clock to nine thirty in the dig site office",
+          "access_plausibility": "high",
+          "opportunity_channels": [
+            "Access to report before publication",
+            "Authority to dictate archival procedures"
+          ],
+          "behavioral_tells": [
+            "Dismissive of questioning",
+            "Controls access to documents"
+          ],
+          "stakes": "Maintain control of dig project and reputation",
+          "evidence_sensitivity": [
+            "Forged document",
+            "Archival stamp order",
+            "Chemical traces on paper"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "guilty",
+          "gender": "male"
+        },
+        {
+          "name": "Desmond Halloway",
+          "age_range": "40-50",
+          "role_archetype": "Local Landowner",
+          "relationships": [
+            "Opposed Ambrose Rutherford’s management",
+            "Friends with Josephine Whitlock"
+          ],
+          "public_persona": "Wealthy landowner critical of dig progress",
+          "private_secret": "Had a public dispute with Beatrice Dunmore",
+          "motive_seed": "Jealousy and desire to reshape village power",
+          "motive_strength": "moderate",
+          "alibi_window": "eight fifteen to nine in his manor",
+          "access_plausibility": "low",
+          "opportunity_channels": [
+            "Limited access to dig office",
+            "Occasional visits to village center"
+          ],
+          "behavioral_tells": [
+            "Angry outbursts",
+            "Frequent disputes"
+          ],
+          "stakes": "Influence in village governance",
+          "evidence_sensitivity": [
+            "Witness testimonies",
+            "Access records"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        },
+        {
+          "name": "Josephine Whitlock",
+          "age_range": "30-40",
+          "role_archetype": "Journalist",
+          "relationships": [
+            "Friend of Desmond Halloway",
+            "Distrusted by Ambrose Rutherford"
+          ],
+          "public_persona": "Determined investigative reporter",
+          "private_secret": "Suspected report forgery but lacked proof",
+          "motive_seed": "Hoping to expose corruption and gain recognition",
+          "motive_strength": "moderate",
+          "alibi_window": "eight to nine in the village pub",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Visits to dig site and village center",
+            "Questioning villagers and officials"
+          ],
+          "behavioral_tells": [
+            "Persistent questioning",
+            "Collects rumors and documents"
+          ],
+          "stakes": "Career advancement",
+          "evidence_sensitivity": [
+            "Witness statements",
+            "Archived documents"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "female"
+        },
+        {
+          "name": "Ivor Ormesby",
+          "age_range": "50-60",
+          "role_archetype": "Village Elder",
+          "relationships": [
+            "Respected authority figure",
+            "Supports Ambrose Rutherford",
+            "Dislikes Frances Orme’s challenges"
+          ],
+          "public_persona": "Village elder and arbitrator",
+          "private_secret": "Relies heavily on official archival records to maintain order",
+          "motive_seed": "Maintaining village stability and hierarchy",
+          "motive_strength": "moderate",
+          "alibi_window": "eight to nine in the village green",
+          "access_plausibility": "medium",
+          "opportunity_channels": [
+            "Access to village notices and archives",
+            "Influences witness testimonies"
+          ],
+          "behavioral_tells": [
+            "Dismisses challenges to authority",
+            "Encourages conformity"
+          ],
+          "stakes": "Preservation of social order",
+          "evidence_sensitivity": [
+            "Witness statements",
+            "Archival documents"
+          ],
+          "culprit_eligibility": "eligible",
+          "culpability": "unknown",
+          "gender": "male"
+        }
+      ],
+      "culpability": {
+        "culprit_count": 1,
+        "culprits": [
+          "Ambrose Rutherford"
+        ]
+      },
+      "surface_model": {
+        "narrative": {
+          "summary": "In the isolated village of Little Middleton, the respected village elder Beatrice Dunmore is found murdered in the archaeological dig site office. An official excavation report, accepted unquestioningly by the village’s authorities, is taken as proof that Beatrice discovered a secret weeks before her death. However, Detective Frances Orme uncovers that the report’s provenance was forged by the dig supervisor Ambrose Rutherford, manipulating the village’s trust in archival authority to conceal the truth. The case unravels through careful document analysis and witness testimonies, culminating in a test exposing the forged record and revealing the real time of death."
+        },
+        "accepted_facts": [
+          "Beatrice Dunmore was stabbed to death with a letter opener in the dig office",
+          "An excavation report dated three weeks before the murder was found among Beatrice's papers",
+          "The report was accepted by villagers and authorities as genuine",
+          "Ambrose Rutherford had sole access to the report before publication",
+          "Archival stamps appear on the report indicating filing dates",
+          "Frances Orme questioned the report's authenticity",
+          "The village elder's body was found at approximately a quarter to nine"
+        ],
+        "inferred_conclusions": [
+          "The excavation report's date was forged by tampering with ink aging",
+          "The archival stamps on the report are out of chronological order",
+          "Ambrose Rutherford forged the report to protect his interests",
+          "Beatrice Dunmore was killed after the forged report was backdated",
+          "The accepted authority of the report misled the investigation's timeline"
+        ]
+      },
+      "hidden_model": {
+        "mechanism": {
+          "description": "Ambrose Rutherford applied a chemical treatment to the ink on the excavation report to simulate natural oxidation, fooling visual inspection and basic ink solubility tests. This forged the report's date to appear as three weeks old, while the paper's watermark and archival stamps show a manufacture date six months later and filing inconsistencies. The village's unquestioning trust in archival authority led to acceptance of the forged report, which was used to misplace the timeline of Beatrice Dunmore's discovery and death, delaying suspicion of Rutherford until Frances Orme's investigation exposed the forgery.",
+          "delivery_path": [
+            {
+              "step": "Ambrose Rutherford chemically treated the report's ink to simulate aging before filing it"
+            },
+            {
+              "step": "The forged report was placed in the archives with falsified filing stamps"
+            },
+            {
+              "step": "The village elders and villagers accepted the report's date due to archival authority"
+            },
+            {
+              "step": "Frances Orme discovered contradictions in archival stamps and paper watermark"
+            },
+            {
+              "step": "A confrontation revealed the forgery and Rutherford’s motive"
+            }
+          ],
+          "actual_time_of_death": "a quarter to nine",
+          "apparent_time_of_death": "nine thirty"
+        },
+        "outcome": {
+          "result": "Exposure of the forged excavation report and the true timeline leads to Ambrose Rutherford's arrest for the murder of Beatrice Dunmore."
+        }
+      },
+      "false_assumption": {
+        "statement": "The excavation report dated three weeks before the murder is authentic and sets the timeline for Beatrice Dunmore’s discovery and death.",
+        "type": "authority",
+        "why_it_seems_reasonable": "The report bears official archival stamps and appears aged using standard ink aging tests, and was accepted by village elders and authorities without question.",
+        "what_it_hides": "The report was chemically forged with ink artificially aged, and archival stamps were falsified to conceal the true date, misleading the timeline of the victim’s death and discovery."
+      },
+      "false_solution": {
+        "accused_suspect": "Desmond Halloway",
+        "supporting_points": [
+          "Desmond had a public dispute with Beatrice Dunmore and limited alibi during the murder timeframe",
+          "Witnesses saw Desmond near the dig office shortly before the estimated time of death"
+        ],
+        "the_one_flaw": "Desmond’s alibi is confirmed by multiple independent testimonies and he lacked access to the murder weapon and archival documents",
+        "refuted_in_chapter": 6
+      },
+      "red_herrings": [
+        {
+          "id": "red_herring_1",
+          "description": "Letter opener smudge found in the dig office matches Ottoline Thorne’s glove mark",
+          "points_at_suspect": "Ottoline Thorne",
+          "innocent_explanation": "Ottoline handled the letter opener earlier for archival filing and was careful to wipe it clean afterward",
+          "resolved_in_chapter": 7
+        },
+        {
+          "id": "red_herring_2",
+          "description": "Witnesses report hearing heated arguments between Desmond Halloway and Beatrice Dunmore days before the murder",
+          "points_at_suspect": "Desmond Halloway",
+          "innocent_explanation": "The disputes were public and unrelated to the murder, motivated by land disagreements",
+          "resolved_in_chapter": 7
+        }
+      ],
+      "closed_circle": {
+        "suspects": [
+          "Frances Orme",
+          "Ottoline Thorne",
+          "Ambrose Rutherford",
+          "Desmond Halloway",
+          "Josephine Whitlock",
+          "Ivor Ormesby"
+        ],
+        "rationale": "All suspects had access to the village and the archaeological dig area during the murder timeframe; no outsiders could have entered unnoticed due to village isolation and monitored access."
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "eight o'clock to nine o'clock in the village library — Frances Orme's alibi",
+            "eight thirty to nine thirty in the archive room — Ottoline Thorne's alibi",
+            "nine o'clock to nine thirty in the dig site office — Ambrose Rutherford's alibi",
+            "eight fifteen to nine in the manor — Desmond Halloway's alibi",
+            "eight to nine in the village green — Ivor Ormesby's alibi"
+          ],
+          "windows": [
+            "eight forty-five to nine — the murder"
+          ],
+          "contradictions": [
+            "The report's archival stamps postdate the paper watermark manufacture date",
+            "Ink aging on report inconsistent with dated archival stamps",
+            "Ambrose's alibi overlaps murder window but is contradicted by forged report timeline"
+          ]
+        },
+        "access": {
+          "actors": [
+            "Frances Orme",
+            "Ottoline Thorne",
+            "Ambrose Rutherford",
+            "Desmond Halloway",
+            "Josephine Whitlock",
+            "Ivor Ormesby"
+          ],
+          "objects": [
+            "letter opener — kept by Ottoline Thorne, in the archive room desk, because she manages archival documents",
+            "excavation report — kept by Ambrose Rutherford, in the dig site office, because he supervises the report publication"
+          ],
+          "permissions": [
+            "archive room desk — reachable by Ottoline Thorne and Frances Orme; not by Desmond Halloway",
+            "dig site office — reachable by Ambrose Rutherford and Frances Orme; not by Desmond Halloway"
+          ]
+        },
+        "physical": {
+          "laws": [
+            "Ink oxidation cannot be perfectly simulated without chemical treatment",
+            "Archival stamps must follow chronological filing order",
+            "Paper watermark date is fixed and predates any document printed on it"
+          ],
+          "traces": [
+            "letter opener: glove mark found in archive room desk — Ottoline Thorne",
+            "letter opener: smudge found in dig site office — Ambrose Rutherford"
+          ]
+        },
+        "social": {
+          "trust_channels": [
+            "Village elders' acceptance of archival records",
+            "Authority of dig supervisor in document handling",
+            "Witness conformity to vicar and elder statements"
+          ],
+          "authority_sources": [
+            "Archival filing protocols",
+            "Village elder Ivor Ormesby's endorsement",
+            "Dig supervisor Ambrose Rutherford's control of documents"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "Archival stamps on the excavation report postdate the paper's watermark manufacture date by six months",
+            "correction": "The report cannot be as old as the stamps claim, indicating forgery or backdating",
+            "effect": "Narrows suspicion to those with access to archival documents after watermark manufacture — eliminates Desmond Halloway",
+            "required_evidence": [
+              "excavation report archival stamps — found in dig site office",
+              "paper watermark date on excavation report — six months after claimed date"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Letter opener smudge found in dig site office is inconsistent with Ottoline Thorne's glove mark found in archive room desk",
+            "correction": "The letter opener was moved from the archive room desk to the dig site office by someone other than Ottoline, indicating post-archival handling",
+            "effect": "Narrows access to letter opener to Ambrose Rutherford and Frances Orme; eliminates Ottoline Thorne as murderer",
+            "required_evidence": [
+              "letter opener: glove mark found in archive room desk — Ottoline Thorne",
+              "letter opener: smudge found in dig site office — Ambrose Rutherford"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Ink aging on the excavation report is uniform and incompatible with natural oxidation, unlike a freshly written letter nearby which appears older",
+            "correction": "The ink was chemically treated to simulate aging, revealing that Ambrose Rutherford likely forged the report",
+            "effect": "Identifies Ambrose Rutherford as uniquely capable of forging the report using chemical knowledge",
+            "required_evidence": [
+              "excavation report ink aging analysis — uniform fading incompatible with natural aging",
+              "freshly written letter near report appears older than report ink"
+            ],
+            "reader_observable": true
+          },
+          {
+            "observation": "Ambrose Rutherford's alibi places him in the dig site office during the murder window, overlapping the actual time of death",
+            "correction": "Ambrose had opportunity and access to both murder weapon and forged report, linking him directly to the act",
+            "effect": "Narrows culprits to Ambrose Rutherford",
+            "required_evidence": [
+              "Ambrose Rutherford alibi window — nine o'clock to nine thirty in dig site office",
+              "murder time window — eight forty-five to nine"
+            ],
+            "reader_observable": true
+          }
+        ]
+      },
+      "discriminating_test": {
+        "method": "administrative_pressure",
+        "design": "Compare the archival filing order and paper watermark dates with the excavation report's ink aging; subject Ambrose Rutherford to chemical ink aging tests on the report and test his knowledge of chemical treatments applicable in the 1930s archival context to prove forgery.",
+        "knowledge_revealed": "Demonstrates that only Ambrose Rutherford had the access, chemical knowledge, and authority to forge the excavation report, falsifying the timeline and implicating him in the murder.",
+        "pass_condition": "The chemical ink aging test confirms artificial aging inconsistent with archival standards, and archival stamp order confirms report backdating.",
+        "evidence_clues": []
+      },
+      "fair_play": {
+        "all_clues_visible": true,
+        "no_special_knowledge_required": true,
+        "no_late_information": true,
+        "reader_can_solve": true,
+        "explanation": "Step 1 uses archival stamps and paper watermark to expose date contradictions; Step 2 uses physical traces on the letter opener to eliminate Ottoline; Step 3 uses ink aging comparisons to identify forgery by Ambrose; Step 4 uses alibi timing to link Ambrose to the murder act. All clues are introduced before the discriminating test and are concrete, observable facts accessible to the reader."
+      },
+      "quality_controls": {
+        "inference_path_requirements": {
+          "min_steps": 4,
+          "max_steps": 5,
+          "require_observation_correction_effect": true
+        },
+        "clue_visibility_requirements": {
+          "essential_clues_min": 4,
+          "essential_clues_before_test": true,
+          "early_clues_min": 2,
+          "mid_clues_min": 1,
+          "late_clues_min": 1
+        },
+        "discriminating_test_requirements": {
+          "timing": "early_act3",
+          "must_reference_inference_step": true
+        }
+      },
+      "prose_requirements": {
+        "discriminating_test_scene": {
+          "act_number": 3,
+          "scene_number": 4,
+          "required_elements": [
+            "Execute the chemical ink aging test on the excavation report",
+            "Observe contradictions in archival filing order and paper watermark",
+            "Draw conclusion about Ambrose Rutherford's guilt"
+          ],
+          "test_type": "administrative_pressure"
+        },
+        "suspect_clearance_scenes": [
+          {
+            "suspect_name": "Ottoline Thorne",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Physical evidence of letter opener glove mark mismatch and alibi confirmation",
+            "supporting_clues": [
+              "letter opener: glove mark found in archive room desk — Ottoline Thorne",
+              "letter opener: smudge found in dig site office — Ambrose Rutherford"
+            ]
+          },
+          {
+            "suspect_name": "Desmond Halloway",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Multiple independent witness testimonies confirming alibi in manor during murder window",
+            "supporting_clues": [
+              "Desmond Halloway alibi window — eight fifteen to nine in manor",
+              "Witness testimony of Desmond’s presence in manor"
+            ]
+          },
+          {
+            "suspect_name": "Josephine Whitlock",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi established through pub witness statements and lack of access to murder weapon",
+            "supporting_clues": [
+              "Josephine Whitlock alibi window — eight to nine in village pub",
+              "Witness statements confirming Josephine’s presence"
+            ]
+          },
+          {
+            "suspect_name": "Ivor Ormesby",
+            "act_number": 3,
+            "scene_number": 5,
+            "clearance_method": "Alibi and lack of access to archival documents and murder weapon",
+            "supporting_clues": [
+              "Ivor Ormesby alibi window — eight to nine in village green",
+              "Access restrictions to archive and dig office"
+            ]
+          },
+          {
+            "suspect_name": "Beatrice Dunmore",
+            "act_number": 3,
+            "scene_number": 6,
+            "clearance_method": "Alibi confirmed: N/A",
+            "supporting_clues": []
+          }
+        ],
+        "culprit_revelation_scene": {
+          "act_number": 3,
+          "scene_number": 6,
+          "revelation_method": "Confrontation with chemical aging evidence, archival contradictions, and disrupted alibi"
+        },
+        "identity_rules": [],
+        "clue_to_scene_mapping": [
+          {
+            "clue_id": "archival_stamps_postdate_watermark",
+            "act_number": 2,
+            "scene_number": 2,
+            "delivery_method": "Direct observation of archival report"
+          },
+          {
+            "clue_id": "letter_opener_glove_mark_archive",
+            "act_number": 1,
+            "scene_number": 3,
+            "delivery_method": "Physical evidence in archive room"
+          },
+          {
+            "clue_id": "letter_opener_smudge_dig_office",
+            "act_number": 2,
+            "scene_number": 4,
+            "delivery_method": "Physical evidence in dig site office"
+          },
+          {
+            "clue_id": "ink_aging_uniform_fading",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Chemical ink aging analysis"
+          },
+          {
+            "clue_id": "fresh_letter_appears_older",
+            "act_number": 2,
+            "scene_number": 5,
+            "delivery_method": "Comparison of letter inks"
+          },
+          {
+            "clue_id": "ambrose_alibi_dig_office",
+            "act_number": 1,
+            "scene_number": 4,
+            "delivery_method": "Witness testimony and access records"
+          }
+        ]
+      }
+    }
+  }
+}
