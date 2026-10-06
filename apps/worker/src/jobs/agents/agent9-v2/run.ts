@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { bookFirstEnabled, contractFixesEnabled, keynessFindingEnabled, presencePenaltyOf, selectorRanksEnabled, verifiedFixesEnabled } from "@cml/cml";
+import { auditFixesEnabled, bookFirstEnabled, contractFixesEnabled, keynessFindingEnabled, presencePenaltyOf, selectorRanksEnabled, verifiedFixesEnabled } from "@cml/cml";
 import {
   applyEditList,
   applyGate,
@@ -125,6 +125,13 @@ export const isFalseLeadEnabled = (env: NodeJS.ProcessEnv = process.env): boolea
 export const isProofStepsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.PROSE_V2_PROOF_STEPS ?? "").trim());
 
+/**
+ * A_111 V-18 (WF-005 V2O-07, PROSE_V2_AUDIT_FIXES): a run whose writer was refused once is softened from then on. MEASURED:
+ * six runs were refused on 3–30 calls each — every call sent unsoftened, refused, then retried — so each chapter paid for
+ * a refusal first. The set holds the run's context object, not an id, so it dies with the run.
+ */
+const softenedRuns = new WeakSet<object>();
+
 const chat = async (
   role: ResolvedRole,
   args: { system: string; user: string; maxTokens: number; label: string; ctx: OrchestratorContext; presencePenalty?: number },
@@ -147,6 +154,13 @@ const chat = async (
         retryAttempt,
       },
     });
+  const audit = auditFixesEnabled();
+  if (audit && isFilterSoftenEnabled() && softenedRuns.has(args.ctx)) {
+    const system = softenViolentWording(args.system);
+    const user = softenViolentWording(args.user);
+    const response = await send(`${SOFTENED_NOTE}\n\n${system.text}`, user.text, 1);
+    return String(response?.content ?? "");
+  }
   try {
     const response = await send(args.system, args.user, 1);
     return String(response?.content ?? "");
@@ -160,12 +174,30 @@ const chat = async (
       `[Agent 9 v2] ${args.label}: content filter refused the prompt — retrying once with ` +
         `${system.replaced + user.replaced} graphic word(s) softened (A_108)`,
     );
-    const response = await send(`${SOFTENED_NOTE}\n\n${system.text}`, user.text, 2);
+    if (audit) softenedRuns.add(args.ctx);
+    // A_111 V-18 (WF-005 V2O-04): retryAttempt 2 made the shared client raise the temperature 0.7 → 0.82, so in four
+    // runs every chapter was written warmer than the rest of the pipeline assumes. ON: the softened call is a first
+    // attempt at the first attempt's temperature.
+    const response = await send(`${SOFTENED_NOTE}\n\n${system.text}`, user.text, audit ? 1 : 2);
     return String(response?.content ?? "");
   }
 };
 
 const ctxRunId = (ctx: OrchestratorContext): string => String(ctx.runId ?? "");
+
+/** A_111 V-20 — the prose stage's own spend: every `Agent9v2-*` label in the client's cost tracker, in USD. */
+const proseCostUsd = (ctx: OrchestratorContext): number => {
+  try {
+    const summary = (ctx.client as { getCostTracker?: () => { getSummary: () => { byAgent?: Record<string, number> } } })
+      .getCostTracker?.()
+      ?.getSummary();
+    return Object.entries(summary?.byAgent ?? {})
+      .filter(([agent]) => agent.startsWith("Agent9v2-"))
+      .reduce((sum, [, usd]) => sum + (Number(usd) || 0), 0);
+  } catch {
+    return 0; // Telemetry must never cost a book.
+  }
+};
 
 /**
  * A_110 M8 (PROSE_V2_KEYNESS_FINDING) — the house-phrase reference (data/keyness-reference.json, built by
@@ -882,10 +914,14 @@ export const runProseEngineV2 = async (ctx: OrchestratorContext): Promise<void> 
     status: "final",
     chapters: result.chapters.map((c) => ({ title: c.title, summary: c.summary, paragraphs: c.paragraphs })),
     cast: castNames,
-    cost: 0,
+    // A_111 V-20 (WF-005 V2O-08): the prose stage's own spend — about 90% of the bill — was reported as 0, so the run
+    // report's total_cost left it out (arm B: total_cost 0 against $1.131 logged).
+    cost: proseCostUsd(ctx),
     durationMs: Date.now() - started,
     ...({ engine: "v2", writer: (process.env.PROSE_V2_WRITER ?? "azure:gpt-4.1").trim() } as Record<string, unknown>),
   } as never;
+
+  ctx.agentCosts["agent9_prose"] = proseCostUsd(ctx);
 
   if (!result.ship) {
     // The two fair-play stops. Everything else shipped with a warning, which is L4.

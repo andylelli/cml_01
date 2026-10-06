@@ -60,6 +60,7 @@ import { assertFlagCapabilities } from "./flag-preflight.js";
 import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js";
 import {
   applyResumeBundle,
+  restoreSourceLockedFacts,
   computeBuildFingerprint,
   ResumeSkipTracker,
   writeRunFingerprint,
@@ -431,6 +432,7 @@ export async function generateMystery(
       if (applied.unknown.length > 0) {
         warnings.push(`[R5] Ignored unrecognised artifact key(s): ${applied.unknown.join(", ")}.`);
       }
+      restoreSourceLockedFacts(ctx as OrchestratorContext, inputs.resumeFromRunId, WORKER_APP_ROOT);
     }
 
     /**

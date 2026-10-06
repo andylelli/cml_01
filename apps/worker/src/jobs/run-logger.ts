@@ -45,10 +45,10 @@ export class RunLogger {
 
   private static formatRunLogFileName(runId: string): string {
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    // Prefer compact ID in filename while keeping full runId in JSON payload.
-    const normalizedId = String(runId).replace(/^run_/, "");
-    const shortRunId = normalizedId.slice(0, 8) || "unknown";
-    return `run_${date}_${shortRunId}.json`;
+    // A_111 V-20 (WF-005 V2O-06): the FULL id. Eight characters made every `resume-…` and `mystery-…` run of a day
+    // write one file, so each overwrote the last (arm B's log was lost to the next arm). Windows-safe characters only.
+    const normalizedId = String(runId).replace(/^run_/, "").replace(/[^A-Za-z0-9._-]/g, "_");
+    return `run_${date}_${normalizedId || "unknown"}.json`;
   }
 
   constructor(logsDir: string, runId: string, projectId: string | undefined) {

@@ -216,9 +216,15 @@ async function main(): Promise<void> {
     // CR-03 — a replay keeps its checkpoint in its sandbox. Without this the v2 engine writes (and on
     // the next run REUSES) apps/worker/logs/agent9v2-checkpoint-<project>.json, so one replay would
     // silently make a later paid resume skip the writer.
+    // A_111 V-20 (WF-005 V2O-05): a DELIBERATE redo of the prose (or anything upstream of it) gets a checkpoint of
+    // its own, keyed by this run's id. The project-keyed file let a second redo overwrite the first's drafts (arm B's
+    // 30 drafts were lost to the next arm), and a redo whose ask had not changed restore every segment and call the
+    // writer zero times. A crash-resume (no RESUME_REDO) still reuses the project's file, which is what it is for.
     ...((process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim()
       ? { agent9CheckpointPath: (process.env.CML_AGENT9_CHECKPOINT_PATH ?? "").trim() }
-      : {}),
+      : redoFrom
+        ? { agent9CheckpointPath: join(workerAppRoot, "logs", `agent9v2-checkpoint-${projectId}-${runId}.json`) }
+        : {}),
   };
 
   // A1X-Q04: if Agent 2d re-runs, its date is hashed from the SOURCE run's id (`resumeFromRunId`), not this

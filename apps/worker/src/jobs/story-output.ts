@@ -14,10 +14,15 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { assembleScoringChapterTexts, isStripBeatTitlesEnabled, stripBeatPrefixFromTitle, deriveStoryTitle } from "@cml/prompts-llm";
+import { repairMojibake } from "@cml/cml";
 
-/** Fold smart punctuation to ASCII — the corpus is compared as text, and quote style is noise. */
+/**
+ * Fold smart punctuation to ASCII — the corpus is compared as text, and quote style is noise. A_111 V-20 (WF-005
+ * V2O-11): mojibake is repaired first, as the API writer (save-readable-story.ts) does — this file claims to be
+ * byte-comparable with it and was not ("Itâ€™s" survived here). Idempotent, so clean text is unchanged.
+ */
 export const normalizeStoryText = (s: unknown): string =>
-  String(s ?? "")
+  repairMojibake(s)
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/…/g, "...")

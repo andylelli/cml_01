@@ -151,6 +151,12 @@ export const resolveRole = (
     }
   }
 
+  // A_111 V-20 (WF-005 V2O-10): an anthropic role with no key falls back to Azure WITH the role's Azure model. It kept
+  // the anthropic model id, which the Azure client uses as a deployment name — every call would 404.
+  if (provider === "anthropic") {
+    const azureDefault = DEFAULT_BY_ROLE[name].startsWith("azure:") ? DEFAULT_BY_ROLE[name].split(":").slice(1).join(":") : "gpt-4.1";
+    return { name, provider: "azure", client: azure, model: azureDefault, maxOutputTokens: DEFAULT_CAP[azureDefault] ?? cap, supportsTemperature: true };
+  }
   return { name, provider: "azure", client: azure, model, maxOutputTokens: cap, supportsTemperature: true };
 };
 

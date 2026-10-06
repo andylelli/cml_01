@@ -26,7 +26,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, type Dirent } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, type Dirent } from "node:fs";
 import { join } from "node:path";
 
 import type { OrchestratorContext } from "./agents/index.js";
@@ -126,6 +126,38 @@ export function applyResumeBundle(ctx: OrchestratorContext, bundle: ResumeBundle
   }
 
   return { restored, skippedEmpty, unknown };
+}
+
+/**
+ * A_111 V-19 (WF-005 V2O-03 / V2C-06) — a resumed run restores the SOURCE run's locked-fact registry.
+ *
+ * The registry is built across Agents 3b, 3 and 7.5 and persisted only as `logs/locked-facts-<runId>.json`, never as an
+ * artifact, so `RESUME_REDO=prose` wrote with none: MEASURED, 0 of 24 resumed v2 runs carried a locked fact, 20 of them
+ * redoing a run whose own registry held 6–8 — the redo's bible lost the device facts and the case's weapon and alibi
+ * places, and the editor's `lockedValuesIntact` guard checked nothing. A matched pair then compared a book written with
+ * the facts against one written without. Loaded from the source run's file; a source that left none (API runs) is said so
+ * and leaves the registry as it was — which is what the source run had. Unconditional: it restores state, it adds none.
+ */
+export function restoreSourceLockedFacts(ctx: OrchestratorContext, sourceRunId: string | undefined, workerAppRoot: string): void {
+  if (Array.isArray(ctx.lockedFactRegistry) && ctx.lockedFactRegistry.length > 0) return;
+  const id = String(sourceRunId ?? "").trim();
+  if (!id) return;
+  const file = join(workerAppRoot, "logs", `locked-facts-${id}.json`);
+  if (!existsSync(file)) {
+    ctx.warnings.push(`[R5] the source run ${id} left no locked-fact registry (${file}); this run writes without one, as the source did.`);
+    return;
+  }
+  try {
+    const registry = (JSON.parse(readFileSync(file, "utf8")) as { registry?: unknown }).registry;
+    if (!Array.isArray(registry) || registry.length === 0) {
+      ctx.warnings.push(`[R5] the source run ${id}'s locked-fact registry is empty; this run writes without one.`);
+      return;
+    }
+    ctx.lockedFactRegistry = registry as NonNullable<OrchestratorContext["lockedFactRegistry"]>;
+    ctx.warnings.push(`[R5] restored ${registry.length} locked fact(s) from the source run's registry (${id}).`);
+  } catch (err) {
+    ctx.warnings.push(`[R5] could not read the source run's locked-fact registry ${file}: ${String(err)} — this run writes without one.`);
+  }
 }
 
 /**

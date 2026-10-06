@@ -15,6 +15,7 @@
  *
  * Read at call time, inside generateMystery after dotenv has loaded (ADR-0004) — never at module load.
  */
+import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ScoreAggregator } from "@cml/story-validation";
@@ -40,10 +41,35 @@ export const runConfigPath = (workerAppRoot: string, runId: string): string =>
   join(workerAppRoot, "logs", `run-config-${runId}.json`);
 
 /** Beside the build fingerprint, so it exists with scoring off too. Best-effort: a record never fails a run. */
-export function writeRunEnvironment(workerAppRoot: string, runId: string, record: RunEnvironmentRecord): void {
+/**
+ * A_111 V-20 (WF-005 V2K-05) — the code a run ran. Two runs with identical flags were taken for a matched pair while their
+ * v2 code differed (P-5 ran the chapter-1 opening ranks arm B's code did not have, with 0 flag differences). The commit
+ * and whether packages/ or apps/ had uncommitted changes go into the run-config FILE (not the report's diagnostic, so
+ * replay digests are unchanged). null when git is unavailable.
+ */
+export const codeVersion = (workerAppRoot: string): { commit: string | null; dirty: boolean | null } => {
+  const root = join(workerAppRoot, "..", "..");
+  const git = (args: string[]): string | null => {
+    try {
+      return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5000 }).trim();
+    } catch {
+      return null;
+    }
+  };
+  const commit = git(["rev-parse", "HEAD"]);
+  const status = git(["status", "--porcelain", "--", "packages", "apps"]);
+  return { commit, dirty: status === null ? null : status.length > 0 };
+};
+
+export function writeRunEnvironment(
+  workerAppRoot: string,
+  runId: string,
+  record: RunEnvironmentRecord,
+  code?: { commit: string | null; dirty: boolean | null },
+): void {
   try {
     mkdirSync(join(workerAppRoot, "logs"), { recursive: true });
-    writeFileSync(runConfigPath(workerAppRoot, runId), JSON.stringify({ runId, recordedAt: new Date().toISOString(), ...record }, null, 2), "utf8");
+    writeFileSync(runConfigPath(workerAppRoot, runId), JSON.stringify({ runId, recordedAt: new Date().toISOString(), ...(code ? { code } : {}), ...record }, null, 2), "utf8");
   } catch {
     /* best-effort */
   }
@@ -52,7 +78,7 @@ export function writeRunEnvironment(workerAppRoot: string, runId: string, record
 /** At t=0 of generateMystery: the record beside the build fingerprint, and as the report's `run_config` diagnostic. */
 export function recordRunEnvironment(workerAppRoot: string, runId: string, scoreAggregator: ScoreAggregator | undefined): RunEnvironmentRecord {
   const record = captureRunEnvironment(process.env);
-  writeRunEnvironment(workerAppRoot, runId, record);
+  writeRunEnvironment(workerAppRoot, runId, record, codeVersion(workerAppRoot));
   scoreAggregator?.upsertDiagnostic("run_config", "orchestrator", "Run configuration", "run_config", { ...record });
   return record;
 }
