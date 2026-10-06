@@ -33,7 +33,8 @@ Resumable: each row names its cost, its evidence and its commit.
 | P-3b | introductions spread: at least two paragraphs between one and the next | £0 | BUILT | `b21e002f` |
 | **V-1…V-20** | the v2 audit fix batch (§5), behind `PROSE_V2_AUDIT_FIXES` (registered `df28e607`) | £0 | **BUILT** — every targeted count 0 with the flag on (§5.1) | `3120c8ff` (A) · `7b9d1190` (B) · `b127268b` (C) · `ec6418d8` (D) |
 | **R-1** | the replay check had been red since 2026-10-03 (an unflagged fix, never re-baselined); bisected, and the re-baseline exposed a flags-off leak from A_110 step 1 — fixed; HEAD flags-off replays MATCH at the pre-A_110 tree (§5.2) | £0 | DONE | `8cb2ed56` |
-| P-6 | second case, A′ against everything (A_110 arm-B flags + V batch); record and predictions written first | ~£1.80 | **RUNNING** | `b8ff5815` (record) |
+| **R-2** | **no case generated since 2026-10-02 could be prose-redone**: the CML was persisted before Agent 5 filled the test's evidence ids, so a redo hit the pre-prose gate (P-6's first attempt, £0). A resume re-derives the floor; the CML is persisted again after Agents 5 and 6 | £0 | DONE | `adbbbb5a` |
+| P-6 | second case, A′ against everything (A_110 arm-B flags + V batch); record and predictions written first | ~£1.80 | **RUNNING** (code `adbbbb5a`) | `b8ff5815` (record) |
 | P-7 | the owner's external read of P-6's better arm, with the checked read | £0 money | WAITS on P-6; only if SHIP-CHECK Normal, no fallback chapter | — |
 | P-8 | puzzle side: one device per case, two-suspect clues (A_112) | £0 to design | TODO (§3.4) | — |
 | P-9 | step-3 bundle (keyness, touch-once, presence penalty) | ~£0.95 | WAITS on P-6 | — |
