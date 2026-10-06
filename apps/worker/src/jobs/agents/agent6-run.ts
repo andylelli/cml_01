@@ -21,7 +21,21 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, BlindReaderResult, Clue } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import { caseOf, verifiedFixesEnabled } from "@cml/cml";
+import { caseOf, verifiedFixesEnabled, guessNamesMember, isIdentityRoleWinsEnabled } from "@cml/cml";
+
+/**
+ * A6-07 (CR-12): does the blind reader's guess name the culprit? OFF (the default): the legacy two-way `includes`,
+ * which rejects "Mr. Fenwick" for "Charles Fenwick" and accepts a father for his "Jr." son. With
+ * CML_IDENTITY_ROLE_WINS (owner decision 2): one cast-aware answer (`guessNamesMember`); an ambiguous guess names
+ * nobody. A disagreement is logged either way, so the counter decision 2 reads covers this site too. MEASURED over 34
+ * stored casts (ANALYSIS_111 probes/guess-matchers.mjs): `includes` answers 202 of 3,942 generated questions wrongly.
+ */
+const guessIsCulprit = (guess: string, culprit: string, castNames: ReadonlyArray<string>): boolean => {
+  const legacy = guess.toLowerCase().includes(culprit.toLowerCase()) || culprit.toLowerCase().includes(guess.toLowerCase());
+  const unified = guessNamesMember(guess, culprit, castNames);
+  if (legacy !== unified) console.warn(`[identity-disagree] site=agent6.guess kind=culprit guess="${guess}" culprit="${culprit}" old=${legacy} unified=${unified}`);
+  return isIdentityRoleWinsEnabled() ? unified : legacy;
+};
 // X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type TestResult } from "@cml/story-validation";
@@ -500,9 +514,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   // (byte-identical legacy behaviour). Only the primary gate read is sampled; remediation/rescue
   // re-checks stay single-sample so the opt-in never multiplies cost across the whole loop.
   const blindReaderSamplePasses = (sample: BlindReaderResult): boolean => {
-    const gotItRight =
-      sample.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
-      actualCulpritName.toLowerCase().includes(sample.suspectedCulprit.toLowerCase());
+    const gotItRight = guessIsCulprit(sample.suspectedCulprit, actualCulpritName, castNamesForBlind);
     return (
       gotItRight &&
       (CONFIDENCE_RANK[normalizeConfidence(sample.confidenceLevel)] ?? -1) >=
@@ -567,9 +579,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     ctx.agentCosts["agent6_blind_reader"] = blindResult.cost;
     ctx.agentDurations["agent6_blind_reader"] = blindResult.durationMs;
 
-    const readerGotItRight =
-      blindResult.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
-      actualCulpritName.toLowerCase().includes(blindResult.suspectedCulprit.toLowerCase());
+    const readerGotItRight = guessIsCulprit(blindResult.suspectedCulprit, actualCulpritName, castNamesForBlind);
 
     const blindPasses =
       readerGotItRight &&
@@ -636,9 +646,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           );
         }
 
-        const latestGotItRight =
-          latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
-          actualCulpritName.toLowerCase().includes(latestBlind.suspectedCulprit.toLowerCase());
+        const latestGotItRight = guessIsCulprit(latestBlind.suspectedCulprit, actualCulpritName, castNamesForBlind);
         latestReaderPass =
           latestGotItRight &&
           (CONFIDENCE_RANK[normalizeConfidence(latestBlind.confidenceLevel)] ?? -1) >=

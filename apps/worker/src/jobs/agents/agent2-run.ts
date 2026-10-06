@@ -6,7 +6,7 @@
  */
 
 // CR-12 (A1X-04): the coercers designCast also uses, under the names this file's body reads.
-import { resolveIdentity } from "@cml/cml";
+import { isIdentityRoleWinsEnabled, resolveIdentity } from "@cml/cml";
 import { coerceMotiveStrength as normaliseMotiveStrength, coerceAccessPlausibility as normaliseAccessPlausibility, coerceRelationshipTension as normaliseRelationshipTension } from "@cml/prompts-llm";
 import { readModeFlag } from "./mode-flag.js";
 import { recordShippedPhaseScore, runUnscoredStage, scoreCastPhase } from "./phase-scoring.js";
@@ -545,7 +545,14 @@ export function enforceVictimRoleInvariant(
   //    non-detective non-culprit. The detective is excluded deterministically (no regex guessing).
   // A_53 P10 (enforce-victim-redundant-name-scans): victimCandidates as a Set for O(1) membership.
   const victimCandidateKeys = new Set(victimCandidates.map((v) => v.toLowerCase()));
+  // A_111 CR-a (CML_IDENTITY_ROLE_WINS): two members carrying `role: victim` are broken by the evidence the cast itself
+  // gives — the archetype that says victim, or the model's own victimCandidates — before list order.
+  const roleVictims = characters.filter((c) => roleOf(c) === "victim" && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey);
+  const tiedVictim = isIdentityRoleWinsEnabled() && roleVictims.length > 1
+    ? roleVictims.find((c) => /victim/.test(archetypeOf(c)) || victimCandidateKeys.has(nameOf(c).toLowerCase())) ?? roleVictims[0]
+    : undefined;
   const victim =
+    tiedVictim ??
     characters.find((c) => roleOf(c) === "victim" && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
     characters.find((c) => archetypeVictim(c) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
     characters.find((c) => nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey && victimCandidateKeys.has(nameOf(c).toLowerCase())) ??

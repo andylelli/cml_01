@@ -7,7 +7,7 @@
  * Step 2 — converging the divergent defaults — is the owner's (A34-Q01).
  */
 import { CANONICAL_CLUE_ID_RE } from "@cml/cml";
-import { readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
+import { a110UpstreamEnabled, readBooleanFlag, verifiedFixesEnabled } from "@cml/cml";
 import { resolveIdentity } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { isVictimArchetype } from "@cml/cml";
@@ -724,12 +724,28 @@ function gapFillSuspectClearances(caseBlock: Record<string, unknown>, culpabilit
       .map((c: any) => (c.name as string).trim().toLowerCase())
   );
 
+  /**
+   * A_111 CR-i (CML_A110_UPSTREAM) — the victim is never a suspect to clear. MEASURED: 63 of 71 stored CMLs list the
+   * victim by exact name in suspect_clearance_scenes, because this gap-fill skipped only the culprit and the detective
+   * and so wrote "Alibi confirmed: …" for the dead. Agent 7's prompt carries the list as "Suspect Clearance Scenes
+   * (REQUIRED)"; A_110 D6 removed it only from the v2 contract, and only under PROSE_V2_CONTRACT_FIXES. A book written
+   * with that flag off said "Cecil Thorne, though not present, was cleared by the certainty of alibi" (seed 82094 ON).
+   */
+  const victimCastNames = new Set<string>(
+    a110UpstreamEnabled()
+      ? (normalizedCast as any[])
+          .filter((c: any) => resolveIdentity("normalize.clearance-victim", "victim", c, isVictimArchetype(String(c.role_archetype ?? c.role ?? ""))))
+          .map((c: any) => String(c.name ?? "").trim().toLowerCase())
+          .filter(Boolean)
+      : [],
+  );
+
   // A_50 §9: drop any LLM-authored clearance for the CULPRIT (or detective) — the gap-fill below
   // already skips them on ADD, but the LLM's original list was written back UNFILTERED, leaving a
   // culprit-clearance that causes cleared_culprit_conflict. Remove them at the source.
   for (let i = existingClearances.length - 1; i >= 0; i -= 1) {
     const n = String(existingClearances[i]?.suspect_name ?? "").trim().toLowerCase();
-    if (n && (culpritSet.has(n) || detectiveCastNames.has(n))) existingClearances.splice(i, 1);
+    if (n && (culpritSet.has(n) || detectiveCastNames.has(n) || victimCastNames.has(n))) existingClearances.splice(i, 1);
   }
 
   // Determine a sensible default scene for gap-filled clearances:
@@ -793,7 +809,7 @@ function gapFillSuspectClearances(caseBlock: Record<string, unknown>, culpabilit
   for (const castMember of normalizedCast as any[]) {
     const nameLower = String(castMember.name ?? "").trim().toLowerCase();
     if (!nameLower) continue;
-    if (culpritSet.has(nameLower) || detectiveCastNames.has(nameLower)) continue;
+    if (culpritSet.has(nameLower) || detectiveCastNames.has(nameLower) || victimCastNames.has(nameLower)) continue;
     if (clearedNames.has(nameLower)) continue;
 
     // Derive clearance method from the suspect's alibi_window if available.
