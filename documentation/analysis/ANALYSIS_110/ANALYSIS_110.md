@@ -20,8 +20,8 @@ file and take a manuscript path, so they can be re-run after each fix.
 
 ## STATUS
 
-Step 0 and M6 are built behind default-OFF flags (BUILD LEDGER); nothing has been read by a paid run. **The
-IMPLEMENTATION PLAN, below the ledger, governs everything else.** Every item in it is a rule over any case's
+**Every item in the IMPLEMENTATION PLAN is built behind a default-OFF flag (BUILD LEDGER; P.6 records what the build
+found).** Paid verification waits for the owner. **The IMPLEMENTATION PLAN, below the ledger, governs.** Every item in it is a rule over any case's
 artifacts, verified over all 64 stored projects and on two cases of different axes (P.1). **Part II (§12–§19, same day) tested every proposal** against the code run from `dist` on
 this run's artifacts, the 25 v2 drafts in the prompt log, 64 stored outlines, 233 saved manuscripts and
 149 canon openings. Of the 26: **8 stand, 14 are changed, 2 are withdrawn or recommended against, 1 is merged
@@ -116,26 +116,26 @@ by a paid run yet.
 | L7/M7 ship-check page shape: compressed ratio, sentence openers, length runs, distinct words per 8k, tail per 10k, each against its canon floor; report only | 3 | — (telemetry) | **DONE** — 5 tests; this book BELOW on all three floors | `3a490919` |
 | L5 overlap with the book so far, per draft in the run report | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** with M6 | `97205f28` |
 | 0.1 N5 a spoken line lost between the editor and the saved file — diagnose, then fix | 0b | — | **DONE** — cause: clue_early anchored on the chapter's first sentence (10 of 10 across 6 checkpoints); fixed behind PROSE_V2_CONTRACT_FIXES + noOrphanedTag guard | `b4606924` |
-| 0.2a N9 a culprit-pointing clue shows its fact where scheduled and its conclusion at the test | 0b | `PROSE_V2_SCHEDULE` | TODO | |
-| 0.2b M9 evidence placed to minimise the largest chapter load, every clue before its use | 0b | same | TODO | |
+| 0.2a N9 a culprit-pointing clue shows its fact where scheduled and its conclusion at the test | 0b | `PROSE_V2_SCHEDULE` | **BUILT; counter NOT MET** — 6 culprit clues deferred (median); settle 4 -> 5; still before test−1 in 59/64 (over-determination; needs Agent 5 two-suspect clues) | `53285787` |
+| 0.2b M9 evidence placed to minimise the largest chapter load, every clue before its use | 0b | same | **DONE** — busiest chapter max 10 -> 8; no clue lost; 0 rules broken over 64 | `53285787` |
 | 0.3 K6 template rows: D1, D2, P1 precedence and P3 chain, three-valued | 0b | — (telemetry) | **DONE** — 4 rows (decisive clue before the test, no clearance after the reveal, P1, P3); decisive clue violated in 2 of 64; D1/D2 measured on the text | `6f0ee807` |
 | 0.4 N10 the read file records the reader model and date; the ledger reads them | 0b | — | **DONE** — the ledger prints reader recorded: 0 of 79; template in documentation/external-read-template.md | `1accc558` |
 | 0.5 surprise ledger: Ely surprise per chapter, settle chapter, dead-chapter share in the case-logic report | 0b | — (telemetry) | **DONE** — 64 contracts: the culprit leads before the chapter ahead of the test in 64; median dead share 0.71; the report fixed on Windows | `7b8aa6be` |
 | 0.6 case-noun guard (ratchet, in pretest) | 0b | — | **DONE** — 11 known specimen hits baselined, 0 new; 4 witness tests | `28767ddd` |
-| 0.6b the guard's specimens removed from the Agent 2, 2c, 2d and 3 prompts | 0b | `PROMPT_SPECIMEN_TRIMS` | TODO | |
+| 0.6b the guard's specimens removed from the Agent 2, 2c, 2d and 3 prompts | 0b | `PROMPT_SPECIMEN_TRIMS` | **DONE** — Agent 2, 2c, 2d, 3 specimens; real prompts rendered OFF/ON in tests; the baseline rows go when the flag is promoted | `f40b084b` |
 | 0.7 `owner-read-probe.mjs` reads each case's own place, month, year, cast and victim | 0b | — | **DONE** — new generic owner-needs-probe.mjs (Part I's probe kept as its record); baseline over 10 v2 books in P.4 | `37ee7aad` |
 | 0.8 step-0 fixtures from two more case shapes | 0b | — | **DONE** — W1 on two more shapes; D2 counterfactual on real cases; both branches in the archive | `a4d8ae51` |
-| 1.7 N11 the book so far before the craft block and the chapter's contract | 1 | `PROSE_V2_BOOK_FIRST` | TODO | |
-| 2.1 P3 the Gathering scene with the victim alive; `victimAlive` derived from the beat arc | 2 | `CML_A110_UPSTREAM` | TODO | |
-| 2.2 W4 Agent 7 prefers the profiled places; Agent 2c seeded from where the clues are | 2 | same | TODO | |
-| 2.3 P2 `appearance` and `whyHere` from Agent 2b, in the first-appearance contract only | 2 | same | TODO | |
-| 2.4 L4 (prompt half) `speechMannerisms` without the humour clause | 2 | same | TODO | |
-| 2.5 P4 cast names: no shared first name; a shared surname needs a declared kinship | 2 | same | TODO | |
-| 3.1b N8 the touch rule asked of one paragraph per chapter | 3 | `PROSE_V2_TOUCH_ONCE` | TODO | |
-| 3.2 N12 presence penalty plumbed through the client and the v2 writer | 3 | `PROSE_V2_PRESENCE_PENALTY` | TODO | |
-| 3.3b M8 keyness-ranked editor findings | 3 | `PROSE_V2_KEYNESS_FINDING` | TODO | |
-| 3.4 M10 the opening chosen by profile-noun coverage, then distance from past openings | 3 | `PROSE_V2_SELECTOR_RANKS` | TODO | |
-| §39.2 the checked read: the reader answers §18's yes/no questions, compared with the probe | — | — | TODO | |
+| 1.7 N11 the book so far before the craft block and the chapter's contract | 1 | `PROSE_V2_BOOK_FIRST` | **DONE** — assembleWriterPrompt; chapter 1 and OFF byte-identical | `fedcca2e` |
+| 2.1 P3 the Gathering scene with the victim alive; `victimAlive` derived from the beat arc | 2 | `CML_A110_UPSTREAM` | **DONE** — marked AND before the crime beat; old outlines never inferred | `871a1aa7` |
+| 2.2 W4 Agent 7 prefers the profiled places; Agent 2c seeded from where the clues are | 2 | same | **DONE** — Agent 7 offered the profiled places; Agent 2c told where the evidence is found | `871a1aa7` |
+| 2.3 P2 `appearance` and `whyHere` from Agent 2b, in the first-appearance contract only | 2 | same | **DONE** — first-appearance line only; whyHere against the alibi window waits for WP-006 K3 | `871a1aa7` |
+| 2.4 L4 (prompt half) `speechMannerisms` without the humour clause | 2 | same | **DONE** | `871a1aa7` |
+| 2.5 P4 cast names: no shared first name; a shared surname needs a declared kinship | 2 | same | **DONE** — a cast step with a repair retry | `871a1aa7` |
+| 3.1b N8 the touch rule asked of one paragraph per chapter | 3 | `PROSE_V2_TOUCH_ONCE` | **DONE** — once a chapter; OFF byte-identical | `62a7b33a` |
+| 3.2 N12 presence penalty plumbed through the client and the v2 writer | 3 | `PROSE_V2_PRESENCE_PENALTY` | **DONE** — client (cd35d37b) and v2 writer; unset sends nothing; logged when sent | `fedcca2e` |
+| 3.3b M8 keyness-ranked editor findings | 3 | `PROSE_V2_KEYNESS_FINDING` | **DONE** — 43,908-phrase reference; clock phrases excluded; 8 findings max a book | `cf255c64` |
+| 3.4 M10 the opening chosen by profile-noun coverage, then distance from past openings | 3 | `PROSE_V2_SELECTOR_RANKS` | **DONE** — two rank terms for chapter 1's segment; printed per draft | `2ba9e284` |
+| §39.2 the checked read: the reader answers §18's yes/no questions, compared with the probe | — | — | **BUILT** — scripts/checked-read.mjs; running it is a reader call the owner makes | `68fe54ec` |
 | paid verification: steps 0.5, 1, 2, 3 on two cases (P.3) | — | — | **WAITS FOR THE OWNER'S YES** | |
 
 ## IMPLEMENTATION PLAN — generic to any story
@@ -300,6 +300,46 @@ guilt. Every prediction is scored against this baseline on both cases, not again
 
 Total paid ≈ £10, in four decisions. Every paid run is stated in full before launch, and step order holds: a
 step's pair is not run until the previous step's items are accepted or withdrawn.
+
+### P.6 Build record — every item built, and what building it found
+
+Every item in P.2 is built behind a default-OFF flag (BUILD LEDGER), each with OFF byte-identical where it touches a
+prompt (tested by rendering the real prompt), and verified over the archive where it is deterministic. Final suites:
+prose-engine 377, worker 822, prompts-llm green, llm-client 165, cml 363; `flags:check`, `flags:runtime` and the
+case-noun guard clean. The paid verification of P.3 waits for the owner's word; a parallel session is running the
+step-0 + step-1 pair on run `bcc0d637` in an isolated worktree.
+
+Building the items found eight things the plan did not know. Each is MEASURED unless marked.
+
+1. **N9's counter is not met.** Holding the culprit's conclusions to the test, and moving the culprit's facts into
+   the second half, left the reader model settled before the chapter ahead of the test in **59 of 64** contracts
+   (from 64 of 64; the median settle chapter moved from 4 to 5). The cause is §38.2's over-determination. About six
+   culprit facts must surface before the test for fair play, and the model counts each one even without its stated
+   meaning. **INFERRED:** holding suspense to the test needs clues that point at two suspects until the test, which
+   is an upstream Agent 5 design change. It is not in this plan; it is the next one. N9 stays built, because a real
+   reader's response to unexplained facts is unmeasured.
+2. **N5's cause** was not a save bug. `clue_early` is a chapter-level hit whose finding fell back to the chapter's
+   first sentence. **10 of 10** `clue_early` findings across the 6 v2 checkpoints that recorded findings pointed at a
+   first sentence. Across 60 chapter openings paired with their saved files, the editor changed 14, and one lost its
+   spoken line.
+3. **A decisive clue is not shown by the test chapter in 2 of 64 contracts**, with and without every flag. This is a
+   fair-play defect no check reported; the new trace rule `decisive-clue-before-test` now reports it every run.
+4. **Prompt specimens become case facts.** Agent 3's 'e.g., "Little Middleton, Yorkshire"' is a place in **18 of 72**
+   stored cases and a person in none. The case-noun guard baselines eleven specimens; `PROMPT_SPECIMEN_TRIMS`
+   removes them.
+5. **Old outlines cannot say whether the victim is alive.** 61 of 64 stored outlines read "gathering > crime", and
+   their gathering scene is the discovery. So P3 trusts a `victimAlive` mark from Agent 7 only before the crime beat,
+   and never infers one.
+6. **Keyness without a clock rule ranks the case's own times first** ("twenty minutes past three" ×18). M8 skips any
+   phrase that shares two consecutive words with a stated clock value, the rule N7 follows.
+7. **No read records its reader** (0 of 79). `documentation/external-read-template.md` asks for `reader:` and `date:`.
+8. **A resume run from a worktree writes the main `data/store.json`.** Reported by the parallel session: its pair arms
+   ran in `.claude/worktrees/a110-pair` and re-persisted upstream into `C:\CML\data\store.json`. **INFERRED** cause: the
+   store path walks up to the directory holding a real `.git` folder, and a worktree's `.git` is a file. It drifts the
+   A1X-04 cast snapshot (refreshed in `778ae444`). Recorded here, not fixed.
+
+What remains is paid. One mark is open on the read side: whether the reader can see points 1–4 at all. That is
+`scripts/checked-read.mjs`, a reader call only the owner can make.
 
 ### As first proposed (Part I) — superseded by the table above, kept for the record
 

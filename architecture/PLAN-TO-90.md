@@ -3227,3 +3227,19 @@ the first three, at most twelve, each a deletion. The run report's SHIP-CHECK ga
 (`page-shape.ts`): compressed ratio, sentence-opener entropy, sentence-length runs, distinct words per 8,000 and the tail
 rate, each beside its canon floor. On run bcc0d637: 0.314 / 4.79 bits / -0.04 against floors 0.346 / 5.12 / 0.016, all
 three BELOW. Report only — A_110 §32.1 found no page instrument predicts the external read.
+
+**§33 UPDATE 16 — A_110 complete: every item built, generic to any story, all default OFF.** The owner's rule: a change
+must work for any story, so one book motivates and the archive tests (A_110 IMPLEMENTATION PLAN, P.1). New flags,
+registered in FLAG-AUDIT: `PROSE_V2_SCHEDULE` (N9 + M9: a culprit's clue shows its fact before the test and its meaning
+at it; busiest chapter max 10 → 8 over 64 contracts), `PROSE_V2_BOOK_FIRST` (N11: the book so far before the brief, so the
+craft block stops sliding from 70–89% to 19–24% of the prompt), `PROSE_V2_TOUCH_ONCE` (N8), `PROSE_V2_PRESENCE_PENALTY`
+(N12, a number; the client never sent one), `PROSE_V2_KEYNESS_FINDING` (M8: the book's own house phrases ranked by G²
+against the canon, clock phrases excluded), `CML_A110_UPSTREAM` (step 2: P3 the Gathering with the victim alive when
+Agent 7 marks it, W4 places, P2 `appearance`/`whyHere`, L4, P4 names apart), `PROMPT_SPECIMEN_TRIMS` (0.6b: "Little
+Middleton" is a place in 18 of 72 stored cases). N5's lost line is fixed under `PROSE_V2_CONTRACT_FIXES` (`clue_early`
+was anchored on a chapter's first sentence in 10 of 10 checkpointed findings) with a `noOrphanedTag` editor guard. M10
+ranks chapter 1's drafts on the place's own words and distance from past openings under `PROSE_V2_SELECTOR_RANKS`.
+Telemetry: Declare-template order rules (a decisive clue not shown by the test in 2 of 64 contracts), Ely surprise in the
+case-logic report, a case-noun guard in pretest, `reader:`/`date:` in the read ledger. **N9's counter is NOT met**: the
+reader model still settles before the chapter ahead of the test in 59 of 64, because about six culprit facts must surface
+before the test — the next lever is upstream (two-suspect clues, Agent 5). Paid verification waits for the owner.
