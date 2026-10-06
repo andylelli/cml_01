@@ -3254,3 +3254,16 @@ three categories A_110 serves 1.75 — so the next lever after the point-5 repai
 inference path names a clock time in 23 of 34 non-temporal cases against 6 of 6 temporal; Agent 3b writes 5 devices
 for 79 of 79 cases). The replay fixtures pin the OFF branch of `CML_VERIFIED_FIXES` and `CML_PROMPT_TRIMS`, which ship
 ON (A_111 §2.3).
+
+**§33 UPDATE 18 — A_111 Parts 1 and 2 built (2026-10-06, the owner: "proceed as you see best … complete parts 1 & 2").**
+Part 1: the code review closes, 401 of 401 — decision 2 flipped on a graded archive (85 of 85 disagreements go the
+unified way; `CML_IDENTITY_ROLE_WINS=1` in `.env.local`), A6-07's one matcher, the victim no longer a suspect to clear
+(63 of 71 CMLs; `CML_A110_UPSTREAM`), and `npm run pin:v2` pins the configurations that ship. The v2 engine, never
+reviewed, was audited (WF-005: 37 defects) and fixed behind **`PROSE_V2_AUDIT_FIXES`** (V-1…V-18; every targeted count
+0 with the flag on over 64 stored contracts; instrument fixes V-19/V-20 unconditional). Two instruments were silently
+broken and are fixed: `replay:check` had been red since 2026-10-03 and hid a flags-off leak from A_110 step 1 (flags off,
+HEAD now matches the pre-A_110 tree), and no case made since 2026-10-02 could be prose-redone (R-2). Part 2: P-5 (£0.90)
+removed the gesture habit (32 → 0) and put the date on the page, but stayed WORTH A LOOK on restated clock times the
+clock guard would not let the editor delete (V-13 fixes the guard). **The readable recent reads put 55% of the gap to 90
+in plot, clues and ending**, so the puzzle now leads: P-6 (second case, everything on) is running; P-8 (one mechanism
+per case; at most one clock step on a non-temporal axis — 29–52% today) is built behind `AGENT3_ONE_MECHANISM`.
