@@ -104,6 +104,18 @@ export function tailFindingEnabled(env: Record<string, string | undefined> = pro
 }
 
 /**
+ * ANALYSIS_111 §5 (the V batch) — the v2 engine audit's fixes (WF-005: 37 defects demonstrated on the stored contracts,
+ * the 2026-10-06 pair's drafts and edit lists). ON: the contract states the solution's facts in the right chapter
+ * (the reveal's window, the crime window's order, decisive evidence before the test, the test and clearances on the
+ * page, no body line after the reveal); the selector's book-level checks run against the book so far; the culprit
+ * predicate needs a person as the deed's object; the editor's guards compare sets and register HITS, each guard on its
+ * own. Default OFF. Read at call time (ADR-0004).
+ */
+export function auditFixesEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_AUDIT_FIXES", false, env);
+}
+
+/**
  * ANALYSIS_110 N9 + M9 (IMPLEMENTATION PLAN 0.2) — the schedule of the evidence. MEASURED over 64 stored contracts: the
  * reader model has the culprit as favourite by chapter 6 in 64 of 64 (by chapter 4 in 52) against a test in chapter 8
  * in 57, and no single clue is necessary to the proof (WP-007 §2.2, §5.1). ON: a clue that implicates a culprit shows
