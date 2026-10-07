@@ -45,7 +45,7 @@ describe("run progress is a pure function of the events", () => {
 
 	it("carries the pipeline's own message as the label", () => {
 		// slice(0, 9) ends on `clues_done`, the highest-percentage event so far.
-		expect(deriveProgress(RUN.slice(0, 9))).toEqual({ percent: 65, label: "Clues distributed" });
+		expect(deriveProgress(RUN.slice(0, 9))).toEqual({ percent: 14, label: "Clues distributed" });
 	});
 
 	it("marks stages complete in order, and names the one running", () => {

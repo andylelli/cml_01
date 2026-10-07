@@ -9,121 +9,194 @@ import type { RunEvent } from "../components/types";
  * operator console two clicks away had a fourteen-stage breakdown. Moving them here is what lets
  * CaseView show the same thing in the reader's language.
  *
- * The bodies are moved VERBATIM from WorkshopView — a 116-line switch mapping pipeline events to
- * percentages is not something to retype.
+ * The API stores an event's stage and message only — the worker's own `percentage` is dropped in
+ * server.ts — so every number the bar shows comes from STAGE_END below.
  */
 
-export const progressPercentFromEvent = (event: { step: string; message: string }) => {
+/**
+ * Where each stage ENDS, as a percentage of the run's wall-clock time.
+ *
+ * MEASURED 2026-10-07 from the LLM-call timestamps of the three latest full v2 runs
+ * (logs/llm.jsonl: mystery-1790896091454, -1790960614933, -1790962241800; 14, 27 and 24 minutes).
+ * The previous table put the outline at 95%, where a run is about a THIRD of the way through:
+ * chapter writing is 46–62% of the wall clock and the critic/editor/scoring tail another 5–16%,
+ * so the bar sat at 96% for the last two-thirds of every run.
+ */
+export const STAGE_END = {
+  started: 1,
+  setting: 2,
+  cast: 3,
+  background: 4,
+  hardLogic: 6,
+  cml: 10,
+  novelty: 11,
+  clues: 14,
+  fairplay: 16,
+  profiles: 19,
+  locations: 24,
+  temporal: 26,
+  world: 30,
+  outline: 34,
+  /** The last chapter is written; the critic, editor and validation follow. */
+  chapters: 90,
+  prose: 92,
+  validation: 97,
+  complete: 100,
+} as const;
+
+/**
+ * Chapters do not take equal time: each carries the book so far in its prompt, so chapter 10 takes
+ * about three times as long as chapter 1. Measured cumulative writer time after a fraction `x` of
+ * the chapters is close to x^1.7 (x = 0.3: 0.125 and 0.129 measured, 0.129 modelled; x = 0.5: 0.30
+ * and 0.31 measured, 0.31 modelled).
+ */
+const CHAPTER_TIME_EXPONENT = 1.7;
+
+export const chapterPercent = (chaptersDone: number, total: number): number => {
+  const x = Math.min(1, Math.max(0, chaptersDone / Math.max(1, total)));
+  return Math.round(STAGE_END.outline + (STAGE_END.chapters - STAGE_END.outline) * x ** CHAPTER_TIME_EXPONENT);
+};
+
+/**
+ * Chapters finished, and the total when the message carries one. v2 says "Writing chapters 3-3
+ * (3 drafts)..." at the START of a segment, so its first chapter is not done yet; v1 says
+ * "Generating chapter 3/10..." and then "Chapter 3/10 complete".
+ */
+const parseChapterProgress = (message: string): { done: number; total?: number } | null => {
+  let m = /writing chapters (\d+)-(\d+)(?: of (\d+))?/.exec(message);
+  if (m) return { done: Number(m[1]) - 1, total: m[3] ? Number(m[3]) : undefined };
+  m = /chapter (\d+)\/(\d+) (?:complete|validated)/.exec(message);
+  if (m) return { done: Number(m[1]), total: Number(m[2]) };
+  m = /chapter (\d+)(?:\/| of )(\d+)/.exec(message);
+  if (m) return { done: Number(m[1]) - 1, total: Number(m[2]) };
+  return null;
+};
+
+/** What earlier events tell a later one: the outline's scene count is the v2 chapter total. */
+export interface ProgressContext {
+  chapterTotal?: number;
+}
+
+export const progressPercentFromEvent = (
+  event: { step: string; message: string },
+  context: ProgressContext = {},
+): number | null => {
   const step = event.step.toLowerCase();
   const message = event.message.toLowerCase();
+  const E = STAGE_END;
 
   switch (step) {
     case "pipeline_started":
     case "run_started":
-      return 2;
+      return E.started;
 
     // ── Setting (agent1) ────────────────────────────────────────────────────
     case "setting_done":
-      return 12;
+      return E.setting;
     case "setting":
-      return message.includes("refined") ? 12 : 3;
+      return message.includes("refined") ? E.setting : E.started;
 
     // ── Cast (agent2) ───────────────────────────────────────────────────────
     case "cast_done":
-      return 25;
+      return E.cast;
     case "cast":
-      return message.includes("designed") ? 25 : 13;
+      return message.includes("designed") ? E.cast : E.setting;
 
     // ── Background Context (agent2e) ─────────────────────────────────────────
     case "background_context_done":
-      return 30;
+      return E.background;
     case "background-context":
-      return message.includes("generated") ? 30 : 26;
+      return message.includes("generated") ? E.background : E.cast;
 
     // ── Hard Logic Devices (agent3b) ─────────────────────────────────────────
     case "hard_logic_devices_done":
-      return 35;
+      return E.hardLogic;
     case "hard_logic_devices":
-      return message.includes("generated") ? 35 : 31;
+      return message.includes("generated") ? E.hardLogic : E.background;
 
     // ── CML (agent3 + optional agent4 revision) ───────────────────────────────
     case "cml_done":
-      return 52;
+      return E.cml;
     case "cml":
-      if (message.includes("regenerating")) return 50;
-      if (message.includes("validated") || message.includes("generated")) return 52;
-      return 36;
+      if (message.includes("regenerating")) return E.cml - 1;
+      if (message.includes("validated") || message.includes("generated")) return E.cml;
+      return E.hardLogic;
 
-    // ── Novelty Audit (agent3) ────────────────────────────────────────────────
+    // ── Novelty Audit (agent8) ────────────────────────────────────────────────
     case "novelty_audit_done":
-      return 58;
+      return E.novelty;
     case "novelty":
-      if (message.includes("skipped")) return 58;
-      return message.includes("check:") ? 58 : 53;
+      if (message.includes("skipped")) return E.novelty;
+      return message.includes("check:") ? E.novelty : E.cml;
 
     // ── Clues (agent5) ────────────────────────────────────────────────────────
     case "clues_done":
-      return 65;
+      return E.clues;
     case "clues":
-      if (message.includes("regenerating")) return 60;
-      return message.includes("distributed") ? 65 : 59;
+      if (message.includes("regenerating")) return E.clues - 1;
+      return message.includes("distributed") ? E.clues : E.novelty;
 
     // ── Fair-play (agent6) ────────────────────────────────────────────────────
     case "fair_play_report_done":
-      return 75;
+      return E.fairplay;
     case "fairplay":
-      // "Fair play audit: pass/fail" contains "audit:" — that signals completion
-      if (message.includes("audit:")) return 75;
-      if (message.includes("blind")) return 72;
-      return 66;
+      // "Blind reader simulation: PASS" is the last fair-play event; "Fair play audit: pass" precedes it.
+      if (message.includes("simulation:")) return E.fairplay;
+      if (message.includes("audit:") || message.includes("blind")) return E.fairplay - 1;
+      return E.clues;
 
     // ── Character Profiles (agent2b) ──────────────────────────────────────────
     case "character_profiles_done":
-      return 80;
+      return E.profiles;
     case "profiles":
-      return message.includes("generated") ? 80 : 76;
+      return message.includes("generated") ? E.profiles : E.fairplay;
 
     // ── Location Profiles (agent2c) ───────────────────────────────────────────
     case "location_profiles_done":
-      return 83;
+      return E.locations;
     case "location-profiles":
-      return message.includes("generated") ? 83 : 81;
+      return message.includes("generated") ? E.locations : E.profiles;
 
     // ── Temporal Context (agent2d) ────────────────────────────────────────────
     case "temporal_context_done":
-      return 86;
+      return E.temporal;
     case "temporal-context":
-      return message.includes("generated") ? 86 : 84;
+      return message.includes("generated") ? E.temporal : E.locations;
 
     // ── World Builder (agent65) ───────────────────────────────────────────────
     case "world_builder_done":
-      return 92;
+      return E.world;
     case "world-builder":
-      return message.includes("complete") ? 92 : 87;
+      return message.includes("complete") ? E.world : E.temporal;
 
-    // ── Narrative Outline (agent7) ────────────────────────────────────────────
+    // ── Narrative Outline (agent7, then 7.5 geometry) ─────────────────────────
     case "outline_done":
-      return 95;
+      return E.outline;
     case "narrative":
-      if (message.includes("scenes") || message.includes("structured") || message.includes("complete")) return 95;
-      return 93;
+      if (message.includes("scenes") || message.includes("structured") || message.includes("geometry")) return E.outline - 1;
+      return E.world;
 
     // ── Prose (agent9) ────────────────────────────────────────────────────────
     case "prose_done":
-      return 98;
-    case "prose":
-      return message.includes("generated") ? 98 : 96;
+      return E.prose;
+    case "prose": {
+      if (message.includes("prose generated")) return E.prose;
+      const chapters = parseChapterProgress(message);
+      const total = chapters?.total ?? context.chapterTotal;
+      if (chapters && total) return chapterPercent(chapters.done, total);
+      return E.outline;
+    }
 
     // ── Validation (agent9 post-prose gate) ───────────────────────────────────
     case "validation":
-      if (message.includes("passed") || message.includes("auto-fix") || message.includes("encoding")) return 99;
-      return 97;
+      if (message.includes("passed") || message.includes("auto-fix") || message.includes("encoding")) return E.validation;
+      return E.prose + 1;
 
     // ── Complete ──────────────────────────────────────────────────────────────
     case "pipeline_complete":
     case "run_finished":
     case "complete":
-      return 100;
+      return E.complete;
 
     default:
       return null;
@@ -152,6 +225,7 @@ export const deriveStages = (events: readonly RunEvent[]): PipelineStep[] => {
 
   const completedDoneEvents = new Set<string>();
   const failedIds = new Set<string>();
+  const seenStages = new Set<string>();
   let runningStage: string | null = null;
 
   for (const event of events) {
@@ -167,6 +241,7 @@ export const deriveStages = (events: readonly RunEvent[]): PipelineStep[] => {
       }
     } else if (!step.includes("_done") && !["pipeline_started", "run_started", "pipeline_warnings"].includes(step)) {
       runningStage = step;
+      seenStages.add(step);
     }
   }
 
@@ -175,6 +250,9 @@ export const deriveStages = (events: readonly RunEvent[]): PipelineStep[] => {
     if (completedDoneEvents.has(s.doneEvent)) status = "complete";
     else if (failedIds.has(s.id)) status = "failed";
     else if (runningStage === s.runningStage) status = "running";
+    // The *_done events arrive only after the whole pipeline returns (server.ts), so a stage the run
+    // has already left would otherwise read "pending" until the very end.
+    else if (seenStages.has(s.runningStage)) status = "complete";
     return { id: s.id, label: s.label, status };
   });
 };
@@ -187,8 +265,14 @@ export const deriveStages = (events: readonly RunEvent[]): PipelineStep[] => {
 export const deriveProgress = (events: readonly RunEvent[]): { percent: number; label: string } => {
   let percent = 0;
   let label = "Starting generation...";
+  const context: ProgressContext = {};
   for (const event of events) {
-    const eventPercent = progressPercentFromEvent(event);
+    // v2 prose events name the chapter but not the total; the outline's scene count is the total.
+    if (event.step.toLowerCase() === "narrative") {
+      const scenes = /(\d+) scenes/.exec(event.message);
+      if (scenes) context.chapterTotal = Number(scenes[1]);
+    }
+    const eventPercent = progressPercentFromEvent(event, context);
     if (typeof eventPercent === "number" && eventPercent >= percent) {
       percent = eventPercent;
       label = event.message || label;
