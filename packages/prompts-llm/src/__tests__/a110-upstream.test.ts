@@ -106,7 +106,7 @@ describe("P2 + L4 — Agent 2b", () => {
     const t = await firstPrompt();
     expect(t).not.toContain("and how their humour manifests in dialogue");
     expect(t).toContain('"appearance": "Two concrete physical details a stranger notices first"');
-    expect(t).toContain('"whyHere": "Why this person is at this place on this day, in one sentence"');
+    expect(t).toContain('"whyHere": "Why this person is at this place on this day, in one sentence: the reason they would give anybody who asked"');
   });
 });
 

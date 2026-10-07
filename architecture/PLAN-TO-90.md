@@ -3288,3 +3288,10 @@ Next: arm D = C + `PROSE_V2_SCHEDULE` (the culprit's clues show their fact befor
 … opportunity" moved from chapter 2 (arm C) to the test chapter — the marker that separates the two read books — and the
 book is back to full length (13,462 words), SHIP-CHECK Normal, no fallback. Its gate STOP was V-10's (fixed
 `968b6fe5`). Awaiting the owner's read: `stories/story_20261007-1828/`.
+
+**§33 UPDATE 22 — three opening and editor defects from arm D, fixed (2026-10-07, £0).** The nested quote in the
+reveal was the editor's, repairing `flat_reveal`; it may no longer add a quote defect or un-name the culprit after the
+reveal (`PROSE_V2_AUDIT_FIXES`, `017b89a0`). The four-paragraph roll call is one numbered opening sequence
+(`017b89a0`). And an introduction no longer gives away the newcomer's secret: 70 of 90 relations in the stored
+contracts carried words of the member's privateSecret or motiveSeed; a relation is now a description only, and 0 of 10
+do (`PROSE_V2_OPENING`; A_111 P-3d). All three are contract- or replay-level; the page needs a redo (arm E, ~£0.95).

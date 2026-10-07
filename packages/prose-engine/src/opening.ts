@@ -34,11 +34,63 @@ const agePhrase = (member: Record<string, unknown>): string => {
 };
 
 /**
- * What a person was to the dead, as the cast's own relationship sentence says it, cut before the clause that carries a
- * secret ("…, who had rewritten his will", "… and knew his secret smuggling profits"). The culprit's pair sentence is
+ * What a person was to the dead, as the cast's own relationship sentence says it — only where that sentence DESCRIBES
+ * them, and the description says nothing they keep secret.
+ *
+ * The pair sentence is written for the plot, not for chapter 1. A_111 intro-relations probe, every stored contract with
+ * PROSE_V2_OPENING on: 90 of 322 introductions carried a relation and 70 shared two or more distinctive words with that
+ * member's own privateSecret or motiveSeed — "manipulated Cecil Thorne through secret affection while embezzling manor
+ * funds" (canary_1790962241799), "served as Lady Beatrice's maid and secretly loved her". An ACTION sentence about the
+ * dead is the plot; a DESCRIPTION is who somebody is. Three descriptive shapes are read, over 150 member–victim pairs
+ * in 35 distinct casts: the appositive ("Eleanor, Lady Beatrice's niece, pressured…"), the copula ("X was the estate's
+ * lawyer"), and the victim first ("Lady Beatrice was Annabelle's aunt and guardian" → "… was her aunt and guardian").
+ * A description starts on a determiner or a possessive, is cut before its first clause, runs to at most twelve words,
+ * and carries no distinctive word (five letters or more) of the member's secret or motive that is not also in a name,
+ * their occupation or their public persona — the cast's own account of what is known. The culprit's pair sentence is
  * the motive in other words ("coerced into being an informant"), so the culprit gets none.
  */
-const relationTo = (name: string, victim: string, pairs: unknown[], culprits: ReadonlyArray<string>): string => {
+const DESCRIPTION_START = /^(?:a|an|the|his|her|their|its|one|once|now|formerly|long|both|[A-Z][\w.-]*(?:\s[A-Z][\w.-]*)*['’]s)\s/;
+const CLAUSE_BREAK = /,|;|:|\s[-–—]\s|\s(?:because|and knew|and had|and was|and is|who|whom|whose|which|that|while|whilst|but|though|although|until|after|before|since|despite|yet)\s/;
+const COPULA = "\\s+(?:was|is|had been|has been)\\s+";
+const TITLE = /^(?:Lady|Lord|Sir|Dame|Dr\.?|Mr\.?|Mrs\.?|Miss|Ms\.?|Rev\.?|Captain|Colonel|Major|Inspector|Professor|Father|Sister)$/;
+const escapeRe = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const stemsOf = (value: string): Set<string> => new Set(value.toLowerCase().match(/[a-z]{5,}/g)?.map((w) => w.slice(0, 5)) ?? []);
+
+/** The ways a pair sentence names somebody: in full, without the title, by a first name nobody else in the cast has, by title and surname. */
+const nameForms = (name: string, everyone: ReadonlyArray<string>): string => {
+  const parts = name.split(/\s+/);
+  const title = TITLE.test(parts[0] ?? "") ? parts[0]! : "";
+  const rest = title ? parts.slice(1) : parts;
+  const given = rest[0] ?? "";
+  const surname = rest.length > 1 ? rest[rest.length - 1]! : "";
+  const forms = new Set([name]);
+  if (title && rest.length) forms.add(rest.join(" "));
+  if (given && !everyone.some((n) => n !== name && n.split(/\s+/).includes(given))) {
+    forms.add(given);
+    if (title) forms.add(`${title} ${given}`);
+  }
+  if (title && surname) forms.add(`${title} ${surname}`);
+  return [...forms].sort((a, b) => b.length - a.length).map(escapeRe).join("|");
+};
+
+/**
+ * A line about a member says something they keep secret: the word "secret" itself, or a distinctive word of their
+ * privateSecret or motiveSeed that is in no cast name, nor their occupation, nor their publicPersona.
+ */
+const carriesSecret = (line: string, member: Record<string, unknown>, everyone: ReadonlyArray<string>): boolean => {
+  const known = stemsOf(`${everyone.join(" ")} ${text(member.occupation)} ${text(member.publicPersona)}`);
+  const secret = stemsOf(`${text(member.privateSecret)} ${text(member.motiveSeed)}`);
+  return /\bsecret(?:ly|s|ive)?\b/i.test(line) || [...stemsOf(line)].some((w) => secret.has(w) && !known.has(w));
+};
+
+const relationTo = (
+  member: Record<string, unknown>,
+  victim: string,
+  pairs: unknown[],
+  culprits: ReadonlyArray<string>,
+  everyone: ReadonlyArray<string>,
+): string => {
+  const name = text(member.name);
   if (!victim || culprits.includes(name)) return "";
   const pair = pairs.map(rec).find((p) => {
     const a = text(p.character1), b = text(p.character2);
@@ -46,9 +98,27 @@ const relationTo = (name: string, victim: string, pairs: unknown[], culprits: Re
   });
   // "Jr." and "Mrs." end no sentence: run bcc0d637's "Reginald Gresham Jr. was the disinherited son…" cut to the name.
   const sentence = text(pair?.relationship).split(/(?<!\b(?:Jr|Sr|Mr|Mrs|Ms|Dr|St))[.!?]\s/)[0] ?? "";
-  if (!sentence.startsWith(name)) return "";
-  const cut = sentence.split(/,|;| because | and knew | and had | and was /)[0]!.trim().replace(/[.]$/, "");
-  return cut.replace(new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+(?:was|is)\\s+`), "").trim();
+  const who = nameForms(name, everyone);
+  const dead = nameForms(victim, everyone);
+  const appositive = sentence.match(new RegExp(`^(?:${who}),\\s+([^,]+),`))?.[1];
+  const copula = sentence.match(new RegExp(`^(?:${who})${COPULA}(.*)$`))?.[1];
+  const inverse = sentence.match(new RegExp(`^(?:${dead})${COPULA}(?:${who})['’]s\\s+(.*)$`))?.[1];
+  const raw = appositive && DESCRIPTION_START.test(`${appositive} `) ? appositive : copula ?? inverse;
+  if (!raw) return "";
+  const cut = raw.split(CLAUSE_BREAK)[0]!.trim().replace(/[.]$/, "");
+  const words = cut.split(/\s+/);
+  if (words.length > 12) return "";
+  if (raw !== inverse && (!DESCRIPTION_START.test(`${cut} `) || words.length < 2)) return "";
+  if (carriesSecret(cut, member, everyone)) return "";
+  // "the butler" beside the occupation "butler" says nothing more.
+  const occupation = stemsOf(text(member.occupation));
+  if ([...stemsOf(cut)].every((w) => occupation.has(w))) return "";
+  if (raw === inverse) {
+    const g = text(member.gender).toLowerCase();
+    return `${victim} was ${g === "female" ? "her" : g === "male" ? "his" : "their"} ${cut}`;
+  }
+  // "her brother" in the pair sentence is the dead woman's brother; said beside his own name it would read as his.
+  return cut.replace(/^(?:his|her|their)\s/, `${victim}'s `);
 };
 
 const isOfficialInvestigator = (role: string): boolean => /\b(?:inspector|police|constable|sergeant|superintendent|official)\b/i.test(role);
@@ -64,6 +134,7 @@ export const assignOpening = (input: ContractInput, core: ContractCore): Map<num
   const victim = core.fairPlay.victim;
   const culprits = core.fairPlay.culprits;
   const cast = asArray(input.cast?.characters).map(rec);
+  const everyone = cast.map((m) => text(m.name)).filter(Boolean);
   const pairs = asArray(rec(input.cast?.relationships).pairs ?? input.cast?.relationships);
   const profiles = asArray(input.profiles?.profiles).map(rec);
   const locations = rec(input.locations);
@@ -112,10 +183,11 @@ export const assignOpening = (input: ContractInput, core: ContractCore): Map<num
       (get(scene.chapter).introductions ??= []).push({
         name,
         occupation,
-        relation: relationTo(name, victim, pairs, culprits) || undefined,
+        relation: relationTo(member, victim, pairs, culprits, everyone) || undefined,
         pronoun: g === "female" ? "she is" : g === "male" ? "he is" : "they are",
         ...(text(profile?.appearance) ? { appearance: text(profile?.appearance) } : {}),
-        ...(text(profile?.whyHere) ? { whyHere: text(profile?.whyHere) } : {}),
+        // The same rule as the relation: Agent 2b writes why-here holding the member's secret.
+        ...(text(profile?.whyHere) && !carriesSecret(text(profile?.whyHere), member, everyone) ? { whyHere: text(profile?.whyHere) } : {}),
       });
     }
   }
