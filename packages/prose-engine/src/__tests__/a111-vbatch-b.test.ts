@@ -269,3 +269,26 @@ describe("V-16a: sentences split after a closing quote and at a paragraph break"
     expect(on(() => measureInstruments(chapters).longSentenceShare)).toBe(1);
   });
 });
+
+// A_111 P-11 — arm D's reveal named its murderer as "Adela looked from Ivor to Harriet, her voice steady. "You killed
+// Cecil Thorne."": the accusation one sentence after the name, and the culprit by first name alone. Both count, the
+// first name only when nobody else in the case carries it; a figurative "you struck a match" still does not.
+describe("A_111 P-11 — the accusation in the next sentence, and the unique first name", () => {
+  const ctx = { victim: "Cecil Thorne", cast: ["Adela Halloway", "Cecil Thorne", "Harriet Bellamy", "Ivor Yardley", "Marguerite Selwyn"] };
+  it("counts with the audit flag on", async () => {
+    process.env.PROSE_V2_AUDIT_FIXES = "1";
+    const { namesAsCulprit } = await import("../culprit.js");
+    expect(namesAsCulprit('Adela looked from Ivor to Harriet, her voice steady. "You killed Cecil Thorne."', "Ivor Yardley", ctx)).toBe(true);
+    expect(namesAsCulprit("Harriet turned to Ivor. You killed him.", "Ivor Yardley", ctx)).toBe(true);
+    expect(namesAsCulprit("Ivor smiled. You struck a match.", "Ivor Yardley", ctx)).toBe(false);
+    expect(namesAsCulprit("Ivor's wit had cut through the silence.", "Ivor Yardley", ctx)).toBe(false);
+    delete process.env.PROSE_V2_AUDIT_FIXES;
+  });
+  it("a first name another member shares is not the culprit", async () => {
+    process.env.PROSE_V2_AUDIT_FIXES = "1";
+    const { namesAsCulprit } = await import("../culprit.js");
+    const shared = { ...ctx, cast: [...ctx.cast, "Ivor Pike"] };
+    expect(namesAsCulprit('Adela looked at Ivor. "You killed Cecil Thorne."', "Ivor Yardley", shared)).toBe(false);
+    delete process.env.PROSE_V2_AUDIT_FIXES;
+  });
+});

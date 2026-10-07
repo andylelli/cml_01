@@ -77,8 +77,15 @@ const namesAsCulpritAudited = (text: string, culprit: string, context: CulpritCo
     .map((n) => String(n ?? "").trim())
     .filter((n) => n && !n.toLowerCase().includes(lower) && !lower.includes(n.toLowerCase()));
   const surnameShared = others.some((n) => nameTokens(n).some((t) => t.toLowerCase() === surname.toLowerCase()));
-  const alternatives = surnameShared || tokens.length < 2 ? [culprit] : [culprit, surname];
-  const name = `\\b(?:${alternatives.map(escape).join("|")})(?![’']s\\b)`;
+  // A_111 P-11: the first name too, on the surname's terms — only when nobody else in the case carries it. Arm D's reveal
+  // addressed its murderer as "Ivor" alone.
+  const given = tokens.length >= 2 ? tokens[0]! : "";
+  const givenShared = others.some((n) => nameTokens(n).some((t) => t.toLowerCase() === given.toLowerCase()));
+  const alternatives = [culprit, ...(surnameShared || tokens.length < 2 ? [] : [surname]), ...(given && !givenShared ? [given] : [])];
+  // A given name never stands for the culprit when the surname follows it: in "Ada Larch's footman" the possessor is the
+  // whole name, so the first-name alternative must not match its first word.
+  const pieces = alternatives.map((alt) => (alt === given && tokens.length >= 2 ? `${escape(alt)}(?!\\s+${escape(surname)})` : escape(alt)));
+  const name = `\\b(?:${pieces.join("|")})(?![’']s\\b)`;
 
   const victimParts = context.victim ? [context.victim, ...nameTokens(context.victim)] : [];
   const person = `(?:him|her|them|${victimParts.length > 0 ? victimParts.map(escape).join("|") : "(?!)"})`;
@@ -89,7 +96,12 @@ const namesAsCulpritAudited = (text: string, culprit: string, context: CulpritCo
   const didIt = `${name}[^.!?]{0,80}\\b(?:${deed}|is the (?:killer|murderer|culprit)\\b|did it\\b)`;
   const youAccused =
     `${name}[^.!?]{0,40}\\byou\\b[^.!?]{0,80}\\b(?:${deed}|alone could\\b|only you\\b|no one else could\\b|nobody else could\\b)` +
-    `|${name}[^.!?]{0,40}\\byou\\b[^.!?]{0,20}\\b(?:were|are) the (?:killer|murderer|one)\\b`;
+    `|${name}[^.!?]{0,40}\\byou\\b[^.!?]{0,20}\\b(?:were|are) the (?:killer|murderer|one)\\b` +
+    // A_111 P-11: the accusation in the NEXT sentence, addressed to the culprit just named — "Adela looked from Ivor to
+    // Harriet, her voice steady. "You killed Cecil Thorne."" MEASURED: arm D's reveal named its murderer only this way,
+    // and the gate stopped it (the pre-V-10 predicate matched it by accident, through a figurative verb elsewhere).
+    // Still a deed with a PERSON as object, so "you struck a match" does not count.
+    `|${name}[^.!?]{0,80}[.!?]["”’]?\\s+["“]?(?:[^.!?]{0,30}\\s)?you\\s+(?:${deed})`;
   const wasThem = `\\b(?:killer|murderer|culprit) (?:is|was)[^.!?]{0,20}${name}`;
   const authored =
     `${name}[^.!?]{0,80}\\b(?:engineered|committed|carried out|planned|plotted|staged|arranged|` +
