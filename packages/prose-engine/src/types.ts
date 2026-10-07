@@ -210,6 +210,10 @@ export interface SceneContract {
   testSeenIn?: number;
   /** A_109 step 6 — the false solution's supporting points this chapter shows (flag `PROSE_V2_FALSE_LEAD`). */
   falseLeads?: Array<{ accused: string; point: string }>;
+  /** A_111 F-1 — red herrings noticed here, not yet explained (flag `PROSE_V2_HERRINGS`). */
+  herrings?: Array<{ detail: string; pointsAt: string }>;
+  /** A_111 F-1 — red herrings explained here, as the innocent things they were. */
+  herringsExplained?: Array<{ detail: string; explanation: string; noticedIn: number }>;
   /** A_109 step 6 — on the false-solution chapter: whom it accuses, from which chapters, broken where. */
   falseCase?: { accused: string; shownIn: number[]; brokenIn: number };
   words: { preferred: number; floor: number };

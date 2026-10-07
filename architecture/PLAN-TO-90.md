@@ -3303,3 +3303,9 @@ early", now for his behaviour rather than the clues the schedule moved. A′ 88,
 The read's items are traced in A_111 F-1..F-5: the case's red herrings are never scheduled (40 of 40 CMLs), a short
 sentence doubled back-to-back escapes `repeat_passage`, and our own period line injected the "absence of modern forensic
 technologies" sentence the reader called meta.
+
+**§33 UPDATE 24 — F-1..F-3 built (2026-10-07, £0).** The red herrings are scheduled (`PROSE_V2_HERRINGS`: 64 of 64 in
+32 distinct cases noticed in one chapter and explained at the case's own `resolved_in_chapter`, before the reveal); a
+short sentence doubled back to back is a finding (3 of 10 October books carry one); the period line no longer takes a
+state measured against the present (45 of 362 constraints). All flag-gated; flags-off replay MATCH on 5 fixtures. Next
+is P-10: a fresh behavioural-axis pair, the first case none of these fixes was motivated by.

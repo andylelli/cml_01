@@ -33,6 +33,8 @@ const PROFILES = {
   "shipped+a110B": { ...SHIPPED, ...A110_B },
   // A_111 P-6 arm C: everything that ships plus the A_110 arm-B flags and the V batch.
   "shipped+a110B+audit": { ...SHIPPED, ...A110_B, PROSE_V2_AUDIT_FIXES: "1" },
+  // A_111 P-10 arm C: arm D's prose flags (+ the evidence schedule) and the red herrings scheduled (F-1).
+  "shipped+a110B+audit+schedule+herrings": { ...SHIPPED, ...A110_B, PROSE_V2_AUDIT_FIXES: "1", PROSE_V2_SCHEDULE: "1", PROSE_V2_HERRINGS: "1" },
 };
 // Every flag any profile sets, cleared before each profile so they cannot leak between profiles.
 const TOUCHED = [...new Set(Object.values(PROFILES).flatMap((p) => Object.keys(p)))];

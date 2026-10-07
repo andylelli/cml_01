@@ -444,6 +444,9 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     const breaks = scene.falseCase.brokenIn === chapter ? "and it breaks here" : `and it breaks in chapter ${scene.falseCase.brokenIn}`;
     lines.push(`  The case against ${scene.falseCase.accused} ${TEMPLATE.falseCaseArgued} ${list} showed, ${breaks}.`);
   }
+  // A_111 F-1 (`PROSE_V2_HERRINGS`) — a red herring noticed here, or explained here. Absent without the flag.
+  for (const h of scene.herrings ?? []) lines.push(`  ${TEMPLATE.herringNoticed} ${h.pointsAt || "somebody"}: ${h.detail}`);
+  for (const h of scene.herringsExplained ?? []) lines.push(`  ${TEMPLATE.herringExplained}: ${h.detail} In fact: ${h.explanation}`);
   for (const elimination of scene.eliminationsAllowed) {
     const closure = chapter > contract.roles.reveal;
     lines.push(
@@ -678,7 +681,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
 
     ctx.reportProgress?.(
       "prose",
-      `Writing chapters ${segment.chapters[0]}-${segment.chapters[segment.chapters.length - 1]} (${k} drafts)...`,
+      `Writing chapters ${segment.chapters[0]}-${segment.chapters[segment.chapters.length - 1]} of ${plan.segments.reduce((n, s) => n + s.chapters.length, 0)} (${k} drafts)...`,
       60 + Math.round((30 * segment.index) / Math.max(1, plan.segments.length)),
     );
 
@@ -815,6 +818,10 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   }
 
   const expected = plan.segments.flatMap((s) => s.chapters);
+
+  // The critic and editor are 5-16% of a run's wall clock and used to emit nothing, so the UI's bar
+  // and stage list sat on the last chapter until the run ended (web/src/run/timeline.ts).
+  ctx.reportProgress?.("editing", `Reviewing the draft and editing ${written.length} chapter(s)...`, 92);
 
   // ── findings ───────────────────────────────────────────────────────────────────────────────────
   const checkerFindings = collectCheckerFindings(written, contract, expected, {

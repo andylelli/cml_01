@@ -54,6 +54,9 @@ export const TEMPLATE = {
   // A_109 step 6 — the false solution's points, owned; its chapter, argued from them.
   falseLeadShown: "Found or said here, and taken as pointing at",
   falseCaseArgued: "is argued here from what",
+  // A_111 F-1 — the red herrings, noticed and explained.
+  herringNoticed: "Noticed here, and not explained yet; it seems to point at",
+  herringExplained: "Explained here, as the innocent thing it was",
 } as const;
 
 /** Every template phrase, for the echo checker. */
@@ -81,6 +84,8 @@ export const CONDITIONAL_TEMPLATE_PHRASES: ReadonlySet<string> = new Set([
   TEMPLATE.openingInOrder,
   TEMPLATE.firstAppearsDoing,
   TEMPLATE.oneNameAfter,
+  TEMPLATE.herringNoticed,
+  TEMPLATE.herringExplained,
 ]);
 
 /** The template phrases this book's contract actually sent: every unconditional phrase, and a gated one only if printed. */

@@ -20,7 +20,7 @@ import {
 
 export const packageName = "@cml/cml";
 export { validateCml };
-export { FLAG_ON_VALUES, FLAG_OFF_VALUES, readBooleanFlag, verifiedFixesEnabled, promptTrimsEnabled, clueSpecChecklistEnabled, contractFixesEnabled, openingEnabled, selectorRanksEnabled, tailFindingEnabled, auditFixesEnabled, scheduleEnabled, bookFirstEnabled, touchOnceEnabled, presencePenaltyOf, keynessFindingEnabled, a110UpstreamEnabled, promptSpecimenTrimsEnabled } from "./flags.js";
+export { FLAG_ON_VALUES, FLAG_OFF_VALUES, readBooleanFlag, verifiedFixesEnabled, promptTrimsEnabled, clueSpecChecklistEnabled, contractFixesEnabled, openingEnabled, selectorRanksEnabled, tailFindingEnabled, auditFixesEnabled, scheduleEnabled, herringsEnabled, bookFirstEnabled, touchOnceEnabled, presencePenaltyOf, keynessFindingEnabled, a110UpstreamEnabled, promptSpecimenTrimsEnabled } from "./flags.js";
 export { CANONICAL_CLUE_ID_RE, escapeRegExp } from "./text-patterns.js";
 export { isVictimArchetype, isDetectiveArchetype, roleTextsOf, CAST_ROLE_ENUM, explicitRoleOf, isDetectiveMember, isVictimMember, isIdentityRoleWinsEnabled, resolveIdentity } from "./roles.js";
 export type { CastRole } from "./roles.js";

@@ -60,6 +60,7 @@ import {
   readInference,
   renderClockWords,
   scheduleEnabled,
+  herringsEnabled,
 } from "@cml/cml";
 import { holdCulpritCluesLate, namesCulprit, rebalanceEvidence, withoutCulprit } from "./schedule.js";
 
@@ -67,6 +68,7 @@ import { assignChapterRoles } from "./roles.js";
 import { assignTexture } from "./depth.js";
 import { assignOpening, clearTheOpening } from "./opening.js";
 import { applyFalseLead } from "./false-lead.js";
+import { applyRedHerrings } from "./red-herring.js";
 import type {
   AftermathJob,
   BeatJobFields,
@@ -1097,6 +1099,8 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
   clearTheOpening(core.scenes);
   // A_109 step 6 — after texture, so the flag changes nothing but the false lead and the one clearance.
   if (input.falseLead) core.notes.push(...applyFalseLead(caseBlock, core));
+  // A_111 F-1 — after the false lead, so its points are counted in each chapter's load.
+  if (herringsEnabled()) core.notes.push(...applyRedHerrings(caseBlock, core));
   return core;
 };
 

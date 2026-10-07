@@ -165,7 +165,11 @@ const caseSection = (caseBlock: Record<string, unknown>, core: ContractCore): st
     for (const herring of herrings) {
       const detail = field(herring, "detail", "description", "herring");
       const innocent = field(herring, "innocent_explanation", "innocentExplanation");
-      if (detail) lines.push(`  - ${detail}${innocent ? ` — in fact: ${innocent}` : ""}`);
+      // A_111 F-1: when a chapter owns it, the bible says which, as it does for clues and false-lead points.
+      const noticed = core.scenes.find((sc) => (sc.herrings ?? []).some((h) => h.detail === detail))?.chapter;
+      const explained = core.scenes.find((sc) => (sc.herringsExplained ?? []).some((h) => h.detail === detail))?.chapter;
+      const owned = noticed !== undefined && explained !== undefined ? ` — noticed in chapter ${noticed}, explained in chapter ${explained}` : "";
+      if (detail) lines.push(`  - ${detail}${innocent ? ` — in fact: ${innocent}` : ""}${owned}`);
     }
   }
   return lines;

@@ -103,9 +103,15 @@ export const assignTexture = (input: ContractInput, core: ContractCore): Map<num
 
   // 2. The period as friction: each physical constraint to one chapter, spread from chapter 2.
   // An absence ("No television", "Early aviation exists but plays little role") cannot happen to anybody.
+  // A_111 F-3 (PROSE_V2_CONTRACT_FIXES): nor can a constraint measured against the present ("Absence of mobile phones",
+  // "Limited forensic technology") — arm D's ch6 got "Absence of modern forensic technologies, reliance on physical clues
+  // and testimony" and wrote it as a sentence of commentary the reader called meta. 45 of the 362 stored constraints that
+  // passed the line above are of that kind; the investigation's own toolkit is one of them, never an event.
+  const presentTense = /^(?:absence|lack|without|period-appropriate)\b|\b(?:modern|digital|mobile|advanced|forensics?|contemporary)\b/i;
   const constraints = asArray(rec(rec(input.world).historicalMoment).physicalConstraints)
     .map(text)
-    .filter((c) => c && !/^(?:no|early)\b|\bexists\b|\blittle role\b/i.test(c));
+    .filter((c) => c && !/^(?:no|early)\b|\bexists\b|\blittle role\b/i.test(c))
+    .filter((c) => !contractFixesEnabled() || !presentTense.test(c));
   const frictionChapters = open.filter((c) => c > 1);
   constraints.slice(0, frictionChapters.length).forEach((constraint, i) => {
     const chapter = frictionChapters[Math.round((i * frictionChapters.length) / Math.min(constraints.length, frictionChapters.length))]!;

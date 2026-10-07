@@ -127,6 +127,18 @@ export function scheduleEnabled(env: Record<string, string | undefined> = proces
 }
 
 /**
+ * A_111 F-1 — the red herrings, scheduled. MEASURED: 40 of 40 distinct stored CMLs carry `red_herrings` with an
+ * `innocent_explanation` (80 in all) and the v2 contract gives none a chapter — they sit in the bible, identical in
+ * every chapter. Arm D of seed 82094 put neither the herring nor its explanation on the page; the writer improvised a
+ * suspect handling the weapon and the reader (89) named the muddle as the book's first fix. ON: each herring is noticed
+ * in one chapter after the crime and explained in a later one no later than the reveal. Default OFF. Read at call time
+ * (ADR-0004).
+ */
+export function herringsEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return readBooleanFlag("PROSE_V2_HERRINGS", false, env);
+}
+
+/**
  * ANALYSIS_110 N11 (Part V §38.3) — position in the prompt. MEASURED on run bcc0d637: the craft block sits at 70–89% of
  * the chapter-1 prompt and 19–24% of the chapter-10 prompt, because the book so far accumulates after it. ON: THE BOOK
  * SO FAR precedes the craft block and the chapter's contract, so the operations ride next to the format rules in every

@@ -506,6 +506,26 @@ export const collectCheckerFindings = (
     }
   }
 
+  // 4c. A_111 F-2 (PROSE_V2_AUDIT_FIXES) — a sentence said twice back to back. Block 4 skips any sentence under eight
+  // words and 4b needs a six-word run, so arm D shipped 'Ivor's reply was clipped. "You'll have them." "You'll have
+  // them."' and the reader quoted it. Three words or more: "No. No." can be meant.
+  if (auditFixesEnabled()) {
+    for (const [chapter, written] of byChapter) {
+      for (const paragraph of (written.paragraphs ?? []).map(normalise)) {
+        const sentences = sentencesOf(paragraph);
+        for (let i = 1; i < sentences.length; i++) {
+          const a = sentences[i - 1]!, b = sentences[i]!;
+          if (a.toLowerCase() !== b.toLowerCase() || a.split(/\s+/).length < 3) continue;
+          const at = paragraph.indexOf(a);
+          const end = at < 0 ? -1 : paragraph.indexOf(b, at + a.length);
+          const quote = end < 0 ? b : paragraph.slice(at, end + b.length);
+          if (out.some((f) => f.class === "copied_sentence" && f.chapter === chapter && (f.quote.includes(a) || quote.includes(f.quote)))) continue;
+          out.push(finding("copied_sentence", chapter, quote, "the same sentence twice in a row; keep one"));
+        }
+      }
+    }
+  }
+
   // 5. a passage the book has already used (the repetition instrument's own worst spans).
   //
   // ── THIS BLOCK NEVER PRODUCED A FINDING, AND HAD TWO INDEPENDENT REASONS ──────────────────────────
