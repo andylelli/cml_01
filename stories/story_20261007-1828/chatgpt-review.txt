@@ -1,0 +1,101 @@
+This is better than the previous 86/100 version and close to the best rotating-wall version. The opening is richer, the clue structure is cleaner, and Chapter 8 now does the right thing: Harriet fails the panel test, Ivor opens it, and the proof clicks physically in the room. The ending is also warmer and more human than the previous version.
+I’d score it 89/100.
+The roles are:
+Investigator: Adela Halloway
+Victim: Cecil Thorne
+Culprit: Ivor Yardley
+False suspects: Harriet Bellamy, Marguerite Selwyn, Ottoline Fairweather
+Murder method: stabbing with letter opener
+Cover-up mechanism: Ivor uses the rotating wall panel and servant corridor to enter and leave the sealed room unseen, then stops the clock at 9:15 to push suspicion away from the true window closer to 9:45
+Key clues: locked/sealed room, missing/used letter opener, hinge/pivot pin beneath carpet, fourteen-inch carpet wear, ninety-degree panel swing, three-foot passage, stopped clock at 9:15, later logs/bells proving 9:45, Ivor’s knowledge of the panel, Ivor’s prints on the letter opener, Harriet/Marguerite/Ottoline alibis
+Motive: Cecil was about to expose Ivor’s professional/legal wrongdoing, costing him his career, the Hawley estate, and his standing
+
+Area	Mark	Notes
+Premise / concept	9/10	Rotating wall + false clock remains excellent.
+Opening hook	9/10	Stronger atmosphere and body setup than the previous version.
+Plot structure	9/10	Clear: body → passage suspicion → clock lie → carpet proof → panel test → release.
+Character clarity	8/10	Everyone’s function is clear; Ivor still slightly obvious early.
+Dialogue	8/10	More natural than the previous version; some strong wit.
+Atmosphere / setting	9/10	Manor/circus contrast, fog, cold rooms, stables, servants’ hall — cohesive.
+Mystery clues / evidence logic	9/10	The physical proof chain is strong and fair.
+Pacing	8/10	Good, though Chapter 7 still sags slightly.
+Ending / reveal	9/10	The panel demonstration works properly now.
+Prose / polish	8/10	Cleaner overall, with a few generated/scaffold remnants.
+Character Life / Relationship Richness	9/10	Strong aftermath; people return to work changed, not merely cleared.
+Humour / Wit	8/10	Harriet and Ottoline are lively again.
+
+
+What works
+The opening is stronger than the last version. The cold manor, converted circus stables, sealed bedroom, ordinary lock, fog, and circus objects in the room all establish the world before the clue-work begins.    Pasted text
+The body setup is also better: Cecil is found with a clean puncture wound, the blood is already dried, the door is locked, the police/doctor are delayed, and the hinge/pivot is discovered beneath the carpet early. That gives the story a genuine sealed-room problem.    Pasted text
+The clock clue is clear and useful. The clock is stopped at 9:15, but supper clearing, the stable bell, staff logs, and witness statements point toward a death closer to 9:45. That cleanly clears Harriet, Ottoline, and Marguerite while leaving Ivor exposed.    Pasted text
+Biggest improvement: Chapter 8 now works
+This is the major upgrade. In the previous version, Adela opened the panel too early, which weakened the demonstration. Here, Harriet tries first and fails; then Ivor kneels, presses, rotates, and opens the panel smoothly. That is much stronger because Ivor incriminates himself physically.    Pasted text
+The proof chain is now satisfying:
+Harriet cannot operate the panel.
+Ivor can.
+The passage fits the room geometry.
+The letter opener bears Ivor's marks.
+The clock creates the false time.
+The alibis clear the women.
+Therefore only Ivor had route, means, time, and motive.
+
+That is the cleanest version of the solution so far.
+Main issue: Ivor is still a bit too obvious
+By Chapter 2–3, Ivor is already strongly framed: he is the legal man, knows the library, controls records, speaks defensively about the passages, and has visible anxiety around the panel/desk.    Pasted text
+It is not fatal, because the mechanism is satisfying, but suspense would improve if the fingerprint/letter-opener connection were held back until Chapter 8. Chapter 7 currently says Harriet handled the letter opener, then later Chapter 8 says Ivor’s prints are decisive. That works, but it risks muddling the weapon evidence.    Pasted text
+Best fix:
+Earlier chapters: say the letter opener has several handling marks and one unidentified strong print.
+
+Chapter 8: reveal the strong print is Ivor's, and Harriet's earlier handling was innocent/older.
+
+That preserves suspense and clarifies the evidence.
+Ivor’s motive is much better, but can still sharpen
+This version improves the motive: Ivor’s near-disbarment at 38 gives him a specific professional vulnerability, and Chapter 8 names what he would lose: legal career, Hawley estate, standing in the county.    Pasted text    Pasted text
+Still, add one concrete document:
+“Cecil had the irregular accounts,” Ivor said. “One letter to the trustees, and the Hawley estate would have dismissed me before luncheon.”
+
+Or:
+“He had proof I altered the estate accounts after the near-disbarment,” Ivor said. “This time there would be no quiet resignation.”
+
+That would take the motive from good to excellent.
+Character Life / Relationship Richness: 9/10
+This is one of the best versions for character life.
+Harriet has an injury, circus wit, class resentment, and a sharp but wounded relationship with Marguerite. Ottoline has animal work, tremor, practical humour, and loyalty to the circus/manor routines. Marguerite has social poise, patronage anxiety, affection for Cecil, and fear of social ruin. Adela has professional scars and a need to prove herself through facts.    Pasted text
+Chapter 9 is especially good because the women feel changed by the case. Harriet’s “I never learned any other way,” Ottoline’s lion joke, Marguerite remembering Cecil’s cigarette-case remark, and the empty Ivor chair all give the scene afterlife.    Pasted text(20261007-173417)
+Chapter 10 is strong too. It does not just say “routine returns”; it shows fire, ledger, clock, linen, gloves, flowers, cups, horses, and the stable yard returning to order. That is the kind of aftermath that makes the mystery feel lived-in.    Pasted text(20261007-173417)
+Humour / Wit: 8/10
+Harriet is good again:
+“He always said he’d go in harness. Rather literal, as it turns out.”
+
+Dark, theatrical, and specific to her circus voice.    Pasted text
+Ottoline also lands well:
+“If we’re lucky, the lions will be less trouble than the solicitors this season.”
+
+And Harriet’s answer:
+“They bite less often.”
+
+That exchange is one of the better comic beats in the Halloway drafts.    Pasted text(20261007-173417)
+“Better overlooked than overbooked” is lighter, but it works because it comes after release from suspicion and gives Ottoline a practical, circus-adjacent voice.    Pasted text(20261007-173417)
+Remaining prose problems
+Most of the ugly doubled-line scaffolding is gone, but a few problems remain:
+“You’ll have them.” repeated.    Pasted text
+Some role-label introductions are still heavy: “circus aerialist,” “legal representative,” “animal trainer,” repeated too often.
+“The absence of modern forensic technologies…” is still a bit meta. Better to just show Adela using ruler, brush, envelope, logs, and measurements.    Pasted text
+Chapter 8 has broken embedded narration: “Adela looked from Ivor to Harriet…” inside the line of accusation.    Pasted text
+The clue about Harriet’s fingerprints on the letter opener in Chapter 7 needs clarification so it does not conflict with Ivor’s decisive prints later.    Pasted text
+
+These are fixable line edits, not structural issues.
+Fastest fixes
+1. Clarify the letter-opener prints: Harriet’s are old/innocent; Ivor’s are fresh/decisive.
+2. Add one concrete document-based motive for Ivor.
+3. Delete the repeated “You’ll have them.”
+4. Remove or rewrite “absence of modern forensic technologies.”
+5. Fix the Chapter 8 broken narration around “You killed Cecil Thorne.”
+6. Reduce repeated role labels after Chapter 1.
+7. Keep Chapters 9–10 mostly as-is.
+Overall
+This is now probably the best rotating-wall draft. It keeps the clean prose of the previous version but restores more emotional richness and gives the reveal a proper physical demonstration.
+Previous version: 86/100.
+This version: 89/100.
+With the print clarification, sharper Ivor motive, and a little prose cleanup, this can reach 92/100.

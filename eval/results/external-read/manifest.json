@@ -1,5 +1,45 @@
 [
   {
+    "bundleId": "read-20261007-1828",
+    "storyPath": "stories/story_20261007-1828/resumed_resume_1791393513554.md",
+    "readPath": "stories/story_20261007-1828/chatgpt-review.txt",
+    "externalFinal": 89,
+    "externalReader": null,
+    "externalReadDate": null,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 9,
+      "plot_structure": 9,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 9,
+      "pacing": 8,
+      "ending": 9,
+      "prose": 8
+    },
+    "externalNotes": {
+      "premise": "Rotating wall + false clock remains excellent.",
+      "opening_hook": "Stronger atmosphere and body setup than the previous version.",
+      "plot_structure": "Clear: body → passage suspicion → clock lie → carpet proof → panel test → release.",
+      "character_clarity": "Everyone’s function is clear; Ivor still slightly obvious early.",
+      "dialogue": "More natural than the previous version; some strong wit.",
+      "atmosphere": "Manor/circus contrast, fog, cold rooms, stables, servants’ hall — cohesive.",
+      "clues": "The physical proof chain is strong and fair.",
+      "pacing": "Good, though Chapter 7 still sags slightly.",
+      "ending": "The panel demonstration works properly now.",
+      "prose": "Cleaner overall, with a few generated/scaffold remnants.",
+      "character_life": "Strong aftermath; people return to work changed, not merely cleared.",
+      "humour_wit": "Harriet and Ottoline are lively again."
+    },
+    "externalSupplementary": {
+      "character_life": 9,
+      "humour_wit": 8
+    },
+    "externalCategorySum": 86,
+    "externalOffset": 3
+  },
+  {
     "bundleId": "read-20260925-1240",
     "storyPath": "stories/story_20260925-1240/for-read.md",
     "readPath": "stories/story_20260925-1240/chatgpt-review.txt",

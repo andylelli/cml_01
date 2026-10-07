@@ -3295,3 +3295,11 @@ reveal (`PROSE_V2_AUDIT_FIXES`, `017b89a0`). The four-paragraph roll call is one
 (`017b89a0`). And an introduction no longer gives away the newcomer's secret: 70 of 90 relations in the stored
 contracts carried words of the member's privateSecret or motiveSeed; a relation is now a description only, and 0 of 10
 do (`PROSE_V2_OPENING`; A_111 P-3d). All three are contract- or replay-level; the page needs a redo (arm E, ~£0.95).
+
+**§33 UPDATE 23 — arm D read 89 (2026-10-07), the best on the ledger.** Sum 86 — the figure §29's arithmetic said 90
+needs — with plot, clues and ending at 9, and the opening hook at **9** for the first time in any read (the first
+full-length book with `PROSE_V2_OPENING`). Character clarity is the one category short: "Ivor still slightly obvious
+early", now for his behaviour rather than the clues the schedule moved. A′ 88, C 86, D 89 are within one read's ±3.
+The read's items are traced in A_111 F-1..F-5: the case's red herrings are never scheduled (40 of 40 CMLs), a short
+sentence doubled back-to-back escapes `repeat_passage`, and our own period line injected the "absence of modern forensic
+technologies" sentence the reader called meta.
