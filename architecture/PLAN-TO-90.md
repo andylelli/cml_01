@@ -3283,3 +3283,8 @@ arm B + the V batch) wrote an 86 with the best prose mark yet for v2 (8: "fewer 
 and one mark less in plot, ending and dialogue, for one named reason: the culprit "framed very strongly from the
 beginning". Within noise of each other. The agent self-read predicted 72–76 — it finds defects, it does not score.
 Next: arm D = C + `PROSE_V2_SCHEDULE` (the culprit's clues show their fact before the test and their meaning at it).
+
+**§33 UPDATE 21 — arm D run (2026-10-07, £0.96).** With `PROSE_V2_SCHEDULE` added, the culprit's prints and his "means
+… opportunity" moved from chapter 2 (arm C) to the test chapter — the marker that separates the two read books — and the
+book is back to full length (13,462 words), SHIP-CHECK Normal, no fallback. Its gate STOP was V-10's (fixed
+`968b6fe5`). Awaiting the owner's read: `stories/story_20261007-1828/`.
