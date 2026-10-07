@@ -100,11 +100,15 @@ describe("A_110 step 1 — the lines and the guards", () => {
       death: { victim: "Hugh Vane", pronoun: "he", who: "a retired shipowner, in his seventies", witnesses: ["Ada Vane", "Tom Bell"], authority: "the town is miles off" },
     });
     expect(lines[0]).toMatch(/^This chapter opens on the place before anybody speaks\. .*A grey stone building above the harbour\. The first line anybody speaks is in the third paragraph or later\.$/);
-    // A_111 P-3: one operation for the newcomers, then the facts — no sentence to paste.
-    expect(lines[1]).toBe("One person is on the page for the first time here. Introduce each in the sentence where they first do or say something, in your own words, from these facts, with at least two paragraphs between one introduction and the next:");
-    expect(lines[2]).toBe("  Ada Vane: family lawyer");
-    expect(lines).toContain("The first time Hugh Vane is named, a clause says who he was: a retired shipowner, in his seventies.");
-    expect(lines).toContain("Somebody sends for the police and a doctor, and they cannot come yet: the town is miles off");
+    // A_111 roll-call fix: with a newcomer and the death in one chapter, one ordered sequence — the newcomer's first
+    // appearance, then the chapter's other beats, each witness's line after their own introduction.
+    expect(lines[1]).toBe("This chapter's opening, in this order — each step its own paragraph or more:");
+    expect(lines[2]).toBe("  1. Ada Vane first appears doing something, and that sentence says who she is, in your own words — family lawyer");
+    expect(lines[3]).toBe("  2. the body: the first time Hugh Vane is named, a clause says who he was — a retired shipowner, in his seventies");
+    expect(lines[4]).toBe("  3. somebody sends for the police and a doctor, and they cannot come yet: the town is miles off");
+    expect(lines[5]).toBe("  4. Tom Bell says one line about Hugh Vane's death — what it is to them, in their own words");
+    expect(lines[6]).toBe("  5. Ada Vane says one line about Hugh Vane's death — what it is to them, in their own words");
+    expect(lines.at(-1)).toBe("From a person's second mention on, call them by one name: the first name, or a title and the surname.");
   });
 
   const place = [

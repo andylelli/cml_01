@@ -56,6 +56,8 @@ import type { Validator } from "@cml/prose-guard";
 import { auditFixesEnabled, contractFixesEnabled, extractClockValues, tailFindingEnabled } from "@cml/cml";
 
 import { bookRegisterHits, bookRegisterRate } from "./findings.js";
+import { namesAsCulprit } from "./culprit.js";
+import { quoteDefects } from "./quotes.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
 import type { EditList, EditOutcome, Finding, GuardName, ProseChapterLike, SceneContract } from "./types.js";
 
@@ -189,6 +191,12 @@ export interface GuardContext {
   lengthTolerance?: number;
   /** A_111 P-2: measure `registerNotWorse` as 0, for an edit that only deletes (see `isStrictDeletion`). */
   ignoreRegister?: boolean;
+  /**
+   * A_111 (PROSE_V2_AUDIT_FIXES) — for a chapter at or after the reveal: whoever the case's culprit is. An edit may not
+   * take away the line that names them (`culpritNamingIntact`): arm D's editor, repairing a `flat_reveal` finding,
+   * replaced "Let it be clear: Ivor Yardley killed Cecil Thorne." with a nested quote the gate could not read.
+   */
+  culprit?: { name: string; victim?: string; cast?: ReadonlyArray<string> };
 }
 
 /**
@@ -251,6 +259,12 @@ export const measureGuards = (
         : -Math.round(bookRegisterRate([chapter]) * 1_000),
     // A_110 N5: constant 0 with the flag off, so OFF is byte-identical in every outcome.
     noOrphanedTag: contractFixesEnabled() ? -orphanedTags(body) : 0,
+    // A_111 (PROSE_V2_AUDIT_FIXES): constant 0 with the flag off, so OFF is byte-identical in every outcome.
+    noNewQuoteDefect: audit ? -quoteDefects(chapter.paragraphs ?? []) : 0,
+    culpritNamingIntact:
+      audit && context.culprit?.name
+        ? namesAsCulprit(body, context.culprit.name, { victim: context.culprit.victim, cast: [...(context.culprit.cast ?? [])] }) ? 1 : 0
+        : 0,
     lengthWithin: wordCount(chapter),
   };
 };
@@ -266,6 +280,8 @@ const NEVER_FALL: GuardName[] = [
   "noNewDuplicate",
   "registerNotWorse",
   "noOrphanedTag",
+  "noNewQuoteDefect",
+  "culpritNamingIntact",
 ];
 
 /**

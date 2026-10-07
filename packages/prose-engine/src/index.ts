@@ -8,6 +8,7 @@ export const packageName = "@cml/prose-engine";
 
 export * from "./chapter-index.js";
 export * from "./contract-phrases.js";
+export { paragraphQuoteDefects, quoteDefects } from "./quotes.js";
 export { instructionPhrases, instructionStemGrams, findInstructionEchoes, findCatchphrases } from "./instruction-echo.js";
 export { culpritContextOf, namesAsCulprit } from "./culprit.js";
 export type { CulpritContext } from "./culprit.js";

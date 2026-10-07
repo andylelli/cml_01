@@ -866,6 +866,10 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
           lockedValues,
           castNames,
           findings,
+          // A_111 (PROSE_V2_AUDIT_FIXES, read inside the guard): an edit at or after the reveal may not un-name the culprit.
+          ...(chapter >= contract.roles.reveal && contract.fairPlay.culprits[0]
+            ? { culprit: { name: contract.fairPlay.culprits[0], victim: contract.fairPlay.victim, cast: castNames } }
+            : {}),
         });
         byChapter.set(chapter, edited);
         // Write back by IDENTITY, not by position: `written` is missing any chapter the writer did

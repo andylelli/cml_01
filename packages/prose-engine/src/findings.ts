@@ -36,7 +36,7 @@ import {
   scoreSentenceRegister,
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
-import { contractFixesEnabled, extractClockValues, keynessFindingEnabled, openingEnabled, tailFindingEnabled } from "@cml/cml";
+import { auditFixesEnabled, contractFixesEnabled, extractClockValues, keynessFindingEnabled, openingEnabled, tailFindingEnabled } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
@@ -46,6 +46,7 @@ import { repeatedRuns, splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import { keyTermHits } from "./clue-terms.js";
 import { rankHousePhrases, type KeynessReference } from "./keyness.js";
+import { paragraphQuoteDefects } from "./quotes.js";
 import type {
   ContractCore,
   Finding,
@@ -101,6 +102,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   introduction_missing: "craft",
   body_tail: "craft",
   house_phrase: "craft",
+  quote_malformed: "defect",
   register_sentence: "craft",
   abstract_subject: "craft",
   operation_narrated: "craft",
@@ -639,6 +641,19 @@ export const collectCheckerFindings = (
       if (tails.length < 4) continue;
       for (const sentence of tails.slice(3, 15)) {
         out.push(finding("body_tail", chapter, sentence, "cut the clause after the comma that names a part of the body (\", her gaze fixed…\"); end the sentence before it"));
+      }
+    }
+  }
+
+  // A_111 (PROSE_V2_AUDIT_FIXES) — a quotation the page cannot parse goes to the editor as a defect: an opening quote inside
+  // an open one, or a closing quote with none open (quotes.ts). MEASURED: arm A′ (read 88) shipped 12 such paragraphs.
+  // The quote is the paragraph itself (cut at a sentence end past 400 characters), so the editor's find is verbatim.
+  if (auditFixesEnabled()) {
+    for (const [chapter, written] of byChapter) {
+      for (const paragraph of written.paragraphs ?? []) {
+        if (paragraphQuoteDefects(paragraph) === 0) continue;
+        const cut = paragraph.length <= 400 ? paragraph : paragraph.slice(0, paragraph.indexOf(". ", 380) > 0 ? paragraph.indexOf(". ", 380) + 1 : 400);
+        out.push(finding("quote_malformed", chapter, cut, "a quotation mark opens inside an open quotation, or closes one that never opened — give each line of speech its own pair of marks and keep the narration outside them"));
       }
     }
   }

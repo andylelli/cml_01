@@ -486,6 +486,7 @@ export const FINDING_CLASSES = [
   "body_tail",
   // A_110 M8 — a four-word phrase this book repeats far beyond the canon's rate (keyness, G²)
   "house_phrase",
+  "quote_malformed",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];
@@ -533,6 +534,8 @@ export type GuardName =
   | "noNewDuplicate"
   | "registerNotWorse"
   | "noOrphanedTag"
+  | "noNewQuoteDefect"
+  | "culpritNamingIntact"
   | "lengthWithin";
 
 export interface EditOutcome {

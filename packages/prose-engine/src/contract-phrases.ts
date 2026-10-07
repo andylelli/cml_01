@@ -39,6 +39,10 @@ export const TEMPLATE = {
   oneIntroduction: "at least two paragraphs between one introduction and the next",
   firstDoesOrSays: "the sentence where they first do or say something",
   saysWhenItIs: "One of those two paragraphs says when it is",
+  // A_111 — the opening's sequence (the roll-call fix).
+  openingInOrder: "This chapter's opening, in this order",
+  firstAppearsDoing: "first appears doing something, and that sentence says who",
+  oneNameAfter: "From a person's second mention on, call them by one name",
   lineAboutDeath: "says one line about",
   sendsForPolice: "Somebody sends for the police and a doctor",
   absenceOnce: "Once in this chapter somebody comes upon something of theirs and leaves it where it is",
@@ -74,6 +78,9 @@ export const CONDITIONAL_TEMPLATE_PHRASES: ReadonlySet<string> = new Set([
   TEMPLATE.lineAboutDeath,
   TEMPLATE.sendsForPolice,
   TEMPLATE.absenceOnce,
+  TEMPLATE.openingInOrder,
+  TEMPLATE.firstAppearsDoing,
+  TEMPLATE.oneNameAfter,
 ]);
 
 /** The template phrases this book's contract actually sent: every unconditional phrase, and a gated one only if printed. */

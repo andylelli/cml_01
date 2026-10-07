@@ -172,6 +172,13 @@ export const clearTheOpening = (scenes: SceneContract[]): void => {
 const withArticle = (phrase: string): string =>
   /^(?:the|a|an)\s/i.test(phrase) ? phrase : `${/^[aeiou]/i.test(phrase) ? "an" : "a"} ${phrase}`;
 
+/** A newcomer's facts as fields: the occupation and the relation (or the relation alone when it names the occupation). */
+const introFacts = (i: NonNullable<Opening["introductions"]>[number]): string => {
+  const last = i.occupation.split(/\s+/).pop() ?? "";
+  const what = i.relation && last && i.relation.toLowerCase().includes(last) ? i.relation : [i.occupation, i.relation].filter(Boolean).join("; ");
+  return [what, i.appearance ? `what anybody first notices: ${i.appearance}` : "", i.whyHere ? `why here: ${i.whyHere}` : ""].filter(Boolean).join("; ");
+};
+
 /** The chapter-contract lines for the opening's additions. */
 export const openingLines = (o: Opening | undefined): string[] => {
   if (!o) return [];
@@ -195,6 +202,34 @@ export const openingLines = (o: Opening | undefined): string[] => {
    * the sentence where that person first does or says something.
    */
   const intros = o.introductions ?? [];
+  /**
+   * A_111 — the roll call. When the newcomers and the death share a chapter, its two blocks (introduce each newcomer; each
+   * witness says one line about the death) were answered together, one paragraph per person: arms C and D opened four
+   * paragraphs running on `"<line about the death>," X said. X, <appositive>…`, and the spacing count of P-3b was ignored.
+   * Same-shape requirements collide (A_102 §8); a SEQUENCE separates them — each newcomer's first appearance is its own
+   * numbered step, with another of the chapter's beats between every two, and each witness speaks after their own
+   * introduction. Then one count, against the twelve name-led paragraphs arm D wrote after the introductions.
+   */
+  if (intros.length > 0 && o.death) {
+    const d = o.death;
+    const deathLine = (name: string) => `${name} says one line about ${d.victim}'s death — what it is to them, in their own words`;
+    const pool: string[] = [];
+    if (d.who) pool.push(`the body: the first time ${d.victim} is named, a clause says who ${d.pronoun} ${d.pronoun === "they" ? "were" : "was"} — ${d.who}`);
+    if (d.authority) pool.push(`somebody sends for the police and a doctor, and they cannot come yet: ${d.authority}`);
+    const newcomers = new Set(intros.map((i) => i.name));
+    for (const w of d.witnesses) if (!newcomers.has(w)) pool.push(deathLine(w));
+    const steps: string[] = [];
+    for (const i of intros) {
+      if (steps.length > 0) steps.push(pool.shift() ?? "a paragraph of what somebody already here does, with no newcomer in it");
+      steps.push(`${i.name} first appears doing something, and that sentence says who ${i.pronoun}, in your own words — ${introFacts(i)}`);
+      if (d.witnesses.includes(i.name)) pool.push(deathLine(i.name));
+    }
+    steps.push(...pool);
+    lines.push("This chapter's opening, in this order — each step its own paragraph or more:");
+    steps.forEach((step, k) => lines.push(`  ${k + 1}. ${step}`));
+    lines.push("From a person's second mention on, call them by one name: the first name, or a title and the surname.");
+    return lines;
+  }
   if (intros.length > 0) {
     lines.push(
       `${intros.length === 1 ? "One person is" : `${intros.length} people are`} on the page for the first time here. ` +
