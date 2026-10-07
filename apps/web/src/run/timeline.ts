@@ -37,10 +37,11 @@ export const STAGE_END = {
   temporal: 26,
   world: 30,
   outline: 34,
-  /** The last chapter is written; the critic, editor and validation follow. */
+  /** The last chapter is written; the critic and editor follow, then the rubric scorer. */
   chapters: 90,
-  prose: 92,
-  validation: 97,
+  prose: 91,
+  editing: 91,
+  scoring: 98,
   complete: 100,
 } as const;
 
@@ -187,10 +188,15 @@ export const progressPercentFromEvent = (
       return E.outline;
     }
 
-    // ── Validation (agent9 post-prose gate) ───────────────────────────────────
+    // ── Critic + editor (agent9 v2) ───────────────────────────────────────────
+    case "editing":
+      return E.editing;
+
+    // ── Rubric scoring (finalize.ts), and v1's post-prose validation gate ────────
+    case "scoring":
+      return E.scoring;
     case "validation":
-      if (message.includes("passed") || message.includes("auto-fix") || message.includes("encoding")) return E.validation;
-      return E.prose + 1;
+      return message.includes("passed") || message.includes("auto-fix") || message.includes("encoding") ? E.scoring : E.prose + 1;
 
     // ── Complete ──────────────────────────────────────────────────────────────
     case "pipeline_complete":
@@ -203,56 +209,109 @@ export const progressPercentFromEvent = (
   }
 };
 
+/**
+ * The stages the tick list shows, in pipeline order (mystery-orchestrator.ts).
+ *
+ * `rank` is the order a stage can START in. Profiles, locations and the period share one rank:
+ * with AGENT_PROFILES_PARALLEL they run at once (pipeline/stages.ts runProfileStages), so seeing a
+ * locations event says nothing about whether the character profiles have finished.
+ *
+ * `end` is the STAGE_END milestone a stage's own finishing message reaches; a stage with no
+ * finishing message of its own (prose in v2, editing, scoring) finishes when a later rank starts.
+ */
+const STAGES: readonly {
+  id: string;
+  label: string;
+  doneEvent: string;
+  runningStage: string;
+  rank: number;
+  end?: number;
+}[] = [
+  { id: "setting",           label: "Setting",        doneEvent: "setting",            runningStage: "setting",            rank: 0,  end: STAGE_END.setting },
+  { id: "cast",              label: "Cast",           doneEvent: "cast",               runningStage: "cast",               rank: 1,  end: STAGE_END.cast },
+  { id: "background",        label: "Background",     doneEvent: "background_context", runningStage: "background-context", rank: 2,  end: STAGE_END.background },
+  { id: "hard_logic",        label: "Hard Logic",     doneEvent: "hard_logic_devices", runningStage: "hard_logic_devices", rank: 3,  end: STAGE_END.hardLogic },
+  { id: "cml",               label: "CML",            doneEvent: "cml",                runningStage: "cml",                rank: 4,  end: STAGE_END.cml },
+  { id: "novelty_audit",     label: "Novelty Audit",  doneEvent: "novelty_audit",      runningStage: "novelty",            rank: 5,  end: STAGE_END.novelty },
+  { id: "clues",             label: "Clues",          doneEvent: "clues",              runningStage: "clues",              rank: 6,  end: STAGE_END.clues },
+  { id: "fairplay",          label: "Fair-play",      doneEvent: "fair_play_report",   runningStage: "fairplay",           rank: 7,  end: STAGE_END.fairplay },
+  { id: "profiles",          label: "Char. Profiles", doneEvent: "character_profiles", runningStage: "profiles",           rank: 8,  end: STAGE_END.profiles },
+  { id: "location_profiles", label: "Locations",      doneEvent: "location_profiles",  runningStage: "location-profiles",  rank: 8,  end: STAGE_END.locations },
+  { id: "temporal_context",  label: "Era & Culture",  doneEvent: "temporal_context",   runningStage: "temporal-context",   rank: 8,  end: STAGE_END.temporal },
+  { id: "world_builder",     label: "World Builder",  doneEvent: "world_builder",      runningStage: "world-builder",      rank: 9,  end: STAGE_END.world },
+  { id: "outline",           label: "Outline",        doneEvent: "outline",            runningStage: "narrative",          rank: 10 },
+  { id: "prose",             label: "Chapters",       doneEvent: "prose",              runningStage: "prose",              rank: 11, end: STAGE_END.prose },
+  { id: "editing",           label: "Editing",        doneEvent: "editing",            runningStage: "editing",            rank: 12 },
+  // v1's post-prose gate reported under "validation"; it belongs with the scoring tail.
+  { id: "scoring",           label: "Scoring",        doneEvent: "scoring",            runningStage: "scoring",            rank: 13 },
+];
+
+const RANK_OF_STEP = new Map<string, number>([
+  ...STAGES.map((s) => [s.runningStage, s.rank] as [string, number]),
+  ["novelty_math", 5],
+  ["validation", 13],
+]);
+const STAGE_OF_STEP = new Map<string, string>([
+  ...STAGES.map((s) => [s.runningStage, s.id] as [string, string]),
+  ["novelty_math", "novelty_audit"],
+  ["validation", "scoring"],
+]);
+
+const FINISH_STEPS = new Set(["pipeline_complete", "run_finished", "complete"]);
+const FAIL_STEPS = new Set(["pipeline_error", "run_failed"]);
+
+/**
+ * Each stage's status, from the events alone.
+ *
+ * A stage is COMPLETE when its own finishing message has arrived, when a later-ranked stage has
+ * started since its last event, or when its *_done event arrives. That last one is not enough on its
+ * own: server.ts emits every *_done only after the whole pipeline returns, so relying on it showed
+ * every finished stage as "pending" for the whole run. A stage with no events of its own but a
+ * later stage running was restored by a resume (RESUME_REDO=prose) and is complete too.
+ */
 export const deriveStages = (events: readonly RunEvent[]): PipelineStep[] => {
-  // doneEvent: the part of the "*_done" event name (without "_done") emitted by server.ts
-  // runningStage: the progress stage name emitted by the orchestrator's reportProgress()
-  const steps: { id: string; label: string; doneEvent: string; runningStage: string }[] = [
-    { id: "setting",          label: "Setting",       doneEvent: "setting",            runningStage: "setting" },
-    { id: "cast",             label: "Cast",          doneEvent: "cast",               runningStage: "cast" },
-    { id: "background",       label: "Background",    doneEvent: "background_context", runningStage: "background-context" },
-    { id: "hard_logic",       label: "Hard Logic",    doneEvent: "hard_logic_devices", runningStage: "hard_logic_devices" },
-    { id: "cml",              label: "CML",           doneEvent: "cml",                runningStage: "cml" },
-    { id: "novelty_audit",    label: "Novelty Audit", doneEvent: "novelty_audit",      runningStage: "novelty" },
-    { id: "clues",            label: "Clues",         doneEvent: "clues",              runningStage: "clues" },
-    { id: "fairplay",         label: "Fair-play",     doneEvent: "fair_play_report",   runningStage: "fairplay" },
-    { id: "profiles",         label: "Char. Profiles",doneEvent: "character_profiles", runningStage: "profiles" },
-    { id: "location_profiles",label: "Locations",     doneEvent: "location_profiles",  runningStage: "location-profiles" },
-    { id: "temporal_context", label: "Era & Culture", doneEvent: "temporal_context",   runningStage: "temporal-context" },
-    { id: "world_builder",    label: "World Builder", doneEvent: "world_builder",      runningStage: "world-builder" },
-    { id: "outline",          label: "Outline",       doneEvent: "outline",            runningStage: "narrative" },
-    { id: "prose",            label: "Prose",         doneEvent: "prose",              runningStage: "prose" },
-  ];
-
+  const lastIndex = new Map<string, number>();
+  const finishedBy = new Map<string, boolean>();
+  /** For each event index, the highest rank of any stage event from that index on. */
+  const stageEvents: { index: number; rank: number }[] = [];
   const completedDoneEvents = new Set<string>();
-  const failedIds = new Set<string>();
-  const seenStages = new Set<string>();
-  let runningStage: string | null = null;
+  let runComplete = false;
+  let failedAt = -1;
 
-  for (const event of events) {
+  events.forEach((event, index) => {
     const step = event.step.toLowerCase();
     if (step.endsWith("_done")) {
       completedDoneEvents.add(step.replace(/_done$/, ""));
-    } else if (["pipeline_complete", "run_finished", "complete"].includes(step)) {
-      steps.forEach((s) => completedDoneEvents.add(s.doneEvent));
-    } else if (["pipeline_error", "run_failed"].includes(step)) {
-      if (runningStage) {
-        const failedStep = steps.find((s) => s.runningStage === runningStage);
-        if (failedStep) failedIds.add(failedStep.id);
-      }
-    } else if (!step.includes("_done") && !["pipeline_started", "run_started", "pipeline_warnings"].includes(step)) {
-      runningStage = step;
-      seenStages.add(step);
+      return;
     }
-  }
+    if (FINISH_STEPS.has(step)) {
+      runComplete = true;
+      return;
+    }
+    if (FAIL_STEPS.has(step)) {
+      if (failedAt < 0) failedAt = index;
+      return;
+    }
+    const id = STAGE_OF_STEP.get(step);
+    const rank = RANK_OF_STEP.get(step);
+    if (id === undefined || rank === undefined) return;
+    lastIndex.set(id, index);
+    const stage = STAGES.find((s) => s.id === id)!;
+    const percent = progressPercentFromEvent(event);
+    finishedBy.set(id, stage.end !== undefined && step === stage.runningStage && percent !== null && percent >= stage.end);
+    stageEvents.push({ index, rank });
+  });
 
-  return steps.map((s): PipelineStep => {
+  const laterRankStartedAfter = (rank: number, index: number) =>
+    stageEvents.some((e) => e.rank > rank && e.index > index);
+
+  return STAGES.map((s): PipelineStep => {
+    const last = lastIndex.get(s.id);
     let status: PipelineStep["status"] = "pending";
-    if (completedDoneEvents.has(s.doneEvent)) status = "complete";
-    else if (failedIds.has(s.id)) status = "failed";
-    else if (runningStage === s.runningStage) status = "running";
-    // The *_done events arrive only after the whole pipeline returns (server.ts), so a stage the run
-    // has already left would otherwise read "pending" until the very end.
-    else if (seenStages.has(s.runningStage)) status = "complete";
+    if (runComplete || completedDoneEvents.has(s.doneEvent)) status = "complete";
+    else if (last === undefined) status = laterRankStartedAfter(s.rank, -1) ? "complete" : "pending";
+    else if (finishedBy.get(s.id) || laterRankStartedAfter(s.rank, last)) status = "complete";
+    else status = failedAt > last ? "failed" : "running";
     return { id: s.id, label: s.label, status };
   });
 };

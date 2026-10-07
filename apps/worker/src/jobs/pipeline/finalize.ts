@@ -32,6 +32,8 @@ import {
 import type { MysteryGenerationInputs } from "../run-contract.js";
 
 export async function runRubricAndContentFilter(ctx: OrchestratorContext) {
+  // Its own stage in the UI list (web/src/run/timeline.ts); it used to run under the last chapter.
+  ctx.reportProgress?.("scoring", "Scoring the finished book...", 98);
   await runRubricScoring({
     prose: ctx.prose,
     cml: ctx.cml,

@@ -1,5 +1,5 @@
 /**
- * The pipeline's fourteen stages, in the reader's language.
+ * The pipeline's stages, in the reader's language — one entry per `deriveStages` id.
  *
  * The console labels them by agent and artifact — "CML", "Hard Logic", "Novelty Audit", "World
  * Builder" — which is correct for an operator and meaningless to someone waiting for a story. The
@@ -30,6 +30,8 @@ export const READER_STAGES: readonly ReaderStage[] = [
 	{ id: "world_builder", label: "Continuity", blurb: "Binding every detail into one consistent world." },
 	{ id: "outline", label: "The shape", blurb: "Ordering the chapters and the reveals." },
 	{ id: "prose", label: "The writing", blurb: "Writing it." },
+	{ id: "editing", label: "The edit", blurb: "Reading it back and mending what does not hold." },
+	{ id: "scoring", label: "The last read", blurb: "Giving it a final read before it is yours." },
 ];
 
 const BY_ID = new Map(READER_STAGES.map((s) => [s.id, s]));

@@ -91,8 +91,73 @@ describe("stages already passed read complete during the run", () => {
   });
 
   it("leaves stages not yet reached pending", () => {
-    const stages = deriveStages(V2_RUN.slice(0, indexOf("21 clues distributed")));
+    const stages = deriveStages(V2_RUN.slice(0, indexOf("Extracting and organizing clues...")));
     expect(stages.find((s) => s.id === "clues")?.status).toBe("running");
     expect(stages.find((s) => s.id === "profiles")?.status).toBe("pending");
+  });
+});
+
+const ev = (step: string, message: string) => ({ step, message });
+
+describe("the tick list matches what the pipeline is doing", () => {
+  const upToFairplay = V2_RUN.slice(0, indexOf("Blind reader simulation: PASS"));
+  const status = (events: { step: string; message: string }[], id: string) =>
+    deriveStages(events).find((s) => s.id === id)?.status;
+
+  it("shows the three profile agents running at once under AGENT_PROFILES_PARALLEL", () => {
+    const parallel = [
+      ...upToFairplay,
+      ev("profiles", "Generating character profiles..."),
+      ev("location-profiles", "Generating location profiles..."),
+      ev("temporal-context", "Generating temporal context..."),
+      ev("temporal-context", "Temporal context generated (December 1930)"),
+    ];
+    expect(status(parallel, "profiles")).toBe("running");
+    expect(status(parallel, "location_profiles")).toBe("running");
+    expect(status(parallel, "temporal_context")).toBe("complete");
+    expect(status(parallel, "world_builder")).toBe("pending");
+  });
+
+  it("ticks off the chapters, then editing, then scoring", () => {
+    const writing = [...V2_RUN.slice(0, indexOf("Writing chapters 10-10 (3 drafts)..."))];
+    expect(status(writing, "prose")).toBe("running");
+    expect(status(writing, "editing")).toBe("pending");
+
+    const editing = [...writing, ev("editing", "Reviewing the draft and editing 10 chapter(s)...")];
+    expect(status(editing, "prose")).toBe("complete");
+    expect(status(editing, "editing")).toBe("running");
+    expect(deriveProgress(editing).percent).toBe(STAGE_END.editing);
+
+    const scoring = [...editing, ev("scoring", "Scoring the finished book...")];
+    expect(status(scoring, "editing")).toBe("complete");
+    expect(status(scoring, "scoring")).toBe("running");
+
+    const done = [...scoring, ev("complete", "Mystery generation complete!")];
+    expect(deriveStages(done).every((s) => s.status === "complete")).toBe(true);
+  });
+
+  it("reads the chapter total from the worker's own message when it carries one", () => {
+    expect(deriveProgress([ev("prose", "Writing chapters 7-7 of 12 (3 drafts)...")]).percent).toBe(chapterPercent(6, 12));
+  });
+
+  it("shows a prose-only resume's restored stages as complete, not pending", () => {
+    const resume = [ev("run_started", "Pipeline run started"), ev("prose", "Writing chapters 1-1 of 10 (3 drafts)...")];
+    const stages = deriveStages(resume);
+    for (const s of stages.slice(0, stages.findIndex((x) => x.id === "prose"))) expect(s.status, s.id).toBe("complete");
+    expect(status(resume, "prose")).toBe("running");
+  });
+
+  it("marks every stage still running as failed when the run dies, and only those", () => {
+    const died = [
+      ...upToFairplay,
+      ev("profiles", "Generating character profiles..."),
+      ev("location-profiles", "Generating location profiles..."),
+      ev("location-profiles", "Location profiles generated (4 locations)"),
+      ev("pipeline_error", "Character profiles failed"),
+    ];
+    expect(status(died, "profiles")).toBe("failed");
+    expect(status(died, "location_profiles")).toBe("complete");
+    expect(status(died, "fairplay")).toBe("complete");
+    expect(status(died, "world_builder")).toBe("pending");
   });
 });

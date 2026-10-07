@@ -131,6 +131,8 @@ export interface MysteryGenerationProgress {
     | "temporal-context"
     | "world-builder"
     | "prose"
+    | "editing"
+    | "scoring"
     | "validation"
     | "novelty"
     | "novelty_math"
