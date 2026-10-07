@@ -3276,3 +3276,10 @@ owner's read is held. Upstream: innocent alibis miss the time of death in 50% of
 (`AGENT3_ALIBI_COVERS`) lifts harness coverage 79% → 90%; P-8 (`AGENT3_ONE_MECHANISM`) shows no effect. The harness
 itself had been sending a prompt without the locked facts (fixed). Next paid step: a full-run pair with the upstream
 levers (P-10), then the read.
+
+**§33 UPDATE 20 — the P-6 books were read (2026-10-07): A′ 88, C 86.** The shipped configuration, with the day's
+unconditional instrument fixes, wrote an 88 on seed 82094 — equal to the best read on the ledger. Everything on (A_110
+arm B + the V batch) wrote an 86 with the best prose mark yet for v2 (8: "fewer doubled lines and scaffold glitches")
+and one mark less in plot, ending and dialogue, for one named reason: the culprit "framed very strongly from the
+beginning". Within noise of each other. The agent self-read predicted 72–76 — it finds defects, it does not score.
+Next: arm D = C + `PROSE_V2_SCHEDULE` (the culprit's clues show their fact before the test and their meaning at it).

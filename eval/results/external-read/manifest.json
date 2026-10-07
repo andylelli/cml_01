@@ -35,7 +35,49 @@
       "humour_wit": 8
     },
     "externalCategorySum": 84,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalReader": null,
+    "externalReadDate": null
+  },
+  {
+    "bundleId": "read-20261006-2205",
+    "storyPath": "stories/story_20261006-2205/resumed_resume_1791319669027.md",
+    "readPath": "stories/story_20261006-2205/chatgpt-review.txt",
+    "externalFinal": 88,
+    "externalReader": null,
+    "externalReadDate": null,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 9,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 9,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Rotating wall/panel in sealed room is a strong classic mystery device.",
+      "opening_hook": "Body, letter opener, sealed room, hidden hinge — immediate puzzle.",
+      "plot_structure": "Much cleaner: clue → alibis → clock → carpet wear → demonstration → release.",
+      "character_clarity": "Adela, Harriet, Marguerite, Ottoline, Ivor all have defined roles.",
+      "dialogue": "Better wit and sharper emotional exchanges than the previous version.",
+      "atmosphere": "Manor, frost, carpet, library, laundry, circus echoes — strong unity.",
+      "clues": "Strong mechanism; motive still needs one sharper concrete detail.",
+      "pacing": "Mostly good; Chapter 7 has some messy quoted/scaffold patches.",
+      "ending": "The live panel demonstration works very well.",
+      "prose": "Improved, but still has doubled phrases and stray generated phrasing.",
+      "character_life": "The best part: aftermath gives Harriet/Marguerite/Ottoline real emotional lives.",
+      "humour_wit": "Harriet and Ottoline both land good lines; Adela’s dryness works."
+    },
+    "externalSupplementary": {
+      "character_life": 9,
+      "humour_wit": 8
+    },
+    "externalCategorySum": 83,
+    "externalOffset": 5
   },
   {
     "bundleId": "read-20260912-1815",
@@ -75,7 +117,9 @@
       "character_life": 8
     },
     "externalCategorySum": 84,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "2026-08-06-2255-weighted-pendulum",
@@ -115,7 +159,9 @@
     },
     "externalCategorySum": 83,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260817-2209",
@@ -148,7 +194,9 @@
     },
     "externalCategorySum": 82,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260924-1445",
@@ -186,7 +234,49 @@
       "humour_wit": 8
     },
     "externalCategorySum": 80,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
+  },
+  {
+    "bundleId": "read-20261006-2215",
+    "storyPath": "stories/story_20261006-2215/resumed_resume_1791320735663.md",
+    "readPath": "stories/story_20261006-2215/chatgpt-review.txt",
+    "externalFinal": 86,
+    "externalReader": null,
+    "externalReadDate": null,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 8
+    },
+    "externalNotes": {
+      "premise": "Rotating wall + stopped clock remains a very strong classic mechanism.",
+      "opening_hook": "More atmospheric than before, though slower.",
+      "plot_structure": "Cleaner, but slightly too linear and obvious.",
+      "character_clarity": "Everyone’s role is clear; Ivor is perhaps too clearly guilty too early.",
+      "dialogue": "Smoother, less broken, but less sharp than the previous version.",
+      "atmosphere": "Excellent manor/circus contrast, fog, stables, velvet, sawdust.",
+      "clues": "Mechanism works; clock clue is improved.",
+      "pacing": "Cleaner chapter flow, though reveal has less surprise.",
+      "ending": "Solid, but the proof is more stated than dramatized.",
+      "prose": "Major improvement: fewer doubled lines and scaffold glitches.",
+      "character_life": "Good, but less emotionally rich than the previous version’s Chapter 9–10.",
+      "humour_wit": "Some nice dry lines, but Harriet/Ottoline are less lively than before."
+    },
+    "externalSupplementary": {
+      "character_life": 8,
+      "humour_wit": 7
+    },
+    "externalCategorySum": 81,
+    "externalOffset": 5
   },
   {
     "bundleId": "read-20260823-2038",
@@ -219,7 +309,9 @@
     },
     "externalCategorySum": 80,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260828-2301",
@@ -252,7 +344,9 @@
     },
     "externalCategorySum": 80,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260905-1242",
@@ -288,7 +382,9 @@
       "character_life": 8
     },
     "externalCategorySum": 80,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260923-1916",
@@ -326,7 +422,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 79,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260924-1923",
@@ -364,7 +462,9 @@
       "humour_wit": 8
     },
     "externalCategorySum": 81,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
@@ -404,7 +504,9 @@
     },
     "externalCategorySum": 79,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260814-2033",
@@ -437,7 +539,9 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 6,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260829-1041",
@@ -470,7 +574,9 @@
     },
     "externalSupplementary": {},
     "externalCategorySum": 78,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260902-1846",
@@ -506,7 +612,9 @@
       "character_life": 8
     },
     "externalCategorySum": 79,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260911-1701",
@@ -542,7 +650,9 @@
       "character_life": 8
     },
     "externalCategorySum": 78,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260922-1857",
@@ -580,7 +690,9 @@
       "humour_wit": 8
     },
     "externalCategorySum": 78,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260924-1935",
@@ -618,7 +730,9 @@
       "humour_wit": 8
     },
     "externalCategorySum": 80,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260930-2042",
@@ -656,7 +770,9 @@
       "humour_wit": 8
     },
     "externalCategorySum": 79,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260904-1711",
@@ -692,7 +808,9 @@
       "character_life": 7
     },
     "externalCategorySum": 76,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260825-1838",
@@ -725,7 +843,9 @@
     },
     "externalCategorySum": 77,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260826-1753",
@@ -758,7 +878,9 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260830-1850",
@@ -791,7 +913,9 @@
     },
     "externalSupplementary": {},
     "externalCategorySum": 73,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260901-2241",
@@ -827,7 +951,9 @@
       "character_life": 7
     },
     "externalCategorySum": 74,
-    "externalOffset": 8
+    "externalOffset": 8,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260904-2035",
@@ -863,7 +989,9 @@
       "character_life": 8
     },
     "externalCategorySum": 75,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260912-1507",
@@ -899,7 +1027,9 @@
       "character_life": 7
     },
     "externalCategorySum": 74,
-    "externalOffset": 8
+    "externalOffset": 8,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260923-1806",
@@ -937,7 +1067,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 76,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20261002-2110",
@@ -975,7 +1107,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 75,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260724-1347",
@@ -1008,7 +1142,9 @@
     },
     "externalCategorySum": 79,
     "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260819-2047",
@@ -1041,7 +1177,9 @@
     },
     "externalCategorySum": 74,
     "externalOffset": 7,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260823-1715",
@@ -1074,7 +1212,9 @@
     },
     "externalCategorySum": 79,
     "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260827-2019",
@@ -1107,7 +1247,9 @@
     },
     "externalCategorySum": 76,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260723-1620",
@@ -1140,7 +1282,9 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "2026-08-02-1810-clockwork-deceit",
@@ -1180,7 +1324,9 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260825-2102",
@@ -1213,7 +1359,9 @@
     },
     "externalCategorySum": 76,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260913-1806",
@@ -1249,7 +1397,9 @@
       "character_life": 7
     },
     "externalCategorySum": 71,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260922-1848",
@@ -1287,7 +1437,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 72,
-    "externalOffset": 8
+    "externalOffset": 8,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260922-1900",
@@ -1325,7 +1477,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 73,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20261002-1830",
@@ -1363,7 +1517,9 @@
       "humour_wit": 7
     },
     "externalCategorySum": 75,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260724-1747",
@@ -1399,7 +1555,9 @@
     "externalSupplementary": {},
     "externalEarlierReads": [
       81
-    ]
+    ],
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260826-1708",
@@ -1432,7 +1590,9 @@
     },
     "externalCategorySum": 75,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260901-2136",
@@ -1468,7 +1628,9 @@
       "character_life": 7
     },
     "externalCategorySum": 74,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260911-2112",
@@ -1504,7 +1666,9 @@
       "character_life": 7
     },
     "externalCategorySum": 70,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "probe-1-clockwork-deception",
@@ -1545,7 +1709,9 @@
     },
     "externalCategorySum": 74,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260815-2027",
@@ -1578,7 +1744,9 @@
     },
     "externalCategorySum": 72,
     "externalOffset": 6,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260903-0738",
@@ -1614,7 +1782,9 @@
       "character_life": 7
     },
     "externalCategorySum": 70,
-    "externalOffset": 8
+    "externalOffset": 8,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260908-1829",
@@ -1650,7 +1820,9 @@
       "character_life": 7
     },
     "externalCategorySum": 67,
-    "externalOffset": 11
+    "externalOffset": 11,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20261002-0022",
@@ -1688,7 +1860,9 @@
       "humour_wit": 6
     },
     "externalCategorySum": 68,
-    "externalOffset": 10
+    "externalOffset": 10,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260827-2005",
@@ -1721,7 +1895,9 @@
     },
     "externalCategorySum": 72,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260903-2136",
@@ -1757,7 +1933,9 @@
       "character_life": 7
     },
     "externalCategorySum": 66,
-    "externalOffset": 11
+    "externalOffset": 11,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260916-1814",
@@ -1795,7 +1973,9 @@
       "humour_wit": 6
     },
     "externalCategorySum": 68,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "s0-4-identity",
@@ -1836,7 +2016,9 @@
     },
     "externalCategorySum": 73,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260723-2051",
@@ -1869,7 +2051,9 @@
     },
     "externalCategorySum": 73,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260807-1412",
@@ -1902,7 +2086,9 @@
     },
     "externalCategorySum": 68,
     "externalOffset": 8,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260903-1907",
@@ -1938,7 +2124,9 @@
       "character_life": 6
     },
     "externalCategorySum": 65,
-    "externalOffset": 11
+    "externalOffset": 11,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "s0-1-poison",
@@ -1979,7 +2167,9 @@
     },
     "externalCategorySum": 70,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260630-1304",
@@ -2012,7 +2202,9 @@
     },
     "externalCategorySum": 71,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260831-2025",
@@ -2048,7 +2240,9 @@
       "character_life": 7
     },
     "externalCategorySum": 65,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260925-1823",
@@ -2086,7 +2280,9 @@
       "humour_wit": 6
     },
     "externalCategorySum": 65,
-    "externalOffset": 9
+    "externalOffset": 9,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "s0-3-acoustic",
@@ -2127,7 +2323,9 @@
     },
     "externalCategorySum": 68,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260528-1952",
@@ -2160,7 +2358,9 @@
     },
     "externalCategorySum": 68,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260724-1841",
@@ -2193,7 +2393,9 @@
     },
     "externalCategorySum": 69,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260622-2122",
@@ -2226,7 +2428,9 @@
     },
     "externalCategorySum": 67,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260627-2238",
@@ -2259,7 +2463,9 @@
     },
     "externalCategorySum": 67,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260622-2214",
@@ -2292,7 +2498,9 @@
     },
     "externalCategorySum": 65,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260629-2127",
@@ -2325,7 +2533,9 @@
     },
     "externalCategorySum": 66,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260611-1714",
@@ -2358,7 +2568,9 @@
     },
     "externalCategorySum": 63,
     "externalOffset": 6,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "s0-2-tide",
@@ -2399,7 +2611,9 @@
     },
     "externalCategorySum": 64,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260925-1318",
@@ -2437,7 +2651,9 @@
       "humour_wit": 4
     },
     "externalCategorySum": 58,
-    "externalOffset": 11
+    "externalOffset": 11,
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "2026-08-02-1936-clocks-deception",
@@ -2477,7 +2693,9 @@
     },
     "externalCategorySum": 66,
     "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260529-2124",
@@ -2510,7 +2728,9 @@
     },
     "externalCategorySum": 63,
     "externalOffset": 4,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260520-1846",
@@ -2543,7 +2763,9 @@
     },
     "externalCategorySum": 58,
     "externalOffset": 6,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260522-2206",
@@ -2576,7 +2798,9 @@
     },
     "externalCategorySum": 54,
     "externalOffset": 7,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260520-2018",
@@ -2609,7 +2833,9 @@
     },
     "externalCategorySum": 55,
     "externalOffset": 5,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260625-2151",
@@ -2642,7 +2868,9 @@
     },
     "externalCategorySum": 55,
     "externalOffset": 1,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260613-2133",
@@ -2675,7 +2903,9 @@
     },
     "externalCategorySum": 52,
     "externalOffset": 1,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260616-1845",
@@ -2708,7 +2938,9 @@
     },
     "externalCategorySum": 53,
     "externalOffset": 0,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260618-0424",
@@ -2717,7 +2949,9 @@
     "externalFinal": 52,
     "externalCategories": {},
     "externalNotes": {},
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260520-2339",
@@ -2750,7 +2984,9 @@
     },
     "externalCategorySum": 45,
     "externalOffset": 3,
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   },
   {
     "bundleId": "read-20260915-2001",
@@ -2759,6 +2995,8 @@
     "externalFinal": null,
     "externalCategories": {},
     "externalNotes": {},
-    "externalSupplementary": {}
+    "externalSupplementary": {},
+    "externalReader": null,
+    "externalReadDate": null
   }
 ]
