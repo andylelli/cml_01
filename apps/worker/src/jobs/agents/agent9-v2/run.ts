@@ -94,6 +94,37 @@ const segmentChaptersPerCall = (): number | undefined => {
 };
 
 /** `PROSE_V2_DRY=1` builds every prompt and makes no call — §10.13's dry run. */
+/**
+ * PROSE_V2_EDITOR_PARALLEL — how many editor calls run at once. Read at call time (ADR-0004).
+ * OFF: 1, the sequential order this stage always had. ON: 4 — the writer already holds three calls
+ * open per segment, so four stays inside the concurrency the deployment has carried.
+ */
+const EDITOR_PARALLEL_LIMIT = 4;
+const editorConcurrency = (): number =>
+  /^(1|true|yes|on)$/i.test(String(process.env.PROSE_V2_EDITOR_PARALLEL ?? "").trim()) ? EDITOR_PARALLEL_LIMIT : 1;
+
+/** `Promise.allSettled` with at most `limit` in flight; results in INPUT order, never arrival order. */
+export const settledInOrder = async <T, R>(
+  items: readonly T[],
+  limit: number,
+  run: (item: T) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> => {
+  const results = new Array<PromiseSettledResult<R>>(items.length);
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const i = next++;
+      try {
+        results[i] = { status: "fulfilled", value: await run(items[i]!) };
+      } catch (reason) {
+        results[i] = { status: "rejected", reason };
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, worker));
+  return results;
+};
+
 const isDryRun = (): boolean => /^(1|true|yes|on)$/i.test(String(process.env.PROSE_V2_DRY ?? "").trim());
 
 const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
@@ -845,44 +876,52 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     if (forThisRound.length === 0) break;
     const nextStanding: Finding[] = standing.filter((f) => !forThisRound.includes(f));
 
-    for (const [chapter, chapterText] of byChapter) {
-      const findings = forThisRound.filter((f) => f.chapter === chapter);
-      if (findings.length === 0) continue;
-      try {
-        const raw = await chat(editor, {
-          system: "You repair specific defects in one chapter and return an edit list. You never rewrite the chapter.",
-          user: buildEditorPrompt({
-            chapter: chapterText,
-            chapterNumber: chapter,
-            findings,
-            scene: contract.scenes.find((s) => s.chapter === chapter),
-          }),
-          maxTokens: 4_000,
-          label: roleLabel("editor", `Ch${chapter}-R${round}`),
-          ctx,
-        });
-        const { chapter: edited, outcome } = applyEditList(chapterText, parseEditList(raw), {
-          scene: contract.scenes.find((s) => s.chapter === chapter),
-          lockedValues,
-          castNames,
+    // Each chapter's edit reads only that chapter and its own findings, so the calls are independent.
+    // PROSE_V2_EDITOR_PARALLEL runs them concurrently; results are APPLIED in chapter order either
+    // way, so warnings, outcomes and the write-back never follow arrival order.
+    const jobs = [...byChapter]
+      .map(([chapter, chapterText]) => ({ chapter, chapterText, findings: forThisRound.filter((f) => f.chapter === chapter) }))
+      .filter((job) => job.findings.length > 0);
+    const results = await settledInOrder(jobs, editorConcurrency(), async ({ chapter, chapterText, findings }) => {
+      const raw = await chat(editor, {
+        system: "You repair specific defects in one chapter and return an edit list. You never rewrite the chapter.",
+        user: buildEditorPrompt({
+          chapter: chapterText,
+          chapterNumber: chapter,
           findings,
-          // A_111 (PROSE_V2_AUDIT_FIXES, read inside the guard): an edit at or after the reveal may not un-name the culprit.
-          ...(chapter >= contract.roles.reveal && contract.fairPlay.culprits[0]
-            ? { culprit: { name: contract.fairPlay.culprits[0], victim: contract.fairPlay.victim, cast: castNames } }
-            : {}),
-        });
-        byChapter.set(chapter, edited);
-        // Write back by IDENTITY, not by position: `written` is missing any chapter the writer did
-        // not deliver, so the index of a chapter number in `expected` is not its index in `written`.
-        const index = written.findIndex((c) => c === chapterText);
-        if (index >= 0) written[index] = edited;
-        editOutcomes.push(outcome);
-        nextStanding.push(...outcome.unresolved);
-      } catch (error) {
-        ctx.warnings.push(`[Agent 9 v2] the editor failed on chapter ${chapter}: ${(error as Error).message}`);
+          scene: contract.scenes.find((s) => s.chapter === chapter),
+        }),
+        maxTokens: 4_000,
+        label: roleLabel("editor", `Ch${chapter}-R${round}`),
+        ctx,
+      });
+      return applyEditList(chapterText, parseEditList(raw), {
+        scene: contract.scenes.find((s) => s.chapter === chapter),
+        lockedValues,
+        castNames,
+        findings,
+        // A_111 (PROSE_V2_AUDIT_FIXES, read inside the guard): an edit at or after the reveal may not un-name the culprit.
+        ...(chapter >= contract.roles.reveal && contract.fairPlay.culprits[0]
+          ? { culprit: { name: contract.fairPlay.culprits[0], victim: contract.fairPlay.victim, cast: castNames } }
+          : {}),
+      });
+    });
+    jobs.forEach(({ chapter, chapterText, findings }, i) => {
+      const result = results[i]!;
+      if (result.status === "rejected") {
+        ctx.warnings.push(`[Agent 9 v2] the editor failed on chapter ${chapter}: ${(result.reason as Error).message}`);
         nextStanding.push(...findings);
+        return;
       }
-    }
+      const { chapter: edited, outcome } = result.value;
+      byChapter.set(chapter, edited);
+      // Write back by IDENTITY, not by position: `written` is missing any chapter the writer did
+      // not deliver, so the index of a chapter number in `expected` is not its index in `written`.
+      const index = written.findIndex((c) => c === chapterText);
+      if (index >= 0) written[index] = edited;
+      editOutcomes.push(outcome);
+      nextStanding.push(...outcome.unresolved);
+    });
     standing = nextStanding;
   }
 

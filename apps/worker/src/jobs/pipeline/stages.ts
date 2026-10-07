@@ -229,21 +229,26 @@ export async function runProfileStages(ctx: OrchestratorContext, skipTracker: Re
       .filter((s) => selection.pending.includes(s.field))
       .map((s) => ({ stage: s, ...isolated() }));
 
-    // Promise.all rejects on the FIRST failure. Each agent keeps its own retry/abort semantics;
-    // a rejection here propagates to the same catch that would have caught it sequentially.
-    await Promise.all(isolatedRuns.map((r) => r.stage.run(r.sub)));
+    // allSettled, not all: `Promise.all` rejected on the FIRST failure and skipped the merge below,
+    // so a failing agent's own warnings — the diagnosis of WHY it failed — never reached the report,
+    // and a sibling that had finished lost its artifact. Wait for all three, merge, then rethrow
+    // the first failure in 2b → 2c → 2d order, which is the one the sequential path would raise.
+    const settled = await Promise.allSettled(isolatedRuns.map((r) => r.stage.run(r.sub)));
 
     // Artifact keys are assigned on the clone, so copy them back explicitly — and ONLY for stages
-    // that ran. Copying from a clone of a skipped stage would write back the restored value, which
-    // is harmless today but would mask a future divergence between clone and ctx.
-    for (const r of isolatedRuns) {
+    // that ran and SUCCEEDED. Copying from a clone of a skipped stage would write back the restored
+    // value, which is harmless today but would mask a future divergence between clone and ctx.
+    isolatedRuns.forEach((r, i) => {
+      if (settled[i]!.status !== "fulfilled") return;
       if (r.stage.field === "characterProfiles") ctx.characterProfiles = r.sub.characterProfiles;
       if (r.stage.field === "locationProfiles") ctx.locationProfiles = r.sub.locationProfiles;
       if (r.stage.field === "temporalContext") ctx.temporalContext = r.sub.temporalContext;
-    }
+    });
     // Deterministic merge order — never arrival order. `isolatedRuns` preserves 2b → 2c → 2d.
     for (const r of isolatedRuns) ctx.warnings.push(...r.buf);
     try { await ctx.savePartialReport(); } catch { /* best-effort */ }
+    const failed = settled.find((s): s is PromiseRejectedResult => s.status === "rejected");
+    if (failed) throw failed.reason;
   } else {
     await stage("characterProfiles", (c) => runAgent2b(c)); // Character Profiles
     await stage("locationProfiles", (c) => runAgent2c(c)); // Location Profiles
